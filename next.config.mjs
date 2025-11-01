@@ -52,7 +52,7 @@ const nextConfig = {
     return [
       {
         source: '/__clerk/:path*',
-        destination: 'https://clerk.adwiise.com/:path*',
+        destination: 'https://clerk.event-site-manager.com/:path*',
       },
     ];
   },
