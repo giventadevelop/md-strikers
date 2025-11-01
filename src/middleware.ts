@@ -11,8 +11,8 @@ import { NextResponse } from "next/server";
  */
 
 // Compute satellite config safely for production to avoid missing domain/proxyUrl
-const isSatEnv = process.env.NEXT_PUBLIC_CLERK_IS_SATELLITE === 'true' || process.env.NEXT_PUBLIC_APP_URL?.includes('mosc-temp.com') || false;
-const satDomain = process.env.NEXT_PUBLIC_CLERK_DOMAIN || (process.env.NEXT_PUBLIC_APP_URL?.includes('mosc-temp.com') ? 'mosc-temp.com' : undefined);
+const isSatEnv = process.env.NEXT_PUBLIC_CLERK_IS_SATELLITE === 'true' || process.env.NEXT_PUBLIC_APP_URL?.includes('md-strikers.com') || false;
+const satDomain = process.env.NEXT_PUBLIC_CLERK_DOMAIN || (process.env.NEXT_PUBLIC_APP_URL?.includes('md-strikers.com') ? 'www.md-strikers.com' : undefined);
 const satProxyUrl = process.env.NEXT_PUBLIC_CLERK_PROXY_URL;
 const satConfig: any = {};
 if (isSatEnv) {
@@ -49,8 +49,8 @@ export default authMiddleware({
   ...satConfig,
 
   // For Amplify domains, point to primary domain for sign-in
-  signInUrl: process.env.NEXT_PUBLIC_APP_URL?.includes('amplifyapp.com') || process.env.NEXT_PUBLIC_APP_URL?.includes('mosc-temp.com')
-    ? 'https://www.adwiise.com/sign-in'
+  signInUrl: process.env.NEXT_PUBLIC_APP_URL?.includes('amplifyapp.com') || process.env.NEXT_PUBLIC_APP_URL?.includes('md-strikers.com')
+    ? 'https://www.event-site-manager.com/sign-in'
     : '/sign-in',
 
   // Ignore authentication on prefetch requests for public routes

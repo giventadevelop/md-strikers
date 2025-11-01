@@ -22,26 +22,26 @@ export default async function RootLayout({
 }) {
   // Satellite domain configuration for multi-domain support
   // Primary domain: www.event-site-manager.com
-  // Satellite domains: www.mcefee-temp.com (and future tenant domains)
+  // Satellite domains: www.md-strikers.com (and future tenant domains)
   // IMPORTANT: Only apply satellite config in production, not in development (localhost)
 
   const headersList = await headers();
   const hostname = headersList.get('host') || '';
 
   // Detect if this is a satellite domain
-  const isSatellite = hostname.includes('mcefee-temp.com');
+  const isSatellite = hostname.includes('md-strikers.com');
 
   // Satellite domains must redirect to primary domain for authentication
   const clerkProps = isSatellite
     ? {
       isSatellite: true,
-      domain: process.env.NEXT_PUBLIC_CLERK_DOMAIN || 'www.mcefee-temp.com', // Use env var to match DNS record
+      domain: process.env.NEXT_PUBLIC_CLERK_DOMAIN || 'www.md-strikers.com', // Use env var to match DNS record
       signInUrl: 'https://www.event-site-manager.com/sign-in',
       signUpUrl: 'https://www.event-site-manager.com/sign-up',
     }
     : {
       // Primary domain allows redirects from satellites
-      allowedRedirectOrigins: ['https://www.mcefee-temp.com'],
+      allowedRedirectOrigins: ['https://www.md-strikers.com'],
     };
 
   // Determine tenant-scoped admin flag on the server
