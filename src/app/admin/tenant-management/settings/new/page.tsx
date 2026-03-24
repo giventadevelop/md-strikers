@@ -4,7 +4,6 @@ import { createTenantSetting } from '@/app/admin/tenant-management/settings/ApiS
 import { fetchTenantOrganizations } from '@/app/admin/tenant-management/organizations/ApiServerActions';
 import TenantSettingsForm from '@/app/admin/tenant-management/components/TenantSettingsForm';
 import Link from 'next/link';
-import { FaArrowLeft } from 'react-icons/fa';
 import { TenantSettingsFormDTO } from '@/app/admin/tenant-management/types';
 
 interface PageProps {
@@ -43,7 +42,9 @@ export default async function NewTenantSettingsPage({ searchParams }: PageProps)
               href="/admin"
               className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600"
             >
-              <FaArrowLeft className="w-4 h-4 mr-2" />
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
               Admin Dashboard
             </Link>
           </li>

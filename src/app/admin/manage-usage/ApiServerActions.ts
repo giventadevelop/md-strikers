@@ -1,10 +1,13 @@
 // This file was renamed from actions.ts to ApiServerActions.ts as a standard for server-side API calls in this module.
 "use server";
 import { fetchWithJwtRetry } from '@/lib/proxyHandler';
-import { getTenantId } from '@/lib/env';
+import { getTenantId, getApiBaseUrl } from '@/lib/env';
 import { UserProfileDTO } from '@/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+// Lazy getter — evaluated at call time, not module load time (critical for Lambda cold starts)
+function getApiBase() {
+  return getApiBaseUrl();
+}
 
 async function fetchWithJwt(url: string, options: any = {}) {
   const { getCachedApiJwt, generateApiJwt } = await import('@/lib/api/jwt');
@@ -19,7 +22,7 @@ async function fetchWithJwt(url: string, options: any = {}) {
 }
 
 export async function fetchAllUsersServer(): Promise<UserProfileDTO[]> {
-  const url = `${API_BASE_URL}/api/user-profiles?tenantId.equals=${getTenantId()}`;
+  const url = `${getApiBase()}/api/user-profiles?tenantId.equals=${getTenantId()}`;
   const res = await fetchWithJwt(url, { cache: 'no-store' });
   if (!res.ok) return [];
   return res.json();
@@ -27,19 +30,29 @@ export async function fetchAllUsersServer(): Promise<UserProfileDTO[]> {
 
 export async function fetchAdminProfileServer(userId: string): Promise<UserProfileDTO | null> {
   if (!userId) return null;
-  // Use criteria endpoint to guarantee tenant scoping and consistent response shape
-  const params = new URLSearchParams();
-  params.append('userId.equals', userId);
-  params.append('tenantId.equals', getTenantId());
-  params.append('size', '1');
-  const url = `${API_BASE_URL}/api/user-profiles?${params.toString()}`;
-  const res = await fetchWithJwt(url, { cache: 'no-store' });
-  if (!res.ok) return null;
-  const data = await res.json();
-  if (Array.isArray(data) && data.length > 0) return data[0] as UserProfileDTO;
-  // Some backends may return a single object
-  if (data && typeof data === 'object') return data as UserProfileDTO;
-  return null;
+  try {
+    // Use criteria endpoint to guarantee tenant scoping and consistent response shape
+    const params = new URLSearchParams();
+    params.append('userId.equals', userId);
+    params.append('tenantId.equals', getTenantId());
+    params.append('size', '1');
+    const url = `${getApiBase()}/api/user-profiles?${params.toString()}`;
+
+    // Use fetchWithJwtRetry which handles retries and timeouts better
+    const res = await fetchWithJwtRetry(url, {
+      cache: 'no-store',
+    });
+
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) return data[0] as UserProfileDTO;
+    // Some backends may return a single object
+    if (data && typeof data === 'object') return data as UserProfileDTO;
+    return null;
+  } catch (error) {
+    console.error('Error fetching admin profile:', error);
+    return null;
+  }
 }
 
 export async function fetchUsersServer({ search, searchField, status, role, page, pageSize }: {
@@ -59,7 +72,7 @@ export async function fetchUsersServer({ search, searchField, status, role, page
   params.append('page', String(page - 1));
   params.append('size', String(pageSize));
   params.append('tenantId.equals', getTenantId());
-  const res = await fetchWithJwtRetry(`${API_BASE_URL}/api/user-profiles?${params.toString()}`, {
+  const res = await fetchWithJwtRetry(`${getApiBase()}/api/user-profiles?${params.toString()}`, {
     cache: 'no-store',
   });
   const totalCount = res.headers.get('X-Total-Count');
@@ -68,7 +81,7 @@ export async function fetchUsersServer({ search, searchField, status, role, page
 }
 
 export async function patchUserProfileServer(userId: number, payload: Partial<UserProfileDTO>) {
-  const url = `${API_BASE_URL}/api/user-profiles/${userId}`;
+  const url = `${getApiBase()}/api/user-profiles/${userId}`;
 
   const finalPayload = {
     ...payload,
@@ -94,7 +107,7 @@ export async function patchUserProfileServer(userId: number, payload: Partial<Us
 }
 
 export async function bulkUploadUsersServer(users: any[]) {
-  const res = await fetchWithJwtRetry(`${API_BASE_URL}/api/user-profiles/bulk`, {
+  const res = await fetchWithJwtRetry(`${getApiBase()}/api/user-profiles/bulk`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

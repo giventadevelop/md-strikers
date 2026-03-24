@@ -1,15 +1,18 @@
 "use server";
 import { fetchWithJwtRetry } from '@/lib/proxyHandler';
-import { getTenantId, getAppUrl } from '@/lib/env';
+import { getTenantId, getAppUrl, getApiBaseUrl } from '@/lib/env';
 import type { EventMediaDTO } from '@/types';
 import { withTenantId } from '@/lib/withTenantId';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+// Lazy getter — evaluated at call time, not module load time (critical for Lambda cold starts)
+function getApiBase() {
+  return getApiBaseUrl();
+}
 
 export async function fetchUserProfileServer(userId: string) {
   if (!userId) return null;
   const tenantId = getTenantId();
-  const res = await fetchWithJwtRetry(`${API_BASE_URL}/api/user-profiles/by-user/${userId}?tenantId.equals=${tenantId}`, {
+  const res = await fetchWithJwtRetry(`${getApiBase()}/api/user-profiles/by-user/${userId}?tenantId.equals=${tenantId}`, {
     cache: 'no-store',
   });
   if (!res.ok) return null;
@@ -17,7 +20,7 @@ export async function fetchUserProfileServer(userId: string) {
 }
 
 export async function fetchMediaServer(eventId: string) {
-  const url = `${API_BASE_URL}/api/event-medias?eventId.equals=${eventId}&isEventManagementOfficialDocument.equals=false&sort=updatedAt,desc&tenantId.equals=${getTenantId()}`;
+  const url = `${getApiBase()}/api/event-medias?eventId.equals=${eventId}&isEventManagementOfficialDocument.equals=false&sort=updatedAt,desc&tenantId.equals=${getTenantId()}`;
   const res = await fetchWithJwtRetry(url, { cache: 'no-store' });
   if (!res.ok) return [];
   const data = await res.json();
@@ -48,7 +51,7 @@ export async function fetchMediaFilteredServer(
     params.append('eventFlyer.equals', 'true');
   }
 
-  const url = `${API_BASE_URL}/api/event-medias?${params.toString()}`;
+  const url = `${getApiBase()}/api/event-medias?${params.toString()}`;
 
   const response = await fetchWithJwtRetry(url, {
     method: 'GET',
@@ -70,7 +73,7 @@ export async function fetchMediaFilteredServer(
 }
 
 export async function fetchOfficialDocsServer(eventId: string) {
-  const url = `${API_BASE_URL}/api/event-medias?eventId.equals=${eventId}&isEventManagementOfficialDocument.equals=true&sort=updatedAt,desc&tenantId.equals=${getTenantId()}`;
+  const url = `${getApiBase()}/api/event-medias?eventId.equals=${eventId}&isEventManagementOfficialDocument.equals=true&sort=updatedAt,desc&tenantId.equals=${getTenantId()}`;
   const res = await fetchWithJwtRetry(url, { cache: 'no-store' });
   if (!res.ok) return [];
   const data = await res.json();
@@ -182,7 +185,7 @@ export async function uploadMedia(eventId: number, {
 }
 
 export async function deleteMediaServer(mediaId: number | string) {
-  const url = `${API_BASE_URL}/api/event-medias/${mediaId}?tenantId.equals=${getTenantId()}`;
+  const url = `${getApiBase()}/api/event-medias/${mediaId}?tenantId.equals=${getTenantId()}`;
   const res = await fetchWithJwtRetry(url, {
     method: 'DELETE',
     });
@@ -197,7 +200,7 @@ export async function editMediaServer(mediaId: number | string, payload: Partial
   try {
     console.log('Starting direct-to-backend editMediaServer with payload:', payload);
 
-    const url = `${API_BASE_URL}/api/event-medias/${mediaId}`;
+    const url = `${getApiBase()}/api/event-medias/${mediaId}`;
 
     // Clean and prepare the payload according to rules - include all required fields
     const cleanedPayload = withTenantId({
@@ -285,7 +288,7 @@ function inferEventMediaType(file: File): string {
 export async function fetchEventDetailsByIdServer(eventId: number) {
   if (!eventId) return null;
   const tenantId = getTenantId();
-  const res = await fetchWithJwtRetry(`${API_BASE_URL}/api/event-details/${eventId}?tenantId.equals=${tenantId}`, {
+  const res = await fetchWithJwtRetry(`${getApiBase()}/api/event-details/${eventId}?tenantId.equals=${tenantId}`, {
     cache: 'no-store',
   });
   if (!res.ok) {

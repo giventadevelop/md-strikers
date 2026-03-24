@@ -167,18 +167,26 @@ export default async function TenantOrganizationViewPage({ params }: PageProps) 
           <div className="flex gap-3">
             <Link
               href={`/admin/tenant-management/organizations/${id}/edit`}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2"
+              className="flex-shrink-0 h-14 rounded-xl bg-blue-100 hover:bg-blue-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6"
+              title="Edit Organization"
+              aria-label="Edit Organization"
             >
-              <FaEdit />
-              Edit Organization
+              <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-200 flex items-center justify-center">
+                <FaEdit className="w-6 h-6 text-blue-600" />
+              </div>
+              <span className="font-semibold text-blue-700">Edit Organization</span>
             </Link>
             {settings && (
               <Link
                 href={`/admin/tenant-management/settings/${settings.id}`}
-                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center gap-2"
+                className="flex-shrink-0 h-14 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6"
+                title="View Settings"
+                aria-label="View Settings"
               >
-                <FaCog />
-                View Settings
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center">
+                  <FaCog className="w-6 h-6 text-gray-600" />
+                </div>
+                <span className="font-semibold text-gray-700">View Settings</span>
               </Link>
             )}
           </div>
@@ -370,26 +378,38 @@ export default async function TenantOrganizationViewPage({ params }: PageProps) 
             <div className="px-6 py-4 space-y-3">
               <Link
                 href={`/admin/tenant-management/organizations/${id}/edit`}
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2"
+                className="w-full flex-shrink-0 h-14 rounded-xl bg-blue-100 hover:bg-blue-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105"
+                title="Edit Organization"
+                aria-label="Edit Organization"
               >
-                <FaEdit />
-                Edit Organization
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-200 flex items-center justify-center">
+                  <FaEdit className="w-6 h-6 text-blue-600" />
+                </div>
+                <span className="font-semibold text-blue-700">Edit Organization</span>
               </Link>
               {settings ? (
                 <Link
                   href={`/admin/tenant-management/settings/${settings.id}`}
-                  className="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2"
+                  className="w-full flex-shrink-0 h-14 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105"
+                  title="Manage Settings"
+                  aria-label="Manage Settings"
                 >
-                  <FaCog />
-                  Manage Settings
+                  <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center">
+                    <FaCog className="w-6 h-6 text-gray-600" />
+                  </div>
+                  <span className="font-semibold text-gray-700">Manage Settings</span>
                 </Link>
               ) : (
                 <Link
                   href={`/admin/tenant-management/settings/new?tenantId=${organization?.tenantId}`}
-                  className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2"
+                  className="w-full flex-shrink-0 h-14 rounded-xl bg-green-100 hover:bg-green-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105"
+                  title="Create Settings"
+                  aria-label="Create Settings"
                 >
-                  <FaCog />
-                  Create Settings
+                  <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-green-200 flex items-center justify-center">
+                    <FaCog className="w-6 h-6 text-green-600" />
+                  </div>
+                  <span className="font-semibold text-green-700">Create Settings</span>
                 </Link>
               )}
             </div>

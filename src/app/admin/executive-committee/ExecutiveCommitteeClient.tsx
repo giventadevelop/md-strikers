@@ -13,23 +13,34 @@ interface ExecutiveCommitteeClientProps {
   initialMembers: ExecutiveCommitteeTeamMemberDTO[];
 }
 
+/** Sort by priority order ascending (lower number = higher rank, same as API sort=priorityOrder,asc) */
+function sortByPriority(members: ExecutiveCommitteeTeamMemberDTO[]): ExecutiveCommitteeTeamMemberDTO[] {
+  return [...members].sort((a, b) => (a.priorityOrder ?? 0) - (b.priorityOrder ?? 0));
+}
+
 export default function ExecutiveCommitteeClient({ initialMembers }: ExecutiveCommitteeClientProps) {
-  const [members, setMembers] = useState<ExecutiveCommitteeTeamMemberDTO[]>(initialMembers);
+  const [members, setMembers] = useState<ExecutiveCommitteeTeamMemberDTO[]>(() => sortByPriority(initialMembers));
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<ExecutiveCommitteeTeamMemberDTO | null>(null);
   const [viewingMember, setViewingMember] = useState<ExecutiveCommitteeTeamMemberDTO | null>(null);
   const [deletingMember, setDeletingMember] = useState<ExecutiveCommitteeTeamMemberDTO | null>(null);
   const [uploadingMember, setUploadingMember] = useState<ExecutiveCommitteeTeamMemberDTO | null>(null);
+  
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [pageSize] = useState(10);
+  const totalCount = members.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const handleMemberCreated = (newMember: ExecutiveCommitteeTeamMemberDTO) => {
-    setMembers(prev => [...prev, newMember]);
+    setMembers(prev => sortByPriority([...prev, newMember]));
     setIsFormOpen(false);
   };
 
   const handleMemberUpdated = (updatedMember: ExecutiveCommitteeTeamMemberDTO) => {
-    setMembers(prev => prev.map(member =>
+    setMembers(prev => sortByPriority(prev.map(member =>
       member.id === updatedMember.id ? updatedMember : member
-    ));
+    )));
     setEditingMember(null);
   };
 
@@ -83,9 +94,17 @@ export default function ExecutiveCommitteeClient({ initialMembers }: ExecutiveCo
         </div>
         <button
           onClick={() => setIsFormOpen(true)}
-          className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md flex items-center gap-2 transition-colors"
+          className="flex-shrink-0 h-14 rounded-xl bg-teal-100 hover:bg-teal-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6"
+          title="Add Member"
+          aria-label="Add Member"
+          type="button"
         >
-          <FaPlus /> Add Member
+          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-teal-200 flex items-center justify-center">
+            <svg className="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </div>
+          <span className="font-semibold text-teal-700">Add Member</span>
         </button>
       </div>
 
@@ -141,6 +160,10 @@ export default function ExecutiveCommitteeClient({ initialMembers }: ExecutiveCo
         onView={openViewForm}
         onDelete={openDeleteModal}
         onUpload={openUploadDialog}
+        page={page}
+        pageSize={pageSize}
+        totalCount={totalCount}
+        onPageChange={setPage}
       />
 
       {/* Add/Edit Form Modal */}
@@ -165,7 +188,7 @@ export default function ExecutiveCommitteeClient({ initialMembers }: ExecutiveCo
         </Modal>
       )}
 
-      {/* View Member Modal */}
+      {/* View Member Modal - all fields matching Edit Member dialog */}
       {viewingMember && (
         <Modal
           open={!!viewingMember}
@@ -173,67 +196,164 @@ export default function ExecutiveCommitteeClient({ initialMembers }: ExecutiveCo
           title="View Team Member"
           preventBackdropClose={true}
         >
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-6 max-h-[80vh] overflow-y-auto">
+            {/* Profile image */}
+            {viewingMember.profileImageUrl && (
               <div>
-                <label className="block text-sm font-medium text-gray-700">Name</label>
-                <p className="mt-1 text-sm text-gray-900">
-                  {viewingMember.firstName} {viewingMember.lastName}
-                </p>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Profile Image</label>
+                <img
+                  src={viewingMember.profileImageUrl}
+                  alt={`${viewingMember.firstName} ${viewingMember.lastName}`}
+                  className="h-32 w-32 rounded-lg object-cover border border-gray-200"
+                />
+              </div>
+            )}
+
+            {/* Basic info - same order as Edit form */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">First Name</label>
+                <p className="mt-1 text-sm text-gray-900">{viewingMember.firstName || '—'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Last Name</label>
+                <p className="mt-1 text-sm text-gray-900">{viewingMember.lastName || '—'}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Title</label>
-                <p className="mt-1 text-sm text-gray-900">{viewingMember.title}</p>
+                <p className="mt-1 text-sm text-gray-900">{viewingMember.title || '—'}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Designation</label>
-                <p className="mt-1 text-sm text-gray-900">{viewingMember.designation || 'N/A'}</p>
+                <p className="mt-1 text-sm text-gray-900">{viewingMember.designation || '—'}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Department</label>
-                <p className="mt-1 text-sm text-gray-900">{viewingMember.department || 'N/A'}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
-                <p className="mt-1 text-sm text-gray-900">{viewingMember.email || 'N/A'}</p>
+                <p className="mt-1 text-sm text-gray-900">{viewingMember.department || '—'}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Join Date</label>
                 <p className="mt-1 text-sm text-gray-900">
-                  {viewingMember.joinDate ? new Date(viewingMember.joinDate).toLocaleDateString() : 'N/A'}
+                  {viewingMember.joinDate ? new Date(viewingMember.joinDate).toLocaleDateString() : '—'}
                 </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Priority Order</label>
+                <p className="mt-1 text-sm text-gray-900">{viewingMember.priorityOrder ?? '—'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <p className="mt-1 text-sm text-gray-900 break-all">{viewingMember.email || '—'}</p>
               </div>
             </div>
 
             {viewingMember.bio && (
               <div>
                 <label className="block text-sm font-medium text-gray-700">Bio</label>
-                <p className="mt-1 text-sm text-gray-900">{viewingMember.bio}</p>
+                <p className="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{viewingMember.bio}</p>
               </div>
             )}
 
             {viewingMember.expertise && (
               <div>
                 <label className="block text-sm font-medium text-gray-700">Expertise</label>
-                <p className="mt-1 text-sm text-gray-900">{viewingMember.expertise}</p>
+                <p className="mt-1 text-sm text-gray-900">
+                  {typeof viewingMember.expertise === 'string' && viewingMember.expertise.startsWith('[')
+                    ? (() => {
+                        try {
+                          const arr = JSON.parse(viewingMember.expertise as string);
+                          return Array.isArray(arr) ? arr.join(', ') : viewingMember.expertise;
+                        } catch {
+                          return viewingMember.expertise;
+                        }
+                      })()
+                    : String(viewingMember.expertise)}
+                </p>
               </div>
             )}
 
-            <div className="flex gap-4 pt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Image Background</label>
+                <p className="mt-1 text-sm text-gray-900">{viewingMember.imageBackground || '—'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Image Style</label>
+                <p className="mt-1 text-sm text-gray-900">{viewingMember.imageStyle || '—'}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">LinkedIn URL</label>
+                <p className="mt-1 text-sm text-gray-900 truncate">
+                  {viewingMember.linkedinUrl ? (
+                    <a href={viewingMember.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                      {viewingMember.linkedinUrl}
+                    </a>
+                  ) : '—'}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Twitter URL</label>
+                <p className="mt-1 text-sm text-gray-900 truncate">
+                  {viewingMember.twitterUrl ? (
+                    <a href={viewingMember.twitterUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                      {viewingMember.twitterUrl}
+                    </a>
+                  ) : '—'}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Website URL</label>
+                <p className="mt-1 text-sm text-gray-900 truncate">
+                  {viewingMember.websiteUrl ? (
+                    <a href={viewingMember.websiteUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                      {viewingMember.websiteUrl}
+                    </a>
+                  ) : '—'}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Status</label>
+              <p className="mt-1">
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${viewingMember.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  {viewingMember.isActive ? 'Active' : 'Inactive'}
+                </span>
+              </p>
+            </div>
+
+            <div className="flex gap-4 pt-4 border-t border-gray-200">
               <button
                 onClick={() => {
                   setViewingMember(null);
                   openEditForm(viewingMember);
                 }}
-                className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md flex items-center gap-2"
+                className="flex-shrink-0 h-14 rounded-xl bg-blue-100 hover:bg-blue-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6"
+                title="Edit Member"
+                aria-label="Edit Member"
+                type="button"
               >
-                <FaEdit /> Edit
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-200 flex items-center justify-center">
+                  <FaEdit className="w-6 h-6 text-blue-600" />
+                </div>
+                <span className="font-semibold text-blue-700">Edit</span>
               </button>
               <button
                 onClick={() => setViewingMember(null)}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md"
+                className="flex-shrink-0 h-14 rounded-xl bg-red-100 hover:bg-red-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6"
+                title="Close"
+                aria-label="Close"
+                type="button"
               >
-                Close
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-red-200 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
+                <span className="font-semibold text-red-700">Close</span>
               </button>
             </div>
           </div>
@@ -256,9 +376,17 @@ export default function ExecutiveCommitteeClient({ initialMembers }: ExecutiveCo
             <div className="mt-6 flex justify-center gap-4">
               <button
                 onClick={() => setDeletingMember(null)}
-                className="bg-teal-100 hover:bg-teal-200 text-teal-800 px-4 py-2 rounded-md flex items-center gap-2"
+                className="flex-shrink-0 h-14 rounded-xl bg-red-100 hover:bg-red-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6"
+                title="Cancel"
+                aria-label="Cancel"
+                type="button"
               >
-                Cancel
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-red-200 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
+                <span className="font-semibold text-red-700">Cancel</span>
               </button>
               <button
                 onClick={async () => {
@@ -271,9 +399,15 @@ export default function ExecutiveCommitteeClient({ initialMembers }: ExecutiveCo
                     }
                   }
                 }}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md flex items-center gap-2"
+                className="flex-shrink-0 h-14 rounded-xl bg-red-100 hover:bg-red-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6"
+                title="Confirm Delete"
+                aria-label="Confirm Delete"
+                type="button"
               >
-                <FaTrashAlt /> Confirm Delete
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-red-200 flex items-center justify-center">
+                  <FaTrashAlt className="w-6 h-6 text-red-600" />
+                </div>
+                <span className="font-semibold text-red-700">Confirm Delete</span>
               </button>
             </div>
           </div>

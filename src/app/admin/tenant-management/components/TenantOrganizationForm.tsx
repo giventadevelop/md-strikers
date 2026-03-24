@@ -270,10 +270,14 @@ export default function TenantOrganizationForm({
               />
               <label
                 htmlFor="logo-upload"
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2 cursor-pointer"
+                className="flex-shrink-0 h-14 rounded-xl bg-blue-100 hover:bg-blue-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6 cursor-pointer"
+                title="Upload Logo"
+                aria-label="Upload Logo"
               >
-                <FaUpload />
-                Upload Logo
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-200 flex items-center justify-center">
+                  <FaUpload className="w-6 h-6 text-blue-600" />
+                </div>
+                <span className="font-semibold text-blue-700">Upload Logo</span>
               </label>
               {logoPreview && (
                 <div className="flex items-center gap-2">
@@ -420,18 +424,32 @@ export default function TenantOrganizationForm({
           <button
             type="button"
             onClick={onCancel}
-            className="bg-teal-100 hover:bg-teal-200 text-teal-800 px-4 py-2 rounded-md flex items-center gap-2"
+            className="flex-shrink-0 h-14 rounded-xl bg-red-100 hover:bg-red-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6"
+            title="Cancel"
+            aria-label="Cancel"
           >
-            <FaBan />
-            Cancel
+            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-red-200 flex items-center justify-center">
+              <FaBan className="w-6 h-6 text-red-600" />
+            </div>
+            <span className="font-semibold text-red-700">Cancel</span>
           </button>
           <button
             type="submit"
             disabled={isSubmitting || loading}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-shrink-0 h-14 rounded-xl bg-blue-100 hover:bg-blue-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6 disabled:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            title={isSubmitting || loading ? 'Saving...' : mode === 'create' ? 'Create Organization' : 'Update Organization'}
+            aria-label={isSubmitting || loading ? 'Saving...' : mode === 'create' ? 'Create Organization' : 'Update Organization'}
           >
-            <FaSave />
-            {isSubmitting || loading ? 'Saving...' : mode === 'create' ? 'Create Organization' : 'Update Organization'}
+            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-200 flex items-center justify-center">
+              {isSubmitting || loading ? (
+                <FaSave className="w-6 h-6 text-blue-600 animate-spin" />
+              ) : (
+                <FaSave className="w-6 h-6 text-blue-600" />
+              )}
+            </div>
+            <span className="font-semibold text-blue-700">
+              {isSubmitting || loading ? 'Saving...' : mode === 'create' ? 'Create Organization' : 'Update Organization'}
+            </span>
           </button>
         </div>
       </form>

@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, ChevronDown, X, Menu, LogOut } from 'lucide-react';
+import { Search, ChevronDown, X, LogOut, User } from 'lucide-react';
 import { useAuth, useClerk, useUser } from '@clerk/nextjs';
+import { useTenantSettings } from '@/components/TenantSettingsProvider';
+import { isAdminRole } from '@/lib/utils';
+import Image from 'next/image';
 
 const navItems = [
   {
@@ -15,7 +18,8 @@ const navItems = [
   {
     name: 'About',
     href: '/#about-us',
-    active: false
+    active: false,
+    dropdown: [] // Will be populated dynamically based on tenant settings
   },
   {
     name: 'Events',
@@ -23,9 +27,16 @@ const navItems = [
     active: false
   },
   {
-    name: 'Focus Groups',
-    href: '/focus-groups',
-    active: false
+    name: 'Features',
+    href: '#',
+    active: false,
+    dropdown: [
+      { name: 'Polls', href: '/polls' },
+      { name: 'Focus Groups', href: '/focus-groups' },
+      { name: 'Profile', href: '/profile', requiresAuth: true },
+      { name: 'Members', href: '/member-portal', requiresAuth: true },
+      { name: 'Membership', href: '/membership' }
+    ]
   },
   {
     name: 'Calendar',
@@ -35,16 +46,6 @@ const navItems = [
   {
     name: 'Gallery',
     href: '/gallery',
-    active: false
-  },
-  {
-    name: 'Polls',
-    href: '/polls',
-    active: false
-  },
-  {
-    name: 'Team',
-    href: '/#team-section',
     active: false
   },
   {
@@ -58,18 +59,29 @@ const navItems = [
 const adminSubmenuItems = [
   { name: 'Admin Home', href: '/admin' },
   { name: 'Manage Users', href: '/admin/manage-usage' },
-  { name: 'Manage Events', href: '/admin/events' },
+  { name: 'Manage Events', href: '/admin/manage-events' },
   { name: 'Event Analytics', href: '/admin/events/dashboard' },
   { name: 'Registrations', href: '/admin/events/registrations' },
+  { name: 'QR Scanner', href: '/admin/qr-scanner' },
+  { name: 'Check-In Analytics', href: '/admin/check-in-analytics' },
+  { name: 'Sales Analytics', href: '/admin/sales-analytics' },
+  { name: 'Manual Payments', href: '/admin/manual-payments' },
   { name: 'Poll Management', href: '/admin/polls' },
   { name: 'Focus Groups', href: '/admin/focus-groups' },
-  { name: 'Promotion Emails', href: '/admin/promotion-emails' },
+  {
+    name: 'Membership',
+    href: '#',
+    dropdown: [
+      { name: 'Plans', href: '/admin/membership/plans' },
+      { name: 'Subscriptions', href: '/admin/membership/subscriptions' }
+    ]
+  },
+  { name: 'Bulk Email', href: '/admin/bulk-email' },
   { name: 'Test Stripe', href: '/admin/test-stripe' },
   { name: 'Media Management', href: '/admin/media' },
-  { name: 'Executive Committee', href: '/admin/executive-committee' }
+  { name: 'Executive Committee', href: '/admin/executive-committee' },
+  { name: 'Event Sponsors', href: '/admin/event-sponsors' }
 ];
-
-const ORG_NAME = "Adwiise";
 
 type HeaderProps = {
   hideMenuItems?: boolean;
@@ -77,41 +89,384 @@ type HeaderProps = {
   isTenantAdmin?: boolean;
 };
 
+const getNavAriaLabel = (itemName: string) => {
+  if (itemName === 'Calendar') {
+    return 'Navigate to Schedule';
+  }
+  return `Navigate to ${itemName}`;
+};
+
 const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
   console.log('[Header] handleSmoothScroll called with:', href);
 
-  if (!href.startsWith('#')) return;
+  // Handle both '#section' and '/#section' formats
+  if (!href.startsWith('#') && !href.startsWith('/#')) return;
 
   e.preventDefault();
   console.log('[Header] Preventing default and handling hash navigation');
 
+  // Extract the hash part (handle both '#section' and '/#section')
+  const hashPart = href.startsWith('/#') ? href.substring(1) : href; // '/#team-section' -> '#team-section'
+  const targetId = hashPart.substring(1); // '#team-section' -> 'team-section'
+
   // If we're not on the home page, navigate there first
   if (typeof window !== 'undefined' && window.location.pathname !== '/') {
-    console.log('[Header] Not on home page, navigating to:', `/${href}`);
+    console.log('[Header] Not on home page, navigating to:', `/${hashPart}`);
+    // Show loading indicator for team section navigation
+    if (targetId === 'team-section') {
+      showNavigationLoading();
+    }
     // Navigate to home page with hash
-    window.location.href = `/${href}`;
+    window.location.href = `/${hashPart}`;
     return;
   }
 
-  // If we're on the home page, update the URL hash and let the page handle scrolling
-  const targetId = href.substring(1);
-  console.log('[Header] On home page, updating hash to:', targetId);
+  // If we're on the home page, update the URL hash and scroll
+  console.log('[Header] On home page, updating hash to:', hashPart);
+
+  // Show loading indicator for team section
+  if (targetId === 'team-section') {
+    showNavigationLoading();
+  }
 
   // Update the URL hash
-  window.history.pushState(null, '', href);
+  window.history.pushState(null, '', hashPart);
 
-  // Trigger a hashchange event to let the page component handle the scrolling
+  // Wait for element to exist before scrolling (especially important for dynamically loaded sections)
+  const headerHeight = 80;
+  const maxWaitTime = 10000; // 10 seconds max wait
+  const pollInterval = 100; // Check every 100ms
+  const startTime = Date.now();
+
+  const waitForElementAndScroll = () => {
+    const targetElement = document.getElementById(targetId);
+
+    if (targetElement) {
+      // CRITICAL: For team-section, ensure it's fully rendered and visible
+      // Check if element has content (not just the container)
+      if (targetId === 'team-section') {
+        const hasContent = targetElement.querySelector('.max-w-7xl') || targetElement.children.length > 0;
+        if (!hasContent) {
+          // Element exists but content not loaded yet, keep waiting
+          const elapsed = Date.now() - startTime;
+          if (elapsed < maxWaitTime) {
+            setTimeout(waitForElementAndScroll, pollInterval);
+            return false;
+          }
+        }
+      }
+
+      // Element exists and is ready, scroll to it with proper offset
+      // Use larger offset for team-section to ensure it's fully visible above the fold
+      const scrollOffset = targetId === 'team-section' ? headerHeight + 40 : headerHeight + 20;
+      const targetPosition = targetElement.offsetTop - scrollOffset;
+
+      // Ensure we scroll to the correct element by verifying the ID matches
+      if (targetElement.id === targetId) {
+        window.scrollTo({ top: Math.max(0, targetPosition), behavior: 'smooth' });
+        hideNavigationLoading();
+        console.log('[Header] Successfully scrolled to:', targetId, 'at position:', targetPosition);
+        return true;
+      }
+    }
+
+    // Element doesn't exist yet
+    const elapsed = Date.now() - startTime;
+    if (elapsed < maxWaitTime) {
+      // Keep waiting
+      setTimeout(waitForElementAndScroll, pollInterval);
+      return false;
+    } else {
+      // Timeout reached
+      console.warn('[Header] Timeout waiting for element:', targetId);
+      hideNavigationLoading();
+      return false;
+    }
+  };
+
+  // Start waiting for element
+  waitForElementAndScroll();
+
+  // Also trigger a hashchange event to let the page component handle the scrolling
   window.dispatchEvent(new HashChangeEvent('hashchange'));
 };
+
+// Loading indicator functions
+let loadingIndicator: HTMLElement | null = null;
+
+const showNavigationLoading = () => {
+  if (typeof window === 'undefined') return;
+
+  // Remove existing indicator if any
+  hideNavigationLoading();
+
+  // Create loading indicator
+  loadingIndicator = document.createElement('div');
+  loadingIndicator.id = 'navigation-loading-indicator';
+  loadingIndicator.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+  `;
+
+  // Create spinner
+  const spinner = document.createElement('div');
+  spinner.style.cssText = `
+    width: 48px;
+    height: 48px;
+    border: 4px solid #e5e7eb;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  `;
+
+  // Add keyframes if not already present
+  if (!document.getElementById('navigation-loading-styles')) {
+    const style = document.createElement('style');
+    style.id = 'navigation-loading-styles';
+    style.textContent = `
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // Create text
+  const text = document.createElement('div');
+  text.textContent = 'Loading team members...';
+  text.style.cssText = `
+    margin-top: 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #3b82f6;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  `;
+
+  loadingIndicator.appendChild(spinner);
+  loadingIndicator.appendChild(text);
+  document.body.appendChild(loadingIndicator);
+};
+
+const hideNavigationLoading = () => {
+  if (loadingIndicator && loadingIndicator.parentNode) {
+    loadingIndicator.parentNode.removeChild(loadingIndicator);
+    loadingIndicator = null;
+  }
+};
+
+/**
+ * User Avatar Dropdown Component
+ * Shows user's profile image with dropdown menu for Profile and Sign Out
+ * Editorial design with gradient border and refined animations
+ */
+function UserAvatarDropdown({
+  user,
+  onSignOut,
+  isSigningOut
+}: {
+  user: any;
+  onSignOut: () => void;
+  isSigningOut: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  // Get user's profile image or use default avatar
+  const userImageUrl = user?.imageUrl || user?.hasImage ? user?.imageUrl : null;
+  const userName = user?.firstName || user?.fullName || user?.emailAddresses?.[0]?.emailAddress || 'User';
+  const userEmail = user?.emailAddresses?.[0]?.emailAddress || '';
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      {/* Avatar Button with Gradient Border */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="header-avatar flex items-center justify-center overflow-hidden focus:outline-none focus:ring-2 focus:ring-[var(--header-focus-ring)] focus:ring-offset-2"
+        aria-label="User menu"
+        aria-expanded={isOpen}
+        aria-haspopup="true"
+      >
+        {userImageUrl ? (
+          <Image
+            src={userImageUrl}
+            alt={userName}
+            width={40}
+            height={40}
+            className="w-full h-full object-cover rounded-full"
+            unoptimized
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-amber-400 text-white">
+            <User size={18} className="text-white" />
+          </div>
+        )}
+      </button>
+
+      {/* Dropdown Menu */}
+      <div className={`header-dropdown absolute top-full right-0 mt-3 w-72 z-50 ${isOpen ? 'visible' : ''}`}>
+        <div className="py-2">
+          {/* User Info Header */}
+          <div className="px-4 py-4 border-b border-[var(--header-border)]">
+            <div className="flex items-center gap-3">
+              {userImageUrl ? (
+                <div className="flex-shrink-0">
+                  <Image
+                    src={userImageUrl}
+                    alt={userName}
+                    width={48}
+                    height={48}
+                    className="w-12 h-12 rounded-full object-cover ring-2 ring-[var(--header-border)]"
+                    unoptimized
+                  />
+                </div>
+              ) : (
+                <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-violet-500 to-amber-400 text-white rounded-full flex-shrink-0">
+                  <User size={22} className="text-white" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-[var(--header-text-primary)] truncate font-['Plus_Jakarta_Sans']">
+                  {userName}
+                </p>
+                {userEmail && (
+                  <p className="text-xs text-[var(--header-text-muted)] truncate mt-0.5">
+                    {userEmail}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Menu Items */}
+          <div className="py-2 px-2">
+            <Link
+              href="/profile"
+              onClick={() => setIsOpen(false)}
+              className={`header-dropdown-item font-semibold flex items-center gap-3 ${pathname === '/profile' ? 'active' : ''}`}
+              role="menuitem"
+              aria-label="View profile"
+            >
+              <User size={16} aria-hidden="true" />
+              <span>Profile</span>
+            </Link>
+
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                onSignOut();
+              }}
+              disabled={isSigningOut}
+              className={`
+                w-full flex items-center gap-3 text-left
+                font-['Plus_Jakarta_Sans'] font-medium text-sm
+                px-4 py-2.5 mx-0 rounded-lg
+                transition-all duration-200
+                ${isSigningOut
+                  ? 'text-gray-400 cursor-not-allowed'
+                  : 'text-rose-500 hover:text-rose-600 hover:bg-rose-50'
+                }
+              `}
+              role="menuitem"
+              aria-label="Sign out"
+            >
+              <LogOut size={16} aria-hidden="true" />
+              <span>{isSigningOut ? 'Signing Out...' : 'Sign Out'}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Header({ hideMenuItems = false, variant = 'charity', isTenantAdmin }: HeaderProps) {
   const pathname = usePathname();
   const { userId, isLoaded } = useAuth();
   const { user } = useUser();
   const { signOut } = useClerk();
+  const { settings, showTeamSection, loading: settingsLoading } = useTenantSettings();
   const [isAdmin, setIsAdmin] = useState(!!isTenantAdmin);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [openMobileDropdowns, setOpenMobileDropdowns] = useState<Record<string, boolean>>({});
+
+  // CRITICAL: Check for sign-out flag and call signOut() on satellite domain.
+  // Just clearing localStorage is NOT enough — Clerk stores session in HTTP-only cookies
+  // that can only be cleared via signOut(). Without this, the avatar/admin menu persist.
+  const [pendingSignOut, setPendingSignOut] = useState(false);
+
+  // Phase 1: Detect flag on mount (runs immediately, before Clerk loads)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const clerkSignedOut = urlParams.get('clerk_signout');
+
+    if (clerkSignedOut === 'true') {
+      console.log('[Header] Detected clerk_signout=true flag, waiting for Clerk to load...');
+      setPendingSignOut(true);
+
+      // Clean URL immediately so the flag doesn't persist on reload
+      urlParams.delete('clerk_signout');
+      const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, []);
+
+  // Phase 2: Once Clerk is loaded, call signOut() to clear the session properly
+  useEffect(() => {
+    if (!pendingSignOut || !isLoaded) return;
+
+    const performSignOut = async () => {
+      console.log('[Header] Clerk loaded, calling signOut() on satellite domain...');
+      try {
+        await signOut();
+        console.log('[Header] signOut() completed on satellite domain');
+      } catch (error) {
+        console.error('[Header] signOut() error on satellite:', error);
+      }
+
+      // Clear localStorage as backup
+      Object.keys(localStorage).forEach(key => {
+        if (key.includes('clerk') || key.includes('__clerk')) {
+          localStorage.removeItem(key);
+        }
+      });
+
+      setPendingSignOut(false);
+      window.location.replace(window.location.pathname);
+    };
+
+    performSignOut();
+  }, [pendingSignOut, isLoaded, signOut]);
 
   // Debug: Log auth state changes
   useEffect(() => {
@@ -123,25 +478,124 @@ export default function Header({ hideMenuItems = false, variant = 'charity', isT
     });
   }, [isLoaded, userId, user]);
 
-  // Prefer server-verified tenant admin flag when provided; otherwise fall back to Clerk metadata
+  // Prefer server-verified tenant admin flag when provided; re-check admin status when user logs in
+  // CRITICAL: When user logs in client-side, isTenantAdmin prop may be stale (from initial SSR)
+  // We need to re-check admin status from the database when userId changes
+  // On satellite domains, the server-side check is skipped during __clerk_synced, so
+  // the client-side check here is the primary mechanism for showing the admin menu.
   useEffect(() => {
-    if (typeof isTenantAdmin === 'boolean') {
-      setIsAdmin(isTenantAdmin);
+    // If user is not loaded yet, use server-verified flag (from SSR)
+    if (!isLoaded) {
+      setIsAdmin(!!isTenantAdmin);
       return;
     }
-    if (isLoaded && user) {
-      const publicRole = user.publicMetadata?.role as string;
-      const orgRole = user.organizationMemberships?.[0]?.role;
-      const isAdminUser =
-        publicRole === 'admin' ||
-        publicRole === 'administrator' ||
-        orgRole === 'admin' ||
-        orgRole === 'org:admin';
-      setIsAdmin(isAdminUser);
-    } else {
+
+    // If user is not logged in, clear admin status
+    if (!userId || !user) {
       setIsAdmin(false);
+      return;
     }
-  }, [isLoaded, user, isTenantAdmin]);
+
+    let cancelled = false;
+
+    // Fetch profile and check admin role, with optional retry for satellite domain timing
+    const checkAdminStatus = async (attempt = 1): Promise<void> => {
+      try {
+        const tenantId = process.env.NEXT_PUBLIC_TENANT_ID;
+        if (!tenantId) {
+          console.warn('[Header] NEXT_PUBLIC_TENANT_ID not set, cannot check admin status');
+          if (!cancelled) {
+            setIsAdmin(typeof isTenantAdmin === 'boolean' ? isTenantAdmin : false);
+          }
+          return;
+        }
+
+        const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+        const url = `${baseUrl}/api/proxy/user-profiles?userId.equals=${encodeURIComponent(userId)}&tenantId.equals=${encodeURIComponent(tenantId)}&size=1`;
+
+        console.log(`[Header] Checking admin status (attempt ${attempt}), tenantId=${tenantId}, userId=${userId}`);
+        const resp = await fetch(url, {
+          cache: 'no-store',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          // Handle both raw array and paginated { content: [...] } responses
+          let profile;
+          if (Array.isArray(data)) {
+            profile = data[0];
+          } else if (data?.content && Array.isArray(data.content)) {
+            profile = data.content[0];
+          } else {
+            profile = data;
+          }
+          const role = profile?.userRole ?? 'NONE';
+          const adminResult = isAdminRole(profile?.userRole);
+          console.log(`[Header] Profile API response: userRole="${role}", isAdmin=${adminResult}, profileUserId=${profile?.userId}, dataType=${Array.isArray(data) ? 'array' : typeof data}, dataKeys=${data ? Object.keys(data).join(',') : 'null'}, attempt=${attempt}`);
+          if (!cancelled) setIsAdmin(adminResult);
+        } else {
+          console.warn(`[Header] Admin status check failed (attempt ${attempt}):`, resp.status);
+
+          // On satellite domains, the first API call after sync may fail if session
+          // is not yet established. Retry once after a short delay.
+          if (attempt < 2) {
+            console.log('[Header] Retrying admin status check in 2s...');
+            await new Promise(r => setTimeout(r, 2000));
+            if (!cancelled) return checkAdminStatus(attempt + 1);
+          }
+
+          // Final fallback
+          if (!cancelled) {
+            if (typeof isTenantAdmin === 'boolean') {
+              setIsAdmin(isTenantAdmin);
+            } else {
+              const publicRole = user.publicMetadata?.role as string;
+              const orgRole = user.organizationMemberships?.[0]?.role;
+              const isAdminUser =
+                publicRole === 'admin' ||
+                publicRole === 'administrator' ||
+                orgRole === 'admin' ||
+                orgRole === 'org:admin';
+              setIsAdmin(isAdminUser);
+            }
+          }
+        }
+      } catch (error) {
+        console.error(`[Header] Error checking admin status (attempt ${attempt}):`, error);
+
+        // Retry once on error (covers network hiccups after satellite sync)
+        if (attempt < 2) {
+          console.log('[Header] Retrying admin status check in 2s...');
+          await new Promise(r => setTimeout(r, 2000));
+          if (!cancelled) return checkAdminStatus(attempt + 1);
+        }
+
+        if (!cancelled) {
+          setIsAdmin(typeof isTenantAdmin === 'boolean' ? isTenantAdmin : false);
+        }
+      }
+    };
+
+    checkAdminStatus();
+
+    // Post-satellite-sync re-check: After Clerk satellite sync completes, the session
+    // may not be fully ready when checkAdminStatus first runs. Detect if we just came
+    // through a sync (ClerkSyncUrlCleanup sets this flag) and re-check after Clerk stabilizes.
+    const wasSynced = typeof window !== 'undefined' && sessionStorage.getItem('clerk_satellite_synced');
+    if (wasSynced) {
+      sessionStorage.removeItem('clerk_satellite_synced');
+      const syncTimer = setTimeout(() => {
+        if (!cancelled) {
+          console.log('[Header] Post-satellite-sync re-check of admin status');
+          checkAdminStatus();
+        }
+      }, 1500);
+      return () => { cancelled = true; clearTimeout(syncTimer); };
+    }
+
+    return () => { cancelled = true; };
+  }, [isLoaded, userId, user, isTenantAdmin]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -152,10 +606,49 @@ export default function Header({ hideMenuItems = false, variant = 'charity', isT
   };
 
   const handleSignOut = async () => {
+    console.log('[Header] Sign out button clicked');
+    setIsSigningOut(true);
+
+    // Broadcast sign-out to other tabs
+    localStorage.setItem('clerk_signout_broadcast', Date.now().toString());
+
+    const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+    const primaryDomain = process.env.NEXT_PUBLIC_PRIMARY_DOMAIN || 'www.event-site-manager.com';
+    const primaryHost = primaryDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+    // CRITICAL: If we're on the primary domain, always do normal sign out (never redirect).
+    // This prevents sign-out errors when NEXT_PUBLIC_CLERK_DOMAIN is mis-set on primary app.
+    const isPrimary =
+      hostname === primaryHost ||
+      hostname === primaryDomain ||
+      hostname.includes(primaryHost.replace('www.', '')) ||
+      hostname.includes(primaryDomain.replace('www.', ''));
+
+    if (isPrimary) {
+      try {
+        await signOut();
+        window.location.href = '/';
+      } catch (error) {
+        console.error('[Header] Error signing out:', error);
+        setIsSigningOut(false);
+      }
+      return;
+    }
+
+    // Only redirect to primary sign-out when we're on a known satellite domain (mosc-temp.com).
+    // Do not use NEXT_PUBLIC_CLERK_DOMAIN for this check - it can be set to primary by mistake.
+    const isSatellite = hostname.includes('mosc-temp.com');
+    if (isSatellite) {
+      console.log('[Header] Satellite domain detected, redirecting to primary domain sign-out...');
+      const primarySignOutUrl = `https://${primaryHost}/auth/signout-redirect`;
+      const returnUrl = encodeURIComponent(window.location.origin);
+      window.location.href = `${primarySignOutUrl}?redirect_url=${returnUrl}`;
+      return;
+    }
+
+    // Fallback: not primary and not satellite (e.g. localhost) - normal sign out
     try {
-      setIsSigningOut(true);
       await signOut();
-      // Redirect to home page after sign out
       window.location.href = '/';
     } catch (error) {
       console.error('[Header] Error signing out:', error);
@@ -171,10 +664,69 @@ export default function Header({ hideMenuItems = false, variant = 'charity', isT
       const hash = window.location.hash;
       if (!hash || (window.location.pathname !== '/' && window.location.pathname !== '/charity-theme')) return;
       const targetId = hash.replace('#', '');
-      const targetElement = document.getElementById(targetId);
-      if (!targetElement) return;
-      const targetPosition = targetElement.offsetTop - headerHeight - 20;
-      window.scrollTo({ top: Math.max(0, targetPosition), behavior });
+
+      // Show loading indicator for team section
+      if (targetId === 'team-section') {
+        showNavigationLoading();
+      }
+
+      // Wait for element to exist before scrolling (especially important for dynamically loaded sections)
+      const maxWaitTime = targetId === 'team-section' ? 15000 : 10000; // 15 seconds for team-section, 10 for others
+      const pollInterval = 100; // Check every 100ms
+      const startTime = Date.now();
+
+      const waitForElementAndScroll = () => {
+        const targetElement = document.getElementById(targetId);
+
+        if (targetElement) {
+          // CRITICAL: For team-section, ensure it's fully rendered and visible
+          // Check if element has content (not just the container)
+          if (targetId === 'team-section') {
+            // Check if element has actual content (team members loaded)
+            const hasContent = targetElement.querySelector('.max-w-7xl') &&
+              (targetElement.querySelector('.grid') || targetElement.querySelector('.flex') ||
+                targetElement.querySelector('[class*="team"]'));
+            if (!hasContent) {
+              // Element exists but content not loaded yet, keep waiting
+              const elapsed = Date.now() - startTime;
+              if (elapsed < maxWaitTime) {
+                setTimeout(waitForElementAndScroll, pollInterval);
+                return;
+              }
+            }
+          }
+
+          // Element exists and is ready, scroll to it with proper offset
+          // Use larger offset for team-section to ensure it's fully visible above the fold
+          const scrollOffset = targetId === 'team-section' ? headerHeight + 40 : headerHeight + 20;
+          const targetPosition = targetElement.offsetTop - scrollOffset;
+
+          // Ensure we scroll to the correct element by verifying the ID matches
+          if (targetElement.id === targetId) {
+            // Small delay to ensure layout is stable before scrolling
+            setTimeout(() => {
+              window.scrollTo({ top: Math.max(0, targetPosition), behavior });
+              hideNavigationLoading();
+              console.log('[Header useEffect] Successfully scrolled to:', targetId, 'at position:', targetPosition);
+            }, 100);
+            return;
+          }
+        }
+
+        // Element doesn't exist yet
+        const elapsed = Date.now() - startTime;
+        if (elapsed < maxWaitTime) {
+          // Keep waiting
+          setTimeout(waitForElementAndScroll, pollInterval);
+        } else {
+          // Timeout reached
+          console.warn('[Header useEffect] Timeout waiting for element:', targetId);
+          hideNavigationLoading();
+        }
+      };
+
+      // Start waiting for element
+      waitForElementAndScroll();
     };
 
     if ((window.location.pathname === '/' || window.location.pathname === '/charity-theme') && window.location.hash) {
@@ -185,215 +737,284 @@ export default function Header({ hideMenuItems = false, variant = 'charity', isT
 
     const onHashChange = () => scrollToHashWithOffset('smooth');
     window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
+    return () => {
+      window.removeEventListener('hashchange', onHashChange);
+      hideNavigationLoading();
+    };
   }, [pathname]);
 
+  // Build About dropdown dynamically based on tenant settings
+  // Only show Team when settings are loaded AND showTeamSection is explicitly true
+  const aboutDropdown = [
+    { name: 'About Us', href: '/#about-us' }
+  ];
+  // Only add Team if:
+  // 1. Settings are loaded (not loading)
+  // 2. Settings exist (not null)
+  // 3. showTeamSection is explicitly true
+  if (!settingsLoading && settings && showTeamSection) {
+    aboutDropdown.push({ name: 'Team', href: '/team' });
+  }
+  // Always add Sponsors menu item
+  aboutDropdown.push({ name: 'Sponsors', href: '/sponsors' });
+
+  // Update nav items with dynamic About dropdown
+  // About always has a dropdown now (at minimum "About Us")
+  const navItemsWithDropdown = navItems.map(item => {
+    if (item.name === 'About') {
+      return {
+        ...item,
+        dropdown: aboutDropdown
+      };
+    }
+    return item;
+  });
+
   // Update active state based on current route
-  const updatedNavItems = navItems.map(item => ({
+  const updatedNavItems = navItemsWithDropdown.map(item => ({
     ...item,
     active: item.href === pathname || (item.href === '/' && (pathname === '/charity-theme' || pathname === '/'))
   }));
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white">
+      <header className="fixed top-0 left-0 right-0 z-50 header-glass">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            {/* Left side - Unite India Text Logo */}
-            <div className="flex items-center">
-              <Link href="/" className="flex items-center">
+          <div className="flex items-center justify-between h-[4.5rem]">
+            {/* Left side - Unite India Text Logo with Editorial Typography */}
+            <div className="flex items-center h-full">
+              <Link href="/" className="group flex items-center gap-3 h-full">
+                {/* Unite India logo icon - full header height, 102px wide */}
+                <div className="flex items-center justify-center h-full w-[102px] min-w-[102px] rounded-xl flex-shrink-0 overflow-hidden transition-all duration-300 group-hover:scale-105">
+                  <Image
+                    src="/images/logos/Malayalees_US/Malayalees_US_Header_Branding.png"
+                    alt="Unite India"
+                    width={102}
+                    height={72}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
                 <div className="text-left">
-                  <div className="text-xl font-bold text-purple-600 leading-snug">
-                    Unite India
-                  </div>
-                  <div className="text-[10px] font-medium text-purple-500 uppercase tracking-wider">
-                    A NONPROFIT CORPORATION
+                  <div className="header-logo-brand text-[1.375rem] leading-tight inline-block">
+                    MALAYALEES.US
                   </div>
                 </div>
               </Link>
             </div>
 
-            {/* Center - Desktop Navigation and Right Side Combined */}
-            <div className="hidden lg:flex items-center space-x-1 ml-4">
+            {/* Center - Desktop Navigation */}
+            <div className="hidden lg:flex items-center gap-1 ml-6">
               {/* Navigation Menu Items */}
               {!hideMenuItems && (
-                <nav className="flex items-center space-x-1" role="navigation" aria-label="Main navigation">
-                  {updatedNavItems.map((item) => (
-                    <div key={item.name} className="relative group">
-                      <Link
-                        href={item.href}
-                        className={`
-                          relative flex items-center space-x-1 font-inter
-                          text-base lg:text-base font-medium tracking-wide
-                          px-3 py-2 mx-1
-                          transition-all duration-300 ease-in-out
-                          focus:outline-none
-                          ${item.active
-                            ? 'text-blue-400 font-semibold border-b-2 border-blue-400'
-                            : 'text-blue-400 font-medium hover:text-blue-500 hover:font-semibold border-b-2 border-transparent hover:border-blue-400'
-                          }
-                        `}
-                        onClick={(e) => handleSmoothScroll(e, item.href)}
-                        aria-label={`Navigate to ${item.name}`}
-                        aria-current={item.active ? 'page' : undefined}
-                      >
-                        <span className="tracking-[0.025em]">{item.name}</span>
-                      </Link>
-                    </div>
-                  ))}
+                <nav className="flex items-center gap-0.5" role="navigation" aria-label="Main navigation">
+                  {updatedNavItems.map((item) => {
+                    const hasDropdown = item.dropdown && Array.isArray(item.dropdown) && item.dropdown.length > 0;
+                    const isAboutActive = hasDropdown && item.name === 'About' && item.dropdown.some(
+                      (subItem: any) => subItem.href === pathname ||
+                        (subItem.href === '/#about-us' && typeof window !== 'undefined' && window.location.hash === '#about-us') ||
+                        (subItem.href === '/team' && pathname === '/team') ||
+                        (subItem.href === '/sponsors' && pathname === '/sponsors')
+                    );
+                    const isFeaturesActive = hasDropdown && item.name === 'Features' && item.dropdown.some(
+                      (subItem: any) => subItem.href === pathname ||
+                        (subItem.href === '/profile' && pathname === '/profile') ||
+                        (subItem.href === '/membership' && pathname?.startsWith('/membership'))
+                    );
+
+                    return (
+                      <div key={item.name} className="relative group">
+                        {hasDropdown ? (
+                          <>
+                            <div
+                              className={`header-nav-link font-semibold flex items-center gap-1.5 cursor-pointer ${(item.name === 'About' && isAboutActive) || (item.name === 'Features' && isFeaturesActive)
+                                  ? 'active'
+                                  : ''
+                                }`}
+                              aria-haspopup="true"
+                              aria-expanded="false"
+                              role="button"
+                              tabIndex={0}
+                            >
+                              <span>{item.name}</span>
+                              <ChevronDown
+                                size={14}
+                                className="header-chevron text-[var(--header-text-muted)]"
+                                aria-hidden="true"
+                              />
+                            </div>
+                            {/* Dropdown Menu */}
+                            <div
+                              className="header-dropdown absolute top-full left-0 mt-2 w-56 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 z-50"
+                              role="menu"
+                              aria-label={`${item.name} submenu`}
+                            >
+                              <div className="py-2">
+                                {item.dropdown.map((subItem: any) => {
+                                  // Skip Profile if user is not authenticated
+                                  if (subItem.requiresAuth && !userId) return null;
+
+                                  // Skip Membership if membership subscription is not enabled
+                                  if (subItem.href === '/membership' && !settings?.isMembershipSubscriptionEnabled) return null;
+
+                                  const isSubItemActive = subItem.href === pathname ||
+                                    (subItem.href === '/membership' && pathname?.startsWith('/membership')) ||
+                                    (subItem.href === '/#about-us' && typeof window !== 'undefined' && window.location.hash === '#about-us') ||
+                                    (subItem.href === '/team' && pathname === '/team');
+
+                                  return (
+                                    <Link
+                                      key={subItem.name}
+                                      href={subItem.href}
+                                      onClick={(e) => {
+                                        // Handle smooth scroll for hash links
+                                        if (subItem.href.startsWith('/#')) {
+                                          handleSmoothScroll(e, subItem.href);
+                                        }
+                                      }}
+                                      className={`header-dropdown-item font-semibold block ${isSubItemActive ? 'active' : ''}`}
+                                      role="menuitem"
+                                      aria-label={`Navigate to ${subItem.name}`}
+                                    >
+                                      {subItem.name}
+                                    </Link>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <Link
+                            href={item.href}
+                            className={`header-nav-link font-semibold ${item.active ? 'active' : ''}`}
+                            onClick={(e) => handleSmoothScroll(e, item.href)}
+                            aria-label={getNavAriaLabel(item.name)}
+                            aria-current={item.active ? 'page' : undefined}
+                          >
+                            <span>{item.name}</span>
+                          </Link>
+                        )}
+                      </div>
+                    );
+                  })}
                 </nav>
               )}
 
               {/* Auth and Admin Menu Items */}
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center gap-2 ml-2">
                 {!userId ? (
                   <>
                     <Link
                       href="/sign-in"
-                      className={`
-                        relative flex items-center font-inter
-                        text-base font-medium tracking-wide
-                        px-3 py-2 mx-1
-                        transition-all duration-300 ease-in-out
-                        focus:outline-none
-                        text-blue-400 font-medium hover:text-blue-500 hover:font-semibold border-b-2 border-transparent hover:border-blue-400
-                      `}
+                      className="header-nav-link font-semibold"
                     >
-                      <span className="tracking-[0.025em]">Sign In</span>
+                      <span>Sign In</span>
                     </Link>
                     <Link
                       href="/sign-up"
-                      className={`
-                        relative flex items-center font-inter
-                        text-base font-medium tracking-wide
-                        px-3 py-2 mx-1
-                        transition-all duration-300 ease-in-out
-                        focus:outline-none
-                        text-blue-400 font-medium hover:text-blue-500 hover:font-semibold border-b-2 border-transparent hover:border-blue-400
-                      `}
+                      className="header-cta"
                     >
-                      <span className="tracking-[0.025em]">Sign Up</span>
+                      <span>Sign up</span>
                     </Link>
                   </>
                 ) : (
                   <>
-                    <Link
-                      href="/profile"
-                      className={`
-                        relative flex items-center font-inter
-                        text-base font-medium tracking-wide
-                        px-3 py-2 mx-1
-                        transition-all duration-300 ease-in-out
-                        focus:outline-none
-                        ${pathname === "/profile"
-                          ? 'text-blue-400 font-semibold border-b-2 border-blue-400'
-                          : 'text-blue-400 font-medium hover:text-blue-500 hover:font-semibold border-b-2 border-transparent hover:border-blue-400'
-                        }
-                      `}
-                    >
-                      <span className="tracking-[0.025em]">Profile</span>
-                    </Link>
-
-                    <button
-                      onClick={handleSignOut}
-                      disabled={isSigningOut}
-                      className={`
-                        relative flex items-center space-x-1 font-inter
-                        text-base font-medium tracking-wide
-                        px-3 py-2 mx-1
-                        transition-all duration-300 ease-in-out
-                        focus:outline-none
-                        ${isSigningOut
-                          ? 'text-gray-400 cursor-not-allowed'
-                          : 'text-blue-400 font-medium hover:text-blue-500 hover:font-semibold border-b-2 border-transparent hover:border-blue-400'
-                        }
-                      `}
-                      aria-label="Sign out"
-                    >
-                      <LogOut size={16} aria-hidden="true" />
-                      <span className="tracking-[0.025em]">
-                        {isSigningOut ? 'Signing Out...' : 'Sign Out'}
-                      </span>
-                    </button>
-
                     {/* Admin Menu with Submenu */}
                     {isAdmin && (
                       <div className="relative group">
                         <Link
                           href="/admin"
-                          className={`
-                            relative flex items-center space-x-1 font-inter
-                            text-base font-medium tracking-wide
-                            px-3 py-2 mx-1
-                            transition-all duration-300 ease-in-out
-                            focus:outline-none
-                            ${pathname?.startsWith("/admin")
-                              ? 'text-blue-400 font-semibold border-b-2 border-blue-400'
-                              : 'text-blue-400 font-medium hover:text-blue-500 hover:font-semibold border-b-2 border-transparent hover:border-blue-400'
-                            }
-                          `}
+                          className={`header-nav-link font-semibold flex items-center gap-1.5 ${pathname?.startsWith("/admin") ? 'active' : ''}`}
                         >
-                          <span className="tracking-[0.025em]">Admin</span>
+                          <span>Admin</span>
                           <ChevronDown
-                            size={16}
-                            className="text-blue-400 transition-transform duration-300 group-hover:rotate-180"
+                            size={14}
+                            className="header-chevron text-[var(--header-text-muted)]"
                             aria-hidden="true"
                           />
                         </Link>
 
                         {/* Admin Submenu */}
-                        <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50">
-                          <div className="py-3">
-                            {adminSubmenuItems.map(subItem => (
-                              <Link
-                                key={subItem.name}
-                                href={subItem.href}
-                                className="
-                                  block px-4 py-2 mx-1 rounded-lg
-                                  text-sm font-medium text-blue-400 tracking-[0.025em]
-                                  hover:text-blue-500 hover:font-semibold hover:bg-blue-50
-                                  focus:outline-none
-                                  transition-all duration-300 ease-in-out
-                                "
-                                role="menuitem"
-                                aria-label={`Navigate to ${subItem.name}`}
-                              >
-                                {subItem.name}
-                              </Link>
-                            ))}
+                        <div className="header-dropdown absolute top-full right-0 mt-2 w-64 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 z-50 max-h-[70vh] overflow-y-auto">
+                          <div className="py-2">
+                            {adminSubmenuItems.map(subItem => {
+                              const hasDropdown = subItem.dropdown && Array.isArray(subItem.dropdown);
+                              const isMembershipActive = hasDropdown && subItem.dropdown.some(
+                                (subSubItem: any) => pathname?.startsWith(subSubItem.href)
+                              );
+
+                              if (hasDropdown) {
+                                return (
+                                  <div key={subItem.name} className="relative group/membership">
+                                    <div
+                                      className={`header-dropdown-item font-semibold flex items-center justify-between cursor-pointer ${isMembershipActive ? 'active' : ''}`}
+                                    >
+                                      <span>{subItem.name}</span>
+                                      <ChevronDown
+                                        size={14}
+                                        className="header-chevron text-[var(--header-text-muted)]"
+                                        aria-hidden="true"
+                                      />
+                                    </div>
+                                    {/* Membership Submenu */}
+                                    <div className="header-dropdown absolute top-0 left-full ml-2 w-48 group-hover/membership:visible group-hover/membership:opacity-100 group-hover/membership:translate-y-0 group-hover/membership:scale-100 z-50">
+                                      <div className="py-2">
+                                        {subItem.dropdown.map((subSubItem: any) => {
+                                          const isSubSubItemActive = pathname?.startsWith(subSubItem.href);
+                                          return (
+                                            <Link
+                                              key={subSubItem.name}
+                                              href={subSubItem.href}
+                                              className={`header-dropdown-item font-semibold block ${isSubSubItemActive ? 'active' : ''}`}
+                                              role="menuitem"
+                                              aria-label={`Navigate to ${subSubItem.name}`}
+                                            >
+                                              {subSubItem.name}
+                                            </Link>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <Link
+                                  key={subItem.name}
+                                  href={subItem.href}
+                                  className={`header-dropdown-item font-semibold block ${pathname?.startsWith(subItem.href) ? 'active' : ''}`}
+                                  role="menuitem"
+                                  aria-label={`Navigate to ${subItem.name}`}
+                                >
+                                  {subItem.name}
+                                </Link>
+                              );
+                            })}
                           </div>
                         </div>
                       </div>
                     )}
 
-                    {/* UserButton removed with Clerk; consider adding profile avatar here */}
+                    {/* User Profile Avatar Dropdown - Rightmost */}
+                    <UserAvatarDropdown
+                      user={user}
+                      onSignOut={handleSignOut}
+                      isSigningOut={isSigningOut}
+                    />
                   </>
                 )}
               </div>
             </div>
 
             {/* Right side - Search and Mobile Menu */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               {/* Search Button */}
               <button
                 aria-label="Search"
-                className="
-                  hidden sm:flex items-center justify-center
-                  w-11 h-11 min-w-[44px] min-h-[44px]
-                  font-inter font-medium
-                  text-gray-600 hover:text-gray-900 active:text-blue-600
-                  bg-transparent hover:bg-gray-50 active:bg-gray-100
-                  border-2 border-transparent hover:border-gray-200 active:border-blue-300
-                  rounded-xl
-                  focus:outline-none
-                  transition-all duration-300 ease-in-out
-                  hover:scale-105 active:scale-98
-                  hover:shadow-sm active:shadow-md
-                "
+                className="header-search-btn hidden sm:flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[var(--header-focus-ring)]"
               >
                 <Search
-                  size={20}
-                  className="transition-all duration-300 ease-in-out"
+                  size={18}
                   strokeWidth={2}
                   aria-hidden="true"
                 />
@@ -401,18 +1022,7 @@ export default function Header({ hideMenuItems = false, variant = 'charity', isT
 
               {/* Mobile menu button */}
               <button
-                className="
-                  lg:hidden flex items-center justify-center
-                  w-11 h-11 min-w-[44px] min-h-[44px]
-                  text-gray-800 hover:text-gray-900 active:text-blue-600
-                  bg-white hover:bg-gray-50 active:bg-gray-100
-                  border border-gray-300 hover:border-gray-400
-                  rounded-lg
-                  focus:outline-none focus:ring-2 focus:ring-blue-500
-                  transition-colors duration-200
-                  touch-manipulation
-                  relative z-50
-                "
+                className="header-hamburger lg:hidden focus:outline-none focus:ring-2 focus:ring-[var(--header-focus-ring)]"
                 onClick={toggleMobileMenu}
                 aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
                 aria-expanded={isMobileMenuOpen}
@@ -420,16 +1030,13 @@ export default function Header({ hideMenuItems = false, variant = 'charity', isT
                 type="button"
               >
                 {!isMobileMenuOpen ? (
-                  <div className="flex flex-col justify-center items-center w-6 h-6">
-                    {/* Top bar - medium length (12px) */}
-                    <div className="w-3 h-0.5 bg-gray-800 rounded-sm mb-1"></div>
-                    {/* Middle bar - full length (16px) */}
-                    <div className="w-4 h-0.5 bg-gray-800 rounded-sm mb-1"></div>
-                    {/* Bottom bar - short length (8px) */}
-                    <div className="w-2 h-0.5 bg-gray-800 rounded-sm"></div>
-                  </div>
+                  <>
+                    <div className="header-hamburger-line"></div>
+                    <div className="header-hamburger-line"></div>
+                    <div className="header-hamburger-line"></div>
+                  </>
                 ) : (
-                  <X size={20} className="text-gray-800" />
+                  <X size={18} className="text-[var(--header-text-secondary)]" />
                 )}
               </button>
             </div>
@@ -440,7 +1047,7 @@ export default function Header({ hideMenuItems = false, variant = 'charity', isT
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="mobile-menu-overlay"
+          className="fixed inset-0 bg-[var(--header-text-primary)]/20 backdrop-blur-sm z-40 lg:hidden"
           onClick={closeMobileMenu}
         />
       )}
@@ -448,92 +1055,150 @@ export default function Header({ hideMenuItems = false, variant = 'charity', isT
       {/* Mobile Menu Sidebar */}
       <div
         id="mobile-menu"
-        className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`header-mobile-menu fixed top-0 right-0 h-full w-80 max-w-[85vw] z-50 transform transition-transform duration-300 ease-out lg:hidden ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         aria-hidden={!isMobileMenuOpen}
       >
         <div className="flex flex-col h-full">
           {/* Mobile Menu Header */}
-          <div className="flex items-center justify-between p-6">
-            <Link href="/" className="text-left">
-              <div className="text-lg font-bold text-purple-600 leading-tight">
-                Unite India
+          <div className="flex items-center justify-between p-5 border-b border-[var(--header-border)]">
+            <Link href="/" className="group flex items-center gap-2.5" onClick={closeMobileMenu}>
+              <div className="flex items-center justify-center w-[86px] min-w-[86px] h-14 rounded-lg flex-shrink-0 overflow-hidden">
+                <Image
+                  src="/images/logos/Malayalees_US/Malayalees_US_Header_Branding.png"
+                  alt="Unite India"
+                  width={86}
+                  height={56}
+                  className="w-full h-full object-contain"
+                />
               </div>
-              <div className="text-[10px] font-medium text-purple-500 uppercase tracking-wider">
-                A NONPROFIT CORPORATION
+              <div className="text-left">
+                <div className="header-logo-brand text-lg leading-tight inline-block">
+                  MALAYALEES.US
+                </div>
               </div>
             </Link>
             <button
               onClick={closeMobileMenu}
               className="
                 flex items-center justify-center
-                w-11 h-11 min-w-[44px] min-h-[44px]
-                font-inter font-medium
-                text-gray-500 hover:text-gray-800 active:text-red-600
-                bg-transparent hover:bg-gray-50 active:bg-gray-100
-                border-2 border-transparent hover:border-gray-200 active:border-red-300
-                rounded-xl
-                focus:outline-none
-                transition-all duration-300 ease-in-out
-                hover:scale-105 active:scale-98
-                hover:shadow-sm active:shadow-md
+                w-10 h-10
+                text-[var(--header-text-muted)] hover:text-[var(--header-accent-primary)]
+                bg-transparent hover:bg-[var(--header-hover-bg)]
+                rounded-lg
+                focus:outline-none focus:ring-2 focus:ring-[var(--header-focus-ring)]
+                transition-all duration-200
                 touch-manipulation
               "
               aria-label="Close navigation menu"
             >
-              <X
-                size={22}
-                className="transition-all duration-300 ease-in-out"
-                strokeWidth={2.5}
-                aria-hidden="true"
-              />
+              <X size={20} strokeWidth={2} aria-hidden="true" />
             </button>
           </div>
 
           {/* Mobile Menu Navigation */}
-          <nav className="flex-1 overflow-y-auto py-6" role="navigation" aria-label="Mobile navigation">
-            <ul className="space-y-1 px-6">
-              {!hideMenuItems && updatedNavItems.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className={`
-                      block py-4 px-4 min-h-[44px] rounded-xl
-                      font-inter text-base font-medium tracking-[0.025em]
-                      focus:outline-none
-                      transition-all duration-300 ease-in-out
-                      ${item.active
-                        ? 'text-blue-400 font-semibold border-l-4 border-blue-400'
-                        : 'text-blue-400 font-medium hover:text-blue-500 hover:font-semibold border-l-4 border-transparent hover:border-blue-400'
-                      }
-                    `}
-                    onClick={(e) => {
-                      closeMobileMenu();
-                      handleSmoothScroll(e, item.href);
-                    }}
-                    aria-label={`Navigate to ${item.name}`}
-                    aria-current={item.active ? 'page' : undefined}
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
+          <nav className="flex-1 overflow-y-auto py-4" role="navigation" aria-label="Mobile navigation">
+            <ul className="space-y-0.5 px-3">
+              {!hideMenuItems && updatedNavItems.map((item) => {
+                const hasDropdown = item.dropdown && Array.isArray(item.dropdown) && item.dropdown.length > 0;
+                const isDropdownOpen = openMobileDropdowns[item.name] || false;
+
+                if (hasDropdown) {
+                  return (
+                    <li key={item.name}>
+                      <button
+                        onClick={() => setOpenMobileDropdowns(prev => ({ ...prev, [item.name]: !prev[item.name] }))}
+                        className={`header-mobile-link w-full flex items-center justify-between ${isDropdownOpen ? 'active' : ''}`}
+                        aria-label={`Toggle ${item.name} submenu`}
+                        aria-expanded={isDropdownOpen}
+                      >
+                        <span>{item.name}</span>
+                        <ChevronDown
+                          size={16}
+                          className={`text-[var(--header-text-muted)] transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                          aria-hidden="true"
+                        />
+                      </button>
+                      {isDropdownOpen && (
+                        <ul className="pl-3 mt-1 space-y-0.5 border-l-2 border-[var(--header-border)] ml-4">
+                          {item.dropdown.map((subItem: any) => {
+                            // Skip Profile if user is not authenticated
+                            if (subItem.requiresAuth && !userId) return null;
+
+                            // Skip Membership if membership subscription is not enabled
+                            if (subItem.href === '/membership' && !settings?.isMembershipSubscriptionEnabled) return null;
+
+                            const isSubItemActive = subItem.href === pathname ||
+                              (subItem.href === '/membership' && pathname?.startsWith('/membership')) ||
+                              (subItem.href === '/#about-us' && typeof window !== 'undefined' && window.location.hash === '#about-us') ||
+                              (subItem.href === '/team' && pathname === '/team') ||
+                              (subItem.href === '/sponsors' && pathname === '/sponsors');
+
+                            return (
+                              <li key={subItem.name}>
+                                <Link
+                                  href={subItem.href}
+                                  onClick={(e) => {
+                                    // Handle smooth scroll for hash links
+                                    if (subItem.href.startsWith('/#')) {
+                                      handleSmoothScroll(e, subItem.href);
+                                    }
+                                    closeMobileMenu();
+                                  }}
+                                  className={`
+                                    block py-2.5 px-4 rounded-lg
+                                    font-['Plus_Jakarta_Sans'] text-sm font-semibold
+                                    transition-all duration-200
+                                    ${isSubItemActive
+                                      ? 'text-[var(--header-accent-primary)] bg-[var(--header-active-bg)]'
+                                      : 'text-[var(--header-text-secondary)] hover:text-[var(--header-accent-primary)] hover:bg-[var(--header-hover-bg)]'
+                                    }
+                                  `}
+                                  aria-label={`Navigate to ${subItem.name}`}
+                                >
+                                  {subItem.name}
+                                </Link>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+                    </li>
+                  );
+                }
+
+                return (
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      className={`header-mobile-link block ${item.active ? 'active' : ''}`}
+                      onClick={(e) => {
+                        closeMobileMenu();
+                        handleSmoothScroll(e, item.href);
+                      }}
+                      aria-label={getNavAriaLabel(item.name)}
+                      aria-current={item.active ? 'page' : undefined}
+                    >
+                      {item.name}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
 
             {/* Mobile Menu Auth Section */}
-            <div className="px-6 mt-8 space-y-3">
+            <div className="px-3 mt-6 space-y-2">
               {!userId ? (
-                <>
+                <div className="space-y-2 p-3 rounded-xl bg-gradient-to-br from-violet-50 to-amber-50 border border-[var(--header-border)]">
                   <Link
                     href="/sign-in"
                     className="
-                      block w-full py-4 px-6 min-h-[44px] rounded-xl
-                      font-inter font-medium text-base tracking-[0.025em]
-                      text-center border-2 border-blue-200 text-blue-600 hover:text-blue-700
-                      hover:bg-blue-50 hover:border-blue-300 hover:font-semibold
+                      block w-full py-3 px-4 rounded-lg
+                      font-['Plus_Jakarta_Sans'] font-medium text-sm
+                      text-center text-[var(--header-text-secondary)]
+                      hover:text-[var(--header-accent-primary)] hover:bg-white/80
                       focus:outline-none
-                      transition-all duration-300 ease-in-out
-                      active:scale-98
+                      transition-all duration-200
                     "
                     onClick={closeMobileMenu}
                   >
@@ -542,37 +1207,66 @@ export default function Header({ hideMenuItems = false, variant = 'charity', isT
                   <Link
                     href="/sign-up"
                     className="
-                      block w-full py-4 px-6 min-h-[44px] rounded-xl
-                      font-inter font-medium text-base tracking-[0.025em]
-                      text-center bg-blue-400 text-white hover:bg-blue-500
-                      hover:font-semibold focus:outline-none
-                      transition-all duration-300 ease-in-out
-                      active:scale-98
+                      block w-full py-3 px-4 rounded-lg
+                      font-['Plus_Jakarta_Sans'] font-semibold text-sm
+                      text-center text-white
+                      bg-gradient-to-r from-violet-600 to-violet-500
+                      hover:from-violet-700 hover:to-violet-600
+                      shadow-lg shadow-violet-500/20
+                      focus:outline-none focus:ring-2 focus:ring-violet-500/50
+                      transition-all duration-200
                     "
                     onClick={closeMobileMenu}
                   >
-                    Sign Up
+                    Sign up
                   </Link>
-                </>
+                </div>
               ) : (
                 <>
+                  {/* Mobile User Profile Section */}
+                  <div className="px-3 mb-4 pb-4 border-b border-[var(--header-border)]">
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-violet-50 to-amber-50">
+                      {user?.imageUrl ? (
+                        <div className="flex-shrink-0">
+                          <Image
+                            src={user.imageUrl}
+                            alt={user?.firstName || user?.fullName || user?.emailAddresses?.[0]?.emailAddress || 'User'}
+                            width={48}
+                            height={48}
+                            className="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-md"
+                            unoptimized
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-violet-500 to-amber-400 text-white rounded-full flex-shrink-0 shadow-md">
+                          <User size={22} className="text-white" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-[var(--header-text-primary)] truncate font-['Plus_Jakarta_Sans']">
+                          {user?.firstName || user?.fullName || user?.emailAddresses?.[0]?.emailAddress || 'User'}
+                        </p>
+                        {user?.emailAddresses?.[0]?.emailAddress && (
+                          <p className="text-xs text-[var(--header-text-muted)] truncate mt-0.5">
+                            {user.emailAddresses[0].emailAddress}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mobile Profile Link */}
                   <Link
                     href="/profile"
-                    className={`
-                      block w-full py-4 px-6 min-h-[44px] rounded-xl
-                      font-inter font-medium text-base tracking-[0.025em]
-                      text-center border-2 border-blue-200 text-blue-600 hover:text-blue-700
-                      hover:bg-blue-50 hover:border-blue-300 hover:font-semibold
-                      focus:outline-none
-                      transition-all duration-300 ease-in-out
-                      active:scale-98
-                      ${pathname === "/profile" ? "border-blue-400 bg-blue-50 font-semibold" : ""}
-                    `}
+                    className="header-mobile-link flex items-center gap-3"
                     onClick={closeMobileMenu}
+                    aria-label="View profile"
                   >
-                    Profile
+                    <User size={18} aria-hidden="true" />
+                    <span>Profile</span>
                   </Link>
 
+                  {/* Mobile Sign Out Button */}
                   <button
                     onClick={() => {
                       closeMobileMenu();
@@ -580,73 +1274,118 @@ export default function Header({ hideMenuItems = false, variant = 'charity', isT
                     }}
                     disabled={isSigningOut}
                     className={`
-                      flex items-center justify-center space-x-2
-                      w-full py-4 px-6 min-h-[44px] rounded-xl
-                      font-inter font-medium text-base tracking-[0.025em]
-                      border-2
+                      flex items-center justify-center gap-2
+                      w-full py-3 px-4 mx-0 rounded-lg
+                      font-['Plus_Jakarta_Sans'] font-medium text-sm
+                      border
                       focus:outline-none
-                      transition-all duration-300 ease-in-out
-                      active:scale-98
+                      transition-all duration-200
                       ${isSigningOut
                         ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'border-red-200 text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300 hover:font-semibold'
+                        : 'border-rose-200 text-rose-500 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-300'
                       }
                     `}
                     aria-label="Sign out"
                   >
-                    <LogOut size={18} aria-hidden="true" />
+                    <LogOut size={16} aria-hidden="true" />
                     <span>{isSigningOut ? 'Signing Out...' : 'Sign Out'}</span>
                   </button>
 
                   {/* Mobile Admin Menu */}
                   {isAdmin && (
-                    <>
-                      <div className="border-t border-gray-200 pt-4 mt-4">
-                        <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3 px-2">
-                          Admin Panel
-                        </div>
-                        {adminSubmenuItems.map(subItem => (
-                          <Link
-                            key={subItem.name}
-                            href={subItem.href}
-                            className="
-                              block py-3 px-4 min-h-[44px] rounded-lg
-                              font-inter text-sm font-medium text-blue-400 tracking-[0.025em]
-                              hover:text-blue-500 hover:font-semibold hover:bg-blue-50
-                              focus:outline-none
-                              transition-all duration-300 ease-in-out
-                            "
-                            onClick={closeMobileMenu}
-                            role="menuitem"
-                            aria-label={`Navigate to ${subItem.name}`}
-                          >
-                            {subItem.name}
-                          </Link>
-                        ))}
+                    <div className="border-t border-[var(--header-border)] pt-4 mt-4">
+                      <div className="text-xs font-semibold text-[var(--header-text-muted)] uppercase tracking-wider mb-3 px-4 font-['Plus_Jakarta_Sans']">
+                        Admin Panel
                       </div>
-                    </>
-                  )}
+                      <div className="space-y-0.5">
+                        {adminSubmenuItems.map(subItem => {
+                          const hasDropdown = subItem.dropdown && Array.isArray(subItem.dropdown);
+                          const isDropdownOpen = openMobileDropdowns[`admin-${subItem.name}`] || false;
 
-                  {/* UserButton removed with Clerk; consider adding profile avatar here */}
+                          if (hasDropdown) {
+                            return (
+                              <div key={subItem.name}>
+                                <button
+                                  onClick={() => setOpenMobileDropdowns(prev => ({ ...prev, [`admin-${subItem.name}`]: !prev[`admin-${subItem.name}`] }))}
+                                  className={`header-mobile-link w-full flex items-center justify-between text-sm py-2.5 ${isDropdownOpen ? 'active' : ''}`}
+                                  aria-label={`Toggle ${subItem.name} submenu`}
+                                  aria-expanded={isDropdownOpen}
+                                >
+                                  <span>{subItem.name}</span>
+                                  <ChevronDown
+                                    size={14}
+                                    className={`text-[var(--header-text-muted)] transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                                    aria-hidden="true"
+                                  />
+                                </button>
+                                {isDropdownOpen && (
+                                  <ul className="pl-3 mt-1 space-y-0.5 border-l-2 border-[var(--header-border)] ml-4">
+                                    {subItem.dropdown.map((subSubItem: any) => {
+                                      const isSubSubItemActive = pathname?.startsWith(subSubItem.href);
+                                      return (
+                                        <li key={subSubItem.name}>
+                                          <Link
+                                            href={subSubItem.href}
+                                            className={`
+                                              block py-2 px-4 rounded-lg
+                                              font-['Plus_Jakarta_Sans'] text-xs font-semibold
+                                              transition-all duration-200
+                                              ${isSubSubItemActive
+                                                ? 'text-[var(--header-accent-primary)] bg-[var(--header-active-bg)]'
+                                                : 'text-[var(--header-text-secondary)] hover:text-[var(--header-accent-primary)] hover:bg-[var(--header-hover-bg)]'
+                                              }
+                                            `}
+                                            onClick={closeMobileMenu}
+                                            role="menuitem"
+                                            aria-label={`Navigate to ${subSubItem.name}`}
+                                          >
+                                            {subSubItem.name}
+                                          </Link>
+                                        </li>
+                                      );
+                                    })}
+                                  </ul>
+                                )}
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <Link
+                              key={subItem.name}
+                              href={subItem.href}
+                              className={`header-mobile-link block text-sm py-2.5 ${pathname?.startsWith(subItem.href) ? 'active' : ''}`}
+                              onClick={closeMobileMenu}
+                              role="menuitem"
+                              aria-label={`Navigate to ${subItem.name}`}
+                            >
+                              {subItem.name}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
             </div>
 
             {/* Mobile Menu Actions */}
-            <div className="px-6 mt-8 space-y-3">
+            <div className="px-3 mt-6 mb-6">
               <button
                 className="
-                  w-full py-4 px-6 min-h-[44px] rounded-xl
-                  font-inter font-medium text-base tracking-[0.025em]
-                  border-2 border-gray-200 text-gray-600 hover:text-gray-900
-                  hover:bg-gray-50 hover:border-gray-300 hover:font-semibold
-                  focus:outline-none
-                  transition-all duration-300 ease-in-out
-                  active:scale-98 flex items-center justify-center space-x-2
+                  w-full py-3 px-4 rounded-lg
+                  font-['Plus_Jakarta_Sans'] font-medium text-sm
+                  border border-[var(--header-border)]
+                  text-[var(--header-text-secondary)]
+                  hover:text-[var(--header-accent-primary)] hover:bg-[var(--header-hover-bg)] hover:border-[var(--header-accent-primary)]
+                  focus:outline-none focus:ring-2 focus:ring-[var(--header-focus-ring)]
+                  transition-all duration-200
+                  flex items-center justify-center gap-2
                 "
                 aria-label="Search"
               >
-                <Search size={20} aria-hidden="true" />
+                <Search size={16} aria-hidden="true" />
                 <span>Search</span>
               </button>
             </div>

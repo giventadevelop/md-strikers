@@ -1,5 +1,6 @@
 import { fetchWithJwtRetry } from '@/lib/proxyHandler';
 import { withTenantId } from '@/lib/withTenantId';
+import { getAppUrl, getApiBaseUrl } from '@/lib/env';
 import type {
   TenantSettingsDTO,
   TenantSettingsFormDTO,
@@ -8,7 +9,10 @@ import type {
   PaginatedResponse
 } from '@/app/admin/tenant-management/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+// Lazy getter — evaluated at call time, not module load time (critical for Lambda cold starts)
+function getApiBase() {
+  return getApiBaseUrl();
+}
 
 /**
  * Fetch paginated list of tenant settings
@@ -39,7 +43,7 @@ export async function fetchTenantSettings(
     }
 
     const response = await fetchWithJwtRetry(
-      `${API_BASE_URL}/api/tenant-settings?${params.toString()}`,
+      `${getApiBase()}/api/tenant-settings?${params.toString()}`,
       { cache: 'no-store' }
     );
 
@@ -69,7 +73,7 @@ export async function fetchTenantSettings(
 export async function fetchTenantSetting(id: number): Promise<TenantSettingsDTO | null> {
   try {
     const response = await fetchWithJwtRetry(
-      `${API_BASE_URL}/api/tenant-settings/${id}`,
+      `${getApiBase()}/api/tenant-settings/${id}`,
       { cache: 'no-store' }
     );
 
@@ -97,7 +101,7 @@ export async function fetchTenantSettingsByTenantId(tenantId: string): Promise<T
     params.append('tenantId.equals', tenantId);
 
     const response = await fetchWithJwtRetry(
-      `${API_BASE_URL}/api/tenant-settings?${params.toString()}`,
+      `${getApiBase()}/api/tenant-settings?${params.toString()}`,
       { cache: 'no-store' }
     );
 
@@ -124,7 +128,7 @@ export async function createTenantSetting(data: TenantSettingsFormDTO): Promise<
       updatedAt: new Date().toISOString(),
     });
 
-    const response = await fetchWithJwtRetry(`${API_BASE_URL}/api/tenant-settings`, {
+    const response = await fetchWithJwtRetry(`${getApiBase()}/api/tenant-settings`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -161,19 +165,19 @@ export async function updateTenantSetting(
 
     // If tenantOrganization is missing or incomplete, try to fetch it by tenantId
     let tenantOrganization = existingSetting.tenantOrganization;
-    
+
     if (!tenantOrganization || !tenantOrganization.id) {
       console.log('[updateTenantSetting] Missing tenantOrganization, fetching by tenantId:', existingSetting.tenantId);
-      
+
       try {
         // Import the function to fetch tenant organizations
         const { fetchTenantOrganizations } = await import('@/app/admin/tenant-management/organizations/ApiServerActions');
-        
+
         const orgResult = await fetchTenantOrganizations(
-          { page: 0, pageSize: 1 }, 
+          { page: 0, pageSize: 1 },
           { tenantId: existingSetting.tenantId }
         );
-        
+
         if (orgResult.data && orgResult.data.length > 0) {
           tenantOrganization = orgResult.data[0];
           console.log('[updateTenantSetting] Found tenantOrganization:', {
@@ -205,7 +209,7 @@ export async function updateTenantSetting(
       hasOrganization: !!tenantOrganization
     });
 
-    const response = await fetchWithJwtRetry(`${API_BASE_URL}/api/tenant-settings/${id}`, {
+    const response = await fetchWithJwtRetry(`${getApiBase()}/api/tenant-settings/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -235,26 +239,26 @@ export async function patchTenantSetting(
   try {
     // For PATCH operations, we should also preserve tenantOrganization if not explicitly provided
     const existingSetting = await fetchTenantSetting(id);
-    
+
     if (!existingSetting) {
       throw new Error('Tenant setting not found');
     }
 
     // If tenantOrganization is missing or incomplete, try to fetch it by tenantId
     let tenantOrganization = existingSetting.tenantOrganization;
-    
+
     if (!tenantOrganization || !tenantOrganization.id) {
       console.log('[patchTenantSetting] Missing tenantOrganization, fetching by tenantId:', existingSetting.tenantId);
-      
+
       try {
         // Import the function to fetch tenant organizations
         const { fetchTenantOrganizations } = await import('@/app/admin/tenant-management/organizations/ApiServerActions');
-        
+
         const orgResult = await fetchTenantOrganizations(
-          { page: 0, pageSize: 1 }, 
+          { page: 0, pageSize: 1 },
           { tenantId: existingSetting.tenantId }
         );
-        
+
         if (orgResult.data && orgResult.data.length > 0) {
           tenantOrganization = orgResult.data[0];
           console.log('[patchTenantSetting] Found tenantOrganization:', {
@@ -285,7 +289,7 @@ export async function patchTenantSetting(
       hasOrganization: !!tenantOrganization
     });
 
-    const response = await fetchWithJwtRetry(`${API_BASE_URL}/api/tenant-settings/${id}`, {
+    const response = await fetchWithJwtRetry(`${getApiBase()}/api/tenant-settings/${id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/merge-patch+json',
@@ -310,7 +314,7 @@ export async function patchTenantSetting(
  */
 export async function deleteTenantSetting(id: number): Promise<void> {
   try {
-    const response = await fetchWithJwtRetry(`${API_BASE_URL}/api/tenant-settings/${id}`, {
+    const response = await fetchWithJwtRetry(`${getApiBase()}/api/tenant-settings/${id}`, {
       method: 'DELETE',
     });
 
@@ -322,4 +326,97 @@ export async function deleteTenantSetting(id: number): Promise<void> {
     console.error('Error deleting tenant setting:', error);
     throw new Error('Failed to delete tenant setting');
   }
+}
+
+/**
+ * Upload email footer HTML file (client-side function)
+ * Note: This must be called from client components, not server actions
+ */
+export async function uploadEmailFooterHtmlClient(
+  file: File
+): Promise<{ url: string }> {
+  const baseUrl = getAppUrl();
+  const formData = new FormData();
+
+  formData.append('file', file);
+
+  const url = `${baseUrl}/api/proxy/tenant-settings/upload/email-footer-html`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error(`[Client] Error uploading email footer HTML: ${response.status} ${response.statusText}`, errorBody);
+    throw new Error(`Failed to upload email footer HTML. Status: ${response.status}`);
+  }
+
+  const result = await response.json();
+  return {
+    url: result.emailFooterHtmlUrl || result.url || '',
+  };
+}
+
+/**
+ * Upload tenant logo image (client-side function)
+ * Note: This must be called from client components, not server actions
+ */
+export async function uploadTenantLogoClient(
+  file: File
+): Promise<{ url: string }> {
+  const baseUrl = getAppUrl();
+  const formData = new FormData();
+
+  formData.append('file', file);
+
+  const url = `${baseUrl}/api/proxy/tenant-settings/upload/tenant-logo`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error(`[Client] Error uploading tenant logo: ${response.status} ${response.statusText}`, errorBody);
+    throw new Error(`Failed to upload tenant logo. Status: ${response.status}`);
+  }
+
+  const result = await response.json();
+  return {
+    url: result.logoImageUrl || result.url || '',
+  };
+}
+
+/**
+ * Upload email header image (client-side function)
+ * Note: This must be called from client components, not server actions
+ */
+export async function uploadEmailHeaderImageClient(
+  file: File
+): Promise<{ url: string }> {
+  const baseUrl = getAppUrl();
+  const formData = new FormData();
+
+  formData.append('file', file);
+
+  const url = `${baseUrl}/api/proxy/tenant-settings/upload/email-header-image`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error(`[Client] Error uploading email header image: ${response.status} ${response.statusText}`, errorBody);
+    throw new Error(`Failed to upload email header image. Status: ${response.status}`);
+  }
+
+  const result = await response.json();
+  return {
+    url: result.emailHeaderImageUrl || result.url || '',
+  };
 }

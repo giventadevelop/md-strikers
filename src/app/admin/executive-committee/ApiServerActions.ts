@@ -1,20 +1,45 @@
-import { getAppUrl, getTenantId } from '@/lib/env';
+import { getAppUrl, getTenantId, getApiBaseUrl } from '@/lib/env';
 import type { ExecutiveCommitteeTeamMemberDTO } from '@/types/executiveCommitteeTeamMember';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+// Lazy getter — evaluated at call time, not module load time (critical for Lambda cold starts)
+function getApiBase() {
+  return getApiBaseUrl();
+}
 
 export async function fetchExecutiveCommitteeMembers(): Promise<ExecutiveCommitteeTeamMemberDTO[]> {
   try {
     const baseUrl = getAppUrl();
-    const response = await fetch(`${baseUrl}/api/proxy/executive-committee-team-members`);
+    // Proxy injects tenantId.equals per nextjs_api_routes.mdc; only pass filter/sort here
+    const params = new URLSearchParams({
+      'isActive.equals': 'true',
+      sort: 'priorityOrder,asc',
+    });
+    const url = `${baseUrl}/api/proxy/executive-committee-team-members?${params.toString()}`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+
+    const response = await fetch(url, {
+      signal: controller.signal,
+      cache: 'no-store',
+    });
+
+    clearTimeout(timeout);
 
     if (!response.ok) {
       throw new Error(`Failed to fetch executive committee members: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    // Handle both plain array and Spring Data paged response { content: [...], totalElements }
+    if (Array.isArray(data)) return data;
+    if (data && typeof data === 'object' && Array.isArray(data.content)) return data.content;
+    return [];
   } catch (error) {
-    console.error('Error fetching executive committee members:', error);
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.warn('Executive committee members fetch timed out after 15 seconds');
+    } else {
+      console.error('Error fetching executive committee members:', error);
+    }
     return [];
   }
 }
@@ -170,12 +195,12 @@ export async function uploadTeamMemberProfileImage(
       // CRITICAL: Handle null objects gracefully - even in success scenarios
       try {
         const result = await response.json();
-        
+
         // 🎯 CRITICAL: Safely check for null/undefined objects before accessing properties
         // This prevents getId() or property access errors on null objects
-        
+
         let imageUrl: string | null = null;
-        
+
         // Try different possible response structures, but safely check for null first
         if (result && typeof result === 'object') {
           if (result.data && Array.isArray(result.data) && result.data.length > 0) {
@@ -189,7 +214,7 @@ export async function uploadTeamMemberProfileImage(
             imageUrl = result.url;
           }
         }
-        
+
         if (imageUrl && typeof imageUrl === 'string') {
           console.log('✅ Successfully extracted image URL:', imageUrl);
           return imageUrl;
@@ -209,7 +234,7 @@ export async function uploadTeamMemberProfileImage(
       // 🚫 Any non-2xx status code indicates failure
       // CRITICAL: For error responses, avoid parsing the response body as it may contain null objects
       console.error('❌ Upload failed - HTTP status:', response.status);
-      
+
       // Don't try to parse error response body to avoid null object issues
       // The proxy handler now returns structured error JSON, but we'll be safe and not rely on it
       throw new Error(`Upload failed with HTTP status ${response.status}. Please try again or contact support if the issue persists.`);

@@ -47,6 +47,7 @@ export interface TenantSettingsDTO {
   showEventsSectionInHomePage?: boolean;
   showTeamMembersSectionInHomePage?: boolean;
   showSponsorsSectionInHomePage?: boolean;
+  isMembershipSubscriptionEnabled?: boolean;
   // Enhanced WhatsApp Integration Fields
   whatsappPhoneNumber?: string;
   twilioAccountSid?: string;
@@ -58,6 +59,26 @@ export interface TenantSettingsDTO {
   whatsappRateLimit?: number;
   whatsappWebhookUrl?: string;
   whatsappWebhookToken?: string;
+  emailFooterHtmlUrl?: string; // S3 URL for email footer HTML file
+  emailHeaderImageUrl?: string; // S3 URL for email header image
+  logoImageUrl?: string; // S3 URL for tenant logo image
+  // Homepage edge cache version (cache-busting; bump to refresh CDN cache)
+  homepageCacheVersion?: number;
+  // Contact and Address Fields
+  addressLine1?: string;
+  addressLine2?: string;
+  phoneNumber?: string;
+  zipCode?: string;
+  country?: string;
+  stateProvince?: string;
+  email?: string;
+  // Social media URLs (Follow our journey / organization links)
+  facebookUrl?: string;
+  instagramUrl?: string;
+  twitterUrl?: string;
+  linkedinUrl?: string;
+  youtubeUrl?: string;
+  tiktokUrl?: string;
   createdAt: string; // ISO date-time
   updatedAt: string; // ISO date-time
   tenantOrganization?: TenantOrganizationDTO;

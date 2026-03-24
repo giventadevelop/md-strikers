@@ -1,10 +1,13 @@
 'use server';
 
 import { fetchWithJwtRetry } from '@/lib/proxyHandler';
-import { getTenantId } from '@/lib/env';
-import type { EventDetailsDTO, EventMediaDTO } from '@/types';
+import { getTenantId, getApiBaseUrl } from '@/lib/env';
+import type { EventDetailsDTO, EventMediaDTO, GalleryAlbumDTO, GalleryAlbumWithMedia } from '@/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+// Lazy getter — evaluated at call time, not module load time (critical for Lambda cold starts)
+function getApiBase() {
+  return getApiBaseUrl();
+}
 
 export interface GalleryEventWithMedia {
   event: EventDetailsDTO;
@@ -15,6 +18,15 @@ export interface GalleryEventWithMedia {
 export interface GalleryPageData {
   eventsWithMedia: GalleryEventWithMedia[];
   totalEvents: number;
+  currentPage: number;
+  totalPages: number;
+}
+
+export interface GalleryPageDataWithAlbums {
+  eventsWithMedia: GalleryEventWithMedia[];
+  albumsWithMedia: GalleryAlbumWithMedia[];
+  totalEvents: number;
+  totalAlbums: number;
   currentPage: number;
   totalPages: number;
 }
@@ -31,7 +43,7 @@ export async function fetchEventsForGallery(
 ): Promise<GalleryPageData> {
   try {
     const tenantId = getTenantId();
-    
+
         // Build query parameters for events
         const eventParams = new URLSearchParams();
         eventParams.append('tenantId.equals', tenantId);
@@ -53,7 +65,7 @@ export async function fetchEventsForGallery(
         }
 
     // Fetch events
-    const eventsUrl = `${API_BASE_URL}/api/event-details?${eventParams.toString()}`;
+    const eventsUrl = `${getApiBase()}/api/event-details?${eventParams.toString()}`;
     const eventsResponse = await fetchWithJwtRetry(eventsUrl, { cache: 'no-store' });
 
     if (!eventsResponse.ok) {
@@ -72,7 +84,7 @@ export async function fetchEventsForGallery(
 
     // Fetch media for each event
     const eventsWithMedia: GalleryEventWithMedia[] = [];
-    
+
     for (const event of eventsArray) {
       try {
         // Fetch public media for this event (exclude official documents)
@@ -84,7 +96,7 @@ export async function fetchEventsForGallery(
         mediaParams.append('sort', 'updatedAt,desc');
         mediaParams.append('size', '50');
 
-        const mediaUrl = `${API_BASE_URL}/api/event-medias?${mediaParams.toString()}`;
+        const mediaUrl = `${getApiBase()}/api/event-medias?${mediaParams.toString()}`;
         console.log(`Fetching media for event ${event.id}: ${mediaUrl}`);
         const mediaResponse = await fetchWithJwtRetry(mediaUrl, { cache: 'no-store' });
 
@@ -154,7 +166,7 @@ export async function fetchEventMedia(
     params.append('page', page.toString());
     params.append('size', size.toString());
 
-    const url = `${API_BASE_URL}/api/event-medias?${params.toString()}`;
+    const url = `${getApiBase()}/api/event-medias?${params.toString()}`;
     const response = await fetchWithJwtRetry(url, { cache: 'no-store' });
 
     if (!response.ok) {
@@ -199,7 +211,7 @@ export async function searchEventsForGallery(
       params.append('startDate.lessThanOrEqual', endDate);
     }
 
-    const url = `${API_BASE_URL}/api/event-details?${params.toString()}`;
+    const url = `${getApiBase()}/api/event-details?${params.toString()}`;
     const response = await fetchWithJwtRetry(url, { cache: 'no-store' });
 
     if (!response.ok) {
@@ -213,5 +225,180 @@ export async function searchEventsForGallery(
   } catch (error) {
     console.error('Error searching events:', error);
     return [];
+  }
+}
+
+/**
+ * Fetch albums with their media for gallery display
+ */
+export async function fetchAlbumsForGallery(
+  page: number = 0,
+  size: number = 12,
+  searchTerm: string = '',
+  startDate?: string,
+  endDate?: string
+): Promise<{
+  albumsWithMedia: GalleryAlbumWithMedia[];
+  totalAlbums: number;
+  currentPage: number;
+  totalPages: number;
+}> {
+  try {
+    const tenantId = getTenantId();
+
+    // Build query parameters for albums
+    const albumParams = new URLSearchParams();
+    albumParams.append('tenantId.equals', tenantId);
+    albumParams.append('isPublic.equals', 'true'); // Public albums only for gallery
+    albumParams.append('page', page.toString());
+    albumParams.append('size', size.toString());
+    albumParams.append('sort', 'displayOrder,asc');
+    albumParams.append('sort', 'createdAt,desc');
+
+    if (searchTerm) {
+      albumParams.append('title.contains', searchTerm);
+    }
+
+    // Add date range filtering (for albums, filter by createdAt)
+    if (startDate) {
+      albumParams.append('createdAt.greaterThanOrEqual', startDate);
+    }
+    if (endDate) {
+      albumParams.append('createdAt.lessThanOrEqual', endDate);
+    }
+
+    // Fetch albums
+    const albumsUrl = `${getApiBase()}/api/gallery-albums?${albumParams.toString()}`;
+    const albumsResponse = await fetchWithJwtRetry(albumsUrl, { cache: 'no-store' });
+
+    if (!albumsResponse.ok) {
+      console.error(`Failed to fetch albums for gallery: ${albumsResponse.statusText}`);
+      return {
+        albumsWithMedia: [],
+        totalAlbums: 0,
+        currentPage: page,
+        totalPages: 0
+      };
+    }
+
+    const totalAlbums = parseInt(albumsResponse.headers.get('X-Total-Count') || '0', 10);
+    const albums: GalleryAlbumDTO[] = await albumsResponse.json();
+    const albumsArray = Array.isArray(albums) ? albums : [];
+
+    // Fetch media for each album
+    const albumsWithMedia: GalleryAlbumWithMedia[] = [];
+
+    for (const album of albumsArray) {
+      try {
+        // Fetch public media for this album
+        const mediaParams = new URLSearchParams();
+        mediaParams.append('albumId.equals', album.id!.toString());
+        mediaParams.append('isPublic.equals', 'true');
+        mediaParams.append('sort', 'displayOrder,asc');
+        mediaParams.append('sort', 'updatedAt,desc');
+        mediaParams.append('size', '50');
+
+        const mediaUrl = `${getApiBase()}/api/event-medias?${mediaParams.toString()}`;
+        console.log(`Fetching media for album ${album.id}: ${mediaUrl}`);
+        const mediaResponse = await fetchWithJwtRetry(mediaUrl, { cache: 'no-store' });
+
+        let media: EventMediaDTO[] = [];
+        let totalMediaCount = 0;
+
+        if (mediaResponse.ok) {
+          totalMediaCount = parseInt(mediaResponse.headers.get('X-Total-Count') || '0', 10);
+          const mediaData = await mediaResponse.json();
+          media = Array.isArray(mediaData) ? mediaData : [];
+          console.log(`Album ${album.id} media fetched:`, { totalMediaCount, mediaCount: media.length });
+        } else {
+          console.log(`Failed to fetch media for album ${album.id}:`, mediaResponse.status, mediaResponse.statusText);
+        }
+
+        albumsWithMedia.push({
+          album,
+          media,
+          totalMediaCount
+        });
+
+      } catch (mediaError) {
+        console.error(`Failed to fetch media for album ${album.id}:`, mediaError);
+        albumsWithMedia.push({
+          album,
+          media: [],
+          totalMediaCount: 0
+        });
+      }
+    }
+
+    const totalPages = Math.ceil(totalAlbums / size);
+
+    return {
+      albumsWithMedia,
+      totalAlbums,
+      currentPage: page,
+      totalPages
+    };
+
+  } catch (error) {
+    console.error('Error fetching albums for gallery:', error);
+    return {
+      albumsWithMedia: [],
+      totalAlbums: 0,
+      currentPage: page,
+      totalPages: 0
+    };
+  }
+}
+
+/**
+ * Fetch album by ID with media
+ */
+export async function fetchAlbumWithMedia(
+  albumId: number
+): Promise<GalleryAlbumWithMedia | null> {
+  try {
+    // Fetch album
+    const albumUrl = `${getApiBase()}/api/gallery-albums/${albumId}`;
+    const albumResponse = await fetchWithJwtRetry(albumUrl, { cache: 'no-store' });
+
+    if (!albumResponse.ok) {
+      if (albumResponse.status === 404) {
+        return null;
+      }
+      console.error(`Failed to fetch album ${albumId}:`, albumResponse.statusText);
+      return null;
+    }
+
+    const album: GalleryAlbumDTO = await albumResponse.json();
+
+    // Fetch media for album
+    const mediaParams = new URLSearchParams();
+    mediaParams.append('albumId.equals', albumId.toString());
+    mediaParams.append('isPublic.equals', 'true');
+    mediaParams.append('sort', 'displayOrder,asc');
+    mediaParams.append('sort', 'updatedAt,desc');
+    mediaParams.append('size', '100');
+
+    const mediaUrl = `${getApiBase()}/api/event-medias?${mediaParams.toString()}`;
+    const mediaResponse = await fetchWithJwtRetry(mediaUrl, { cache: 'no-store' });
+
+    let media: EventMediaDTO[] = [];
+    let totalMediaCount = 0;
+
+    if (mediaResponse.ok) {
+      totalMediaCount = parseInt(mediaResponse.headers.get('X-Total-Count') || '0', 10);
+      const mediaData = await mediaResponse.json();
+      media = Array.isArray(mediaData) ? mediaData : [];
+    }
+
+    return {
+      album,
+      media,
+      totalMediaCount
+    };
+
+  } catch (error) {
+    console.error(`Error fetching album ${albumId} with media:`, error);
+    return null;
   }
 }

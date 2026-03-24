@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { FaPlus, FaSearch, FaFilter } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaFilter, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import DataTable, { Column } from '@/components/ui/DataTable';
@@ -16,6 +16,7 @@ import {
   updateEventFeaturedPerformerServer,
   deleteEventFeaturedPerformerServer,
 } from './ApiServerActions';
+import { fetchEventsFilteredServer } from '../ApiServerActions';
 
 export default function EventFeaturedPerformersPage() {
   const { userId } = useAuth();
@@ -23,8 +24,15 @@ export default function EventFeaturedPerformersPage() {
   const { toasts, showSuccess, showError, removeToast } = useToast();
 
   const [performers, setPerformers] = useState<EventFeaturedPerformersDTO[]>([]);
+  const [events, setEvents] = useState<EventDetailsDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [eventFilter, setEventFilter] = useState<string>('');
+
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [pageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
 
   // Modal states
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -57,15 +65,29 @@ export default function EventFeaturedPerformersPage() {
   useEffect(() => {
     if (userId) {
       loadPerformers();
+      loadEvents();
     }
-  }, [userId]);
+  }, [userId, page]);
+
+  const loadEvents = async () => {
+    try {
+      const result = await fetchEventsFilteredServer({
+        pageSize: 1000, // Load all events for dropdown
+        sort: 'startDate,desc'
+      });
+      setEvents(result.events);
+    } catch (err: any) {
+      console.error('Failed to load events:', err);
+    }
+  };
 
   const loadPerformers = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await fetchEventFeaturedPerformersServer();
-      setPerformers(data);
+      const result = await fetchEventFeaturedPerformersServer(undefined, page, pageSize);
+      setPerformers(result.data);
+      setTotalCount(result.totalCount);
     } catch (err: any) {
       setError(err.message || 'Failed to load performers');
       showError('Error', err.message || 'Failed to load performers');
@@ -77,11 +99,17 @@ export default function EventFeaturedPerformersPage() {
   const handleCreate = async () => {
     try {
       setLoading(true);
-      const newPerformer = await createEventFeaturedPerformerServer(formData as any);
-      setPerformers(prev => [...prev, newPerformer]);
+      // Include event association if selected
+      const performerData = {
+        ...formData,
+        event: formData.event?.id ? { id: formData.event.id } as EventDetailsDTO : undefined
+      };
+      const newPerformer = await createEventFeaturedPerformerServer(performerData as any);
       setIsCreateModalOpen(false);
       resetForm();
       showSuccess('Success', 'Performer created successfully');
+      // Reload current page to refresh the list
+      await loadPerformers();
     } catch (err: any) {
       showError('Error', err.message || 'Failed to create performer');
     } finally {
@@ -94,7 +122,12 @@ export default function EventFeaturedPerformersPage() {
 
     try {
       setLoading(true);
-      const updatedPerformer = await updateEventFeaturedPerformerServer(selectedPerformer.id!, formData);
+      // Include event association if selected
+      const performerData = {
+        ...formData,
+        event: formData.event?.id ? { id: formData.event.id } as EventDetailsDTO : undefined
+      };
+      const updatedPerformer = await updateEventFeaturedPerformerServer(selectedPerformer.id!, performerData);
       setPerformers(prev => prev.map(p => p.id === selectedPerformer.id ? updatedPerformer : p));
       setIsEditModalOpen(false);
       setSelectedPerformer(null);
@@ -113,10 +146,11 @@ export default function EventFeaturedPerformersPage() {
     try {
       setLoading(true);
       await deleteEventFeaturedPerformerServer(selectedPerformer.id!);
-      setPerformers(prev => prev.filter(p => p.id !== selectedPerformer.id));
       setIsDeleteModalOpen(false);
       setSelectedPerformer(null);
       showSuccess('Success', 'Performer deleted successfully');
+      // Reload current page to refresh the list
+      await loadPerformers();
     } catch (err: any) {
       showError('Error', err.message || 'Failed to delete performer');
     } finally {
@@ -139,13 +173,13 @@ export default function EventFeaturedPerformersPage() {
       isHeadliner: false,
       performanceDuration: 0,
       specialRequirements: '',
+      event: undefined,
     });
   };
 
   const openEditModal = (performer: EventFeaturedPerformersDTO) => {
-    setSelectedPerformer(performer);
-    setFormData(performer);
-    setIsEditModalOpen(true);
+    // Navigate to detail/edit page instead of opening modal
+    router.push(`/admin/event-featured-performers/${performer.id}`);
   };
 
   const openDeleteModal = (performer: EventFeaturedPerformersDTO) => {
@@ -171,11 +205,15 @@ export default function EventFeaturedPerformersPage() {
     setPerformers(sorted);
   };
 
-  const filteredPerformers = performers.filter(performer =>
-    performer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    performer.stageName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    performer.role?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPerformers = performers.filter(performer => {
+    const matchesSearch = performer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      performer.stageName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      performer.role?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesEventFilter = !eventFilter || performer.event?.id?.toString() === eventFilter;
+
+    return matchesSearch && matchesEventFilter;
+  });
 
   const columns: Column<EventFeaturedPerformersDTO>[] = [
     { key: 'name', label: 'Name', sortable: true },
@@ -192,6 +230,27 @@ export default function EventFeaturedPerformersPage() {
       render: (value) => value || '-'
     },
     {
+      key: 'event',
+      label: 'Event',
+      sortable: false,
+      render: (value, row) => {
+        if (row.event?.id && row.event?.title) {
+          return (
+            <a
+              href={`/admin/events/${row.event.id}`}
+              className="text-blue-600 hover:text-blue-800 underline"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              {row.event.title}
+            </a>
+          );
+        }
+        return <span className="text-gray-400">-</span>;
+      }
+    },
+    {
       key: 'isHeadliner',
       label: 'Headliner',
       sortable: true,
@@ -202,11 +261,6 @@ export default function EventFeaturedPerformersPage() {
       label: 'Order',
       sortable: true,
       render: (value) => value || 0
-    },
-    {
-      key: 'contactEmail',
-      label: 'Email',
-      render: (value) => value || '-'
     },
   ];
 
@@ -219,52 +273,145 @@ export default function EventFeaturedPerformersPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-8 py-8" style={{ paddingTop: '180px' }}>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Event Featured Performers</h1>
-      <AdminNavigation />
+    <div className="w-full overflow-x-hidden box-border" style={{ paddingTop: '120px' }}>
+      {/* Navigation Section - Full Width, Separate Responsive Container */}
+      <div className="w-full px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 mb-6 sm:mb-8">
+        <AdminNavigation />
+      </div>
+      {/* Main Content Section - Constrained Width */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-8">
+        {/* Page Header */}
+        <div className="mb-4 sm:mb-6 md:mb-8">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white text-center sm:text-left mb-2">Global Performers</h1>
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left">(You can add or disassociate these items with any events. Please go to the corresponding event page to manage these associated entities.)</p>
+        </div>
 
-      {/* Search and Filter Bar */}
-      <div className="mb-6 bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-        <div className="flex flex-wrap gap-4 items-center">
-          <div className="flex-1 min-w-64">
-            <div className="relative">
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search performers..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+        {/* Search and Filter Bar */}
+        <div className="mb-4 sm:mb-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-3 sm:p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+            <div className="flex-1 min-w-0">
+              <div className="relative">
+                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search performers..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm sm:text-base"
+                />
+              </div>
             </div>
+            <div className="min-w-0 sm:min-w-48">
+              <div className="relative">
+                <FaFilter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" />
+                <select
+                  value={eventFilter}
+                  onChange={(e) => setEventFilter(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm sm:text-base"
+                >
+                  <option value="">All Events</option>
+                  {events.map(event => (
+                    <option key={event.id} value={event.id?.toString()}>
+                      {event.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex-shrink-0 h-12 sm:h-14 rounded-xl bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 flex items-center justify-center gap-2 sm:gap-3 transition-all duration-300 hover:scale-105 px-3 sm:px-6"
+              title="Add Performer"
+              aria-label="Add Performer"
+              type="button"
+            >
+              <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-blue-200 dark:bg-blue-700 flex items-center justify-center">
+                <FaPlus className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-300" />
+              </div>
+              <span className="font-semibold text-blue-700 dark:text-blue-300 text-xs sm:text-sm lg:text-base whitespace-nowrap">Add Performer</span>
+            </button>
           </div>
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow font-bold flex items-center gap-2 hover:bg-blue-700 transition"
-          >
-            <FaPlus />
-            Add Performer
-          </button>
+        </div>
+
+        {error && (
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded text-xs sm:text-sm">
+            {error}
+          </div>
+        )}
+
+        <DataTable
+          data={filteredPerformers}
+          columns={columns}
+          loading={loading}
+          onSort={handleSort}
+          onEdit={openEditModal}
+          onDelete={openDeleteModal}
+          sortKey={sortKey}
+          sortDirection={sortDirection}
+          emptyMessage="No performers found"
+        />
+
+        {/* Pagination Controls - Always visible, matching admin page style */}
+        <div className="mt-6 sm:mt-8">
+          <div className="flex justify-between items-center gap-2">
+            {/* Previous Button */}
+            <button
+              onClick={() => setPage(prev => Math.max(0, prev - 1))}
+              disabled={page === 0 || loading}
+              className="px-3 sm:px-5 py-2.5 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 font-semibold rounded-lg shadow-sm border-2 border-blue-400 dark:border-blue-600 hover:border-blue-500 dark:hover:border-blue-500 disabled:bg-blue-100 disabled:border-blue-300 disabled:text-blue-500 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-md"
+              title="Previous Page"
+              aria-label="Previous Page"
+              type="button"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span className="hidden sm:inline">Previous</span>
+            </button>
+
+            {/* Page Info */}
+            <div className="px-2 sm:px-4 py-2 bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-300 dark:border-blue-600 rounded-lg shadow-sm">
+              <span className="text-xs sm:text-sm font-bold text-blue-700 dark:text-blue-300">
+                Page <span className="text-blue-600 dark:text-blue-400">{page + 1}</span> of <span className="text-blue-600 dark:text-blue-400">{Math.max(1, Math.ceil(totalCount / pageSize))}</span>
+              </span>
+            </div>
+
+            {/* Next Button */}
+            <button
+              onClick={() => setPage(prev => prev + 1)}
+              disabled={page >= Math.ceil(totalCount / pageSize) - 1 || loading}
+              className="px-3 sm:px-5 py-2.5 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 font-semibold rounded-lg shadow-sm border-2 border-blue-400 dark:border-blue-600 hover:border-blue-500 dark:hover:border-blue-500 disabled:bg-blue-100 disabled:border-blue-300 disabled:text-blue-500 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-md"
+              title="Next Page"
+              aria-label="Next Page"
+              type="button"
+            >
+              <span className="hidden sm:inline">Next</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Item Count Text */}
+          <div className="text-center mt-3">
+            {totalCount > 0 ? (
+              <div className="inline-flex items-center px-2 sm:px-4 py-2 bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-300 dark:border-blue-600 rounded-lg shadow-sm">
+                <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                  Showing <span className="font-bold text-blue-600 dark:text-blue-400">{page * pageSize + 1}</span> to <span className="font-bold text-blue-600 dark:text-blue-400">{Math.min((page + 1) * pageSize, totalCount)}</span> of <span className="font-bold text-blue-600 dark:text-blue-400">{totalCount}</span> performers
+                </span>
+              </div>
+            ) : (
+              <div className="inline-flex items-center gap-2 px-2 sm:px-4 py-2 bg-orange-50 dark:bg-orange-900/20 border-2 border-orange-300 dark:border-orange-600 rounded-lg shadow-sm">
+                <svg className="w-5 h-5 text-orange-500 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-xs sm:text-sm font-medium text-orange-700 dark:text-orange-300">No performers found</span>
+                <span className="text-xs sm:text-sm text-orange-600 dark:text-orange-400 hidden sm:inline">[No performers match your criteria]</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-
-      {error && (
-        <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          {error}
-        </div>
-      )}
-
-      <DataTable
-        data={filteredPerformers}
-        columns={columns}
-        loading={loading}
-        onSort={handleSort}
-        onEdit={openEditModal}
-        onDelete={openDeleteModal}
-        sortKey={sortKey}
-        sortDirection={sortDirection}
-        emptyMessage="No performers found"
-      />
 
       {/* Create Modal */}
       <Modal
@@ -282,6 +429,7 @@ export default function EventFeaturedPerformersPage() {
           onSubmit={handleCreate}
           loading={loading}
           submitText="Create Performer"
+          events={events}
         />
       </Modal>
 
@@ -302,6 +450,7 @@ export default function EventFeaturedPerformersPage() {
           onSubmit={handleEdit}
           loading={loading}
           submitText="Update Performer"
+          events={events}
         />
       </Modal>
 
@@ -351,9 +500,10 @@ interface PerformerFormProps {
   onSubmit: () => void;
   loading: boolean;
   submitText: string;
+  events: EventDetailsDTO[];
 }
 
-function PerformerForm({ formData, setFormData, onSubmit, loading, submitText }: PerformerFormProps) {
+function PerformerForm({ formData, setFormData, onSubmit, loading, submitText, events }: PerformerFormProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
 
@@ -375,6 +525,31 @@ function PerformerForm({ formData, setFormData, onSubmit, loading, submitText }:
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Event (Optional)
+          </label>
+          <select
+            name="event"
+            value={formData.event?.id?.toString() || ''}
+            onChange={(e) => {
+              const eventId = e.target.value ? parseInt(e.target.value) : undefined;
+              setFormData(prev => ({
+                ...prev,
+                event: eventId ? { id: eventId } as EventDetailsDTO : undefined
+              }));
+            }}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">No Event (Global)</option>
+            {events.map(event => (
+              <option key={event.id} value={event.id?.toString()}>
+                {event.title} {event.startDate ? `(${event.startDate})` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Name *
@@ -555,16 +730,36 @@ function PerformerForm({ formData, setFormData, onSubmit, loading, submitText }:
         <button
           type="button"
           onClick={() => window.history.back()}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="flex-shrink-0 h-14 rounded-xl bg-red-100 hover:bg-red-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6"
+          title="Cancel"
+          aria-label="Cancel"
         >
-          Cancel
+          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-red-200 flex items-center justify-center">
+            <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <span className="font-semibold text-red-700">Cancel</span>
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+          className="flex-shrink-0 h-14 rounded-xl bg-blue-100 hover:bg-blue-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6 disabled:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          title={loading ? 'Saving...' : submitText}
+          aria-label={loading ? 'Saving...' : submitText}
         >
-          {loading ? 'Saving...' : submitText}
+          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-200 flex items-center justify-center">
+            {loading ? (
+              <svg className="w-6 h-6 text-blue-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+          </div>
+          <span className="font-semibold text-blue-700">{loading ? 'Saving...' : submitText}</span>
         </button>
       </div>
     </form>

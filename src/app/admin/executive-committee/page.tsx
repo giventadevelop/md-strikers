@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server';
+import { safeAuth } from '@/lib/safe-auth';
 import { redirect } from 'next/navigation';
 import ExecutiveCommitteeClient from './ExecutiveCommitteeClient';
 import { fetchExecutiveCommitteeMembers } from './ApiServerActions';
@@ -6,17 +6,27 @@ import AdminNavigation from '@/components/AdminNavigation';
 
 export default async function ExecutiveCommitteePage() {
   // Fix for Next.js 15+: await auth() before using
-  const { userId } = await auth();
+  const { userId } = await safeAuth();
 
   if (!userId) {
     redirect('/sign-in');
   }
 
+  // Add timeout wrapper to prevent hanging
   let members = [];
   try {
-    members = await fetchExecutiveCommitteeMembers();
+    members = await Promise.race([
+      fetchExecutiveCommitteeMembers(),
+      new Promise<[]>((resolve) =>
+        setTimeout(() => {
+          console.warn('[ExecutiveCommittee] Data fetch timeout after 25 seconds');
+          resolve([]);
+        }, 25000)
+      )
+    ]);
   } catch (error) {
     console.error('Failed to fetch executive committee members:', error);
+    members = []; // Ensure members is always an array
   }
 
   return (

@@ -1,11 +1,10 @@
 import { Suspense } from 'react';
-import { notFound, redirect } from 'next/navigation';
-import { fetchTenantSetting, updateTenantSetting } from '@/app/admin/tenant-management/settings/ApiServerActions';
+import { notFound } from 'next/navigation';
+import { fetchTenantSetting } from '@/app/admin/tenant-management/settings/ApiServerActions';
 import { fetchTenantOrganizations } from '@/app/admin/tenant-management/organizations/ApiServerActions';
-import TenantSettingsFormWrapper from '@/app/admin/tenant-management/components/TenantSettingsFormWrapper';
+import TenantSettingsEditClient from './TenantSettingsEditClient';
 import Link from 'next/link';
 import { FaArrowLeft } from 'react-icons/fa';
-import { TenantSettingsFormDTO } from '@/app/admin/tenant-management/types';
 
 interface PageProps {
   params: { id: string };
@@ -44,17 +43,6 @@ export default async function EditTenantSettingsPage({ params }: PageProps) {
     error = err instanceof Error ? err.message : 'Failed to load settings';
   }
 
-  async function handleSubmit(data: TenantSettingsFormDTO) {
-    'use server';
-
-    try {
-      await updateTenantSetting(settingsId, data);
-      redirect(`/admin/tenant-management/settings/${settingsId}`);
-    } catch (error) {
-      console.error('Error updating settings:', error);
-      throw error;
-    }
-  }
 
 
   if (error) {
@@ -187,38 +175,43 @@ export default async function EditTenantSettingsPage({ params }: PageProps) {
         </p>
       </div>
 
+      {/* Tip about upload features */}
+      <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <svg
+              className="h-5 w-5 text-blue-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-blue-800">
+              <strong>Tip:</strong> Email footer HTML and logo images can be uploaded in the <strong>Customization</strong> tab. Use the drag-and-drop feature to upload files easily.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Form */}
       <div className="bg-white shadow rounded-lg">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-medium text-gray-900">Settings Configuration</h2>
         </div>
         <div className="px-6 py-6">
-          <TenantSettingsFormWrapper
-            mode="edit"
-            onSubmit={handleSubmit}
-            settingsId={settingsId}
-            organizations={organizations}
-            initialData={{
-              tenantId: settings?.tenantId || '',
-              allowUserRegistration: settings?.allowUserRegistration ?? true,
-              requireAdminApproval: settings?.requireAdminApproval ?? false,
-              enableWhatsappIntegration: settings?.enableWhatsappIntegration ?? false,
-              enableEmailMarketing: settings?.enableEmailMarketing ?? false,
-              whatsappApiKey: settings?.whatsappApiKey || '',
-              emailProviderConfig: settings?.emailProviderConfig || '{}',
-              maxEventsPerMonth: settings?.maxEventsPerMonth || undefined,
-              maxAttendeesPerEvent: settings?.maxAttendeesPerEvent || undefined,
-              enableGuestRegistration: settings?.enableGuestRegistration ?? true,
-              maxGuestsPerAttendee: settings?.maxGuestsPerAttendee || 5,
-              defaultEventCapacity: settings?.defaultEventCapacity || 100,
-              platformFeePercentage: settings?.platformFeePercentage || undefined,
-              customCss: settings?.customCss || '',
-              customJs: settings?.customJs || '',
-              showEventsSectionInHomePage: settings?.showEventsSectionInHomePage ?? true,
-              showTeamMembersSectionInHomePage: settings?.showTeamMembersSectionInHomePage ?? true,
-              showSponsorsSectionInHomePage: settings?.showSponsorsSectionInHomePage ?? true
-            }}
-          />
+          {settings && (
+            <TenantSettingsEditClient
+              settings={settings}
+              settingsId={settingsId}
+              organizations={organizations}
+            />
+          )}
         </div>
       </div>
     </div>

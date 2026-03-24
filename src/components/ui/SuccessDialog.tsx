@@ -1,7 +1,6 @@
 'use client';
 
 import { Modal } from '../Modal';
-import { CheckCircle } from 'lucide-react';
 
 interface SuccessDialogProps {
   open: boolean;
@@ -33,7 +32,9 @@ export function SuccessDialog({
         <div className="flex flex-col items-center space-y-4">
           {/* Success Icon */}
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-            <CheckCircle className="w-8 h-8 text-green-600" />
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
           </div>
           
           {/* Title */}
@@ -49,10 +50,17 @@ export function SuccessDialog({
           {/* Action Button */}
           <button
             onClick={onClose}
-            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+            className="flex-shrink-0 h-14 rounded-xl bg-green-100 hover:bg-green-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6"
+            title={buttonText}
+            aria-label={buttonText}
+            type="button"
           >
-            <CheckCircle className="w-4 h-4" />
-            {buttonText}
+            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-green-200 flex items-center justify-center">
+              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <span className="font-semibold text-green-700">{buttonText}</span>
           </button>
         </div>
       </div>

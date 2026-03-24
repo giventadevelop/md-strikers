@@ -1,4 +1,4 @@
-import { getAppUrl } from '@/lib/env';
+import { getAppUrl, getApiBaseUrl } from '@/lib/env';
 import { fetchWithJwtRetry } from '@/lib/proxyHandler';
 import { withTenantId } from '@/lib/withTenantId';
 import type { EventSponsorsDTO, EventSponsorsJoinDTO } from '@/types';
@@ -113,9 +113,11 @@ export async function createEventSponsorServer(sponsor: Omit<EventSponsorsDTO, '
     heroImageUrl: cleanUrlField(sponsor.heroImageUrl),
     bannerImageUrl: cleanUrlField(sponsor.bannerImageUrl),
     facebookUrl: cleanUrlField(sponsor.facebookUrl),
+    instagramUrl: cleanUrlField(sponsor.instagramUrl),
     twitterUrl: cleanUrlField(sponsor.twitterUrl),
     linkedinUrl: cleanUrlField(sponsor.linkedinUrl),
-    instagramUrl: cleanUrlField(sponsor.instagramUrl),
+    youtubeUrl: cleanUrlField(sponsor.youtubeUrl),
+    tiktokUrl: cleanUrlField(sponsor.tiktokUrl),
   };
 
   // Don't apply withTenantId here since the proxy will handle it
@@ -145,7 +147,10 @@ export async function updateEventSponsorServer(id: number, sponsor: Partial<Even
   };
 
   const currentTime = new Date().toISOString();
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+// Lazy getter — evaluated at call time, not module load time (critical for Lambda cold starts)
+function getApiBase() {
+  return getApiBaseUrl();
+}
 
   // Direct backend call pattern for PATCH/PUT operations
   const payload = withTenantId({
@@ -158,14 +163,16 @@ export async function updateEventSponsorServer(id: number, sponsor: Partial<Even
     heroImageUrl: sponsor.heroImageUrl ? cleanUrlField(sponsor.heroImageUrl) : undefined,
     bannerImageUrl: sponsor.bannerImageUrl ? cleanUrlField(sponsor.bannerImageUrl) : undefined,
     facebookUrl: sponsor.facebookUrl ? cleanUrlField(sponsor.facebookUrl) : undefined,
+    instagramUrl: sponsor.instagramUrl ? cleanUrlField(sponsor.instagramUrl) : undefined,
     twitterUrl: sponsor.twitterUrl ? cleanUrlField(sponsor.twitterUrl) : undefined,
     linkedinUrl: sponsor.linkedinUrl ? cleanUrlField(sponsor.linkedinUrl) : undefined,
-    instagramUrl: sponsor.instagramUrl ? cleanUrlField(sponsor.instagramUrl) : undefined,
+    youtubeUrl: sponsor.youtubeUrl ? cleanUrlField(sponsor.youtubeUrl) : undefined,
+    tiktokUrl: sponsor.tiktokUrl ? cleanUrlField(sponsor.tiktokUrl) : undefined,
   });
 
   console.log('🔍 PATCH payload being sent:', JSON.stringify(payload, null, 2));
 
-  const response = await fetchWithJwtRetry(`${API_BASE_URL}/api/event-sponsors/${id}`, {
+  const response = await fetchWithJwtRetry(`${getApiBase()}/api/event-sponsors/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/merge-patch+json' },
     body: JSON.stringify(payload),
