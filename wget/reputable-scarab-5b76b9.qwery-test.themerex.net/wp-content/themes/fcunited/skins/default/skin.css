@@ -1,0 +1,131 @@
+/* Skin-specific styles
+----------------------- */
+a,
+button,
+input[type=button],
+input[type=submit] {
+  -webkit-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+/* The Events Calendar */
+.tribe-common--breakpoint-medium.tribe-events .tribe-events-c-top-bar__today-button {
+  border-radius: 30px;
+}
+
+.tribe-common button.tribe-events-c-search__button:active,
+.tribe-events .tribe-events-c-search__button:focus,
+.tribe-events .tribe-events-c-search__button:hover,
+.tribe-events button.tribe-events-c-search__button:focus,
+.tribe-events button.tribe-events-c-search__button:hover,
+.tribe-common button.tribe-events-c-search__button,
+.tribe-common button.tribe-events-c-search__button:hover,
+.tribe-common .tribe-common-c-btn.tribe-events-c-search__button {
+  padding: 1.38em 3.5em;
+  border-radius: 35px;
+}
+
+.tribe-common .tribe-events-view-loader__dots .tribe-common-c-loader__dot {
+  border-radius: 50%;
+}
+
+.sc_events.sc_events_default .sc_events_item_text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.post_item_single button.wp-block-navigation__submenu-icon {
+  background: transparent !important;
+  color: revert !important;
+}
+
+.widget-container iframe + a[href*="oddspedia.com"] {
+  display: none;
+}
+
+.mfp-content .mfp-img + figcaption:has(div:empty) {
+  display: none;
+}
+
+p > a[rel=magnific]:has(> img) {
+  position: relative;
+  display: block;
+  text-align: center;
+}
+
+p > a[rel=magnific]:has(> img):before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  opacity: 0;
+  -webkit-transition: 0.3s all ease;
+  transition: 0.3s all ease;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+p > a[rel=magnific]:has(> img):after {
+  content: "+";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font-size: 3.4em;
+  height: 1.050420168em;
+  width: 1.050420168em;
+  line-height: 1.15;
+  opacity: 0;
+  color: #fff;
+  background: #fe0000;
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+  -webkit-transform: translate(-50%, -50%) scale(0);
+      -ms-transform: translate(-50%, -50%) scale(0);
+          transform: translate(-50%, -50%) scale(0);
+  will-change: scale;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  font-weight: 200;
+  border-radius: 50%;
+  -webkit-transition: all 0.5s cubic-bezier(0.6, -0.28, 0.735, 0.045) 0s;
+  transition: all 0.5s cubic-bezier(0.6, -0.28, 0.735, 0.045) 0s;
+}
+
+p > a[rel=magnific]:has(> img):hover:after {
+  -webkit-transform: translate(-50%, -50%) scale(1);
+      -ms-transform: translate(-50%, -50%) scale(1);
+          transform: translate(-50%, -50%) scale(1);
+  will-change: scale;
+  -webkit-transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0s;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0s;
+}
+
+p > a[rel=magnific]:has(> img):hover:before,
+p > a[rel=magnific]:has(> img):hover:after {
+  opacity: 1;
+}
+
+p > a[rel=magnific]:has(> img.alignright) {
+  float: right;
+  margin-left: 2em !important;
+  margin-bottom: 0.6em !important;
+  margin-top: 0.6em !important;
+}
+
+p > a[rel=magnific]:has(> img.alignleft) {
+  float: left;
+  margin-right: 2em !important;
+  margin-bottom: 0.6em !important;
+  margin-top: 0.6em !important;
+}
+
+p > a[rel=magnific]:has(> img.alignleft) > img.alignleft,
+p > a[rel=magnific]:has(> img.alignright) > img.alignright {
+  margin: 0 !important;
+}

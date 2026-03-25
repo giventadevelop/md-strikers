@@ -1,0 +1,22 @@
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(../fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9V1s.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: normal;
+  font-display: swap;
+  src: url(../fonts.gstatic.com/s/roboto/v51/KFOMCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbWmT.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Teko';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(../fonts.gstatic.com/s/teko/v23/LYjYdG7kmE0gV69VVPPdFl06VN_wHLSy.ttf) format('truetype');
+}
