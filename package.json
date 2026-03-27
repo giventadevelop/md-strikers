@@ -4,7 +4,7 @@
   "description": "",
   "author": "",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
@@ -24,7 +24,7 @@
     "test:install-playwright": "npx playwright install chromium"
   },
   "dependencies": {
-    "@clerk/nextjs": "^7.0.5",
+    "@clerk/nextjs": "^7.0.7",
     "@hookform/resolvers": "^5.2.2",
     "@memberstack/dom": "^2.0.1",
     "@prisma/client": "^6.6.0",

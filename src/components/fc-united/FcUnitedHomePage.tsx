@@ -10,6 +10,7 @@ import {
   fcSponsors,
 } from './fcUnitedConstants';
 import { fcBebas, fcPoppins, fcRoboto } from './fcUnitedFonts';
+import { FcSquadCarousel } from './FcSquadCarousel';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcEventCountdown } from './FcEventCountdown';
 import { FcUnitedHeader } from './FcUnitedHeader';
@@ -186,18 +187,7 @@ export default function FcUnitedHomePage() {
             <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-[#848992]">squad</span>
             <h2 className={cn(fcBebas.className, 'text-4xl tracking-wide text-white md:text-5xl')}>The First Team</h2>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-            {players.map((p) => (
-              <div key={p.name} className="group text-center">
-                <div className="relative mx-auto aspect-[380/495] max-w-[240px] overflow-hidden rounded-[3px]">
-                  <Image src={p.img} alt={p.name} fill className="object-cover transition-transform duration-300 group-hover:scale-[1.02]" sizes="(max-width:768px) 100vw, 240px" />
-                  <span className="absolute left-3 top-3 rounded bg-[#ff0000] px-2 py-1 text-sm font-bold text-white">{p.num}</span>
-                </div>
-                <p className={cn(fcBebas.className, 'mt-4 text-lg text-white')}>{p.name}</p>
-                <p className="text-xs uppercase tracking-wide text-[#848992]">{p.role}</p>
-              </div>
-            ))}
-          </div>
+          <FcSquadCarousel players={players} />
           <div className="mt-12 text-center">
             <span className="inline-flex cursor-not-allowed rounded-[32px] border border-white/20 px-8 py-3 text-sm font-semibold text-[#848992]">
               View All Players (static)
@@ -215,12 +205,12 @@ export default function FcUnitedHomePage() {
           </div>
           <div className="grid gap-8 lg:grid-cols-2">
             <div className="overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-white">
-              <div className="relative aspect-[16/9] w-full">
+              <div className="relative aspect-[16/9] w-full min-h-0">
                 <Image
-                  src="/images/md_strikers_media/md_media/WhatsApp Image 2026-03-24 at 10.56.39 AM.jpeg"
-                  alt="News"
+                  src="/images/md_strikers_media/md_media/Gallery/IM-Vijayan-Image_news.jpg"
+                  alt="I.M. Vijayan — MD Strikers news"
                   fill
-                  className="object-contain object-center bg-[#081224]"
+                  className="object-cover object-center"
                   sizes="(max-width:1024px) 100vw, 50vw"
                 />
               </div>
