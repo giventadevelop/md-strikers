@@ -115,7 +115,7 @@ const EventsSection = () => {
         {/* View All Events */}
         <div className="text-center mt-12">
           <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
-            <Link href="/events">View All Events</Link>
+            <Link href="/browse-events">View All Events</Link>
           </Button>
         </div>
 

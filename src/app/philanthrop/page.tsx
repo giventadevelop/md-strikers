@@ -70,7 +70,7 @@ export default function PhilantropPage() {
                 { title: 'Sponsors', href: '/sponsors' },
                 { title: 'Our Stories', href: '/stories' },
                 { title: 'Projects', href: '/projects' },
-                { title: 'Events', href: '/events' },
+                { title: 'Events', href: '/browse-events' },
                 { title: 'Gallery', href: '/gallery' },
                 { title: 'FAQ', href: '/faq' },
                 { title: 'Pricing Plans', href: '/pricing-plans' }

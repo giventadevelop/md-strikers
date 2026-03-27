@@ -92,7 +92,7 @@ export default function MemberOnlyGuard({ children, event, fallback }: MemberOnl
               Become a Member
             </button>
             <button
-              onClick={() => router.push('/events')}
+              onClick={() => router.push('/browse-events')}
               className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-md font-semibold"
             >
               View Other Events

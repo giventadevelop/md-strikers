@@ -103,7 +103,7 @@ export default function RegistrationSuccessPage({
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
           <p className="text-red-800">Event not found. Please check the event ID.</p>
-          <Link href="/events" className="text-blue-600 hover:underline mt-4 inline-block">
+          <Link href="/browse-events" className="text-blue-600 hover:underline mt-4 inline-block">
             View All Events
           </Link>
         </div>
@@ -399,7 +399,7 @@ export default function RegistrationSuccessPage({
                 <span className="font-semibold text-blue-700">View Event Details</span>
               </Link>
               <Link
-                href="/events"
+                href="/browse-events"
                 className="flex-1 h-14 rounded-xl bg-teal-100 hover:bg-teal-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105"
               >
                 <span className="w-10 h-10 rounded-lg bg-teal-200 flex items-center justify-center">

@@ -896,7 +896,7 @@ const HeroSection: React.FC = () => {
 
       {/* Browse All Events Link */}
       <div className="hero-browse-container">
-        <Link href="/events" className="hero-browse-link">
+        <Link href="/browse-events" className="hero-browse-link">
           <span>Browse all upcoming events</span>
           <ArrowRight size={16} />
         </Link>

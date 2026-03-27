@@ -70,7 +70,7 @@ function getApiBase() {
               </p>
               <div className="space-y-3">
                 <Link
-                  href="/events"
+                  href="/browse-events"
                   className="block w-full bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors font-medium"
                 >
                   Browse All Events
@@ -184,7 +184,7 @@ function getApiBase() {
               </Link>
             )}
             <Link
-              href="/events"
+              href="/browse-events"
               className="block w-full bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium"
             >
               Browse All Events

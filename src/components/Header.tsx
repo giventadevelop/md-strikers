@@ -23,7 +23,7 @@ const navItems = [
   },
   {
     name: 'Events',
-    href: '/events',
+    href: '/browse-events',
     active: false
   },
   {

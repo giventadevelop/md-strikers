@@ -1481,7 +1481,7 @@ export default function EventDetailsPage() {
         )}
         <div className="mt-8 text-center">
           <Link
-            href="/events"
+            href="/browse-events"
             className="inline-flex flex-shrink-0 h-14 rounded-xl bg-indigo-100 hover:bg-indigo-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6"
             title="View All Events"
             aria-label="View All Events"

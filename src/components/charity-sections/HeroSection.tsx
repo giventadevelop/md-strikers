@@ -371,7 +371,7 @@ const DynamicHeroImage: React.FC = () => {
           sizes="(max-width: 1024px) 100vw, 50vw"
           onClick={() => {
             // Route to events page for default image
-            window.location.href = '/events';
+            window.location.href = '/browse-events';
           }}
         />
         {/* No Buy Tickets overlay for default image */}
@@ -386,7 +386,7 @@ const DynamicHeroImage: React.FC = () => {
     return (
       <div className="relative w-full h-full">
         <Link
-          href={isShowingEventFlyer && currentEvent && currentEvent.id ? `/events/${currentEvent.id}` : '/events'}
+          href={isShowingEventFlyer && currentEvent && currentEvent.id ? `/events/${currentEvent.id}` : '/browse-events'}
           className="block w-full h-full"
         >
           <Image
@@ -432,7 +432,7 @@ const DynamicHeroImage: React.FC = () => {
   // Fallback to default image
   return (
     <div className="relative w-full h-full">
-      <Link href="/events" className="block w-full h-full">
+      <Link href="/browse-events" className="block w-full h-full">
         <Image
           src={defaultImage}
           alt="Default Hero Image"
@@ -566,7 +566,7 @@ const HeroSection: React.FC = () => {
             className="cursor-pointer hover:scale-105 transition-transform duration-300"
             onClick={() => {
               // Route to events page
-              window.location.href = '/events';
+              window.location.href = '/browse-events';
             }}
           />
         </div>

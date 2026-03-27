@@ -265,7 +265,7 @@ async function EventPageContent({ slug }: { slug: string }) {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            href="/events"
+            href="/browse-events"
             className="flex-shrink-0 h-14 rounded-xl bg-indigo-100 hover:bg-indigo-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6"
             title="Back to Events"
             aria-label="Back to Events"

@@ -1,0 +1,647 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "meta": {
+    "name": "mdStrikers — final design system (app + reference UI)",
+    "version": "1.0.0",
+    "purpose": "Single source of truth for AI and developers: high-level mdStrikers brand rules plus exact CSS semantics from the creator analytics dashboard reference. Use this when building new features in this project.",
+    "canonicalReferenceHtml": "design_systems/creator-analytics.html",
+    "baseGuidelinesJson": "design_systems/mdStrikers_site_general_design.json",
+    "lastUpdated": "2026-03-27"
+  },
+  "sourceReferences": {
+    "wgetThemeMirror": "wget/reputable-scarab-5b76b9.qwery-test.themerex.net (FC United ThemeREX reference)",
+    "implementedDashboard": "design_systems/creator-analytics.html (static HTML implementing tokens + components)"
+  },
+  "highLevelGuidelines": {
+    "brandEssence": {
+      "visualMetaphor": "Night match under lights: deep navy fields, white type, one sharp red signal for action and emphasis.",
+      "tone": "Confident, athletic, direct; short copy; UI optimized for scanning and numbers.",
+      "keywords": [
+        "contrast bands (dark vs white)",
+        "data-first layouts",
+        "single red accent",
+        "display + UI sans pairing"
+      ]
+    },
+    "principles": [
+      {
+        "name": "Contrast bands",
+        "rule": "Alternate dark sections (#081224 / #262f3e) with white or #F4F4F4 content. Avoid gray-on-gray floating panels without a white or dark break."
+      },
+      {
+        "name": "One scream color",
+        "rule": "Primary accent is #ff0000 for CTAs, focus rings, and hover on links. Green/gold from legacy theme tokens are optional and secondary—do not compete with red."
+      },
+      {
+        "name": "Label → headline → detail",
+        "rule": "Blocks use uppercase micro-label (section subtitle), then Bebas title, then body or widget. Repeat this rhythm for new screens."
+      },
+      {
+        "name": "Data-first",
+        "rule": "Prefer tables, tabular figures, and flat bordered panels over heavy shadows and decorative cards for metrics."
+      },
+      {
+        "name": "Motion",
+        "rule": "Default transition 0.3s ease on color, border, filter. No bouncy easing for production UI."
+      }
+    ],
+    "layoutRules": {
+      "maxContentWidthPx": 1308,
+      "horizontalPaddingPx": {
+        "desktop": 48,
+        "tablet": 28,
+        "mobile": 16
+      },
+      "breakpointsPx": {
+        "tabletMax": 1024,
+        "mobileMax": 767
+      }
+    }
+  },
+  "fonts": {
+    "googleFontsHref": "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap",
+    "families": {
+      "display": {
+        "cssFontFamily": "\"Bebas Neue\", Impact, sans-serif",
+        "weights": [400],
+        "usage": "Hero H1, section H2, brand wordmark, footer display line"
+      },
+      "ui": {
+        "cssFontFamily": "\"Poppins\", system-ui, sans-serif",
+        "weights": [400, 500, 600, 700],
+        "usage": "Body, labels, buttons, nav, marketing paragraph under hero"
+      },
+      "data": {
+        "cssFontFamily": "\"Roboto\", sans-serif",
+        "weights": [400, 500],
+        "usage": "KPI values, tables, percentages in lists and bars"
+      }
+    }
+  },
+  "designTokens": {
+    "cssVariables": {
+      "--bg-wash": "#f4f4f4",
+      "--surface": "#ffffff",
+      "--hero-dark": "#081224",
+      "--footer-band": "#262f3e",
+      "--deep-ui": "#101010",
+      "--text-body": "#797e87",
+      "--text-heading": "#262f3e",
+      "--text-on-dark-muted": "#848992",
+      "--text-on-dark": "#ffffff",
+      "--accent": "#ff0000",
+      "--hairline": "#e3e3e3",
+      "--max": "1308px",
+      "--pad-x": "48px",
+      "--transition": "0.3s ease"
+    },
+    "semanticColors": {
+      "pageBackground": "#f4f4f4",
+      "surface": "#ffffff",
+      "heroGradient": {
+        "type": "linear",
+        "angleDeg": 135,
+        "stops": [
+          { "color": "#081224", "positionPercent": 0 },
+          { "color": "#0f1f38", "positionPercent": 55 },
+          { "color": "#262f3e", "positionPercent": 100 }
+        ],
+        "css": "linear-gradient(135deg, #081224 0%, #0f1f38 55%, #262f3e 100%)"
+      },
+      "tableHeaderBackground": "#fafafa",
+      "tableRowHoverBackground": "#f9fafb",
+      "statCardBorderHover": "#c8c8c8",
+      "positiveDelta": "#2d7a3e",
+      "negativeDelta": "#ff0000",
+      "navIconHoverBackground": "rgba(255, 255, 255, 0.06)",
+      "footerDividerLine": "rgba(255, 255, 255, 0.08)",
+      "footerEmailInput": {
+        "border": "1px solid rgba(255,255,255,0.2)",
+        "background": "rgba(0,0,0,0.25)",
+        "text": "#ffffff"
+      },
+      "periodButtonBorderDefault": "rgba(255, 255, 255, 0.2)",
+      "periodButtonBorderHover": "rgba(255, 255, 255, 0.35)"
+    }
+  },
+  "typographyScale": {
+    "body": {
+      "fontFamily": "ui",
+      "fontSizePx": 16,
+      "lineHeight": 1.5,
+      "colorToken": "--text-body"
+    },
+    "topBar": {
+      "fontSizePx": 14,
+      "colorToken": "--text-on-dark-muted"
+    },
+    "brandMark": {
+      "fontFamily": "display",
+      "fontSizePx": 28,
+      "letterSpacingEm": 0.02,
+      "lineHeight": 1,
+      "colorToken": "--text-on-dark"
+    },
+    "brandTag": {
+      "fontSizePx": 11,
+      "textTransform": "uppercase",
+      "letterSpacingEm": 0.12,
+      "opacity": 0.85
+    },
+    "heroSubtitle": {
+      "fontSizePx": 12,
+      "fontWeight": 600,
+      "letterSpacingEm": 0.2,
+      "textTransform": "uppercase",
+      "colorToken": "--text-on-dark-muted",
+      "marginBottomPx": 8
+    },
+    "heroTitle": {
+      "fontFamily": "display",
+      "fontSize": "clamp(2.5rem, 5vw, 3.75rem)",
+      "fontWeight": 400,
+      "lineHeight": 1.05,
+      "letterSpacingEm": 0.02,
+      "colorToken": "--text-on-dark",
+      "marginBottomPx": 12
+    },
+    "heroLead": {
+      "fontSizePx": 15,
+      "maxWidthCh": 42,
+      "colorToken": "--text-on-dark-muted"
+    },
+    "periodLabel": {
+      "fontSizePx": 11,
+      "fontWeight": 600,
+      "letterSpacingEm": 0.14,
+      "textTransform": "uppercase",
+      "colorToken": "--text-on-dark-muted"
+    },
+    "periodButton": {
+      "fontSizePx": 13,
+      "fontWeight": 500,
+      "paddingPx": "10 18",
+      "borderRadiusPx": 32
+    },
+    "btnPrimary": {
+      "fontSizePx": 14,
+      "fontWeight": 600,
+      "paddingPx": "12 28",
+      "borderRadiusPx": 32,
+      "backgroundToken": "--accent",
+      "color": "#ffffff"
+    },
+    "sectionSubtitle": {
+      "fontSizePx": 12,
+      "fontWeight": 600,
+      "letterSpacingEm": 0.2,
+      "textTransform": "uppercase",
+      "colorToken": "--text-body",
+      "marginBottomPx": 6,
+      "footerVariantColorToken": "--text-on-dark-muted"
+    },
+    "sectionTitle": {
+      "fontFamily": "display",
+      "fontSizeRem": 2,
+      "fontWeight": 400,
+      "letterSpacingEm": 0.03,
+      "lineHeight": 1.1,
+      "colorToken": "--text-heading",
+      "marginBottomPx": 20
+    },
+    "statCardLabel": {
+      "fontSizePx": 11,
+      "fontWeight": 600,
+      "letterSpacingEm": 0.12,
+      "textTransform": "uppercase",
+      "colorToken": "--text-body",
+      "marginBottomPx": 8
+    },
+    "statCardValue": {
+      "fontFamily": "data",
+      "fontSizePx": 28,
+      "fontWeight": 500,
+      "lineHeight": 1.2,
+      "letterSpacingEm": -0.02,
+      "colorToken": "--text-heading"
+    },
+    "statCardDelta": {
+      "fontSizePx": 13,
+      "fontWeight": 500,
+      "marginTopPx": 10
+    },
+    "dataTable": {
+      "fontFamily": "data",
+      "fontSizePx": 14,
+      "headerFontSizePx": 12,
+      "headerFontWeight": 500,
+      "headerLetterSpacingEm": 0.06,
+      "headerTextTransform": "uppercase",
+      "cellPaddingPx": "14 20"
+    },
+    "pill": {
+      "fontSizePx": 11,
+      "fontWeight": 600,
+      "letterSpacingEm": 0.06,
+      "textTransform": "uppercase",
+      "paddingPx": "4 10",
+      "borderRadiusPx": 3,
+      "backgroundToken": "--bg-wash",
+      "colorToken": "--text-heading"
+    },
+    "miniList": {
+      "fontSizePx": 14,
+      "rowPaddingPx": "14 20",
+      "strongFontWeight": 600,
+      "strongColorToken": "--text-heading"
+    },
+    "deviceBlockLabel": {
+      "fontSizePx": 12,
+      "fontWeight": 600,
+      "letterSpacingEm": 0.1,
+      "textTransform": "uppercase",
+      "colorToken": "--text-body",
+      "marginBottomPx": 16
+    },
+    "deviceRow": {
+      "labelFontSizePx": 14,
+      "labelFontWeight": 500,
+      "valueFontFamily": "data",
+      "rowMarginBottomPx": 18
+    },
+    "footerDisplayLine": {
+      "fontFamily": "display",
+      "fontSizeRem": 1.75,
+      "lineHeight": 1.1,
+      "colorToken": "--text-on-dark"
+    },
+    "footerLinks": {
+      "fontSizePx": 13,
+      "fontWeight": 500,
+      "colorToken": "--text-on-dark"
+    },
+    "footerCopy": {
+      "fontSizePx": 13
+    }
+  },
+  "radii": {
+    "sharp": 3,
+    "pill": 32,
+    "notes": "Cards, panels, pills, bars use 3px. Buttons and period chips use 32px (full pill)."
+  },
+  "elevation": {
+    "shadowPolicy": "No box-shadow on reference dashboard; depth comes from borders and banding only.",
+    "borderDefault": "1px solid var(--hairline)"
+  },
+  "motion": {
+    "defaultTransition": "0.3s ease",
+    "properties": ["color", "border-color", "background", "filter"],
+    "primaryButtonHover": "filter: brightness(1.08)",
+    "linkHover": "color to var(--accent)"
+  },
+  "accessibility": {
+    "focusVisible": {
+      "outlineWidthPx": 2,
+      "outlineColorToken": "--accent",
+      "outlineOffsetPx": 2,
+      "selectors": ["a:focus-visible", ".btn-primary:focus-visible", ".period button:focus-visible"]
+    }
+  },
+  "layoutPrimitives": {
+    "shell": {
+      "class": "shell",
+      "rules": {
+        "maxWidth": "var(--max)",
+        "margin": "0 auto",
+        "paddingLeft": "var(--pad-x)",
+        "paddingRight": "var(--pad-x)"
+      }
+    },
+    "mainOverlap": {
+      "class": "main",
+      "marginTopPx": -28,
+      "paddingBottomPx": 72,
+      "purpose": "Pulls white content band under hero gradient for stacked card effect"
+    },
+    "heroPaddingPx": {
+      "default": { "top": 48, "bottom": 56 },
+      "mobile": { "top": 36, "bottom": 44 }
+    },
+    "sectionSpacingPx": {
+      "sectionMarginBottom": 48,
+      "statGridMarginBottom": 40
+    },
+    "grids": {
+      "statGrid": {
+        "class": "stat-grid",
+        "columnsDefault": 4,
+        "gapPx": 20,
+        "columnsTablet": 2,
+        "columnsMobile": 1
+      },
+      "split": {
+        "class": "split",
+        "columnsDefault": 2,
+        "gapPx": 20,
+        "columnsMobile": 1
+      },
+      "footerCta": {
+        "class": "footer__cta",
+        "columnsDefault": 3,
+        "gapPx": 32,
+        "columnsTabletAndBelow": 1
+      }
+    }
+  },
+  "components": {
+    "pageRoot": {
+      "element": "body",
+      "styles": {
+        "background": "var(--bg-wash)",
+        "color": "var(--text-body)",
+        "fontFamily": "Poppins per typography.ui"
+      }
+    },
+    "topBar": {
+      "class": "top-bar",
+      "role": "App header; dark scheme (matches --hero-dark)",
+      "styles": {
+        "background": "var(--hero-dark)",
+        "color": "var(--text-on-dark-muted)",
+        "fontSize": "14px"
+      },
+      "inner": {
+        "class": "top-bar__inner",
+        "display": "flex",
+        "alignItems": "center",
+        "justifyContent": "space-between",
+        "minHeightPx": 64,
+        "gapPx": 24,
+        "mobile": {
+          "flexDirection": "column",
+          "alignItems": "flex-start",
+          "paddingTopPx": 16,
+          "paddingBottomPx": 16
+        }
+      }
+    },
+    "brand": {
+      "containerClass": "brand",
+      "markClass": "brand__mark",
+      "tagClass": "brand__tag",
+      "alignment": "baseline",
+      "gapPx": 12
+    },
+    "navActions": {
+      "class": "nav-actions",
+      "gapPx": 8,
+      "linkSizePx": 40,
+      "iconSizePx": 20,
+      "iconStrokeWidth": 2,
+      "iconStyle": "stroke currentColor, fill none (line icons)",
+      "linkBorderRadiusPx": 3,
+      "linkDefaultColor": "var(--text-on-dark)",
+      "linkHover": {
+        "color": "var(--accent)",
+        "background": "rgba(255, 255, 255, 0.06)"
+      }
+    },
+    "hero": {
+      "class": "hero",
+      "background": "semanticColors.heroGradient.css",
+      "color": "var(--text-on-dark)",
+      "rowClass": "hero__row",
+      "rowLayout": {
+        "display": "flex",
+        "flexWrap": "wrap",
+        "alignItems": "flex-end",
+        "justifyContent": "space-between",
+        "gapPx": 24,
+        "mobileFlexDirection": "column",
+        "mobileAlignItems": "flex-start"
+      },
+      "children": {
+        "subtitleClass": "hero__subtitle",
+        "titleClass": "hero__title",
+        "titleElement": "h1",
+        "leadClass": "hero__lead"
+      },
+      "rightColumnControls": {
+        "layout": "flex column, align end, gap 16px",
+        "contains": ["period", "btn-primary"]
+      }
+    },
+    "period": {
+      "class": "period",
+      "display": "flex",
+      "alignItems": "center",
+      "gapPx": 8,
+      "flexWrap": "wrap",
+      "labelClass": "period__label",
+      "buttonDefault": {
+        "border": "1px solid rgba(255, 255, 255, 0.2)",
+        "background": "transparent",
+        "color": "var(--text-on-dark-muted)"
+      },
+      "buttonHover": {
+        "color": "var(--text-on-dark)",
+        "borderColor": "rgba(255, 255, 255, 0.35)"
+      },
+      "buttonActiveClass": "is-active",
+      "buttonActive": {
+        "background": "var(--accent)",
+        "borderColor": "var(--accent)",
+        "color": "#ffffff"
+      }
+    },
+    "buttonPrimary": {
+      "class": "btn-primary",
+      "type": "button",
+      "styles": "see typographyScale.btnPrimary",
+      "hover": "filter brightness(1.08)",
+      "usage": ["Export Report", "Subscribe"]
+    },
+    "statCard": {
+      "class": "stat-card",
+      "element": "article",
+      "styles": {
+        "background": "var(--surface)",
+        "border": "1px solid var(--hairline)",
+        "borderRadiusPx": 3,
+        "paddingPx": "24 22"
+      },
+      "hover": {
+        "borderColor": "#c8c8c8"
+      },
+      "parts": {
+        "label": "stat-card__label",
+        "value": "stat-card__value",
+        "delta": "stat-card__delta",
+        "deltaModifiers": {
+          "positive": "stat-card__delta--up",
+          "positiveColor": "#2d7a3e",
+          "negative": "stat-card__delta--down",
+          "negativeColor": "var(--accent)"
+        }
+      }
+    },
+    "sectionBlock": {
+      "class": "section",
+      "marginBottomPx": 48,
+      "subtitleClass": "section__subtitle",
+      "titleClass": "section__title",
+      "titleElement": "h2"
+    },
+    "panel": {
+      "class": "panel",
+      "styles": {
+        "background": "var(--surface)",
+        "border": "1px solid var(--hairline)",
+        "borderRadiusPx": 3,
+        "overflow": "hidden"
+      },
+      "variantPadded": {
+        "description": "Audience device block uses inline padding 20px on panel",
+        "paddingPx": 20
+      }
+    },
+    "dataTable": {
+      "wrapperClass": "data-table-wrap",
+      "overflowX": "auto",
+      "tableClass": "data-table",
+      "styles": {
+        "width": "100%",
+        "borderCollapse": "collapse"
+      },
+      "theadTh": {
+        "background": "#fafafa",
+        "color": "var(--text-heading)",
+        "borderBottom": "1px solid var(--hairline)"
+      },
+      "tbodyTd": {
+        "borderBottom": "1px solid var(--hairline)"
+      },
+      "tbodyTrLastChildTd": {
+        "borderBottom": "none"
+      },
+      "tbodyTrHoverTd": {
+        "background": "#f9fafb"
+      },
+      "numericCellClass": "num",
+      "numericRules": {
+        "fontVariantNumeric": "tabular-nums",
+        "fontWeight": 500,
+        "color": "var(--text-heading)"
+      },
+      "rowTitleStrong": {
+        "color": "var(--text-heading)",
+        "fontWeight": 600
+      }
+    },
+    "pill": {
+      "class": "pill",
+      "usage": "Format tags in tables (Video, Live, Short)"
+    },
+    "miniList": {
+      "class": "mini-list",
+      "listItemLayout": "flex space-between, padding 14px 20px, border-bottom hairline until last"
+    },
+    "progressBar": {
+      "trackClass": "bar",
+      "fillSelector": ".bar > span",
+      "trackHeightPx": 8,
+      "trackBackground": "var(--hairline)",
+      "fillBackground": "var(--text-heading)",
+      "borderRadiusPx": 3,
+      "fillWidth": "percentage inline style per row"
+    },
+    "audienceDeviceBlock": {
+      "description": "Right column in split; combines section-style micro-label + bar groups",
+      "microLabel": {
+        "matches": "sectionSubtitle sizing with letterSpacing 0.1em",
+        "marginBottomPx": 16
+      },
+      "row": {
+        "labelRow": "flex space-between, font-size 14px, margin-bottom 6px",
+        "labelColor": "var(--text-heading)",
+        "labelFontWeight": 500,
+        "valueFontFamily": "Roboto",
+        "blockSpacingPx": 18
+      }
+    },
+    "footer": {
+      "class": "footer",
+      "styles": {
+        "background": "var(--footer-band)",
+        "color": "var(--text-on-dark-muted)",
+        "fontSizePx": 14,
+        "paddingPx": "48 0 40"
+      },
+      "ctaGridClass": "footer__cta",
+      "dividerClass": "footer__divider",
+      "divider": {
+        "heightPx": 2,
+        "background": "rgba(255, 255, 255, 0.08)",
+        "marginPx": "32 0 24"
+      },
+      "bottomRowClass": "footer__row",
+      "linksContainerClass": "footer__links",
+      "linkStyles": {
+        "color": "var(--text-on-dark)",
+        "fontWeight": 500,
+        "fontSizePx": 13,
+        "hoverColor": "var(--accent)"
+      },
+      "emailField": {
+        "type": "email",
+        "placeholder": "Email",
+        "layout": "flex 1, min-width 160px in row with gap 10px",
+        "styles": {
+          "paddingPx": "12 16",
+          "border": "1px solid rgba(255,255,255,0.2)",
+          "borderRadiusPx": 32,
+          "background": "rgba(0,0,0,0.25)",
+          "color": "#ffffff",
+          "fontFamily": "inherit",
+          "fontSizePx": 14
+        }
+      },
+      "displayTitleBlock": {
+        "subtitleUsesSectionSubtitleClassWithInlineColor": "var(--text-on-dark-muted)",
+        "titleLine": {
+          "fontFamily": "Bebas Neue",
+          "fontSizeRem": 1.75,
+          "color": "var(--text-on-dark)"
+        }
+      }
+    }
+  },
+  "responsive": {
+    "mediaTabletMax1024": {
+      "padX": "28px",
+      "statGridColumns": 2,
+      "splitColumns": 1,
+      "footerCtaColumns": 1
+    },
+    "mediaMobileMax767": {
+      "padX": "16px",
+      "statGridColumns": 1,
+      "heroPaddingOverride": "36px top, 44px bottom"
+    }
+  },
+  "aiImplementationRules": [
+    "Map all new UI colors to designTokens.cssVariables or semanticColors—do not introduce new accent hues without updating this file.",
+    "Use Bebas Neue only for display headings and brand; Poppins for all interactive and paragraph text; Roboto for numeric tables and KPI values.",
+    "Primary actions use class btn-primary or identical computed styles (pill 32px, #ff0000 fill, white text).",
+    "Content containers use shell for max 1308px and responsive --pad-x.",
+    "Tables: header row #fafafa, hairline borders, row hover #f9fafb, tabular nums for numbers.",
+    "Dark regions (top-bar, hero, footer) use --text-on-dark for primary text and --text-on-dark-muted for secondary; never use --text-body on dark backgrounds for titles.",
+    "Spacing: reuse section margin 48px between major blocks; stat-grid gap 20px; split gap 20px.",
+    "When adding components not listed here, follow the same border (1px hairline), radius (3 or 32), and transition (0.3s ease) patterns from creator-analytics.html."
+  ],
+  "fileIndex": {
+    "humanReadableSpec": "design_systems/mdStrikers_site_general_design.json",
+    "machineReadySpec": "design_systems/mdStrikers_site_general_design_final.json",
+    "referenceImplementation": "design_systems/creator-analytics.html"
+  }
+}

@@ -300,7 +300,7 @@ async function SuccessPageContent({ eventId, attendeeId }: { eventId: number; at
               Return to Home
             </a>
             <a
-              href="/events"
+              href="/browse-events"
               className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-md"
             >
               View All Events

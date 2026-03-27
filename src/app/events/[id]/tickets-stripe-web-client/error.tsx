@@ -101,7 +101,7 @@ export default function TicketsStripeWebClientError({ error, reset }: ErrorProps
           </button>
 
           <a
-            href="/events"
+            href="/browse-events"
             className="block w-full bg-white border border-gray-300 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
           >
             Return to Events
