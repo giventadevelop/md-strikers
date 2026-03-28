@@ -2,6 +2,41 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createLogger } from "@/lib/logger";
+import { getAppUrl } from "@/lib/env";
+
+/**
+ * Clerk requires an absolute signInUrl in production. Relative `/sign-in` throws:
+ * "The signInUrl needs to have a absolute url format."
+ */
+function resolveClerkSignInUrl(): string {
+  const raw =
+    process.env.AMPLIFY_NEXT_PUBLIC_APP_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "";
+  if (raw.includes("amplifyapp.com") || raw.includes("mosc-temp.com")) {
+    const pd = process.env.NEXT_PUBLIC_PRIMARY_DOMAIN || "www.event-site-manager.com";
+    const host = pd.replace(/^https?:\/\//, "").replace(/\/$/, "");
+    return `https://${host}/sign-in`;
+  }
+  const base = getAppUrl();
+  const trimmed = base.trim().replace(/\/$/, "");
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+    try {
+      return `${new URL(trimmed).origin}/sign-in`;
+    } catch {
+      /* ignore */
+    }
+  }
+  if (process.env.NODE_ENV !== "production") {
+    return "/sign-in";
+  }
+  console.error(
+    "[middleware] Clerk signInUrl: set NEXT_PUBLIC_APP_URL or AMPLIFY_NEXT_PUBLIC_APP_URL to your deployed origin (https://...). Falling back to NEXT_PUBLIC_PRIMARY_DOMAIN."
+  );
+  const pd = process.env.NEXT_PUBLIC_PRIMARY_DOMAIN || "www.event-site-manager.com";
+  const host = pd.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  return `https://${host}/sign-in`;
+}
 
 const logger = createLogger('MIDDLEWARE');
 const DEBUG_MIDDLEWARE = process.env.NEXT_PUBLIC_DEBUG_MIDDLEWARE === 'true';
@@ -143,9 +178,7 @@ export default clerkMiddleware(
     // NOTE: frontendApiProxy REMOVED. The CNAME clerk.event-site-manager.com is verified
     // and points to frontend-api.clerk.services, so Clerk reaches its FAPI directly.
     // The proxy was causing auth failures (couldn't register in Clerk Dashboard).
-    signInUrl: process.env.NEXT_PUBLIC_APP_URL?.includes('amplifyapp.com') || process.env.NEXT_PUBLIC_APP_URL?.includes('mosc-temp.com')
-      ? `https://${process.env.NEXT_PUBLIC_PRIMARY_DOMAIN || 'www.event-site-manager.com'}/sign-in`
-      : '/sign-in',
+    signInUrl: resolveClerkSignInUrl(),
   }
 );
 
