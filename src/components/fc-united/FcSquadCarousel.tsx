@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useCallback, useRef, type ElementRef } from 'react';
 import { cn } from '@/lib/utils';
 import { fcBebas } from './fcUnitedFonts';
+import { encodePublicPath } from './fcUnitedGalleryData';
 
 export type FcSquadPlayer = {
   img: string;
@@ -85,12 +86,13 @@ export function FcSquadCarousel({ players }: Props) {
             data-carousel-card
             className="group w-[min(240px,78vw)] shrink-0 snap-center text-center"
           >
-            <div className="relative mx-auto aspect-[380/495] max-w-[240px] overflow-hidden rounded-[3px]">
+            <div className="relative mx-auto aspect-[380/495] max-w-[240px] overflow-hidden rounded-[3px] bg-[#081224]">
+              {/* Zoom past in-file white margins; top origin keeps head/upper jersey in frame */}
               <Image
-                src={p.img}
+                src={encodePublicPath(p.img)}
                 alt={p.name}
                 fill
-                className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                className="origin-top scale-[1.22] object-cover object-top transition-transform duration-300 group-hover:scale-[1.28]"
                 sizes="(max-width:768px) 78vw, 240px"
               />
               <span className="absolute left-3 top-3 rounded bg-[#ff0000] px-2 py-1 text-sm font-bold text-white">

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { fcUnitedAboutParagraphs, fcUnitedAboutTitle } from './fcUnitedAboutContent';
 import { FC_IMG, fcLeagueRows, fcMatchBlocks, fcNewsItems, fcSponsors } from './fcUnitedConstants';
 import { loadFcSquadFirstTeamPlayers } from './fcSquadMembersFromDisk';
 import { fcBebas, fcPoppins, fcRoboto } from './fcUnitedFonts';
@@ -9,12 +10,13 @@ import { FcSquadCarousel } from './FcSquadCarousel';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcEventCountdown } from './FcEventCountdown';
 import { FcUnitedHeader } from './FcUnitedHeader';
+import { FcUnitedHeroVideo } from './FcUnitedHeroVideo';
 
 const products = [
   { img: `${FC_IMG}/product-13-copyright-393x426.jpg`, tag: 'Gloves', title: 'Alpha Goalkeeper Glove', price: '$80.00' },
   { img: `${FC_IMG}/product-8-copyright-393x426.jpg`, tag: 'Shoes', title: 'Athletic Training Boots', price: '$79.00' },
   { img: `${FC_IMG}/product-12-copyright-393x426.jpg`, tag: 'Gloves', title: 'Weather Grip gloves', price: '$110.00' },
-  { img: `${FC_IMG}/product-13-copyright-393x426.jpg`, tag: 'Shoes', title: 'Men Football Boots Predator', price: '$100.00' },
+  { img: `${FC_IMG}/product-13-copyright-393x426.jpg`, tag: 'Shoes', title: 'Men Soccer Boots Predator', price: '$100.00' },
 ];
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
@@ -27,30 +29,28 @@ export default async function FcUnitedHomePage() {
   const fcSquadFirstTeamPlayers = loadFcSquadFirstTeamPlayers();
 
   return (
-    <div className={cn(fcPoppins.className, 'min-h-screen bg-[#f4f4f4] text-[#797e87] antialiased')}>
+    <div
+      className={cn(fcPoppins.className, 'flex min-h-screen flex-col bg-[#f4f4f4] text-[#797e87] antialiased')}
+    >
       <FcUnitedHeader active="home" />
 
+      <main className="flex min-w-0 flex-1 flex-col">
       {/* Hero — full width + gradient */}
-      <section className="relative min-h-[min(100vh,920px)] overflow-hidden bg-[#081224]">
+      <section className="relative min-h-[min(75vh,690px)] bg-[#081224]">
         <div className="absolute inset-0">
-          <Image
-            src={`${FC_IMG}/anim-bg-copyright.jpg`}
-            alt=""
-            fill
-            className="object-cover object-center"
-            priority
-            sizes="100vw"
-          />
+          <FcUnitedHeroVideo className="absolute inset-0 h-full w-full object-cover object-center" />
+          {/* Darken slightly so headline + countdown stay readable over ambient video (HP-style) */}
           <div
-            className="absolute inset-0 bg-gradient-to-br from-[#081224]/95 via-[#0f1f38]/80 to-[#262f3e]/90"
+            className="absolute inset-0 bg-gradient-to-br from-[#081224]/88 via-[#0f1f38]/72 to-[#262f3e]/85"
             aria-hidden
           />
         </div>
 
-        <div className="relative z-10 flex min-h-[min(100vh,920px)] flex-col justify-end pb-12 pt-24 md:pb-14 md:pt-28">
-          <Shell>
-            <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-xl">
+        <div className="relative z-10 flex min-h-[min(75vh,690px)] flex-col justify-end pb-12 pt-20 md:pb-14 md:pt-24 lg:pt-28">
+          <Shell className="overflow-visible">
+            {/* Right stack ~36% width; stretch rows so left headline stays bottom-aligned while image+overlay+card stack from the top */}
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,36%)] lg:items-stretch lg:gap-8">
+              <div className="flex min-h-0 max-w-xl flex-col justify-end lg:max-w-none lg:self-end">
                 <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-[#848992]">Welcome</span>
                 <h1
                   className={cn(
@@ -63,23 +63,45 @@ export default async function FcUnitedHomePage() {
                   Strikers
                 </h1>
                 <Link
-                  href="/volunteer"
+                  href="/about"
                   className="mt-6 inline-flex rounded-[32px] bg-[#ff0000] px-7 py-3 text-sm font-semibold text-white transition-[filter] duration-300 ease-in-out hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000]"
                 >
                   Read More
                 </Link>
               </div>
 
-              {/* Next match / countdown — static */}
-              <div className="w-full max-w-md rounded-[3px] border border-white/15 bg-black/25 p-6 text-white backdrop-blur-sm lg:w-[380px]">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#848992]">Upcoming Event</p>
-                <h3 className={cn(fcBebas.className, 'mt-4 text-center text-3xl tracking-wide text-white')}>Capital Cup 2026</h3>
-                <p className="mt-2 text-center text-sm text-white/90">
-                  <span className="font-semibold text-white/90">Chief Guest :</span>{' '}
-                  <span className={cn(fcBebas.className, 'text-2xl tracking-wide text-white')}>I M Vijayan</span>
+              {/* Promo image → venue overlay → upcoming card; bleed right; slightly shorter band (16/10) frees vertical room for overlay */}
+              <div className="flex w-full max-w-md flex-col gap-3 lg:max-w-none lg:min-w-0 lg:w-full lg:-mr-12 lg:justify-start">
+                <div className="overflow-hidden rounded-[3px] border border-white/15 bg-black/20 backdrop-blur-sm lg:-mt-1">
+                  <div className="relative aspect-[16/10] w-full min-h-0 sm:aspect-[16/9]">
+                    <Image
+                      src="/images/md_strikers_media/md_media/Gallery/IM-Vijayan-Image_news.jpg"
+                      alt=""
+                      fill
+                      className="object-cover object-center opacity-[0.96] drop-shadow-[0_8px_36px_rgba(0,0,0,0.5)]"
+                      sizes="(max-width: 1024px) 100vw, 36vw"
+                      priority
+                      aria-hidden
+                    />
+                  </div>
+                </div>
+                <p
+                  className={cn(
+                    fcPoppins.className,
+                    'rounded-[3px] border border-white/25 bg-black/50 px-3 py-3 text-center text-[11px] leading-relaxed text-white shadow-[0_6px_28px_rgba(0,0,0,0.45)] backdrop-blur-md sm:text-xs md:text-[13px]',
+                  )}
+                >
+                  May 23, 2026, at Othello Regional Park, Frederick, Maryland
                 </p>
-                <p className={cn(fcBebas.className, 'mt-4 text-center text-2xl tracking-wide')}>May 23, 2026</p>
-                <FcEventCountdown targetIso="2026-05-23T00:00:00" />
+                <div className="shrink-0 rounded-[3px] border border-white/15 bg-black/25 p-6 text-white backdrop-blur-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[#848992]">Upcoming Event</p>
+                  <h3 className={cn(fcBebas.className, 'mt-4 text-center text-3xl tracking-wide text-white')}>Capital Cup 2026</h3>
+                  <p className="mt-2 text-center text-sm text-white/90">
+                    <span className="font-semibold text-white/90">Chief Guest :</span>{' '}
+                    <span className={cn(fcBebas.className, 'text-2xl tracking-wide text-white')}>I M Vijayan</span>
+                  </p>
+                  <FcEventCountdown targetIso="2026-05-23T00:00:00" />
+                </div>
               </div>
             </div>
           </Shell>
@@ -130,8 +152,8 @@ export default async function FcUnitedHomePage() {
         </Shell>
       </section>
 
-      {/* League table */}
-      <section className="bg-white py-12 md:py-16">
+      {/* League table — hidden (see layout / section index) */}
+      <section className="hidden bg-white py-12 md:py-16" aria-hidden>
         <Shell>
           <div className="mb-8 text-center">
             <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-[#797e87]">table</span>
@@ -220,20 +242,25 @@ export default async function FcUnitedHomePage() {
               }}
             >
               <span className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#848992]">our story</span>
-              <h3 className={cn(fcBebas.className, 'text-3xl leading-tight md:text-4xl')}>About the Club MD STRIKERS</h3>
-              <p className="mt-4 max-w-prose text-sm text-[#848992]">
-                MD Strikers has a long history. Training programs and summer camps — static copy from the mirror site.
+              <h3 className={cn(fcBebas.className, 'text-2xl leading-tight text-white md:text-3xl lg:text-4xl')}>
+                {fcUnitedAboutTitle}
+              </h3>
+              <p className="mt-4 max-w-prose text-sm leading-relaxed text-white/85">
+                {fcUnitedAboutParagraphs[0]}
               </p>
-              <span className="mt-6 inline-flex w-fit cursor-not-allowed rounded-[32px] border border-white/20 px-6 py-2 text-sm text-[#848992]">
+              <Link
+                href="/about"
+                className="mt-6 inline-flex w-fit rounded-[32px] bg-[#ff0000] px-6 py-2 text-sm font-semibold text-white transition-[filter] duration-300 ease-in-out hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000]"
+              >
                 Read More
-              </span>
+              </Link>
             </div>
           </div>
         </Shell>
       </section>
 
-      {/* Shop */}
-      <section className="bg-white py-14 md:py-20">
+      {/* Shop — hidden (see layout / section index) */}
+      <section className="hidden bg-white py-14 md:py-20" aria-hidden>
         <Shell>
           <div className="mb-10 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
             <div>
@@ -283,6 +310,8 @@ export default async function FcUnitedHomePage() {
           </div>
         </Shell>
       </section>
+
+      </main>
 
       <FcUnitedFooter />
     </div>

@@ -186,6 +186,9 @@ const nextConfig = {
     // They are only in serverRuntimeConfig (lines 26-27) to prevent build-time exposure
     // Server-side code can access process.env directly, so env section is not needed
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || process.env.AMPLIFY_NEXT_PUBLIC_APP_URL,
+    /** Inbound address for public contact form (FcUnitedContactForm); proxy forwards to backend. */
+    NEXT_PUBLIC_CONTACT_TO_EMAIL: process.env.NEXT_PUBLIC_CONTACT_TO_EMAIL,
+    NEXT_PUBLIC_MOSC_CONTACT_TO_EMAIL: process.env.NEXT_PUBLIC_MOSC_CONTACT_TO_EMAIL,
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     NEXT_PUBLIC_STRIPE_PRO_PRICE_ID: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID,
     NEXT_PUBLIC_STRIPE_MAX_PRICE_ID: process.env.NEXT_PUBLIC_STRIPE_MAX_PRICE_ID,

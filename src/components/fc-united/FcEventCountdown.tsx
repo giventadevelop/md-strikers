@@ -17,14 +17,18 @@ function pad2(value: number) {
 
 export function FcEventCountdown({ targetIso }: { targetIso: string }) {
   const targetMs = useMemo(() => new Date(targetIso).getTime(), [targetIso]);
-  const [nowMs, setNowMs] = useState(() => Date.now());
+  /** null until mount — avoids SSR vs client Date.now() mismatch (hydration error). */
+  const [nowMs, setNowMs] = useState<number | null>(null);
 
   useEffect(() => {
-    const timer = window.setInterval(() => setNowMs(Date.now()), 1000);
+    const tick = () => setNowMs(Date.now());
+    tick();
+    const timer = window.setInterval(tick, 1000);
     return () => window.clearInterval(timer);
   }, []);
 
-  const { days, hours, minutes, seconds } = toParts(targetMs - nowMs);
+  const { days, hours, minutes, seconds } =
+    nowMs === null ? { days: 0, hours: 0, minutes: 0, seconds: 0 } : toParts(targetMs - nowMs);
 
   return (
     <>

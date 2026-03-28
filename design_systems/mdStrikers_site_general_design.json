@@ -3,13 +3,13 @@
   "meta": {
     "name": "FC United mirror — mdStrikers site design (reference)",
     "source": "wget/reputable-scarab-5b76b9.qwery-test.themerex.net (ThemeREX FC United child theme + Elementor)",
-    "purpose": "High-level creative-direction spec for AI and developers to replicate the football-club marketing site look: dark cinematic hero, athletic typography, red accent, data-dense sports modules, and editorial commerce blocks.",
+    "purpose": "High-level creative-direction spec for AI and developers to replicate the soccer-club marketing site look: dark cinematic hero, athletic typography, red accent, data-dense sports modules, and editorial commerce blocks.",
     "version": "1.0.0",
     "lastAnalyzed": "2026-03-27"
   },
   "brandEssence": {
     "keywords": [
-      "professional football club",
+      "professional soccer club",
       "broadcast and stadium energy",
       "data-first (scores, tables, countdowns)",
       "merch and membership"
@@ -116,7 +116,7 @@
       }
     },
     "scale": {
-      "heroTitle": "Extra large display; allow manual line breaks for drama (e.g. 'Football club' / 'United').",
+      "heroTitle": "Extra large display; allow manual line breaks for drama (e.g. 'Soccer club' / 'United').",
       "sectionSubtitle": "Small, uppercase, letterspaced (theme class sc_item_subtitle)—visually half the weight of the main title.",
       "body": "16px base on sports pages; 14px on dense footer or mobile tweaks.",
       "widgetTitle": "h5-sized labels for widgets like NEXT MATCH, shop section labels."

@@ -5,7 +5,7 @@ export const FC_IMG = '/images/fc-united';
 export const FC_SQUAD_MEMBERS = '/images/md_strikers_media/squad/members';
 
 export const fcNewsItems = [
-  { title: 'Football World Cup Finals', date: 'Monday, September 10, 2018' },
+  { title: 'Soccer World Cup Finals', date: 'Monday, September 10, 2018' },
   { title: 'The Team that You Support!', date: 'Friday, September 14, 2018' },
   { title: 'Why Soccer is the Best Sport', date: 'Saturday, September 22, 2018' },
 ];

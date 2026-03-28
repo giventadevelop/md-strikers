@@ -30,7 +30,7 @@ const fcThemeGalleryItems: GalleryItem[] = [
   { src: `${FC_IMG}/post-6-copyright.jpg`, title: '2018 League Report and Highlights', tag: 'articles', kind: 'image' },
   { src: `${FC_IMG}/post-5-copyright.jpg`, title: 'World Cup Expectations', tag: 'Soccer', kind: 'image' },
   { src: `${FC_IMG}/post-3-copyright.jpg`, title: 'The Game that Knows No Limit', tag: 'League', kind: 'image' },
-  { src: `${FC_IMG}/post-11-copyright.jpg`, title: 'Female Players in Football', tag: 'articles', kind: 'image' },
+  { src: `${FC_IMG}/post-11-copyright.jpg`, title: 'Female Players in Soccer', tag: 'articles', kind: 'image' },
   { src: `${FC_IMG}/post-7-copyright.jpg`, title: 'Stunning Goals by Top Players', tag: 'Soccer', kind: 'image' },
 ];
 

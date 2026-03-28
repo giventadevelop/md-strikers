@@ -1,8 +1,8 @@
 'use client';
 
 /**
- * Team roster grid — intentionally not the same as `/gallery`:
- * portrait cells, `object-contain`, and padding so squad headshots aren’t cropped.
+ * Team roster grid — portrait cells with `object-cover` + top alignment so tiles
+ * fill the frame (no letterboxing) and framing favors head/chest over lower body.
  */
 
 import { useCallback, useEffect, useState } from 'react';
@@ -84,7 +84,7 @@ export default function FcUnitedTeamPage({ items }: Props) {
       <section className="bg-[#f4f4f4] py-12 md:py-16">
         <Shell>
           <p className="mb-8 text-sm text-[#797e87] md:text-base">
-            First Team — photos from <span className="font-medium text-[#262f3e]">squad/members</span>. Thumbnails show the full photo (fit inside the frame). Click any card for the slideshow.
+            First Team — photos from <span className="font-medium text-[#262f3e]">squad/members</span>. Thumbnails fill each card from the top (head & chest); click for the full slideshow.
           </p>
 
           {items.length === 0 ? (
@@ -94,7 +94,7 @@ export default function FcUnitedTeamPage({ items }: Props) {
             </div>
           ) : (
             <>
-              {/* Team grid: portrait frames + object-contain (not gallery cover) so full headshots stay visible */}
+              {/* Portrait tiles: cover + top anchor — fills cell, crops below chest/waist on tall shots */}
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {items.map((item, index) => (
                 <button
@@ -103,13 +103,13 @@ export default function FcUnitedTeamPage({ items }: Props) {
                   onClick={() => openAt(index)}
                   className="group flex flex-col overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-white text-left shadow-sm transition-shadow hover:shadow-md"
                 >
-                  <div className="relative flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-t-[3px] bg-[#d8dce2] p-3 sm:p-4">
+                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-t-[3px] bg-[#081224]">
+                    {/* Slight zoom clips baked-in white borders in source files; top anchor = upper body */}
                     <Image
                       src={encodePublicPath(item.src)}
                       alt={item.title}
-                      width={800}
-                      height={1000}
-                      className="h-auto max-h-full w-auto max-w-full min-h-0 min-w-0 object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                      fill
+                      className="origin-top scale-[1.2] object-cover object-top transition-transform duration-300 group-hover:scale-[1.26]"
                       sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
                     />
                   </div>

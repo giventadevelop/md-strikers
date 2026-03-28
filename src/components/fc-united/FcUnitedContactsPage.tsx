@@ -5,6 +5,7 @@ import { fcBebas, fcPoppins } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
+import { FcUnitedContactForm } from './FcUnitedContactForm';
 import Image from 'next/image';
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
@@ -12,6 +13,12 @@ function Shell({ children, className }: { children: ReactNode; className?: strin
     <div className={cn('mx-auto w-full max-w-[1308px] px-4 md:px-7 lg:px-12', className)}>{children}</div>
   );
 }
+
+/** Map pin + primary venue (embed uses same query for one marker). */
+const CONTACT_MAP_QUERY =
+  'Germantown Rd, Germantown, MD 20874, United States';
+
+const CONTACT_MAP_EMBED_SRC = `https://maps.google.com/maps?t=m&output=embed&iwloc=near&z=15&q=${encodeURIComponent(CONTACT_MAP_QUERY)}`;
 
 export default function FcUnitedContactsPage() {
   return (
@@ -22,11 +29,11 @@ export default function FcUnitedContactsPage() {
       <section className="bg-white">
         <div className="relative h-[min(60vh,604px)] w-full overflow-hidden bg-[#e3e3e3]">
           <iframe
-            title="Map"
+            title="Maryland Strikers — location map"
             className="h-full w-full border-0"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            src="https://maps.google.com/maps?t=m&output=embed&iwloc=near&z=12&q=220+Gardner+Ave+Brooklyn%2C+NY+11211"
+            src={CONTACT_MAP_EMBED_SRC}
           />
         </div>
 
@@ -61,43 +68,7 @@ export default function FcUnitedContactsPage() {
             <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-[#797e87]">have a question?</span>
             <h2 className={cn(fcBebas.className, 'text-3xl text-[#262f3e] md:text-4xl')}>drop a line</h2>
 
-            <form className="mx-auto mt-10 max-w-2xl space-y-4 text-left">
-              <div className="grid gap-4 md:grid-cols-2">
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="name *"
-                  required
-                  className="rounded-[3px] border border-[#e3e3e3] bg-[#fafafa] px-4 py-3 text-sm text-[#262f3e] placeholder:text-[#797e87]"
-                />
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="email *"
-                  required
-                  className="rounded-[3px] border border-[#e3e3e3] bg-[#fafafa] px-4 py-3 text-sm text-[#262f3e] placeholder:text-[#797e87]"
-                />
-              </div>
-              <textarea
-                name="message"
-                placeholder="message *"
-                rows={6}
-                required
-                className="w-full rounded-[3px] border border-[#e3e3e3] bg-[#fafafa] px-4 py-3 text-sm text-[#262f3e] placeholder:text-[#797e87]"
-              />
-              <label className="flex items-start gap-2 text-sm text-[#797e87]">
-                <input type="checkbox" required className="mt-1" />
-                <span>I agree that my submitted data is being collected and stored (required).</span>
-              </label>
-              <div className="text-center">
-                <button
-                  type="submit"
-                  className="rounded-[32px] bg-[#ff0000] px-8 py-3 text-sm font-semibold text-white transition-[filter] duration-300 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000]"
-                >
-                  Send Your Message
-                </button>
-              </div>
-            </form>
+            <FcUnitedContactForm />
           </div>
         </Shell>
       </section>

@@ -9,7 +9,16 @@ interface ConditionalLayoutProps {
   footer: React.ReactNode;
 }
 
-const FC_UNITED_FULL_WIDTH = ['/', '/events', '/matches', '/team', '/gallery', '/contacts', '/volunteer'];
+const FC_UNITED_FULL_WIDTH = [
+  '/',
+  '/about',
+  '/events',
+  '/matches',
+  '/team',
+  '/gallery',
+  '/contacts',
+  '/volunteer',
+];
 
 /**
  * FC United mirror routes supply their own header/footer.
