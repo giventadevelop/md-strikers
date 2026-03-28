@@ -2,26 +2,13 @@ import type { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import {
-  FC_IMG,
-  fcLeagueRows,
-  fcMatchBlocks,
-  fcNewsItems,
-  fcSponsors,
-} from './fcUnitedConstants';
+import { FC_IMG, fcLeagueRows, fcMatchBlocks, fcNewsItems, fcSponsors } from './fcUnitedConstants';
+import { loadFcSquadFirstTeamPlayers } from './fcSquadMembersFromDisk';
 import { fcBebas, fcPoppins, fcRoboto } from './fcUnitedFonts';
 import { FcSquadCarousel } from './FcSquadCarousel';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcEventCountdown } from './FcEventCountdown';
 import { FcUnitedHeader } from './FcUnitedHeader';
-
-const players = [
-  { img: `${FC_IMG}/team-1-copyright-380x495.jpg`, num: '13', name: 'Sean Matthews', role: 'Midfielder' },
-  { img: `${FC_IMG}/team-2-copyright-380x495.jpg`, num: '11', name: 'Justin Lewis', role: 'Defender' },
-  { img: `${FC_IMG}/team-3-copyright-380x495.jpg`, num: '5', name: 'Andrew Smith', role: 'Goalkeeper' },
-  { img: `${FC_IMG}/team-4-copyright-380x495.jpg`, num: '9', name: 'Geff Barker', role: 'Forward' },
-  { img: `${FC_IMG}/team-5-copyright-380x495.jpg`, num: '8', name: 'Henry Jones', role: 'Goalkeeper' },
-];
 
 const products = [
   { img: `${FC_IMG}/product-13-copyright-393x426.jpg`, tag: 'Gloves', title: 'Alpha Goalkeeper Glove', price: '$80.00' },
@@ -36,7 +23,9 @@ function Shell({ children, className }: { children: ReactNode; className?: strin
   );
 }
 
-export default function FcUnitedHomePage() {
+export default async function FcUnitedHomePage() {
+  const fcSquadFirstTeamPlayers = loadFcSquadFirstTeamPlayers();
+
   return (
     <div className={cn(fcPoppins.className, 'min-h-screen bg-[#f4f4f4] text-[#797e87] antialiased')}>
       <FcUnitedHeader active="home" />
@@ -187,7 +176,7 @@ export default function FcUnitedHomePage() {
             <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-[#848992]">squad</span>
             <h2 className={cn(fcBebas.className, 'text-4xl tracking-wide text-white md:text-5xl')}>The First Team</h2>
           </div>
-          <FcSquadCarousel players={players} />
+          <FcSquadCarousel players={fcSquadFirstTeamPlayers} />
           <div className="mt-12 text-center">
             <span className="inline-flex cursor-not-allowed rounded-[32px] border border-white/20 px-8 py-3 text-sm font-semibold text-[#848992]">
               View All Players (static)

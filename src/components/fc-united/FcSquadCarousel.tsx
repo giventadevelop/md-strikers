@@ -15,13 +15,18 @@ export type FcSquadPlayer = {
 type Props = { players: FcSquadPlayer[] };
 
 /**
- * Horizontal squad strip: scroll-snap + prev/next for testing.
- * Slides repeat the same `players` entries (3×) as a template until real data exists.
+ * Horizontal squad strip: scroll-snap + prev/next.
+ * Duplicates the list so short carousels still scroll; large squads use 2× only.
  */
 export function FcSquadCarousel({ players }: Props) {
   const scrollerRef = useRef<ElementRef<'div'>>(null);
 
-  const slides = [...players, ...players, ...players];
+  const slides =
+    players.length === 0
+      ? []
+      : players.length > 6
+        ? [...players, ...players]
+        : [...players, ...players, ...players];
 
   const scrollStep = useCallback((dir: -1 | 1) => {
     const el = scrollerRef.current;
@@ -31,6 +36,14 @@ export function FcSquadCarousel({ players }: Props) {
     const step = card ? card.getBoundingClientRect().width + gap : 280;
     el.scrollBy({ left: dir * step, behavior: 'smooth' });
   }, []);
+
+  if (players.length === 0) {
+    return (
+      <p className="text-center text-sm text-[#848992]" role="status">
+        Squad photos will appear here when images are added to the members folder.
+      </p>
+    );
+  }
 
   return (
     <div
@@ -68,7 +81,7 @@ export function FcSquadCarousel({ players }: Props) {
       >
         {slides.map((p, i) => (
           <div
-            key={`${p.name}-${i}`}
+            key={`${p.img}-${i}`}
             data-carousel-card
             className="group w-[min(240px,78vw)] shrink-0 snap-center text-center"
           >

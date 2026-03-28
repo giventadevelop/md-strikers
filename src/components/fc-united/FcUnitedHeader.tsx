@@ -8,7 +8,7 @@ import { mdStrikersBrand as b } from './mdStrikersBrand';
 const navHoverActive = 'transition-colors duration-200 hover:text-[#e31837]';
 const navActive = 'text-[#e31837]';
 
-export type FcNavKey = 'home' | 'events' | 'matches' | 'gallery' | 'contacts';
+export type FcNavKey = 'home' | 'events' | 'matches' | 'team' | 'gallery' | 'contacts';
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
   return (
@@ -82,6 +82,9 @@ export function FcUnitedHeader({ active }: { active?: FcNavKey }) {
           </Link>
           <Link href="/matches" className={cn(navHoverActive, active === 'matches' && navActive)}>
             Matches
+          </Link>
+          <Link href="/team" className={cn(navHoverActive, active === 'team' && navActive)}>
+            Team
           </Link>
           <Link href="/gallery" className={cn(navHoverActive, active === 'gallery' && navActive)}>
             Gallery

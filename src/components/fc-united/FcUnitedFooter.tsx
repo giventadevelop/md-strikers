@@ -49,6 +49,9 @@ export function FcUnitedFooter() {
             <Link href="/matches" className="font-medium text-white transition-colors hover:text-[#e31837]">
               Matches
             </Link>
+            <Link href="/team" className="font-medium text-white transition-colors hover:text-[#e31837]">
+              Team
+            </Link>
             <Link href="/gallery" className="font-medium text-white transition-colors hover:text-[#e31837]">
               Gallery
             </Link>

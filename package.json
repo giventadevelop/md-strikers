@@ -21,12 +21,15 @@
     "test:admin:dynamic": "node TestSprite/admin-tests/dynamic-event-test-suite.js",
     "test:admin:all": "npm run test:admin && npm run test:admin:dynamic",
     "test:admin:diagnose": "node TestSprite/admin-tests/diagnose-event-discovery.js",
-    "test:install-playwright": "npx playwright install chromium"
+    "test:install-playwright": "npx playwright install chromium",
+    "split-squad": "node scripts/split-squad-collage.mjs",
+    "split-squad-2-3": "node scripts/split-squad-collage.mjs 2 3",
+    "split-squad-4": "node scripts/split-squad-collage.mjs 4"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.0.7",
     "@hookform/resolvers": "^5.2.2",
-    "@memberstack/dom": "^2.0.1",
+    "@memberstack/dom": "^1.9.33",
     "@prisma/client": "^6.6.0",
     "@prisma/extension-accelerate": "^1.3.0",
     "@radix-ui/react-alert-dialog": "^1.1.15",

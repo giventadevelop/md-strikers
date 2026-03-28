@@ -67,6 +67,7 @@ export default async function RootLayout({
     /^\/events/,
     /^\/sponsors/,
     /^\/gallery/,
+    /^\/team/,
     /^\/about/,
     /^\/contact/,
     /^\/polls/,
