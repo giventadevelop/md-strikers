@@ -9,8 +9,7 @@ export function encodePublicPath(path: string): string {
 const G = '/images/md_strikers_media/gallery';
 
 /**
- * All media under `public/images/md_strikers_media/gallery`, MD Strikers-first order (featured flyer first).
- * Generic titles for ID-style or WhatsApp filenames; clearer titles where the file name is descriptive.
+ * All media under `public/images/md_strikers_media/gallery`, curated order (featured block first).
  */
 export const mdStrikersLocalGalleryItems: {
   src: string;
@@ -19,9 +18,34 @@ export const mdStrikersLocalGalleryItems: {
   kind: 'image' | 'video';
 }[] = [
   {
+    src: `${G}/capital_cup_2026_flyer_sponsor_samson_rex.jpg`,
+    title: 'Capital Cup 2026 Flyer — Sponsor Samson Rex',
+    tag: 'League',
+    kind: 'image',
+  },
+  {
     src: `${G}/capital_cup_2026_flyer.jpg`,
     title: 'Capital Cup 2026 Flyer',
     tag: 'League',
+    kind: 'image',
+  },
+  { src: `${G}/IM-Vijayan-Image_news.jpg`, title: 'IM Vijayan — News', tag: 'articles', kind: 'image' },
+  {
+    src: `${G}/564852626_17863115427483348_789349214786533531_n.webp`,
+    title: 'Photo 18',
+    tag: 'Gallery',
+    kind: 'image',
+  },
+  {
+    src: `${G}/md_strikers_logo-withoutBackground.png`,
+    title: 'Club logo (transparent)',
+    tag: 'articles',
+    kind: 'image',
+  },
+  {
+    src: `${G}/558668612_841971301675548_700215800714885427_n.jpg`,
+    title: 'Photo 10',
+    tag: 'Gallery',
     kind: 'image',
   },
   { src: `${G}/540710111_806634078542604_6542700348383621762_n.jpg`, title: 'Photo 1', tag: 'Gallery', kind: 'image' },
@@ -33,7 +57,6 @@ export const mdStrikersLocalGalleryItems: {
   { src: `${G}/542760242_806983045174374_669427754056647885_n.jpg`, title: 'Photo 7', tag: 'Gallery', kind: 'image' },
   { src: `${G}/543030861_806846955187983_2247439322602764927_n.jpg`, title: 'Photo 8', tag: 'Gallery', kind: 'image' },
   { src: `${G}/557711699_835491542323524_4213684225306293673_n.jpg`, title: 'Photo 9', tag: 'Gallery', kind: 'image' },
-  { src: `${G}/558668612_841971301675548_700215800714885427_n.jpg`, title: 'Photo 10', tag: 'Gallery', kind: 'image' },
   { src: `${G}/559135755_842867244919287_3695873748149280128_n.jpg`, title: 'Photo 11', tag: 'Gallery', kind: 'image' },
   { src: `${G}/559961476_841971375008874_7095428434327322979_n.jpg`, title: 'Photo 12', tag: 'Gallery', kind: 'image' },
   { src: `${G}/560128775_841971385008873_8494190996753689898_n.jpg`, title: 'Photo 13', tag: 'Gallery', kind: 'image' },
@@ -41,7 +64,6 @@ export const mdStrikersLocalGalleryItems: {
   { src: `${G}/560439030_841971358342209_1563382045942887463_n.jpg`, title: 'Photo 15', tag: 'Gallery', kind: 'image' },
   { src: `${G}/561345467_841971308342214_2312958033194469852_n.jpg`, title: 'Photo 16', tag: 'Gallery', kind: 'image' },
   { src: `${G}/564037338_17863115400483348_7676624527203712578_n.webp`, title: 'Photo 17', tag: 'Gallery', kind: 'image' },
-  { src: `${G}/564852626_17863115427483348_789349214786533531_n.webp`, title: 'Photo 18', tag: 'Gallery', kind: 'image' },
   { src: `${G}/565011119_17863013796483348_2081891674633042317_n.webp`, title: 'Photo 19', tag: 'Gallery', kind: 'image' },
   { src: `${G}/565106197_17863115418483348_7160127010355423186_n.webp`, title: 'Photo 20', tag: 'Gallery', kind: 'image' },
   { src: `${G}/565136546_17863115409483348_574382761878722706_n.webp`, title: 'Photo 21', tag: 'Gallery', kind: 'image' },
@@ -53,9 +75,7 @@ export const mdStrikersLocalGalleryItems: {
   { src: `${G}/654698544_965227579349919_624228953345333564_n.jpg`, title: 'Photo 27', tag: 'Gallery', kind: 'image' },
   { src: `${G}/Capital-Cup-image.jpg`, title: 'Capital Cup', tag: 'articles', kind: 'image' },
   { src: `${G}/IM-Vijayan-Image.jpg`, title: 'IM Vijayan', tag: 'Soccer', kind: 'image' },
-  { src: `${G}/IM-Vijayan-Image_news.jpg`, title: 'IM Vijayan — News', tag: 'articles', kind: 'image' },
   { src: `${G}/md_strikers_logo.jpeg`, title: 'Club logo', tag: 'articles', kind: 'image' },
-  { src: `${G}/md_strikers_logo-withoutBackground.png`, title: 'Club logo (transparent)', tag: 'articles', kind: 'image' },
   { src: `${G}/Md-Strikers-image.jpg`, title: 'MD Strikers', tag: 'League', kind: 'image' },
   { src: `${G}/soccer-group.jpg`, title: 'Team photo', tag: 'Soccer', kind: 'image' },
   { src: `${G}/soccer-group-1.jpg`, title: 'Team photo 2', tag: 'Soccer', kind: 'image' },
@@ -85,4 +105,4 @@ export const mdStrikersLocalGalleryItems: {
   },
 ];
 
-export const MD_STRIKERS_GALLERY_FILE_COUNT = 40;
+export const MD_STRIKERS_GALLERY_FILE_COUNT = 41;
