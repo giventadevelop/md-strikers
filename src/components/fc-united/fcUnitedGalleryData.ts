@@ -9,7 +9,7 @@ export function encodePublicPath(path: string): string {
 const G = '/images/md_strikers_media/gallery';
 
 /**
- * All media under `public/images/md_strikers_media/gallery` (39 files), sorted by filename.
+ * All media under `public/images/md_strikers_media/gallery`, MD Strikers-first order (featured flyer first).
  * Generic titles for ID-style or WhatsApp filenames; clearer titles where the file name is descriptive.
  */
 export const mdStrikersLocalGalleryItems: {
@@ -18,6 +18,12 @@ export const mdStrikersLocalGalleryItems: {
   tag: string;
   kind: 'image' | 'video';
 }[] = [
+  {
+    src: `${G}/capital_cup_2026_flyer.jpg`,
+    title: 'Capital Cup 2026 Flyer',
+    tag: 'League',
+    kind: 'image',
+  },
   { src: `${G}/540710111_806634078542604_6542700348383621762_n.jpg`, title: 'Photo 1', tag: 'Gallery', kind: 'image' },
   { src: `${G}/541052668_806846961854649_7779087015138011010_n.jpg`, title: 'Photo 2', tag: 'Gallery', kind: 'image' },
   { src: `${G}/541304738_806847011854644_4699455967375041486_n.jpg`, title: 'Photo 3', tag: 'Gallery', kind: 'image' },
@@ -79,4 +85,4 @@ export const mdStrikersLocalGalleryItems: {
   },
 ];
 
-export const MD_STRIKERS_GALLERY_FILE_COUNT = 39;
+export const MD_STRIKERS_GALLERY_FILE_COUNT = 40;
