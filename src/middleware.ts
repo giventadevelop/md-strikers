@@ -4,20 +4,41 @@ import type { NextRequest } from "next/server";
 import { createLogger } from "@/lib/logger";
 import { getAppUrl } from "@/lib/env";
 
+/** Primary app sign-in URL (Clerk satellite must redirect here — never same origin as the satellite host). */
+function primaryClerkSignInUrl(): string {
+  const pd = process.env.NEXT_PUBLIC_PRIMARY_DOMAIN || "www.event-site-manager.com";
+  const host = pd.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  return `https://${host}/sign-in`;
+}
+
 /**
- * Clerk requires an absolute signInUrl in production. Relative `/sign-in` throws:
- * "The signInUrl needs to have a absolute url format."
+ * Clerk middleware signInUrl rules:
+ * - Absolute URL required in production (relative `/sign-in` throws).
+ * - If this app is a satellite, signInUrl MUST be the PRIMARY origin — not md-strikers.com — or:
+ *   "The signInUrl needs to be on a different origin than your satellite application."
  */
 function resolveClerkSignInUrl(): string {
   const raw =
     process.env.AMPLIFY_NEXT_PUBLIC_APP_URL ||
     process.env.NEXT_PUBLIC_APP_URL ||
     "";
-  if (raw.includes("amplifyapp.com") || raw.includes("mosc-temp.com")) {
-    const pd = process.env.NEXT_PUBLIC_PRIMARY_DOMAIN || "www.event-site-manager.com";
-    const host = pd.replace(/^https?:\/\//, "").replace(/\/$/, "");
-    return `https://${host}/sign-in`;
+
+  const isLocal =
+    raw.includes("localhost") ||
+    raw.includes("127.0.0.1") ||
+    !raw;
+
+  // Same conditions as isSatEnv below: any satellite deployment uses primary-domain sign-in.
+  const isSatellite =
+    !isLocal &&
+    (process.env.NEXT_PUBLIC_CLERK_IS_SATELLITE === "true" ||
+      raw.includes("mosc-temp.com") ||
+      raw.includes("amplifyapp.com"));
+
+  if (isSatellite) {
+    return primaryClerkSignInUrl();
   }
+
   const base = getAppUrl();
   const trimmed = base.trim().replace(/\/$/, "");
   if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
@@ -33,9 +54,7 @@ function resolveClerkSignInUrl(): string {
   console.error(
     "[middleware] Clerk signInUrl: set NEXT_PUBLIC_APP_URL or AMPLIFY_NEXT_PUBLIC_APP_URL to your deployed origin (https://...). Falling back to NEXT_PUBLIC_PRIMARY_DOMAIN."
   );
-  const pd = process.env.NEXT_PUBLIC_PRIMARY_DOMAIN || "www.event-site-manager.com";
-  const host = pd.replace(/^https?:\/\//, "").replace(/\/$/, "");
-  return `https://${host}/sign-in`;
+  return primaryClerkSignInUrl();
 }
 
 const logger = createLogger('MIDDLEWARE');
