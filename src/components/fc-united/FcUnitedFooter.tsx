@@ -62,17 +62,37 @@ export function FcUnitedFooter() {
               Contacts
             </Link>
           </div>
-          <p className="text-xs text-[#848992]">
-            Powered and designed by{' '}
-            <a
-              href="https://www.giventa.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-[#848992] underline-offset-2 transition-colors hover:text-white hover:underline"
-            >
-              Giventa Inc. USA
-            </a>
-          </p>
+          <div className="flex flex-col gap-2 text-xs text-[#848992] md:items-end md:text-right">
+            <p>
+              Powered and designed by{' '}
+              <a
+                href="https://www.giventa.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-[#848992] underline-offset-2 transition-colors hover:text-white hover:underline"
+              >
+                Giventa Inc. USA
+              </a>
+            </p>
+            <p>
+              <a
+                href="https://www.giventa.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium break-all text-[#848992] underline-offset-2 transition-colors hover:text-white hover:underline"
+              >
+                https://www.giventa.com
+              </a>
+            </p>
+            <p>
+              <a
+                href="mailto:sales@giventa.com"
+                className="font-medium text-[#848992] underline-offset-2 transition-colors hover:text-white hover:underline"
+              >
+                sales@giventa.com
+              </a>
+            </p>
+          </div>
         </div>
       </Shell>
     </footer>
