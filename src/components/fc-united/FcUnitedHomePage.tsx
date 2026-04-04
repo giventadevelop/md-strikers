@@ -108,30 +108,43 @@ export default async function FcUnitedHomePage() {
         </div>
       </section>
 
-      {/* Our Story — directly under hero */}
+      {/* Our Story — directly under hero; text left, club logo right */}
       <section id="about" className="bg-[#f4f4f4] py-12 md:py-16">
         <Shell>
           <div
-            className="relative flex min-h-[320px] flex-col justify-end overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-[#262f3e] p-8 text-white md:min-h-[380px] lg:min-h-[400px]"
+            className="relative grid min-h-[320px] grid-cols-1 overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-[#262f3e] text-white md:min-h-[380px] md:grid-cols-[minmax(0,1fr)_minmax(160px,280px)] md:items-center md:gap-8 md:p-8 lg:min-h-[400px] lg:gap-10 lg:p-10"
             style={{
               backgroundImage: `linear-gradient(90deg, rgba(8,18,36,0.92) 0%, rgba(38,47,62,0.75) 100%), url(${FC_IMG}/bg-about-copyright.jpg)`,
               backgroundSize: 'cover',
               backgroundPosition: 'center left',
             }}
           >
-            <span className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#848992]">our story</span>
-            <h3 className={cn(fcBebas.className, 'text-2xl leading-tight text-white md:text-3xl lg:text-4xl')}>
-              {fcUnitedAboutTitle}
-            </h3>
-            <p className="mt-4 max-w-prose text-sm leading-relaxed text-white/85">
-              {fcUnitedAboutParagraphs[0]}
-            </p>
-            <Link
-              href="/about"
-              className="mt-6 inline-flex w-fit cursor-pointer rounded-[32px] bg-[#ff0000] px-6 py-2 text-sm font-semibold text-white transition-[filter] duration-300 ease-in-out hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000] motion-reduce:transition-none motion-reduce:hover:brightness-100"
-            >
-              Read More
-            </Link>
+            <div className="relative z-10 flex flex-col justify-end p-8 pb-6 md:p-0 md:pb-0">
+              <span className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#848992]">our story</span>
+              <h3 className={cn(fcBebas.className, 'text-2xl leading-tight text-white md:text-3xl lg:text-4xl')}>
+                {fcUnitedAboutTitle}
+              </h3>
+              <p className="mt-4 max-w-prose text-sm leading-relaxed text-white/85">
+                {fcUnitedAboutParagraphs[0]}
+              </p>
+              <Link
+                href="/about"
+                className="mt-6 inline-flex w-fit cursor-pointer rounded-[32px] bg-[#ff0000] px-6 py-2 text-sm font-semibold text-white transition-[filter] duration-300 ease-in-out hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000] motion-reduce:transition-none motion-reduce:hover:brightness-100"
+              >
+                Read More
+              </Link>
+            </div>
+            <div className="relative z-10 flex items-center justify-center px-8 pb-8 pt-0 md:justify-end md:px-0 md:pb-0 md:pt-0">
+              <div className="relative h-36 w-36 shrink-0 sm:h-44 sm:w-44 md:h-48 md:w-48 lg:h-56 lg:w-56">
+                <Image
+                  src="/images/md_strikers_media/md_media/md_strikers_logo-withoutBackground.png"
+                  alt="Maryland Strikers Sports Club"
+                  fill
+                  className="object-contain drop-shadow-[0_4px_20px_rgba(0,0,0,0.35)]"
+                  sizes="(max-width:768px) 144px, 224px"
+                />
+              </div>
+            </div>
           </div>
         </Shell>
       </section>
