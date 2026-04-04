@@ -6,7 +6,11 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { FC_IMG, fcSponsors } from './fcUnitedConstants';
 import { fcBebas, fcPoppins } from './fcUnitedFonts';
-import { encodePublicPath, mdStrikersLocalGalleryItems } from './fcUnitedGalleryData';
+import {
+  encodePublicPath,
+  mdstrikersGalleryHtmlRootItems,
+  mdStrikersLocalGalleryItems,
+} from './fcUnitedGalleryData';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
@@ -34,7 +38,11 @@ const fcThemeGalleryItems: GalleryItem[] = [
   { src: `${FC_IMG}/post-7-copyright.jpg`, title: 'Stunning Goals by Top Players', tag: 'Soccer', kind: 'image' },
 ];
 
-const galleryItems: GalleryItem[] = [...mdStrikersLocalGalleryItems, ...fcThemeGalleryItems];
+const galleryItems: GalleryItem[] = [
+  ...mdStrikersLocalGalleryItems,
+  ...fcThemeGalleryItems,
+  ...mdstrikersGalleryHtmlRootItems,
+];
 
 export default function FcUnitedGalleryPage() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -93,7 +101,7 @@ export default function FcUnitedGalleryPage() {
                 type="button"
                 disabled
                 className={cn(
-                  'rounded-[32px] border px-4 py-2 text-sm font-medium',
+                  'rounded-[32px] border px-4 py-2 text-sm font-medium disabled:cursor-not-allowed',
                   index === 0
                     ? 'border-[#ff0000] bg-[#ff0000] text-white'
                     : 'border-[#e3e3e3] bg-white text-[#262f3e] opacity-70',
@@ -111,14 +119,14 @@ export default function FcUnitedGalleryPage() {
                 key={`${item.src}-${index}`}
                 type="button"
                 onClick={() => openAt(index)}
-                className="group overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-white text-left shadow-sm transition-shadow hover:shadow-md"
+                className="group cursor-pointer overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-white text-left shadow-sm transition-shadow duration-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-white motion-reduce:transition-none"
               >
                 <div className="relative aspect-[16/10] overflow-hidden rounded-t-[3px] bg-[#081224]">
                   {item.kind === 'video' ? (
                     <>
                       <video
                         src={encodePublicPath(item.src)}
-                        className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                        className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                         muted
                         playsInline
                         preload="metadata"
@@ -135,7 +143,7 @@ export default function FcUnitedGalleryPage() {
                       src={encodePublicPath(item.src)}
                       alt={item.title}
                       fill
-                      className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                      className="object-cover object-center transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                       sizes="(max-width:1024px) 50vw, 33vw"
                     />
                   )}
@@ -153,7 +161,7 @@ export default function FcUnitedGalleryPage() {
 
       {lightboxIndex !== null && current && (
         <div
-          className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-black/92 p-4"
+          className="fixed inset-0 z-[200] cursor-pointer flex flex-col items-center justify-center bg-black/92 p-4"
           style={{ paddingTop: 'max(1rem, env(safe-area-inset-top, 0px))', paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 0px))' }}
           role="dialog"
           aria-modal="true"
@@ -167,7 +175,7 @@ export default function FcUnitedGalleryPage() {
                 e.stopPropagation();
                 close();
               }}
-              className="pointer-events-auto flex h-12 min-w-[5.5rem] items-center justify-center gap-2 rounded-full bg-[#e31837] px-4 text-sm font-semibold text-white shadow-lg ring-2 ring-white/30 transition-colors hover:bg-[#c41430] hover:ring-white/50"
+              className="pointer-events-auto flex h-12 min-w-[5.5rem] cursor-pointer items-center justify-center gap-2 rounded-full bg-[#e31837] px-4 text-sm font-semibold text-white shadow-lg ring-2 ring-white/30 transition-colors duration-200 hover:bg-[#c41430] hover:ring-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/90"
               title="Close"
               aria-label="Close slideshow"
             >
@@ -186,7 +194,7 @@ export default function FcUnitedGalleryPage() {
                   e.stopPropagation();
                   goPrev();
                 }}
-                className="absolute left-2 top-1/2 z-[205] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-slate-900/95 text-amber-400 shadow-lg ring-2 ring-amber-400/70 transition-colors hover:bg-slate-800 hover:text-amber-300 hover:ring-amber-300 md:left-6"
+                className="absolute left-2 top-1/2 z-[205] flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-slate-900/95 text-amber-400 shadow-lg ring-2 ring-amber-400/70 transition-colors duration-200 hover:bg-slate-800 hover:text-amber-300 hover:ring-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black/90 md:left-6"
                 title="Previous"
                 aria-label="Previous image"
               >
@@ -200,7 +208,7 @@ export default function FcUnitedGalleryPage() {
                   e.stopPropagation();
                   goNext();
                 }}
-                className="absolute right-2 top-1/2 z-[205] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-slate-900/95 text-amber-400 shadow-lg ring-2 ring-amber-400/70 transition-colors hover:bg-slate-800 hover:text-amber-300 hover:ring-amber-300 md:right-6"
+                className="absolute right-2 top-1/2 z-[205] flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-slate-900/95 text-amber-400 shadow-lg ring-2 ring-amber-400/70 transition-colors duration-200 hover:bg-slate-800 hover:text-amber-300 hover:ring-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black/90 md:right-6"
                 title="Next"
                 aria-label="Next image"
               >
@@ -212,7 +220,7 @@ export default function FcUnitedGalleryPage() {
           )}
 
           <div
-            className="relative mt-14 flex max-h-[min(72vh,calc(100vh-8rem))] w-full max-w-5xl flex-1 items-center justify-center sm:mt-12"
+            className="relative mt-14 flex max-h-[min(72vh,calc(100vh-8rem))] w-full max-w-5xl cursor-default flex-1 items-center justify-center sm:mt-12"
             onClick={(e) => e.stopPropagation()}
           >
             {current.kind === 'video' ? (

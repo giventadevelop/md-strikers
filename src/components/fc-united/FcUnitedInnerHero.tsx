@@ -27,7 +27,10 @@ export function FcUnitedInnerHero({ title }: { title: string }) {
       </div>
       <Shell className="relative z-10 py-20 md:py-24 lg:py-28">
         <nav className="mb-4 text-sm text-[#848992]" aria-label="Breadcrumb">
-          <Link href="/" className="transition-colors hover:text-[#ff0000]">
+          <Link
+            href="/"
+            className="cursor-pointer rounded-sm transition-colors hover:text-[#ff0000] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff0000] focus-visible:ring-offset-2 focus-visible:ring-offset-[#081224]"
+          >
             Home
           </Link>
           <span className="mx-2 text-white/40">/</span>

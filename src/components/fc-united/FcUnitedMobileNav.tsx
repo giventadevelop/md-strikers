@@ -7,7 +7,8 @@ import { cn } from '@/lib/utils';
 import { mdStrikersBrand as b } from './mdStrikersBrand';
 import { FC_UNITED_NAV_LINKS, type FcNavKey } from './fcUnitedNavLinks';
 
-const navHoverActive = 'transition-colors duration-200 hover:text-[#e31837]';
+const navHoverActive =
+  'cursor-pointer transition-colors duration-200 hover:text-[#e31837] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628]';
 const navActive = 'text-[#e31837]';
 
 export function FcUnitedMobileNav({ active }: { active?: FcNavKey }) {
@@ -40,7 +41,7 @@ export function FcUnitedMobileNav({ active }: { active?: FcNavKey }) {
     <div className="relative flex-shrink-0 md:hidden">
       {open && (
         <div
-          className="fixed bottom-0 left-0 right-0 top-[calc(3.25rem+45px+1.5rem)] z-40 bg-black/50 sm:top-[calc(4rem+45px+1.5rem)] md:hidden"
+          className="fixed bottom-0 left-0 right-0 top-[calc(3.25rem+45px+1.5rem)] z-40 cursor-pointer bg-black/50 sm:top-[calc(4rem+45px+1.5rem)] md:hidden"
           aria-hidden
           onClick={() => setOpen(false)}
         />
@@ -48,7 +49,7 @@ export function FcUnitedMobileNav({ active }: { active?: FcNavKey }) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="relative z-50 inline-flex h-10 w-10 items-center justify-center rounded-[3px] text-white transition-colors hover:bg-white/[0.08] hover:text-[#e31837] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e31837]"
+        className="relative z-50 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-[3px] text-white transition-colors hover:bg-white/[0.08] hover:text-[#e31837] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e31837]"
         aria-expanded={open}
         aria-controls="fc-united-mobile-menu"
         aria-label={open ? 'Close menu' : 'Open menu'}

@@ -20,13 +20,20 @@ const FC_UNITED_FULL_WIDTH = [
   '/volunteer',
 ];
 
+function isFcUnitedStandaloneRoute(pathname: string): boolean {
+  if (FC_UNITED_FULL_WIDTH.includes(pathname)) return true;
+  /** Capital Cup year pages — same MD Strikers chrome as home/about; must not nest inside global Header/Footer */
+  if (pathname.startsWith('/capital-cup-')) return true;
+  return false;
+}
+
 /**
  * FC United mirror routes supply their own header/footer.
  * Skip global Header/Footer so those pages match the static wget design.
  */
 export default function ConditionalLayout({ children, header, footer }: ConditionalLayoutProps) {
   const pathname = usePathname();
-  const hideGlobalChrome = pathname != null && FC_UNITED_FULL_WIDTH.includes(pathname);
+  const hideGlobalChrome = pathname != null && isFcUnitedStandaloneRoute(pathname);
 
   if (hideGlobalChrome) {
     return <>{children}</>;

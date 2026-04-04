@@ -101,7 +101,7 @@ export default function FcUnitedTeamPage({ items }: Props) {
                   key={`${item.src}-${index}`}
                   type="button"
                   onClick={() => openAt(index)}
-                  className="group flex flex-col overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-white text-left shadow-sm transition-shadow hover:shadow-md"
+                  className="group flex cursor-pointer flex-col overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-white text-left shadow-sm transition-shadow duration-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-white motion-reduce:transition-none"
                 >
                   <div className="relative aspect-[4/5] w-full overflow-hidden rounded-t-[3px] bg-[#081224]">
                     {/* Slight zoom clips baked-in white borders in source files; top anchor = upper body */}
@@ -109,7 +109,7 @@ export default function FcUnitedTeamPage({ items }: Props) {
                       src={encodePublicPath(item.src)}
                       alt={item.title}
                       fill
-                      className="origin-top scale-[1.2] object-cover object-top transition-transform duration-300 group-hover:scale-[1.26]"
+                      className="origin-top scale-[1.2] object-cover object-top transition-transform duration-300 group-hover:scale-[1.26] motion-reduce:transition-none motion-reduce:group-hover:scale-[1.2]"
                       sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
                     />
                   </div>
@@ -127,7 +127,7 @@ export default function FcUnitedTeamPage({ items }: Props) {
 
       {lightboxIndex !== null && current && items.length > 0 && (
         <div
-          className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-black/92 p-4"
+          className="fixed inset-0 z-[200] flex cursor-pointer flex-col items-center justify-center bg-black/92 p-4"
           style={{ paddingTop: 'max(1rem, env(safe-area-inset-top, 0px))', paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 0px))' }}
           role="dialog"
           aria-modal="true"
@@ -141,7 +141,7 @@ export default function FcUnitedTeamPage({ items }: Props) {
                 e.stopPropagation();
                 close();
               }}
-              className="pointer-events-auto flex h-12 min-w-[5.5rem] items-center justify-center gap-2 rounded-full bg-[#e31837] px-4 text-sm font-semibold text-white shadow-lg ring-2 ring-white/30 transition-colors hover:bg-[#c41430] hover:ring-white/50"
+              className="pointer-events-auto flex h-12 min-w-[5.5rem] cursor-pointer items-center justify-center gap-2 rounded-full bg-[#e31837] px-4 text-sm font-semibold text-white shadow-lg ring-2 ring-white/30 transition-colors duration-200 hover:bg-[#c41430] hover:ring-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/90"
               title="Close"
               aria-label="Close slideshow"
             >
@@ -160,7 +160,7 @@ export default function FcUnitedTeamPage({ items }: Props) {
                   e.stopPropagation();
                   goPrev();
                 }}
-                className="absolute left-2 top-1/2 z-[205] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-slate-900/95 text-amber-400 shadow-lg ring-2 ring-amber-400/70 transition-colors hover:bg-slate-800 hover:text-amber-300 hover:ring-amber-300 md:left-6"
+                className="absolute left-2 top-1/2 z-[205] flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-slate-900/95 text-amber-400 shadow-lg ring-2 ring-amber-400/70 transition-colors duration-200 hover:bg-slate-800 hover:text-amber-300 hover:ring-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black/90 md:left-6"
                 title="Previous"
                 aria-label="Previous image"
               >
@@ -174,7 +174,7 @@ export default function FcUnitedTeamPage({ items }: Props) {
                   e.stopPropagation();
                   goNext();
                 }}
-                className="absolute right-2 top-1/2 z-[205] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-slate-900/95 text-amber-400 shadow-lg ring-2 ring-amber-400/70 transition-colors hover:bg-slate-800 hover:text-amber-300 hover:ring-amber-300 md:right-6"
+                className="absolute right-2 top-1/2 z-[205] flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-slate-900/95 text-amber-400 shadow-lg ring-2 ring-amber-400/70 transition-colors duration-200 hover:bg-slate-800 hover:text-amber-300 hover:ring-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black/90 md:right-6"
                 title="Next"
                 aria-label="Next image"
               >
@@ -186,7 +186,7 @@ export default function FcUnitedTeamPage({ items }: Props) {
           )}
 
           <div
-            className="relative mt-14 flex max-h-[min(72vh,calc(100vh-8rem))] w-full max-w-5xl flex-1 items-center justify-center sm:mt-12"
+            className="relative mt-14 flex max-h-[min(72vh,calc(100vh-8rem))] w-full max-w-5xl cursor-default flex-1 items-center justify-center sm:mt-12"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative h-[min(72vh,800px)] w-full max-w-5xl">

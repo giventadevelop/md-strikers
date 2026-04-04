@@ -8,7 +8,8 @@ import { FC_UNITED_NAV_LINKS } from './fcUnitedNavLinks';
 import { FcUnitedMobileNav } from './FcUnitedMobileNav';
 
 /** Matches mdStrikersBrand.accent — full class strings for Tailwind JIT */
-const navHoverActive = 'transition-colors duration-200 hover:text-[#e31837]';
+const navHoverActive =
+  'cursor-pointer transition-colors duration-200 hover:text-[#e31837] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628]';
 const navActive = 'text-[#e31837]';
 
 export type { FcNavKey };
@@ -36,7 +37,7 @@ export function FcUnitedHeader({ active }: { active?: FcNavKey }) {
       <Shell className="flex min-h-[calc(3.25rem+45px+1.5rem)] items-center justify-between gap-3 py-3 sm:min-h-[calc(4rem+45px+1.5rem)] sm:gap-5 sm:py-3.5 md:min-h-[calc(4.5rem+45px+1.75rem)] md:gap-6 lg:min-h-[calc(5.25rem+45px+1.75rem)] xl:min-h-[calc(5.75rem+45px+1.75rem)]">
         <Link
           href="/"
-          className="group flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3 md:gap-4 lg:gap-5"
+          className="group flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 rounded-sm sm:gap-3 md:gap-4 lg:gap-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628]"
           aria-label="Maryland Strikers — Home"
         >
           <div className="relative flex h-[calc(3.25rem+45px)] w-[calc(3.25rem+45px)] flex-shrink-0 items-center justify-center sm:h-[calc(4rem+45px)] sm:w-[calc(4rem+45px)] md:h-[calc(4.5rem+45px)] md:w-[calc(4.5rem+45px)] lg:h-[calc(5.25rem+45px)] lg:w-[calc(5.25rem+45px)] xl:h-[calc(5.75rem+45px)] xl:w-[calc(5.75rem+45px)]">

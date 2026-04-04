@@ -55,7 +55,7 @@ export function FcSquadCarousel({ players }: Props) {
     >
       <button
         type="button"
-        className="absolute left-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white shadow-md backdrop-blur transition hover:bg-white/20 md:left-1"
+        className="absolute left-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white shadow-md backdrop-blur transition-all duration-200 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#081224] motion-reduce:transition-none md:left-1"
         aria-label="Previous players"
         title="Previous"
         onClick={() => scrollStep(-1)}
@@ -66,7 +66,7 @@ export function FcSquadCarousel({ players }: Props) {
       </button>
       <button
         type="button"
-        className="absolute right-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white shadow-md backdrop-blur transition hover:bg-white/20 md:right-1"
+        className="absolute right-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white shadow-md backdrop-blur transition-all duration-200 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#081224] motion-reduce:transition-none md:right-1"
         aria-label="Next players"
         title="Next"
         onClick={() => scrollStep(1)}
@@ -92,7 +92,7 @@ export function FcSquadCarousel({ players }: Props) {
                 src={encodePublicPath(p.img)}
                 alt={p.name}
                 fill
-                className="origin-top scale-[1.22] object-cover object-top transition-transform duration-300 group-hover:scale-[1.28]"
+                className="origin-top scale-[1.22] object-cover object-top transition-transform duration-300 group-hover:scale-[1.28] motion-reduce:transition-none motion-reduce:group-hover:scale-[1.22]"
                 sizes="(max-width:768px) 78vw, 240px"
               />
               <span className="absolute left-3 top-3 rounded bg-[#ff0000] px-2 py-1 text-sm font-bold text-white">

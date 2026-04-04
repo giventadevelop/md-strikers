@@ -64,7 +64,7 @@ export default async function FcUnitedHomePage() {
                 </h1>
                 <Link
                   href="/about"
-                  className="mt-6 inline-flex rounded-[32px] bg-[#ff0000] px-7 py-3 text-sm font-semibold text-white transition-[filter] duration-300 ease-in-out hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000]"
+                  className="mt-6 inline-flex cursor-pointer rounded-[32px] bg-[#ff0000] px-7 py-3 text-sm font-semibold text-white transition-[filter] duration-300 ease-in-out hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000] motion-reduce:transition-none motion-reduce:hover:brightness-100"
                 >
                   Read More
                 </Link>
@@ -106,6 +106,34 @@ export default async function FcUnitedHomePage() {
             </div>
           </Shell>
         </div>
+      </section>
+
+      {/* Our Story — directly under hero */}
+      <section id="about" className="bg-[#f4f4f4] py-12 md:py-16">
+        <Shell>
+          <div
+            className="relative flex min-h-[320px] flex-col justify-end overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-[#262f3e] p-8 text-white md:min-h-[380px] lg:min-h-[400px]"
+            style={{
+              backgroundImage: `linear-gradient(90deg, rgba(8,18,36,0.92) 0%, rgba(38,47,62,0.75) 100%), url(${FC_IMG}/bg-about-copyright.jpg)`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center left',
+            }}
+          >
+            <span className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#848992]">our story</span>
+            <h3 className={cn(fcBebas.className, 'text-2xl leading-tight text-white md:text-3xl lg:text-4xl')}>
+              {fcUnitedAboutTitle}
+            </h3>
+            <p className="mt-4 max-w-prose text-sm leading-relaxed text-white/85">
+              {fcUnitedAboutParagraphs[0]}
+            </p>
+            <Link
+              href="/about"
+              className="mt-6 inline-flex w-fit cursor-pointer rounded-[32px] bg-[#ff0000] px-6 py-2 text-sm font-semibold text-white transition-[filter] duration-300 ease-in-out hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000] motion-reduce:transition-none motion-reduce:hover:brightness-100"
+            >
+              Read More
+            </Link>
+          </div>
+        </Shell>
       </section>
 
       {/* Mobile news */}
@@ -207,14 +235,14 @@ export default async function FcUnitedHomePage() {
         </Shell>
       </section>
 
-      {/* News + about */}
-      <section id="about" className="bg-[#f4f4f4] py-14 md:py-20">
+      {/* Latest news */}
+      <section className="bg-[#f4f4f4] py-14 md:py-20">
         <Shell>
           <div className="mb-10 text-center md:text-left">
             <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-[#797e87]">news</span>
             <h2 className={cn(fcBebas.className, 'text-4xl tracking-wide text-[#262f3e] md:text-5xl')}>The Latest News</h2>
           </div>
-          <div className="grid gap-8 lg:grid-cols-2">
+          <div className="mx-auto max-w-3xl">
             <div className="overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-white">
               <div className="relative aspect-[16/9] w-full min-h-0">
                 <Image
@@ -222,7 +250,7 @@ export default async function FcUnitedHomePage() {
                   alt="I.M. Vijayan — MD Strikers news"
                   fill
                   className="object-cover object-center"
-                  sizes="(max-width:1024px) 100vw, 50vw"
+                  sizes="(max-width:1024px) 100vw, 768px"
                 />
               </div>
               <div className="p-6">
@@ -232,28 +260,6 @@ export default async function FcUnitedHomePage() {
                 </p>
                 <p className="mt-2 text-sm leading-relaxed">Highlights and analysis from the match — static demo content.</p>
               </div>
-            </div>
-            <div
-              className="relative flex min-h-[320px] flex-col justify-end overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-[#262f3e] p-8 text-white lg:min-h-[400px]"
-              style={{
-                backgroundImage: `linear-gradient(90deg, rgba(8,18,36,0.92) 0%, rgba(38,47,62,0.75) 100%), url(${FC_IMG}/bg-about-copyright.jpg)`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center left',
-              }}
-            >
-              <span className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#848992]">our story</span>
-              <h3 className={cn(fcBebas.className, 'text-2xl leading-tight text-white md:text-3xl lg:text-4xl')}>
-                {fcUnitedAboutTitle}
-              </h3>
-              <p className="mt-4 max-w-prose text-sm leading-relaxed text-white/85">
-                {fcUnitedAboutParagraphs[0]}
-              </p>
-              <Link
-                href="/about"
-                className="mt-6 inline-flex w-fit rounded-[32px] bg-[#ff0000] px-6 py-2 text-sm font-semibold text-white transition-[filter] duration-300 ease-in-out hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000]"
-              >
-                Read More
-              </Link>
             </div>
           </div>
         </Shell>

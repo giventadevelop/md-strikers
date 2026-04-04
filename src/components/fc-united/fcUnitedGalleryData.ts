@@ -7,11 +7,66 @@ export function encodePublicPath(path: string): string {
 }
 
 const G = '/images/md_strikers_media/gallery';
+/** Images scraped from https://www.mdstrikers.com/gallery.html (`images/strikers/*`), stored under `gallery/mdstrikers_com/`. */
+const GS = `${G}/mdstrikers_com`;
 
-/**
- * All media under `public/images/md_strikers_media/gallery`, curated order (featured block first).
- */
-export const mdStrikersLocalGalleryItems: {
+const mdStrikersComGalleryFromSite: {
+  src: string;
+  title: string;
+  tag: string;
+  kind: 'image' | 'video';
+}[] = [
+  { src: `${GS}/2024-kanj.jpg`, title: 'KANJ Soccer Tournament 2024, New Jersey', tag: 'Gallery', kind: 'image' },
+  { src: `${GS}/2021-msl.jpg`, title: 'MSL 2021, Virginia', tag: 'Gallery', kind: 'image' },
+  { src: `${GS}/2022-nj-team.jpg`, title: 'Syro Soccer league 2022, Sometset, New Jersey', tag: 'Gallery', kind: 'image' },
+  {
+    src: `${GS}/2024-namsl.jpg`,
+    title: 'V P Sathyan Memorial North American National Soccer Tournament 2024, New York',
+    tag: 'Gallery',
+    kind: 'image',
+  },
+  {
+    src: `${GS}/Soccer-KCS.jpg`,
+    title: 'KCS Soccer Tournament 2023, Loudoun County, Virginia',
+    tag: 'Gallery',
+    kind: 'image',
+  },
+  {
+    src: `${GS}/gal02.jpg`,
+    title: 'MD Strikers Internal Tournament 2022, Potomac, Maryland',
+    tag: 'Gallery',
+    kind: 'image',
+  },
+  {
+    src: `${GS}/capital-2024.jpg`,
+    title: 'MD Strikers Capital Cup 2024, Potomac, Maryland',
+    tag: 'Gallery',
+    kind: 'image',
+  },
+  { src: `${GS}/2021-msl-1.jpg`, title: 'MSL 2021, Virginia', tag: 'Gallery', kind: 'image' },
+  { src: `${GS}/gal01.jpg`, title: 'Maveli Cup 2023, Columbia, Maryland', tag: 'Gallery', kind: 'image' },
+  {
+    src: `${GS}/gal03.jpg`,
+    title: 'MD Strikers Internal Tournament 2022, Potomac, Maryland',
+    tag: 'Gallery',
+    kind: 'image',
+  },
+  {
+    src: `${GS}/gal04.jpg`,
+    title: 'MD Strikers Internal Tournament 2022, Potomac, Maryland',
+    tag: 'Gallery',
+    kind: 'image',
+  },
+  {
+    src: `${GS}/gal05.jpg`,
+    title: 'MD Strikers Internal Tournament 2022, Potomac, Maryland',
+    tag: 'Gallery',
+    kind: 'image',
+  },
+];
+
+/** Highest-priority items — shown first on `/gallery` (order preserved). */
+const galleryPriorityFeatured: {
   src: string;
   title: string;
   tag: string;
@@ -48,6 +103,20 @@ export const mdStrikersLocalGalleryItems: {
     tag: 'Gallery',
     kind: 'image',
   },
+];
+
+/**
+ * All media under `public/images/md_strikers_media/gallery`, curated order (featured block first).
+ * Then [mdstrikers.com gallery.html](https://www.mdstrikers.com/gallery.html) photos, then remaining club media.
+ */
+export const mdStrikersLocalGalleryItems: {
+  src: string;
+  title: string;
+  tag: string;
+  kind: 'image' | 'video';
+}[] = [
+  ...galleryPriorityFeatured,
+  ...mdStrikersComGalleryFromSite,
   { src: `${G}/540710111_806634078542604_6542700348383621762_n.jpg`, title: 'Photo 1', tag: 'Gallery', kind: 'image' },
   { src: `${G}/541052668_806846961854649_7779087015138011010_n.jpg`, title: 'Photo 2', tag: 'Gallery', kind: 'image' },
   { src: `${G}/541304738_806847011854644_4699455967375041486_n.jpg`, title: 'Photo 3', tag: 'Gallery', kind: 'image' },
@@ -105,4 +174,38 @@ export const mdStrikersLocalGalleryItems: {
   },
 ];
 
-export const MD_STRIKERS_GALLERY_FILE_COUNT = 41;
+/**
+ * Extra images from https://www.mdstrikers.com/gallery.html (`images/*.jpg` below the `strikers/` block).
+ * Stored under `public/images/md_strikers_media/gallery/mdstrikers_gallery_html_root/`.
+ * Note: `g2.jpg` is linked on the live page but currently 404 on the host — omitted.
+ */
+export const mdstrikersGalleryHtmlRootItems: {
+  src: string;
+  title: string;
+  tag: string;
+  kind: 'image' | 'video';
+}[] = [
+  {
+    src: `${G}/mdstrikers_gallery_html_root/one-1.jpg`,
+    title: 'Gallery — team (mdstrikers.com)',
+    tag: 'Gallery',
+    kind: 'image',
+  },
+  {
+    src: `${G}/mdstrikers_gallery_html_root/one-2.jpg`,
+    title: 'Gallery — match (mdstrikers.com)',
+    tag: 'Gallery',
+    kind: 'image',
+  },
+  {
+    src: `${G}/mdstrikers_gallery_html_root/one-3.jpg`,
+    title: 'Gallery — action (mdstrikers.com)',
+    tag: 'Gallery',
+    kind: 'image',
+  },
+  { src: `${G}/mdstrikers_gallery_html_root/g1.jpg`, title: 'Gallery — g1 (mdstrikers.com)', tag: 'Gallery', kind: 'image' },
+  { src: `${G}/mdstrikers_gallery_html_root/g3.jpg`, title: 'Gallery — g3 (mdstrikers.com)', tag: 'Gallery', kind: 'image' },
+  { src: `${G}/mdstrikers_gallery_html_root/g4.jpg`, title: 'Gallery — g4 (mdstrikers.com)', tag: 'Gallery', kind: 'image' },
+];
+
+export const MD_STRIKERS_GALLERY_FILE_COUNT = 59;

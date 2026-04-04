@@ -43,51 +43,59 @@ export function FcUnitedFooter() {
         </div>
         <div className="flex flex-col flex-wrap items-start justify-between gap-4 border-t border-white/10 pt-8 text-sm md:flex-row md:items-center">
           <div className="flex flex-wrap gap-5">
-            <Link href="/" className="font-medium text-white transition-colors hover:text-[#e31837]">
+            <Link
+              href="/"
+              className="cursor-pointer font-medium text-white transition-colors duration-200 hover:text-[#e31837] focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-[#262f3e]"
+            >
               Home
             </Link>
-            <Link href="/events" className="font-medium text-white transition-colors hover:text-[#e31837]">
+            <Link
+              href="/events"
+              className="cursor-pointer font-medium text-white transition-colors duration-200 hover:text-[#e31837] focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-[#262f3e]"
+            >
               Events
             </Link>
-            <Link href="/matches" className="font-medium text-white transition-colors hover:text-[#e31837]">
+            <Link
+              href="/matches"
+              className="cursor-pointer font-medium text-white transition-colors duration-200 hover:text-[#e31837] focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-[#262f3e]"
+            >
               Matches
             </Link>
-            <Link href="/team" className="font-medium text-white transition-colors hover:text-[#e31837]">
+            <Link
+              href="/team"
+              className="cursor-pointer font-medium text-white transition-colors duration-200 hover:text-[#e31837] focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-[#262f3e]"
+            >
               Team
             </Link>
-            <Link href="/gallery" className="font-medium text-white transition-colors hover:text-[#e31837]">
+            <Link
+              href="/gallery"
+              className="cursor-pointer font-medium text-white transition-colors duration-200 hover:text-[#e31837] focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-[#262f3e]"
+            >
               Gallery
             </Link>
-            <Link href="/contacts" className="font-medium text-white transition-colors hover:text-[#e31837]">
+            <Link
+              href="/contacts"
+              className="cursor-pointer font-medium text-white transition-colors duration-200 hover:text-[#e31837] focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-[#262f3e]"
+            >
               Contacts
             </Link>
           </div>
           <div className="flex flex-col gap-2 text-xs text-[#848992] md:items-end md:text-right">
-            <p>
-              Powered and designed by{' '}
-              <a
-                href="https://www.giventa.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-[#848992] underline-offset-2 transition-colors hover:text-white hover:underline"
-              >
-                Giventa Inc. USA
-              </a>
-            </p>
+            <p className="font-medium text-[#848992]">Powered and designed by Giventa Inc. USA</p>
             <p>
               <a
                 href="https://www.giventa.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium break-all text-[#848992] underline-offset-2 transition-colors hover:text-white hover:underline"
+                className="cursor-pointer font-medium text-[#848992] underline-offset-2 transition-colors duration-200 hover:text-white hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-[#262f3e]"
               >
-                https://www.giventa.com
+                www.giventa.com
               </a>
             </p>
             <p>
               <a
                 href="mailto:sales@giventa.com"
-                className="font-medium text-[#848992] underline-offset-2 transition-colors hover:text-white hover:underline"
+                className="cursor-pointer font-medium text-[#848992] underline-offset-2 transition-colors duration-200 hover:text-white hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-[#262f3e]"
               >
                 sales@giventa.com
               </a>

@@ -12,7 +12,7 @@ This rule defines the standard styling patterns, design system, and best practic
 ## Problem Solved
 - **Consistent Documentation Styling**: Ensures all HTML documentation follows the same visual patterns
 - **Code Highlighting**: Standardizes code syntax highlighting with light blue background and dark blue text
-- **Copy Button Functionality**: Provides consistent copy-to-clipboard functionality for commands
+- **Copy Button Functionality**: Provides consistent copy-to-clipboard functionality for commands **and for copy-paste prompts** (see [Copyable prompt blocks](#copyable-prompt-blocks))
 - **Windows Compatibility**: Ensures commands are provided in single-line format for Windows users
 - **Visual Hierarchy**: Creates clear visual distinction between different types of content
 - **Accessibility**: Ensures proper contrast and readable text
@@ -512,6 +512,30 @@ function copyCommand(button, commandId) {
 - ✅ **Include fallback** for older browsers that don't support Clipboard API
 - ✅ **Auto-detect Windows** and show single-line hints automatically
 
+## Copyable prompt blocks
+
+### Scope
+This applies whenever documentation includes **multi-line text meant to be copied as a single unit**—for example **prompts for AI image editors** (e.g. Nano Banana), **AI video tools** (e.g. Kling Omni), or **LLM instructions**—**not** shell/CLI commands (those use [Command Block Styling](#command-block-styling) above).
+
+### Default rule: copy control is required
+- **Yes — add a copy button by default** for every standalone prompt block. Readers should **not** have to manually select text in a `<pre>` or long paragraph.
+- **One prompt block → one copy control** (e.g. **Copy** or **Copy prompt**) that copies the **entire** prompt string, preserving line breaks.
+
+### Implementation pattern
+- Wrap the block in a container (e.g. `prompt-block` or reuse `command-block` styling without fake CLI semantics) with:
+  - A **header row**: short label (e.g. “Prompt”, “Full prompt”, “Kling”) + **`<button type="button" class="copy-button" ...>`** using the same [Copy Button Styling](#copy-button-styling) / feedback behavior as command copy buttons.
+  - The prompt body in **one element** with a **unique `id`** (e.g. `id="prompt-encoding-kling-01"`) so `copyCommand(button, 'prompt-encoding-kling-01')` or a small `copyPromptText(button, id)` wrapper can reuse the existing `navigator.clipboard.writeText` pattern.
+- Use **`white-space: pre-wrap`** (on a `<div>` or `<pre>`) so multi-line prompts display and copy correctly.
+- **Accessibility:** `title` / `aria-label` on the button, e.g. `aria-label="Copy prompt to clipboard"`.
+
+### What not to do
+- ❌ **Do not** add prompts only inside a plain `<pre>` or `<div>` **without** a copy control when the intent is copy-paste.
+- ❌ **Do not** rely on “users can select all” as a substitute for a button on long prompts.
+
+### Relationship to command blocks
+- **Command blocks** = executable `node ...` / script lines → **Template + Copy** + parameters as already specified.
+- **Prompt blocks** = natural-language prompts → **at minimum one Copy** (no Template/customization unless you add optional fields).
+
 ## Code Highlighting in Content Boxes
 
 ### Info/Warning/Success/Error Boxes
@@ -966,6 +990,7 @@ All major sections must use colored containers:
 - ✅ Always provide Windows single-line commands
 - ✅ Use light blue background (`#e8f4f8`) with dark blue text (`#0d3b66`) for code in content boxes
 - ✅ Include copy buttons for all commands
+- ✅ **Include a copy button for every copy-paste AI/video/editor prompt block** (see [Copyable prompt blocks](#copyable-prompt-blocks))
 - ✅ Show visual feedback when copying
 - ✅ Use semantic HTML elements
 - ✅ Maintain consistent spacing and padding
@@ -981,6 +1006,7 @@ All major sections must use colored containers:
 - ❌ Use gray table headers (use colored gradient headers)
 - ❌ Use backslashes in commands (provide single-line versions)
 - ❌ Skip copy buttons for commands
+- ❌ **Ship long prompts without a copy button** (prompt blocks must include copy control by default)
 - ❌ Use inline styles (use CSS classes)
 - ❌ Mix different styling patterns
 - ❌ Skip Windows compatibility
@@ -1043,6 +1069,7 @@ Before submitting HTML documentation:
 
 - [ ] All code references in info/warning/success boxes use light blue background (`#e8f4f8`) with dark blue text (`#0d3b66`)
 - [ ] All commands have copy buttons
+- [ ] **All copy-paste prompt blocks** (AI/video/editor prompts) **have a copy button** — not prompt-only `<pre>` without a control
 - [ ] All commands are provided in Windows-compatible single-line format
 - [ ] Command blocks are color-coded by script type
 - [ ] Windows single-line sections have light blue background with dark blue text
