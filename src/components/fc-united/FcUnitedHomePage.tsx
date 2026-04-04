@@ -241,9 +241,15 @@ export default async function FcUnitedHomePage() {
           </div>
           <FcSquadCarousel players={fcSquadFirstTeamPlayers} />
           <div className="mt-12 text-center">
-            <span className="inline-flex cursor-not-allowed rounded-[32px] border border-white/20 px-8 py-3 text-sm font-semibold text-[#848992]">
-              View All Players (static)
-            </span>
+            <Link
+              href="/team"
+              className={cn(
+                fcBebas.className,
+                'inline-flex cursor-pointer items-center justify-center rounded-[32px] bg-[#ff0000] px-8 py-3 text-lg tracking-wide text-white transition-[filter] duration-300 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000] motion-reduce:transition-none motion-reduce:hover:brightness-100',
+              )}
+            >
+              View All Players
+            </Link>
           </div>
         </Shell>
       </section>
