@@ -1,0 +1,2086 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   HEADER DESIGN SYSTEM - Editorial Elegance
+   ======================================== */
+
+/* Header-specific CSS Custom Properties */
+:root {
+  /* Primary Palette - Deep Indigo with Warmth */
+  --header-bg: #fefefe;
+  --header-bg-glass: rgba(254, 254, 254, 0.92);
+  --header-border: rgba(99, 67, 138, 0.08);
+  --header-shadow: 0 1px 3px rgba(99, 67, 138, 0.04), 0 4px 20px rgba(99, 67, 138, 0.06);
+
+  /* Typography Colors */
+  --header-text-primary: #1e1b4b;
+  --header-text-secondary: #4c4377;
+  --header-text-muted: #6b6394;
+
+  /* Accent Colors - Warm Amber & Indigo */
+  --header-accent-primary: #6d28d9;
+  --header-accent-secondary: #f59e0b;
+  --header-accent-gradient: linear-gradient(135deg, #6d28d9 0%, #a855f7 50%, #f59e0b 100%);
+
+  /* Interactive States */
+  --header-hover-bg: rgba(109, 40, 217, 0.04);
+  --header-active-bg: rgba(109, 40, 217, 0.08);
+  --header-focus-ring: rgba(109, 40, 217, 0.3);
+
+  /* Dropdown Styles */
+  --header-dropdown-bg: #ffffff;
+  --header-dropdown-border: rgba(99, 67, 138, 0.1);
+  --header-dropdown-shadow: 0 10px 40px rgba(99, 67, 138, 0.12), 0 2px 10px rgba(99, 67, 138, 0.08);
+}
+
+/* Header Glass Effect */
+.header-glass {
+  background: var(--header-bg-glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--header-border);
+  box-shadow: var(--header-shadow);
+}
+
+/* Header Logo Typography */
+.header-logo-primary {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--header-text-primary);
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Header brand text (MALAYALEES.US) - always purple, shadow and hover animation */
+.header-logo-brand {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: #7c3aed; /* purple-600 */
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.12));
+  transition: filter 0.3s ease-out, transform 0.3s ease-out;
+  transform-origin: left;
+}
+.group:hover .header-logo-brand {
+  filter: drop-shadow(0 2px 12px rgba(88, 28, 135, 0.4));
+  transform: scale(1.05);
+}
+
+.header-logo-secondary {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--header-text-muted);
+  font-size: 0.625rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Navigation Link Styles */
+.header-nav-link {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  letter-spacing: 0.01em;
+  color: var(--header-text-secondary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Ensure consistent height and alignment */
+  display: inline-flex;
+  align-items: center;
+  height: 2.25rem;
+  white-space: nowrap;
+}
+
+/* Responsive padding for navigation links */
+@media (min-width: 1024px) {
+  .header-nav-link {
+    padding: 0.5rem 0.875rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .header-nav-link {
+    padding: 0.5rem 1rem;
+  }
+}
+
+.header-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--header-accent-gradient);
+  border-radius: 1px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%);
+}
+
+.header-nav-link:hover {
+  color: var(--header-text-primary);
+  background: var(--header-hover-bg);
+}
+
+.header-nav-link:hover::after {
+  width: calc(100% - 1.5rem);
+}
+
+.header-nav-link.active {
+  color: var(--header-accent-primary);
+  font-weight: 600;
+}
+
+.header-nav-link.active::after {
+  width: calc(100% - 1.5rem);
+  background: var(--header-accent-primary);
+}
+
+/* Dropdown Menu Styles */
+.header-dropdown {
+  background: var(--header-dropdown-bg);
+  border: 1px solid var(--header-dropdown-border);
+  border-radius: 1rem;
+  box-shadow: var(--header-dropdown-shadow);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px) scale(0.98);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-dropdown.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.header-dropdown-item {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--header-text-secondary);
+  padding: 0.625rem 1rem;
+  margin: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-dropdown-item:hover {
+  color: var(--header-accent-primary);
+  background: var(--header-hover-bg);
+  transform: translateX(4px);
+}
+
+.header-dropdown-item.active {
+  color: var(--header-accent-primary);
+  background: var(--header-active-bg);
+  font-weight: 600;
+}
+
+/* CTA Button - Gradient Border Animation */
+.header-cta {
+  position: relative;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  color: var(--header-accent-primary);
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.75rem;
+  background: transparent;
+  border: 1.5px solid var(--header-accent-primary);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-cta::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  background: var(--header-accent-gradient);
+  border-radius: inherit;
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-cta:hover {
+  color: white;
+  border-color: transparent;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(109, 40, 217, 0.3);
+}
+
+.header-cta:hover::before {
+  opacity: 1;
+}
+
+/* User Avatar Styles */
+.header-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: linear-gradient(white, white) padding-box,
+              var(--header-accent-gradient) border-box;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 3px var(--header-focus-ring);
+}
+
+/* Mobile Menu Styles */
+.header-mobile-menu {
+  background: var(--header-bg-glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-left: 1px solid var(--header-border);
+  box-shadow: -10px 0 40px rgba(99, 67, 138, 0.15);
+}
+
+.header-mobile-link {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--header-text-secondary);
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  border-left: 3px solid transparent;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-mobile-link:hover {
+  color: var(--header-accent-primary);
+  background: var(--header-hover-bg);
+  border-left-color: var(--header-accent-primary);
+  padding-left: 1.75rem;
+}
+
+.header-mobile-link.active {
+  color: var(--header-accent-primary);
+  background: var(--header-active-bg);
+  border-left-color: var(--header-accent-primary);
+  font-weight: 600;
+}
+
+/* Hamburger Menu Animation */
+.header-hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.625rem;
+  background: transparent;
+  border: 1.5px solid var(--header-border);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-hamburger:hover {
+  background: var(--header-hover-bg);
+  border-color: var(--header-accent-primary);
+}
+
+.header-hamburger-line {
+  width: 1.125rem;
+  height: 2px;
+  background: var(--header-text-secondary);
+  border-radius: 1px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-hamburger-line:nth-child(1) {
+  width: 0.75rem;
+  margin-bottom: 4px;
+}
+
+.header-hamburger-line:nth-child(2) {
+  margin-bottom: 4px;
+}
+
+.header-hamburger-line:nth-child(3) {
+  width: 0.5rem;
+}
+
+.header-hamburger:hover .header-hamburger-line {
+  background: var(--header-accent-primary);
+}
+
+/* Search Button Styles */
+.header-search-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.625rem;
+  color: var(--header-text-muted);
+  background: transparent;
+  border: 1.5px solid transparent;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-search-btn:hover {
+  color: var(--header-accent-primary);
+  background: var(--header-hover-bg);
+  border-color: var(--header-border);
+}
+
+/* Chevron Animation */
+.header-chevron {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-nav-link:hover .header-chevron,
+.group:hover .header-chevron {
+  transform: rotate(180deg);
+}
+
+/* Navigation container alignment fix */
+nav[role="navigation"] {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+nav[role="navigation"] > .relative {
+  display: flex;
+  align-items: center;
+}
+
+/* Ensure dropdown triggers align with regular links */
+nav[role="navigation"] .group {
+  display: flex;
+  align-items: center;
+}
+
+/* ========================================
+   HERO SECTION DESIGN SYSTEM - Split Layout
+   ======================================== */
+
+/* Hero-specific CSS Custom Properties */
+:root {
+  /* Hero Background - Deep Purple Gradient */
+  --hero-bg-primary: #1a0a2e;
+  --hero-bg-secondary: #2d1b4e;
+  --hero-bg-gradient: linear-gradient(180deg, #1a0a2e 0%, #2d1b4e 100%);
+
+  /* Hero Text Colors */
+  --hero-text-primary: #ffffff;
+  --hero-text-secondary: rgba(255, 255, 255, 0.85);
+  --hero-text-muted: rgba(255, 255, 255, 0.6);
+
+  /* Hero Accent Colors */
+  --hero-accent-gold: #f59e0b;
+  --hero-accent-amber: #fbbf24;
+  --hero-accent-red: #ef4444;
+}
+
+/* ========================================
+   NEW SPLIT HERO LAYOUT - Editorial Refined
+   Image Containment: Full visibility, no cropping
+   ======================================== */
+
+/* Split Hero Container - FIXED standard size; height allows taller bottom cards + padding */
+.hero-container-split {
+  position: relative;
+  background: var(--hero-bg-gradient);
+  padding-top: 5rem;
+  width: 100%;
+  /* Height accommodates bottom row cards + ~20px so image/content stay fully visible */
+  height: 31.25rem; /* 500px - mobile */
+  max-height: 31.25rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .hero-container-split {
+    padding-top: 5.5rem;
+    height: 35.25rem; /* 564px - tablet */
+    max-height: 35.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-container-split {
+    height: 37.25rem; /* 596px - desktop */
+    max-height: 37.25rem;
+  }
+}
+
+@media (min-width: 1440px) {
+  .hero-container-split {
+    height: 39.25rem; /* 628px - large desktop */
+    max-height: 39.25rem;
+  }
+}
+
+/* Top Row (div[1]): ~82% of hero - left and right image panels */
+.hero-split-row {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1 1 0%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .hero-split-row {
+    flex-direction: row;
+    align-items: stretch;
+  }
+}
+
+/* ===========================================
+   LEFT PANEL - Section 1: Kerala Image
+   Full image visibility with elegant frame
+   =========================================== */
+.hero-left-panel {
+  position: relative;
+  width: 100%;
+  /* Mobile: take 45% of the stacked column so Section 2 stays visible */
+  flex: 0 0 45%;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* No horizontal padding: image fills left/right so no empty purple strip */
+  padding: 0.25rem 0;
+  background: transparent;
+}
+
+@media (min-width: 768px) {
+  .hero-left-panel {
+    width: 35%;
+    flex: none;
+    padding: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-left-panel {
+    width: 32%;
+    padding: 0;
+  }
+}
+
+/* Image container - full width of panel; image contained so nothing is cropped (per image_containment_prevention rule).
+   On larger screens use object-contain so the full image is visible; container uses min-height so image can breathe. */
+.hero-left-image {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  /* Elegant frame effect */
+  border-radius: 0.75rem;
+  overflow: hidden;
+  /* Subtle ambient glow */
+  box-shadow:
+    0 0 60px rgba(245, 158, 11, 0.08),
+    0 0 30px rgba(255, 255, 255, 0.03),
+    0 12px 40px rgba(0, 0, 0, 0.35),
+    inset 0 0 30px rgba(0, 0, 0, 0.15);
+  /* Soft border blend */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(145deg, rgba(45, 27, 78, 0.5), rgba(26, 10, 46, 0.7));
+}
+
+/* Section 1: object-contain so image is never cropped on any screen size (per image_containment_prevention_hero_images_cards.mdc).
+   CRITICAL: height must be 100% (not auto) so the element fills the fixed-height container
+   and object-contain scales the visual content to fit. With height:auto a portrait image's
+   computed box exceeds the container on large screens, causing cutoff. */
+.hero-left-image img {
+  object-fit: contain !important;
+  object-position: center center !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  border-radius: 0.75rem;
+}
+
+/* Desktop: lock the image container to 5:6 (matching the Section 1 image ratio) so the image
+   fills without ANY top/bottom crop. On wide screens the container is narrower than the panel
+   and centers horizontally; the dark hero background shows through as an elegant frame. */
+@media (min-width: 768px) {
+  .hero-left-image {
+    width: auto;
+    height: 100%;
+    aspect-ratio: 5 / 6;
+    max-width: 100%;
+  }
+
+  .hero-left-image img {
+    object-fit: cover !important;
+  }
+}
+
+/* Decorative corner accents - subtle highlight on top edge */
+.hero-left-image::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  border-radius: 1px;
+  pointer-events: none;
+  z-index: 2;
+  background: linear-gradient(to right,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+}
+
+/* Right-edge blend: very narrow, subtle so no dark band; image fills container */
+.hero-left-image::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  background: linear-gradient(to right,
+    transparent 0%,
+    rgba(26, 10, 46, 0.25) 100%
+  );
+  border-radius: 0 0.75rem 0.75rem 0;
+}
+
+/* Bottom fade elements - REMOVED (no longer needed) */
+.hero-left-fade-bottom {
+  display: none;
+}
+
+/* Right edge transition - gentle blend to section 2 */
+.hero-left-fade-right {
+  display: none;
+}
+
+/* ===========================================
+   RIGHT PANEL - Section 2: Dynamic Slideshow
+   Padding on all four sides so images don't bleed to edges; image contained on all screen sizes
+   =========================================== */
+.hero-right-panel {
+  position: relative;
+  width: 100%;
+  /* Mobile: take 55% of the stacked column so slideshow is always visible */
+  flex: 0 0 55%;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Padding on all 4 sides so images don't bleed to edges or get cut off */
+  padding: 0.5rem;
+  background: transparent;
+}
+
+@media (min-width: 768px) {
+  .hero-right-panel {
+    width: 65%;
+    flex: 1;
+    padding: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-right-panel {
+    width: 68%;
+    padding: 0;
+  }
+}
+
+/* Left edge transition - REMOVED (clean separation) */
+.hero-right-fade-left {
+  display: none;
+}
+
+/* Buy Tickets Overlay - Bottom right corner of Section 2 */
+.hero-ticket-overlay {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 30;
+  /* Subtle backdrop for visibility */
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+}
+
+@media (min-width: 768px) {
+  .hero-ticket-overlay {
+    bottom: 2rem;
+    right: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-ticket-overlay {
+    bottom: 2.5rem;
+    right: 2.5rem;
+  }
+}
+
+/* Slideshow wrapper - padding on all 4 sides so images don't bleed; image contained (no cutoff).
+   Mobile and desktop: consistent padding; object-contain so full image visible on all screen sizes. */
+.hero-slideshow-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Padding on all 4 sides so Section 2 images don't bleed to edges */
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: none;
+  border: none;
+  background: transparent;
+}
+
+/* Desktop: elegant frame with moderate padding all around (reduced to avoid excessive whitespace) */
+@media (min-width: 768px) {
+  .hero-slideshow-wrapper {
+    padding: 0;
+    border-radius: 1.25rem;
+    box-shadow:
+      0 0 60px rgba(245, 158, 11, 0.06),
+      0 0 30px rgba(255, 255, 255, 0.02),
+      0 12px 40px rgba(0, 0, 0, 0.35),
+      inset 0 0 30px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(145deg, rgba(45, 27, 78, 0.5), rgba(26, 10, 46, 0.7));
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-slideshow-wrapper {
+    padding: 0;
+  }
+}
+
+/* Subtle highlight on top edge of slideshow frame */
+.hero-slideshow-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  border-radius: 1px;
+  pointer-events: none;
+  z-index: 2;
+  background: linear-gradient(to right,
+    transparent,
+    rgba(255, 255, 255, 0.12),
+    transparent
+  );
+}
+
+/* Slideshow inner container - centers the image */
+.hero-slideshow-wrapper > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Hero slideshow image: object-contain on all breakpoints so full image visible without cutoff (per image_containment_prevention_hero_images_cards.mdc).
+   Padding is on the wrapper so images have breathing room on all 4 sides. */
+.hero-slideshow-wrapper img {
+  object-fit: contain !important;
+  object-position: center center !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0.5rem;
+}
+
+/* Desktop: switch to object-cover so slideshow images fill the panel edge-to-edge.
+   Section 2 images are 5:2 landscape; the center 60% is the safe zone per spec. */
+@media (min-width: 768px) {
+  .hero-slideshow-wrapper img {
+    object-fit: cover !important;
+    border-radius: 0.75rem;
+  }
+}
+
+/* Right edge fade - REMOVED */
+.hero-slideshow-fade-right {
+  display: none;
+}
+
+/* Bottom edge fade - REMOVED */
+.hero-slideshow-fade-bottom {
+  display: none;
+}
+
+/* ===========================================
+   DIVIDER - Hidden so left panel blends into right (no stark border)
+   =========================================== */
+.hero-split-divider {
+  display: none;
+}
+
+/* ========================================
+   BOTTOM ROW (div[2]) - 20% of hero: Mission + Donate cards
+   ======================================== */
+
+/* Bottom row: thin strip, two cards side-by-side */
+.hero-bottom-row {
+  flex: 0 0 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 1rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .hero-bottom-row {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.125rem 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-bottom-row {
+    gap: 0.75rem;
+    padding: 0.25rem 2rem;
+  }
+}
+
+/* Bottom cards: increased height (+20px) for visibility, full width stacked (mobile), half in row */
+.hero-bottom-card {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  min-height: 68px;
+  max-height: 84px;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 640px) {
+  .hero-bottom-card {
+    width: 50%;
+    max-width: 340px;
+  }
+}
+
+@media (min-width: 768px) {
+  .hero-bottom-card {
+    min-height: 72px;
+    max-height: 92px;
+    border-radius: 0.875rem;
+  }
+}
+
+.hero-bottom-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Section 3: Mission Card */
+.hero-bottom-card-mission {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.hero-mission-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Lighter overlay: no dark bar at bottom, keeps section bright while preserving text readability */
+.hero-mission-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to top, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.06) 50%, transparent 100%);
+  pointer-events: none;
+}
+
+.hero-mission-content {
+  position: relative;
+  z-index: 2;
+  padding: 0.375rem 0.75rem;
+  margin-top: auto;
+}
+
+@media (min-width: 768px) {
+  .hero-mission-content {
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-mission-content {
+    padding: 0.5rem 1.25rem;
+  }
+}
+
+/* Section 4: Donate Card - BIGGER & More Prominent */
+.hero-bottom-card-donate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-donate-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #2d1b4e 0%, #3d2b5e 50%, #1a0a2e 100%);
+}
+
+.hero-donate-glow {
+  position: absolute;
+  inset: 0;
+  opacity: 0.15;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(255,255,255,0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(245,158,11,0.4) 0%, transparent 50%);
+}
+
+.hero-donate-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  text-align: left;
+  padding: 0.375rem 0.75rem;
+  width: 100%;
+}
+
+.hero-donate-text-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-donate-heading {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0;
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .hero-donate-heading {
+    font-size: 0.9375rem;
+  }
+}
+
+.hero-donate-subtext {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0;
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .hero-donate-subtext {
+    font-size: 0.75rem;
+  }
+}
+
+.hero-donate-button {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  border-radius: 9999px;
+  color: white;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.hero-donate-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.5);
+  background: linear-gradient(135deg, #d97706 0%, #c2410c 100%);
+}
+
+@media (min-width: 768px) {
+  .hero-donate-button {
+    padding: 0.3125rem 0.875rem;
+    font-size: 0.8125rem;
+    gap: 0.375rem;
+  }
+}
+
+/* Browse Container - compact strip at hero bottom */
+.hero-browse-container {
+  flex: 0 0 auto;
+  min-height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0.125rem 1rem;
+  width: 100%;
+}
+
+/* ========================================
+   HERO MOBILE / SMALL SCREENS: Full-bleed layout
+   Sections 1–4 bleed to screen edges; desktop unchanged (768px+).
+   ======================================== */
+@media (max-width: 767px) {
+  .hero-container-split {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 5rem;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .hero-split-row {
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    margin: 0;
+    min-height: 0;
+  }
+
+  /* Section 1: Left panel (Kerala image) – short on mobile; image drives height (no min-height gap) */
+  .hero-left-panel {
+    width: 100%;
+    flex: 0 0 auto;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+  }
+
+  .hero-left-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: auto;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    /* Match hero dark purple so contain side-bars blend seamlessly */
+    background: #1a0a2e;
+  }
+
+  .hero-left-image::before,
+  .hero-left-image::after {
+    display: none;
+  }
+
+  .hero-left-image img {
+    border-radius: 0 !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: 22vh !important;
+    display: block !important;
+  }
+
+  /* Section 2: Right panel (slideshow) – full-bleed, content-driven height, tight against Section 1 */
+  .hero-right-panel {
+    width: 100%;
+    flex: 0 0 auto;
+    min-height: 0;
+    padding: 0;
+    margin-top: 0.125rem;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  .hero-slideshow-wrapper {
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    background: #1a0a2e;
+    /* Match image 5:2 aspect ratio so contain fills with zero gaps */
+    aspect-ratio: 5 / 2;
+    width: 100%;
+    height: auto;
+  }
+
+  .hero-slideshow-wrapper::before {
+    display: none;
+  }
+
+  .hero-slideshow-wrapper img {
+    border-radius: 0 !important;
+    object-fit: contain !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Ticket/Register overlay: pinned to bottom-right corner ON TOP of the slideshow image */
+  .hero-ticket-overlay {
+    bottom: 0.75rem;
+    right: 0.75rem;
+    z-index: 30;
+  }
+
+  /* Section 3 & 4: Bottom row – taller cards, tight against Section 2, minimal top padding */
+  .hero-bottom-row {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.125rem 1rem 0.75rem;
+    margin: 0;
+    width: 100%;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  .hero-bottom-card {
+    width: 100%;
+    max-width: none;
+    min-height: 100px;
+    max-height: none;
+    border-radius: 0.625rem;
+  }
+
+  .hero-bottom-card-mission {
+    min-height: 0;
+    overflow: hidden;
+    position: relative;
+    border-radius: 0.75rem;
+    aspect-ratio: 5 / 1;
+    width: 100%;
+    height: auto;
+    background: #1a0a2e;
+  }
+
+  /* Stronger bottom gradient on mobile so text is readable over the image */
+  .hero-bottom-card-mission .hero-mission-overlay {
+    background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
+  }
+
+  /* Mission card: text overlays the image — positioned inside the card, above the bottom edge */
+  .hero-bottom-card-mission .hero-mission-content {
+    margin-top: 0;
+    position: absolute;
+    bottom: 0.75rem;
+    left: 0;
+    right: 0;
+    padding: 0.25rem 0.75rem;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+  }
+
+  /* Tighter text sizing so "About" + "Our Mission" fits within the card on small screens */
+  .hero-bottom-card-mission .hero-card-label {
+    font-size: 0.625rem;
+    margin-bottom: 0.125rem;
+  }
+
+  .hero-bottom-card-mission .hero-card-title {
+    font-size: 0.8125rem;
+  }
+
+  /* Mission card bg image: contain inside 5:1 aspect-ratio card — same technique as Section 2 */
+  .hero-bottom-card-mission .hero-mission-bg {
+    position: absolute;
+    inset: 0;
+  }
+  .hero-bottom-card-mission .hero-mission-bg img {
+    object-fit: contain !important;
+    object-position: center center !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .hero-browse-container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
+/* ========================================
+   LEGACY HERO STYLES (for backwards compat)
+   ======================================== */
+
+/* Hero Container - Compact (legacy) */
+.hero-container {
+  position: relative;
+  background: var(--hero-bg-gradient);
+  padding-top: 5.5rem;
+}
+
+@media (min-width: 768px) {
+  .hero-container {
+    padding-top: 6rem;
+  }
+}
+
+/* Hero Main Image Section (legacy) */
+.hero-image-wrapper {
+  position: relative;
+  width: calc(100% - 2rem);
+  margin: 0 1rem;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 50%, #1a0a2e 100%);
+}
+
+@media (min-width: 768px) {
+  .hero-image-wrapper {
+    margin: 0 1.5rem;
+    width: calc(100% - 3rem);
+    border-radius: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-image-wrapper {
+    margin: 0 2rem;
+    width: calc(100% - 4rem);
+    border-radius: 1.5rem;
+  }
+}
+
+/* Hero Image Transition */
+.hero-image-transition {
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+.hero-image-transition.transitioning {
+  opacity: 0;
+  transform: scale(1.02);
+}
+
+/* Get Tickets Badge */
+.hero-ticket-badge {
+  position: absolute;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1.5rem;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(10px);
+  border-radius: 0.875rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-ticket-badge:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.hero-ticket-badge-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--hero-accent-gold);
+  border-radius: 0.5rem;
+}
+
+.hero-ticket-badge-text {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a0a2e;
+}
+
+/* Hero Cards Section */
+.hero-cards-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Single unified card: image left half, donate right half */
+.hero-cards-section-single {
+  grid-template-columns: 1fr;
+}
+
+.hero-card-unified {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  min-height: 160px;
+  padding: 0;
+  gap: 0;
+}
+
+.hero-card-left-half {
+  position: relative;
+  flex: 1 1 50%;
+  min-height: 140px;
+  overflow: hidden;
+  border-radius: 1rem 0 0 1rem;
+  cursor: pointer;
+}
+
+.hero-card-right-half {
+  position: relative;
+  flex: 1 1 50%;
+  min-height: 140px;
+  overflow: hidden;
+  border-radius: 0 1rem 1rem 0;
+}
+
+@media (min-width: 768px) {
+  .hero-card-left-half,
+  .hero-card-right-half {
+    min-height: 160px;
+  }
+
+  .hero-card-left-half {
+    border-radius: 1.25rem 0 0 1.25rem;
+  }
+
+  .hero-card-right-half {
+    border-radius: 0 1.25rem 1.25rem 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .hero-cards-section {
+    gap: 1.25rem;
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-cards-section {
+    gap: 1.5rem;
+    padding: 1.5rem 2rem;
+  }
+}
+
+/* Hero Card Base */
+.hero-card {
+  position: relative;
+  min-height: 140px;
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .hero-card {
+    min-height: 160px;
+    border-radius: 1.25rem;
+  }
+}
+
+.hero-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* About Card - Unite India Image */
+.hero-card-about {
+  background: #f5f5f5;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hero-card-label {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--hero-accent-red);
+  margin-bottom: 0.25rem;
+}
+
+.hero-card-title {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--hero-text-primary);
+}
+
+@media (min-width: 768px) {
+  .hero-card-title {
+    font-size: 1.0625rem;
+  }
+}
+
+/* Donate Card - Gradient Background */
+.hero-card-donate {
+  background: linear-gradient(135deg, var(--hero-bg-secondary) 0%, #3d2b5e 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hero-card-donate-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--hero-accent-gold);
+  border-radius: 50%;
+  margin-bottom: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .hero-card-donate-icon {
+    width: 4rem;
+    height: 4rem;
+  }
+}
+
+.hero-card-donate-title {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--hero-text-primary);
+  margin-bottom: 0.125rem;
+}
+
+@media (min-width: 768px) {
+  .hero-card-donate-title {
+    font-size: 1.125rem;
+  }
+}
+
+.hero-card-donate-subtitle {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--hero-text-muted);
+}
+
+/* Hero Browse Link */
+.hero-browse-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1rem 0;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--hero-text-muted);
+  transition: color 0.2s ease;
+}
+
+@media (min-width: 768px) {
+  .hero-browse-link {
+    padding: 1rem 2rem 0;
+  }
+}
+
+.hero-browse-link:hover {
+  color: var(--hero-accent-gold);
+}
+
+.hero-browse-link svg {
+  transition: transform 0.2s ease;
+}
+
+.hero-browse-link:hover svg {
+  transform: translateX(4px);
+}
+
+/* Smooth scrolling for hash navigation */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Prevent horizontal overflow */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* Ensure all containers respect viewport width */
+* {
+  box-sizing: border-box;
+}
+
+/* Prevent layout shifts in AdminNavigation */
+.admin-navigation-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.admin-navigation-container * {
+  max-width: 100%;
+}
+
+/* User Table Scrollbar Styling */
+.user-table-scroll-container {
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: auto;
+  scrollbar-color: #9CA3AF #F3F4F6;
+  -webkit-overflow-scrolling: touch;
+}
+
+.user-table-scroll-container::-webkit-scrollbar {
+  height: 12px;
+}
+
+.user-table-scroll-container::-webkit-scrollbar-track {
+  background: #F3F4F6;
+  border-radius: 6px;
+}
+
+.user-table-scroll-container::-webkit-scrollbar-thumb {
+  background: #9CA3AF;
+  border-radius: 6px;
+  border: 2px solid #F3F4F6;
+}
+
+.user-table-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #6B7280;
+}
+
+/* Global horizontal scrollbar styling - visible thumb for all scrollable containers */
+/* This applies to any element with overflow-x: scroll or auto */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #9CA3AF #F3F4F6;
+}
+
+/* WebKit browsers (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  height: 16px;
+  width: 16px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #F3F4F6;
+  border-radius: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #9CA3AF;
+  border-radius: 8px;
+  border: 3px solid #F3F4F6;
+  min-width: 30px;
+  min-height: 30px;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #6B7280;
+  border-color: #E5E7EB;
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: #4B5563;
+  border-color: #D1D5DB;
+}
+
+*::-webkit-scrollbar-button {
+  display: none;
+}
+
+*::-webkit-scrollbar-corner {
+  background: #F3F4F6;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 215 20.2% 65.1%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 85.7% 97.3%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 217.2 32.6% 17.5%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Add custom styles from HTML template, refactored for Tailwind and deduplicated */
+
+.hero-section {
+  position: relative;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: #fff;
+}
+
+.hero-mcafee-logo {
+  width: 180px;
+  margin-bottom: 2rem;
+}
+
+.hero-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #222;
+  line-height: 1.1;
+}
+
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: 4.5rem;
+  }
+}
+
+.hero-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.8) 100%);
+}
+
+.about-us-section {
+  background: #f9fafb;
+}
+
+.about-us-content {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .about-us-content {
+    flex-direction: row;
+    padding: 3rem;
+  }
+}
+
+.about-us-text {
+  font-size: 1.125rem;
+  color: #374151;
+}
+
+.section-title-wrapper h3 {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  color: #222;
+}
+
+.section-subtitle {
+  color: #ffce59;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.events-section {
+  background: #fff;
+}
+
+/* .event-item {
+  background: #f9fafb;
+  border-radius: 1rem;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.event-image {
+  width: 100%;
+  height: 12rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+} */
+
+.event-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* Anchor scroll offset for fixed header on home sections */
+#about-us,
+#team-section,
+#contact {
+  scroll-margin-top: 100px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .about-us-content {
+    flex-direction: column;
+    padding: 1.5rem;
+  }
+
+  /* .event-item {
+    padding: 1rem;
+  }
+
+  .event-image {
+    height: 8rem;
+  } */
+
+  .hero-section .hero-image-container {
+    left: 120px !important;
+  }
+}
+
+@keyframes ticker-marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: ticker-marquee 20s linear infinite;
+}
+
+.ticker-section {
+  overflow: hidden;
+  background-color: #f59e0b;
+  /* yellow-500 */
+}
+
+.ticker {
+  display: flex;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.ticker-item {
+  display: inline-block;
+  padding: 0 2rem;
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+/*
+Reusable Checkbox Styles
+-----------------------
+To use a consistent, modern checkbox style with a custom tick mark, use:
+
+<input type="checkbox" class="custom-checkbox" />
+<span class="custom-checkbox-tick">{checked && <svg>...</svg>}</span>
+
+- Add 'relative' to the parent container for correct tick mark overlay.
+- See prompt below for full usage.
+*/
+
+/* Checkbox: per .cursor/rules/ui_style_guide.mdc */
+.custom-checkbox {
+  @apply h-6 w-6 border-2 border-gray-400 rounded-lg cursor-pointer appearance-none relative bg-white;
+}
+.custom-checkbox:checked {
+  @apply bg-blue-600 border-blue-600;
+}
+/* Admin media card: yellow when checked, thicker border */
+.custom-checkbox--yellow {
+  @apply border-4 border-gray-500;
+}
+.custom-checkbox--yellow:checked {
+  @apply bg-yellow-500 border-yellow-500 border-4;
+}
+.custom-checkbox-tick {
+  @apply absolute inset-0 flex items-center justify-center pointer-events-none;
+}
+.custom-checkbox:checked + .custom-checkbox-tick svg {
+  @apply block;
+}
+.custom-checkbox:not(:checked) + .custom-checkbox-tick svg {
+  @apply hidden;
+}
+
+.custom-grid-table {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  border: 1px solid #d1d5db;
+  /* gray-300 */
+  border-radius: 0.75rem;
+  /* rounded-xl */
+  overflow: hidden;
+  background: #f9fafb;
+  /* blue-50 or gray-50 */
+}
+
+.custom-grid-cell {
+  border: 1px solid #d1d5db;
+  /* gray-300 */
+  background: #fff;
+  padding: 1.25rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  min-width: 0;
+}
+
+/*
+  Icon Button Utility
+  Use .icon-btn for all action icons (edit, delete, upload, etc.) for consistent size, color, and hover/focus effects.
+  Example usage:
+    <button className="icon-btn icon-btn-edit"><FaEdit /></button>
+    <button className="icon-btn icon-btn-delete"><FaTrash /></button>
+    <button className="icon-btn icon-btn-upload"><FaUpload /></button>
+  You can also use these classes on <a> or <span> if needed.
+*/
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 1rem;
+  transition: background 0.15s, color 0.15s;
+  cursor: pointer;
+}
+
+.icon-btn svg {
+  width: 1.25em;
+  height: 1.25em;
+  display: inline-block;
+}
+
+.icon-btn-edit {
+  color: #2563eb;
+  /* blue-600 */
+}
+
+.icon-btn-edit:hover,
+.icon-btn-edit:focus {
+  color: #1d4ed8;
+  /* blue-700 */
+  background: #e0e7ff;
+  /* blue-100 */
+}
+
+.icon-btn-delete {
+  color: #dc2626;
+  /* red-600 */
+}
+
+.icon-btn-delete:hover,
+.icon-btn-delete:focus {
+  color: #b91c1c;
+  /* red-700 */
+  background: #fee2e2;
+  /* red-100 */
+}
+
+.icon-btn-upload {
+  color: #16a34a;
+  /* green-600 */
+}
+
+.icon-btn-upload:hover,
+.icon-btn-upload:focus {
+  color: #166534;
+  /* green-700 */
+  background: #bbf7d0;
+  /* green-100 */
+}
+
+/*
+  Tooltip Utility for Admin Tables
+  Use .admin-tooltip for mouse-over popovers that show detailed info (e.g., user/event details).
+  - Adds a white background, border, rounded corners, shadow, and padding.
+  - Use .admin-tooltip-table for the inner table: full width, cell borders, and compact text.
+  Example usage:
+    <div className="admin-tooltip">
+      <table className="admin-tooltip-table">...</table>
+    </div>
+*/
+.admin-tooltip {
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  /* gray-300 */
+  border-radius: 0.75rem;
+  /* rounded-xl */
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  padding: 1rem;
+  min-width: 350px;
+  max-width: 500px;
+  font-size: 0.95rem;
+  z-index: 9999;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-bottom: 16px;
+  /* ensures space from bottom of viewport */
+}
+
+.admin-tooltip-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.admin-tooltip-table td,
+.admin-tooltip-table th {
+  border: 1px solid #e5e7eb;
+  /* gray-200 */
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+}
+
+.admin-tooltip-table th {
+  background: #f1f5f9;
+  /* blue-50 */
+  font-weight: 600;
+}
+
+/* Instant tooltip for action buttons */
+.instant-tooltip {
+  position: relative;
+}
+
+.instant-tooltip::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1f2937;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0s;
+  z-index: 1000;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.instant-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #1f2937;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0s;
+  z-index: 1000;
+}
+
+.instant-tooltip:hover::before,
+.instant-tooltip:hover::after {
+  opacity: 1;
+  transition: opacity 0s;
+}
+
+/* Wavy animation for loading events */
+@keyframes wavy {
+
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: translateY(-15px) scale(1.05);
+    opacity: 0.7;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.wavy-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 193, 7, 0.2) 25%,
+      rgba(255, 193, 7, 0.4) 50%,
+      rgba(255, 193, 7, 0.2) 75%,
+      transparent 100%);
+  background-size: 200% 100%;
+  animation:
+    wavy 3s ease-in-out infinite,
+    shimmer 2s ease-in-out infinite;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Zoom loading animation for admin table */
+@keyframes zoomInOut {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+}
+
+@keyframes zoomOut {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+.zoom-loading {
+  animation: zoomInOut 2s ease-in-out infinite;
+}
+
+.zoom-out {
+  animation: zoomOut 0.5s ease-out forwards;
+}

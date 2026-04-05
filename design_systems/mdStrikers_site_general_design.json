@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "meta": {
+    "name": "FC United mirror — mdStrikers site design (reference)",
+    "source": "wget/reputable-scarab-5b76b9.qwery-test.themerex.net (ThemeREX FC United child theme + Elementor)",
+    "purpose": "High-level creative-direction spec for AI and developers to replicate the soccer-club marketing site look: dark cinematic hero, athletic typography, red accent, data-dense sports modules, and editorial commerce blocks.",
+    "version": "1.0.0",
+    "lastAnalyzed": "2026-03-27"
+  },
+  "brandEssence": {
+    "keywords": [
+      "professional soccer club",
+      "broadcast and stadium energy",
+      "data-first (scores, tables, countdowns)",
+      "merch and membership"
+    ],
+    "visualMetaphor": "Night match under lights: deep navy fields, white type, one sharp red signal for action and emphasis.",
+    "tone": "Confident, athletic, slightly aggressive; not playful or soft. Copy blocks are short; UI favors scannability over prose."
+  },
+  "designPrinciples": [
+    {
+      "principle": "Contrast bands",
+      "guidance": "Alternate full-bleed dark sections (#081224 / #262f3e) with clean white content bands. Never float gray boxes on gray—use white breaks or photographic full-bleed."
+    },
+    {
+      "principle": "One scream color",
+      "guidance": "Pure red (#ff0000) is the only saturated accent for links, hover, and primary CTAs. Supporting accents (green/gold) exist in theme tokens but should be used sparingly so red stays dominant."
+    },
+    {
+      "principle": "Display + UI sans pairing",
+      "guidance": "Tight, tall display headlines (Bebas Neue class) for hero and section titles; rounded geometric sans (Poppins) for UI, body, and menus. Do not use one font for everything."
+    },
+    {
+      "principle": "Label → headline → detail",
+      "guidance": "Section intros use a small uppercase subtitle (e.g. WELCOME, RESULTS), then a large display title, then one short paragraph or widget. This rhythm repeats down the page."
+    },
+    {
+      "principle": "Motion is reveal, not decoration",
+      "guidance": "Prefer short fades (fadeIn, fadeInLeft/Right) with 150–400ms stagger. Parallax on hero is subtle (layered PNGs over photo). Avoid bouncy or playful animation."
+    },
+    {
+      "principle": "Sports UI is first-class",
+      "guidance": "Match blocks, league tables, and countdowns use compact tables, team crests, and monospace-like numeric emphasis—not cards with heavy shadows."
+    }
+  ],
+  "layoutAndStructure": {
+    "pageShell": {
+      "description": "Fullscreen-width layout (body_style_fullscreen) with custom transparent header over first viewport; main content is a stack of Elementor sections, not a centered card app.",
+      "maxWidthPx": {
+        "boxedSection": 1308,
+        "legacyContentWrap": 1278,
+        "notes": "Use max-w-[1308px] or ~82rem with horizontal padding for parity."
+      },
+      "horizontalPadding": {
+        "desktopPx": "40–55 on key hero rows; inner columns sometimes 30",
+        "tabletPx": "20–25",
+        "mobilePx": "10–18"
+      },
+      "verticalRhythm": {
+        "sectionSpacersPx": "Common spacer heights: 22, 50, 56, 67, 110, 210 between major blocks; footer uses ~72–84px top air.",
+        "pattern": "Large vertical gaps sell 'arena' scale; tighten only inside widgets (tables, cards)."
+      },
+      "gridBehavior": {
+        "heroSplit": "Roughly 76/24 or 52/48 splits for headline vs countdown; stacks on small screens.",
+        "featureColumns": "3- and 4-column grids for news, products, and squad; gap via extended column gap (theme uses elementor-column-gap-extended).",
+        "footer": "Three equal columns for CTA band; below that 50/50 menu vs copyright."
+      }
+    }
+  },
+  "color": {
+    "semantic": {
+      "background": {
+        "pageWash": "#F4F4F4",
+        "surface": "#ffffff",
+        "heroDark": "#081224",
+        "footerBand": "#262f3e",
+        "deepBlackUi": "#101010"
+      },
+      "text": {
+        "body": "#797e87",
+        "heading": "#262f3e",
+        "onDarkMuted": "#848992",
+        "onDarkPrimary": "#ffffff"
+      },
+      "accent": {
+        "primary": "#ff0000",
+        "linkHoverDark": "#081324",
+        "secondaryLinkGreen": "#80d572",
+        "secondaryLinkGold": "#ddb837"
+      },
+      "bordersAndDividers": {
+        "hairline": "#e3e3e3",
+        "footerDivider": "#262F3E"
+      }
+    },
+    "usageNotes": [
+      "scheme_default: light backgrounds with slate headings and muted body.",
+      "scheme_dark: used for header-over-hero, mobile fullscreen menu, and footer—white headings, muted body, red hover.",
+      "Avoid rainbow UI: Elementor kit lists many globals; for replication, anchor to navy + white + red."
+    ]
+  },
+  "typography": {
+    "families": {
+      "display": {
+        "name": "Bebas Neue",
+        "role": "Hero words, section titles, marketing headlines—uppercase feel, very tight line height."
+      },
+      "ui": {
+        "name": "Poppins",
+        "weights": "100–800; use 500–700 for nav and labels",
+        "role": "Body, navigation, buttons, form text, breadcrumbs."
+      },
+      "data": {
+        "name": "Roboto",
+        "role": "SportPress tables, some Elementor text widgets; pair with Roboto Slab only if needed for pull quotes (secondary)."
+      }
+    },
+    "scale": {
+      "heroTitle": "Extra large display; allow manual line breaks for drama (e.g. 'Soccer club' / 'United').",
+      "sectionSubtitle": "Small, uppercase, letterspaced (theme class sc_item_subtitle)—visually half the weight of the main title.",
+      "body": "16px base on sports pages; 14px on dense footer or mobile tweaks.",
+      "widgetTitle": "h5-sized labels for widgets like NEXT MATCH, shop section labels."
+    },
+    "rules": [
+      "Headlines on dark: white; never mid-gray on navy for primary titles.",
+      "Links: default inherit heading/body; hover to #ff0000 on dark and light schemes.",
+      "Avoid serif body text; keep slab/serif out of data tables."
+    ]
+  },
+  "spacingAndSizing": {
+    "containerChips": [8, 16, 24, 32, 40, 50, 56, 67, 72, 84, 110, 210],
+    "borderRadius": {
+      "buttons": "Theme buttons are relatively pill-like or softly rounded; tribe/events example uses ~30–35px radius for search—prefer large radius for primary actions when matching Events plugin styling.",
+      "cards": "3px on some dark panels (team page); default cards are mostly square with image ratio driving shape."
+    },
+    "iconography": {
+      "sets": "Fontello / trx_addons icons for cart, user, search, menu; Font Awesome 5/4 shims loaded—use simple line icons, not filled emoji-style.",
+      "size": "Header icons align to text baseline; mobile burger inherits header contrast."
+    }
+  },
+  "elevationAndTexture": {
+    "shadows": "Minimal on sports tables; soft global presets exist in WP but marketing sections rely on flat color blocks and photography.",
+    "imagery": {
+      "hero": "Full-width photo (stadium/abstract) with additional parallax PNG layers for depth.",
+      "content": "Editorial 16:9 and 4:3 thumbnails; WooCommerce catalog uses tall product crops on light ground.",
+      "partnerStrip": "Horizontal swiper of sponsor artboards (~140px height), neutral background, many logos in a row."
+    }
+  },
+  "components": {
+    "siteHeader": {
+      "structure": "Fixed row: logo left (max-height ~80px desktop, ~55px compact), primary nav center/left cluster, right cluster: search field, shopping cart with count, user/login icon, mobile burger.",
+      "style": "Transparent/dark scheme over hero; menu_hover_fade; horizontal dropdowns for deep IA.",
+      "behavior": "Fullscreen mobile menu (scheme_dark) with logo top, accordion nav, search repeat, social row (X, Facebook, Pinterest icons)."
+    },
+    "hero": {
+      "structure": "Full viewport height section, align content toward bottom; optional news ticker line in upper-right on large screens; main column: subtitle + display title + one paragraph + primary button; opposing column: countdown or featured match widget.",
+      "background": "#081224 plus background-size cover image; optional mouse parallax decorative layers.",
+      "cta": "Primary button 'Read More' style (solid, high contrast); secondary actions appear as text links less often."
+    },
+    "sectionHeader": {
+      "pattern": "sc_title: sc_item_subtitle (uppercase label) + sc_item_title (display) optional sc_item_descr paragraph; align left or center per section.",
+      "alignment": "Some blocks use title-self-right modifier for asymmetry."
+    },
+    "buttons": {
+      "primary": {
+        "classPattern": "sc_button sc_button_default sc_button_size_normal",
+        "labelCase": "Title Case for marketing ('Read More', 'View All Products')",
+        "hover": "Transition all 0.3s ease (theme default for links/buttons)"
+      },
+      "secondary": "Outline or text-only is rare; prefer solid primary on white sections.",
+      "destructive": "Not emphasized; sports theme avoids soft pastels for main CTAs."
+    },
+    "newsAndBlog": {
+      "newsLine": "Compact list: title + date meta only—no excerpt in ticker layout.",
+      "gridCards": "Image top, category/tags, title; hover states on image minimal (hover_none class on some blocks)."
+    },
+    "sportsWidgets": {
+      "eventBlock": "Single row: crests, date link, score in bold with winning side class, league + season meta, event title.",
+      "countdown": "Label NEXT MATCH + opponent line + large numeric countdown (days/hrs/mins/secs) + team logos flanking event name.",
+      "leagueTable": "Full-width responsive table; prioritize readability over zebra styling.",
+      "playerGrid": "Portrait photos with number, name, position; uniform aspect (~3:4)."
+    },
+    "commerce": {
+      "productGrid": "4 columns desktop: thumbnail, product tag pill, title link, price, 'Buy now' button in add_to_cart_wrap.",
+      "filters": "Standard WooCommerce patterns; keep product imagery on white/light gray."
+    },
+    "footer": {
+      "structure": "Top: three columns—headline ('Sign Up Now'), supporting copy, optional shortcode/newsletter placeholder; horizontal divider (2px, dark); row: secondary menu left, copyright right; generous spacer blocks.",
+      "style": "scheme_dark; divider color matches slate (#262f3e); text-editor links inherit hover red."
+    },
+    "misc": {
+      "scrollToTop": "Floating anchor with icon-up—small round control, bottom-right.",
+      "dividers": "Elementor divider widget: solid line, full width, subtle padding vertical.",
+      "forms": "Contact Form 7 generic styles; prefer simple single-column fields with clear labels."
+    }
+  },
+  "responsiveRules": {
+    "breakpointsPx": {
+      "tabletMax": 1024,
+      "mobileMax": 767
+    },
+    "behaviors": [
+      "Reduce hero top spacer (280px → 150px → 100px) and side padding.",
+      "Stack multi-column sports widgets; add vertical margin between stacked team columns (~20–30px).",
+      "Hide decorative news ticker on smallest breakpoints; show shorter logo variant.",
+      "Footer columns collapse with adjusted padding (30px → 10px → 0)."
+    ]
+  },
+  "aiReplicationChecklist": [
+    "Set page background to #F4F4F4 or white; only heroes/footers use deep navy/slate.",
+    "Use Bebas Neue (or similar condensed display) for hero and section titles; Poppins for everything else.",
+    "Keep one red accent for hovers and primary buttons.",
+    "Maintain 1308px max width for boxed sections with 40–55px side padding on desktop.",
+    "Use large vertical spacers between sections (50–110px) to match the 'stadium' layout.",
+    "Sports blocks: crests + numerals + tables before considering cards.",
+    "Header: transparent dark over first section; sticky/fixed feel with icons on the right.",
+    "Footer: dark slate, 3-column CTA, divider, then menu + copyright.",
+    "Motion: fade/slide reveals only; 300ms transitions on interactive elements.",
+    "Imagery: wide cinematic photos; product shots clean and isolated."
+  ],
+  "referencesInRepo": {
+    "mirrorRoot": "wget/reputable-scarab-5b76b9.qwery-test.themerex.net/",
+    "keyFiles": [
+      "index.html — home composition and footer",
+      "our-school/index.html — interior page rhythm",
+      "team/united/index.html — team detail layout",
+      "wp-content/themes/fcunited/css/__colors-default.css — scheme_default tokens",
+      "wp-content/themes/fcunited/css/__colors-dark.css — scheme_dark tokens",
+      "wp-content/themes/fcunited/skins/default/skin.css — interaction polish"
+    ]
+  }
+}
