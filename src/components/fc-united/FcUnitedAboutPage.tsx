@@ -60,7 +60,7 @@ function AboutPageSubnav() {
                 href={`#${item.id}`}
                 className={cn(
                   fcPoppins.className,
-                  'inline-block rounded-[3px] px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#262f3e] transition-colors hover:bg-[#f4f4f4] hover:text-[#ff0000] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000] md:text-sm',
+                  'inline-block rounded-[3px] px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#f5b514] transition-colors hover:bg-[#0a1628] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f5b514] md:text-sm',
                 )}
               >
                 {item.label}
