@@ -26,15 +26,17 @@ export function FcUnitedInnerHero({ title }: { title: string }) {
         <div className="absolute inset-0 bg-gradient-to-br from-[#081224]/95 via-[#0f1f38]/85 to-[#262f3e]/95" aria-hidden />
       </div>
       <Shell className="relative z-10 py-20 md:py-24 lg:py-28">
-        <nav className="mb-4 text-sm text-[#848992]" aria-label="Breadcrumb">
+        <nav className="mb-4 text-sm font-semibold" aria-label="Breadcrumb">
           <Link
             href="/"
-            className="cursor-pointer rounded-sm transition-colors hover:text-[#ff0000] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff0000] focus-visible:ring-offset-2 focus-visible:ring-offset-[#081224]"
+            className="cursor-pointer rounded-sm text-[#f5b514] transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f5b514] focus-visible:ring-offset-2 focus-visible:ring-offset-[#081224]"
           >
             Home
           </Link>
-          <span className="mx-2 text-white/40">/</span>
-          <span className="text-white">{title}</span>
+          <span className="mx-2 font-normal text-[#f5b514]/45" aria-hidden>
+            /
+          </span>
+          <span className="text-[#f5b514]">{title}</span>
         </nav>
         <h1 className={cn(fcBebas.className, 'text-4xl tracking-wide text-white md:text-5xl lg:text-6xl')}>{title}</h1>
       </Shell>

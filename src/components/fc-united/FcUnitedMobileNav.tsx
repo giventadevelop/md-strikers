@@ -8,8 +8,8 @@ import { mdStrikersBrand as b } from './mdStrikersBrand';
 import { FC_UNITED_NAV_LINKS, type FcNavKey } from './fcUnitedNavLinks';
 
 const navHoverActive =
-  'cursor-pointer transition-colors duration-200 hover:text-[#e31837] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628]';
-const navActive = 'text-[#e31837]';
+  'cursor-pointer text-base font-bold text-[#e31837] transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628]';
+const navActive = 'text-white';
 
 export function FcUnitedMobileNav({ active }: { active?: FcNavKey }) {
   const [open, setOpen] = useState(false);
@@ -41,7 +41,7 @@ export function FcUnitedMobileNav({ active }: { active?: FcNavKey }) {
     <div className="relative flex-shrink-0 md:hidden">
       {open && (
         <div
-          className="fixed bottom-0 left-0 right-0 top-[calc(3.25rem+45px+1.5rem)] z-40 cursor-pointer bg-black/50 sm:top-[calc(4rem+45px+1.5rem)] md:hidden"
+          className="fixed bottom-0 left-0 right-0 top-[calc(3.25rem+45px+20px+1.5rem+15px)] z-40 cursor-pointer bg-black/50 sm:top-[calc(4rem+45px+20px+1.5rem+15px)] md:hidden"
           aria-hidden
           onClick={() => setOpen(false)}
         />
@@ -80,7 +80,7 @@ export function FcUnitedMobileNav({ active }: { active?: FcNavKey }) {
               <Link
                 href={href}
                 className={cn(
-                  'block rounded-[3px] px-3 py-3 text-base font-semibold text-white',
+                  'block rounded-[3px] px-3 py-3',
                   navHoverActive,
                   active === key && navActive,
                 )}

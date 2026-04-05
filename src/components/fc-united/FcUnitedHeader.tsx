@@ -7,10 +7,10 @@ import type { FcNavKey } from './fcUnitedNavLinks';
 import { FC_UNITED_NAV_LINKS } from './fcUnitedNavLinks';
 import { FcUnitedMobileNav } from './FcUnitedMobileNav';
 
-/** Matches mdStrikersBrand.accent — full class strings for Tailwind JIT */
+/** Inverted from classic: accent by default, white on hover/active — bold for readability */
 const navHoverActive =
-  'cursor-pointer transition-colors duration-200 hover:text-[#e31837] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628]';
-const navActive = 'text-[#e31837]';
+  'cursor-pointer text-base font-bold text-[#e31837] transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628] lg:text-[1.0625rem]';
+const navActive = 'text-white';
 
 export type { FcNavKey };
 
@@ -34,13 +34,13 @@ export function FcUnitedHeader({ active }: { active?: FcNavKey }) {
       className="md-strikers-header relative z-50 border-b border-white/[0.06] text-[var(--md-text-muted)] shadow-[0_4px_24px_rgba(0,0,0,0.35)] backdrop-blur-sm"
       style={headerStyle}
     >
-      <Shell className="flex min-h-[calc(3.25rem+45px+1.5rem)] items-center justify-between gap-3 py-3 sm:min-h-[calc(4rem+45px+1.5rem)] sm:gap-5 sm:py-3.5 md:min-h-[calc(4.5rem+45px+1.75rem)] md:gap-6 lg:min-h-[calc(5.25rem+45px+1.75rem)] xl:min-h-[calc(5.75rem+45px+1.75rem)]">
+      <Shell className="flex min-h-[calc(3.25rem+45px+20px+1.5rem+15px)] items-center justify-between gap-3 py-3 sm:min-h-[calc(4rem+45px+20px+1.5rem+15px)] sm:gap-5 sm:py-3.5 md:min-h-[calc(4.5rem+45px+20px+1.75rem+15px)] md:gap-6 lg:min-h-[calc(5.25rem+45px+20px+1.75rem+15px)] xl:min-h-[calc(5.75rem+45px+20px+1.75rem+15px)]">
         <Link
           href="/"
           className="group flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 rounded-sm sm:gap-3 md:gap-4 lg:gap-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628]"
           aria-label="Maryland Strikers — Home"
         >
-          <div className="relative flex h-[calc(3.25rem+45px)] w-[calc(3.25rem+45px)] flex-shrink-0 items-center justify-center sm:h-[calc(4rem+45px)] sm:w-[calc(4rem+45px)] md:h-[calc(4.5rem+45px)] md:w-[calc(4.5rem+45px)] lg:h-[calc(5.25rem+45px)] lg:w-[calc(5.25rem+45px)] xl:h-[calc(5.75rem+45px)] xl:w-[calc(5.75rem+45px)]">
+          <div className="relative flex h-[calc(3.25rem+45px+20px)] w-[calc(3.25rem+45px+20px)] flex-shrink-0 items-center justify-center sm:h-[calc(4rem+45px+20px)] sm:w-[calc(4rem+45px+20px)] md:h-[calc(4.5rem+45px+20px)] md:w-[calc(4.5rem+45px+20px)] lg:h-[calc(5.25rem+45px+20px)] lg:w-[calc(5.25rem+45px+20px)] xl:h-[calc(5.75rem+45px+20px)] xl:w-[calc(5.75rem+45px+20px)]">
             <Image
               src="/images/md_strikers_media/md_media/md_strikers_logo-withoutBackground.png"
               alt=""
@@ -75,7 +75,7 @@ export function FcUnitedHeader({ active }: { active?: FcNavKey }) {
         </Link>
         <div className="flex flex-shrink-0 items-center gap-0">
           <nav
-            className="hidden items-center gap-5 text-sm font-semibold text-white md:flex lg:gap-8 lg:text-[0.9375rem]"
+            className="hidden items-center gap-5 md:flex lg:gap-8"
             aria-label="Primary"
           >
             {FC_UNITED_NAV_LINKS.map(({ href, label, key }) => (
