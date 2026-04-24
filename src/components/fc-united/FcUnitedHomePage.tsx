@@ -75,10 +75,10 @@ export default async function FcUnitedHomePage() {
                 <div className="overflow-hidden rounded-[3px] border border-white/15 bg-black/20 backdrop-blur-sm lg:-mt-1">
                   <div className="relative aspect-[16/10] w-full min-h-0 sm:aspect-[16/9]">
                     <Image
-                      src="/images/md_strikers_media/md_media/Gallery/IM-Vijayan-Image_news.jpg"
+                      src="/images/md_strikers_media/gallery/IM_Vijayan-Image-2.jpg"
                       alt=""
                       fill
-                      className="object-cover object-center opacity-[0.96] drop-shadow-[0_8px_36px_rgba(0,0,0,0.5)]"
+                      className="object-center opacity-[0.96] drop-shadow-[0_8px_36px_rgba(0,0,0,0.5)]"
                       sizes="(max-width: 1024px) 100vw, 36vw"
                       priority
                       aria-hidden
@@ -261,15 +261,16 @@ export default async function FcUnitedHomePage() {
             <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-[#797e87]">news</span>
             <h2 className={cn(fcBebas.className, 'text-4xl tracking-wide text-[#262f3e] md:text-5xl')}>The Latest News</h2>
           </div>
-          <div className="mx-auto max-w-3xl">
+          <div className="mx-auto w-full max-w-[766px]">
             <div className="overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-white">
-              <div className="relative aspect-[16/9] w-full min-h-0">
+              {/* 4:3 frame (766×574.5 at max width); contain = no crop on tall/wide photos */}
+              <div className="relative aspect-[4/3] w-full min-h-0 bg-[#ececec]">
                 <Image
-                  src="/images/md_strikers_media/md_media/Gallery/IM-Vijayan-Image_news.jpg"
+                  src="/images/md_strikers_media/gallery/IM_Vijayan-Image-2.jpg"
                   alt="I.M. Vijayan — MD Strikers news"
                   fill
-                  className="object-cover object-center"
-                  sizes="(max-width:1024px) 100vw, 768px"
+                  className="object-contain object-center"
+                  sizes="(max-width: 768px) 100vw, 766px"
                 />
               </div>
               <div className="p-6">

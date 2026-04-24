@@ -23,13 +23,13 @@ export default function FcUnitedCapitalCup2026Page() {
 
       <section className="bg-white">
         <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 overflow-hidden bg-[#081224]">
-          <div className="relative mx-auto aspect-[3/4] max-h-[min(92vh,1200px)] w-full max-w-4xl sm:aspect-[3/4] md:aspect-[4/5] lg:max-h-[min(85vh,1100px)]">
+          <div className="relative aspect-[16/9] w-full sm:aspect-[16/8] md:aspect-[16/7] lg:aspect-[16/6]">
             <Image
-              src={`${GALLERY}/capital_cup_2026_flyer.jpg`}
+              src={`${GALLERY}/Capital_Cup_Hero_Image.jpg`}
               alt="Capital Cup 2026 tournament poster"
               fill
-              className="object-contain object-top"
-              sizes="(max-width: 1024px) 100vw, 896px"
+              className="object-center"
+              sizes="100vw"
               priority
             />
           </div>
@@ -58,10 +58,10 @@ export default function FcUnitedCapitalCup2026Page() {
               <h2 className={cn(fcBebas.className, 'text-2xl tracking-wide text-[#262f3e] md:text-3xl')}>
                 Chief Guest
               </h2>
-              <div className="relative mt-6 overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-[#f4f4f4]">
+              <div className="relative mt-6 overflow-hidden rounded-[3px]">
                 <div className="relative mx-auto aspect-[4/3] w-full max-w-xl md:aspect-[16/10]">
                   <Image
-                    src={`${GALLERY}/IM-Vijayan-Image_news.jpg`}
+                    src={`${GALLERY}/IM_Vijayan-Image-2.jpg`}
                     alt="Chief guest — I. M. Vijayan"
                     fill
                     className="object-contain object-center"
