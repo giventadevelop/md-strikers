@@ -25,6 +25,7 @@ const filters = ['All', 'articles', 'League', 'Soccer'];
 
 type GalleryItem = {
   src: string;
+  thumbnailSrc?: string;
   title: string;
   tag: string;
   kind: 'image' | 'video';
@@ -140,10 +141,13 @@ export default function FcUnitedGalleryPage() {
                     </>
                   ) : (
                     <Image
-                      src={encodePublicPath(item.src)}
+                      src={encodePublicPath(item.thumbnailSrc || item.src)}
                       alt={item.title}
                       fill
-                      className="object-cover object-center transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                      className={cn(
+                        'object-center transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100',
+                        item.thumbnailSrc ? 'object-contain' : 'object-cover',
+                      )}
                       sizes="(max-width:1024px) 50vw, 33vw"
                     />
                   )}
@@ -161,7 +165,7 @@ export default function FcUnitedGalleryPage() {
 
       {lightboxIndex !== null && current && (
         <div
-          className="fixed inset-0 z-[200] cursor-pointer flex flex-col items-center justify-center bg-black/92 p-4"
+          className="fixed inset-0 z-[200] cursor-pointer flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           style={{ paddingTop: 'max(1rem, env(safe-area-inset-top, 0px))', paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 0px))' }}
           role="dialog"
           aria-modal="true"

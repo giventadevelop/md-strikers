@@ -68,23 +68,26 @@ const mdStrikersComGalleryFromSite: {
 /** Highest-priority items — shown first on `/gallery` (order preserved). */
 const galleryPriorityFeatured: {
   src: string;
+  thumbnailSrc?: string;
   title: string;
   tag: string;
   kind: 'image' | 'video';
 }[] = [
   {
     src: `${G}/capital_cup_2026_flyer_sponsor_samson_rex.jpg`,
+    thumbnailSrc: '/images/md_strikers_media/gallery_Thumbnail/Capital-Cup-2026.jpg',
     title: 'Capital Cup 2026 Flyer — Sponsor Samson Rex',
     tag: 'League',
     kind: 'image',
   },
   {
     src: `${G}/capital_cup_2026_flyer.jpg`,
+    thumbnailSrc: '/images/md_strikers_media/gallery_Thumbnail/Capital-Cup-2026-1.jpg',
     title: 'Capital Cup 2026 Flyer',
     tag: 'League',
     kind: 'image',
   },
-  { src: `${G}/IM-Vijayan-image-with-light.jpg`, title: 'IM Vijayan — News', tag: 'articles', kind: 'image' },
+  { src: `${G}/IM_Vijayan-Image-2.jpg`, title: 'IM Vijayan — News', tag: 'articles', kind: 'image' },
   {
     src: `${G}/564852626_17863115427483348_789349214786533531_n.webp`,
     title: 'Photo 18',

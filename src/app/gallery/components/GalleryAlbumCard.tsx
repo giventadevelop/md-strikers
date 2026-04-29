@@ -8,11 +8,13 @@ import type { GalleryAlbumWithMedia } from '../../ApiServerActions';
 
 interface GalleryAlbumCardProps {
   albumWithMedia: GalleryAlbumWithMedia;
+  cardIndex?: number;
 }
 
-export function GalleryAlbumCard({ albumWithMedia }: GalleryAlbumCardProps) {
+export function GalleryAlbumCard({ albumWithMedia, cardIndex = -1 }: GalleryAlbumCardProps) {
   const [showSlideshow, setShowSlideshow] = useState(false);
   const { album, media, totalMediaCount } = albumWithMedia;
+  const customFirstCardThumbnail = '/images/md_strikers_media/gallery_Thumbnail/Capital-Cup-2026.jpg';
 
   // Get preview images (first 4 media items)
   const previewMedia = media.slice(0, 4);
@@ -73,10 +75,27 @@ export function GalleryAlbumCard({ albumWithMedia }: GalleryAlbumCardProps) {
     <>
       <div className={`${getCardBackground(album.id!)} rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-white/50 flex flex-col`}>
         {/* Cover Image */}
-        <div className="relative h-48 bg-gray-200">
+        <div
+          className={`relative h-48 bg-gray-200 ${media.length > 0 ? 'cursor-pointer hover:opacity-90 transition-opacity duration-200' : ''}`}
+          onClick={() => {
+            if (media.length > 0) {
+              setShowSlideshow(true);
+            }
+          }}
+          role={media.length > 0 ? 'button' : undefined}
+          tabIndex={media.length > 0 ? 0 : undefined}
+          onKeyDown={(e) => {
+            if (media.length > 0 && (e.key === 'Enter' || e.key === ' ')) {
+              e.preventDefault();
+              setShowSlideshow(true);
+            }
+          }}
+          aria-label={media.length > 0 ? 'View Gallery' : undefined}
+          title={media.length > 0 ? 'Click to view gallery' : undefined}
+        >
           {coverImage?.fileUrl ? (
             <Image
-              src={coverImage.fileUrl}
+              src={cardIndex === 0 ? customFirstCardThumbnail : coverImage.fileUrl}
               alt={coverImage.altText || album.title}
               fill
               className="object-cover"
