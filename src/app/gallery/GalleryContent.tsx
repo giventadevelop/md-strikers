@@ -299,10 +299,11 @@ export function GalleryContent() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {albumsData?.albumsWithMedia?.map((albumWithMedia) => (
+                {albumsData?.albumsWithMedia?.map((albumWithMedia, index) => (
                   <GalleryAlbumCard
                     key={albumWithMedia.album.id}
                     albumWithMedia={albumWithMedia}
+                    cardIndex={index}
                   />
                 ))}
               </div>
@@ -406,10 +407,11 @@ export function GalleryContent() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {eventsWithMedia?.map((eventWithMedia) => (
+              {eventsWithMedia?.map((eventWithMedia, index) => (
                 <GalleryEventCard
                   key={eventWithMedia.event.id}
                   eventWithMedia={eventWithMedia}
+                  cardIndex={index}
                 />
               ))}
             </div>

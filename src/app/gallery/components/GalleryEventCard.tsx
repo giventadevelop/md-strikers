@@ -9,11 +9,13 @@ import type { GalleryEventWithMedia } from '../ApiServerActions';
 
 interface GalleryEventCardProps {
   eventWithMedia: GalleryEventWithMedia;
+  cardIndex?: number;
 }
 
-export function GalleryEventCard({ eventWithMedia }: GalleryEventCardProps) {
+export function GalleryEventCard({ eventWithMedia, cardIndex = -1 }: GalleryEventCardProps) {
   const [showSlideshow, setShowSlideshow] = useState(false);
   const { event, media, totalMediaCount } = eventWithMedia;
+  const customFirstCardThumbnail = '/images/md_strikers_media/gallery_Thumbnail/Capital-Cup-2026.jpg';
 
   // Get preview images (first 4 media items)
   const previewMedia = media.slice(0, 4);
@@ -96,7 +98,7 @@ export function GalleryEventCard({ eventWithMedia }: GalleryEventCardProps) {
         >
           {heroImage?.fileUrl ? (
             <Image
-              src={heroImage.fileUrl}
+              src={cardIndex === 0 ? customFirstCardThumbnail : heroImage.fileUrl}
               alt={heroImage.altText || event.title}
               fill
               className="object-cover"

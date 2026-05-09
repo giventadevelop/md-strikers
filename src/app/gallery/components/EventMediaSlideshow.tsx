@@ -26,6 +26,7 @@ export function EventMediaSlideshow({ event, media, onClose, initialIndex = 0 }:
   const [isPlaying, setIsPlaying] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(3000); // 3 seconds per slide
+  const capitalCupCustomThumbnail = '/images/md_strikers_media/gallery_Thumbnail/Capital-Cup-2026.jpg';
 
   console.log('EventMediaSlideshow rendered with:', {
     eventTitle: event.title,
@@ -266,7 +267,7 @@ export function EventMediaSlideshow({ event, media, onClose, initialIndex = 0 }:
                 >
                   {mediaItem.fileUrl ? (
                     <Image
-                      src={mediaItem.fileUrl}
+                      src={index === 0 ? capitalCupCustomThumbnail : mediaItem.fileUrl}
                       alt={mediaItem.altText || mediaItem.title}
                       width={64}
                       height={64}
