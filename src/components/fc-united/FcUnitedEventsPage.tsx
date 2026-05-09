@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
-import { fcEventsListItems, fcSponsors } from './fcUnitedConstants';
+import { fcEventsListItems, fcSponsors, type FcEventListItem } from './fcUnitedConstants';
 import { fcBebas, fcPoppins, fcRoboto } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
@@ -13,6 +13,17 @@ function Shell({ children, className }: { children: ReactNode; className?: strin
   );
 }
 
+/** Sort key from the schedule line (start date before en-dash or hyphen range). */
+function eventStartTimeMs(ev: FcEventListItem): number {
+  const startPart = ev.time.split(/\s*[–-]\s*/)[0]?.trim() ?? '';
+  const t = Date.parse(startPart);
+  return Number.isNaN(t) ? 0 : t;
+}
+
+const fcEventsListSortedDesc = [...fcEventsListItems].sort(
+  (a, b) => eventStartTimeMs(b) - eventStartTimeMs(a),
+);
+
 export default function FcUnitedEventsPage() {
   return (
     <div className={cn(fcPoppins.className, 'min-h-screen bg-[#f4f4f4] text-[#797e87] antialiased')}>
@@ -23,9 +34,6 @@ export default function FcUnitedEventsPage() {
         <Shell>
           <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-[#797e87]">
-                upcoming events
-              </span>
               <h2 className={cn(fcBebas.className, 'text-3xl tracking-wide text-[#262f3e] md:text-4xl lg:text-5xl')}>
                 Whether it&apos;s professional or amateur, we have it all!
               </h2>
@@ -33,7 +41,7 @@ export default function FcUnitedEventsPage() {
           </div>
 
           <div className="space-y-6">
-            {fcEventsListItems.map((ev) => (
+            {fcEventsListSortedDesc.map((ev) => (
               <article
                 key={ev.title}
                 className="flex flex-col gap-6 rounded-[3px] border border-[#e3e3e3] bg-white p-6 md:flex-row md:items-stretch lg:gap-10"

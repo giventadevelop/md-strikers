@@ -94,6 +94,8 @@ export const fcEventsListItems = [
   },
 ];
 
+export type FcEventListItem = (typeof fcEventsListItems)[number];
+
 export const fcSponsors = ['artboard1', 'artboard2', 'artboard3', 'artboard4', 'artboard5', 'artboard6'].map(
   (n) => `${FC_IMG}/${n}-copyright.png`,
 );
