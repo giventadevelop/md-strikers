@@ -97,23 +97,28 @@ export default function FcUnitedCapitalCup2026Page() {
               </p>
             </div>
 
-            <div>
-              <h2 className={cn(fcBebas.className, 'text-2xl tracking-wide text-[#262f3e] md:text-3xl')}>
-                Match Fixtures
-              </h2>
-              <div className="relative mt-6 overflow-hidden rounded-[3px]">
-                <div className="relative mx-auto aspect-[4/3] w-full max-w-3xl md:aspect-[16/10]">
-                  <Image
-                    src="/images/md_strikers_media/capital_2026_match_fixtures.jfif"
-                    alt="Capital Cup 2026 match fixtures schedule"
-                    fill
-                    className="object-contain object-center"
-                    sizes="(max-width: 768px) 100vw, 768px"
-                  />
-                </div>
-              </div>
-            </div>
+            <h2 className={cn(fcBebas.className, 'text-2xl tracking-wide text-[#262f3e] md:text-3xl')}>
+              Match Fixtures
+            </h2>
+          </div>
+        </Shell>
 
+        {/* Full-bleed fixtures poster (same breakout pattern as hero; outside Shell padding) */}
+        <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 overflow-hidden bg-[#f4f4f4]">
+          <div className="relative w-full aspect-[3/2] min-h-[65vh] sm:min-h-[72vh] md:min-h-[78vh] lg:min-h-[85vh]">
+            <Image
+              src="/images/md_strikers_media/capital_2026_match_fixtures_wide.png"
+              alt="Capital Cup 2026 match fixtures schedule"
+              fill
+              unoptimized
+              className="object-contain object-center"
+              sizes="100vw"
+            />
+          </div>
+        </div>
+
+        <Shell className="pb-12 pt-10 md:pb-16 md:pt-12">
+          <div className="mx-auto max-w-3xl space-y-10 text-sm leading-relaxed md:text-base">
             <div className="border-t border-[#e3e3e3] pt-10">
               <h3 className={cn(fcBebas.className, 'text-xl tracking-wide text-[#262f3e] md:text-2xl')}>
                 Previous Tournaments
