@@ -97,6 +97,23 @@ export default function FcUnitedCapitalCup2026Page() {
               </p>
             </div>
 
+            <div>
+              <h2 className={cn(fcBebas.className, 'text-2xl tracking-wide text-[#262f3e] md:text-3xl')}>
+                Match Fixtures
+              </h2>
+              <div className="relative mt-6 overflow-hidden rounded-[3px]">
+                <div className="relative mx-auto aspect-[4/3] w-full max-w-3xl md:aspect-[16/10]">
+                  <Image
+                    src="/images/md_strikers_media/capital_2026_match_fixtures.jfif"
+                    alt="Capital Cup 2026 match fixtures schedule"
+                    fill
+                    className="object-contain object-center"
+                    sizes="(max-width: 768px) 100vw, 768px"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div className="border-t border-[#e3e3e3] pt-10">
               <h3 className={cn(fcBebas.className, 'text-xl tracking-wide text-[#262f3e] md:text-2xl')}>
                 Previous Tournaments
