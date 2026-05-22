@@ -35,7 +35,7 @@ export default function FcUnitedCapitalCup2026Page() {
           </div>
         </div>
 
-        <Shell className="py-12 md:py-16">
+        <Shell className="pb-4 pt-12 md:pb-6 md:pt-16">
           <div className="mx-auto max-w-3xl space-y-10 text-sm leading-relaxed md:text-base">
             <p>
               Welcome to the Capital Cup 2026! Maryland Strikers Sports Club is proud to host the 40+ Soccer
@@ -105,7 +105,8 @@ export default function FcUnitedCapitalCup2026Page() {
 
         {/* Full-bleed fixtures poster (same breakout pattern as hero; outside Shell padding) */}
         <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 overflow-hidden bg-[#f4f4f4]">
-          <div className="relative w-full aspect-[3/2] min-h-[65vh] sm:min-h-[72vh] md:min-h-[78vh] lg:min-h-[85vh]">
+          {/* Mobile: aspect only (no min-h) so the 3:2 poster fills width without top/bottom gaps */}
+          <div className="relative w-full aspect-[3/2] md:min-h-[78vh] lg:min-h-[85vh]">
             <Image
               src="/images/md_strikers_media/capital_2026_match_fixtures_wide.png"
               alt="Capital Cup 2026 match fixtures schedule"
