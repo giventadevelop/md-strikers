@@ -81,7 +81,17 @@ export function FcUnitedFooter() {
             </Link>
           </div>
           <div className="flex flex-col gap-2 text-xs text-[#848992] md:items-end md:text-right">
-            <p className="font-medium text-[#848992]">Powered and designed by Giventa Inc. USA</p>
+            <p className="font-medium text-[#848992]">
+              Powered and designed by{' '}
+              <a
+                href="https://www.giventa.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cursor-pointer font-medium text-[#848992] underline-offset-2 transition-colors duration-200 hover:text-white hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-[#262f3e]"
+              >
+                Giventa Inc. USA
+              </a>
+            </p>
             <p>
               <a
                 href="https://www.giventa.com"
