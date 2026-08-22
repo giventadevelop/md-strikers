@@ -10,6 +10,7 @@ import { getOverlayInfo } from '@/lib/heroOverlay';
 import { getTenantId } from '@/lib/env';
 import { useDeferredFetch } from '@/hooks/usePageReady';
 import { getHomepageCacheKey } from '@/lib/homepageCacheKeys';
+import { BUNDLED_EMERGENCY_HERO_IMAGE } from '@/lib/hero/defaultHeroImages';
 import { ArrowRight, Heart, Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
 import GivebutterDonateButton from '@/components/GivebutterDonateButton';
 
@@ -137,7 +138,7 @@ const DynamicHeroImage: React.FC<{
   const heroFetchEnabled = useDeferredFetch(500);
   const { filteredEvents, isLoading: eventsLoading, error } = useFilteredEvents('hero', heroFetchEnabled);
 
-  const defaultImage = "/images/hero_section/default_hero_section_second_column_poster.jpeg";
+  const defaultImage = BUNDLED_EMERGENCY_HERO_IMAGE;
 
   const CACHE_KEY = getHomepageCacheKey('homepage_hero_section_cache');
   const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes (same as other homepage sections)
