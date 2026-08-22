@@ -13,6 +13,7 @@ import LocationDisplay from '@/components/LocationDisplay';
 import { isRecurringEvent, getNextOccurrenceDate } from '@/lib/eventUtils';
 import { isDonationBasedEvent, isTicketedFundraiserEvent } from '@/lib/donation/utils';
 import { resolveBuyTicketsTarget } from '@/lib/eventcube/utils';
+import EventCardResultsPanel from '@/components/competitions/EventCardResultsPanel';
 // import { formatInTimeZone } from 'date-fns-tz';
 
 const EVENTS_PAGE_SIZE = 20; // Minimum events to display per page
@@ -71,6 +72,7 @@ export default function EventsPage() {
   const [hasCheckedInitialLoad, setHasCheckedInitialLoad] = useState(false);
   const [isAutoSwitching, setIsAutoSwitching] = useState(false);
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<number, boolean>>({});
+  const [expandedResults, setExpandedResults] = useState<Record<number, boolean>>({});
 
   // Array of modern background colors inspired by the Dribbble design
   const cardBackgrounds = [
@@ -1077,12 +1079,14 @@ export default function EventsPage() {
                 // Show Make a Donation button for donation-based events
                 // BUT NOT if it's a ticketed fundraiser (use fundraiser image instead)
                 const showDonationButton = isDonationBasedEvent(event) && isUpcomingLocal && !isTicketedFundraiserEvent(event);
+                        const showResultsButton = event.isCompetitionEvent === true && !isUpcomingLocal;
+                        const resultsOpen = !!(event.id && expandedResults[event.id]);
 
                         // Don't render if no buttons should be shown
-                        if (!showRegisterButton && !buyTicketsTarget && !showDonationButton) return null;
+                        if (!showRegisterButton && !buyTicketsTarget && !showDonationButton && !showResultsButton) return null;
 
                         return (
-                          <div className={`absolute top-4 right-4 lg:top-6 lg:right-6 z-10 ${showRegisterButton && (buyTicketsTarget || showDonationButton) ? 'flex flex-col gap-2' : ''}`}>
+                          <div className={`absolute top-4 right-4 lg:top-6 lg:right-6 z-10 ${showRegisterButton || buyTicketsTarget || showDonationButton || showResultsButton ? 'flex flex-col gap-2' : ''}`}>
                             {/* Register Here Button - Show if registration is required */}
                             {showRegisterButton && (
                             <Link
@@ -1140,14 +1144,58 @@ export default function EventsPage() {
                                   <span className="font-semibold text-teal-700">Make a Donation</span>
                                 </Link>
                               )}
+                            {showResultsButton && event.id && (
+                              <button
+                                type="button"
+                                className="flex-shrink-0 h-12 rounded-xl bg-rose-100 hover:bg-rose-200 flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105 px-4"
+                                title={resultsOpen ? 'Hide Result' : 'Result'}
+                                aria-label={resultsOpen ? 'Hide Result' : 'Result'}
+                                aria-expanded={resultsOpen}
+                                aria-controls={`event-results-${event.id}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExpandedResults((prev) => ({
+                                    ...prev,
+                                    [event.id!]: !prev[event.id!],
+                                  }));
+                                }}
+                              >
+                                <svg className="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4zm-2 4h14"
+                                  />
+                                </svg>
+                                <span className="font-semibold text-rose-700 text-sm">
+                                  {resultsOpen ? 'Hide Result' : 'Result'}
+                                </span>
+                              </button>
+                            )}
                             </div>
                           );
                         })()}
                       </div>
+                      {event.isCompetitionEvent === true &&
+                        event.id &&
+                        (() => {
+                          const today = new Date();
+                          const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+                          const eventDateStr = event.startDate ? event.startDate.split('T')[0] : null;
+                          const isUpcomingLocal = !!eventDateStr && eventDateStr >= todayStr;
+                          return (
+                            !isUpcomingLocal &&
+                            expandedResults[event.id] && (
+                              <div className="p-4" id={`event-results-${event.id}`}>
+                                <EventCardResultsPanel eventId={event.id} eventTitle={event.title} />
+                              </div>
+                            )
+                          );
+                        })()}
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
               </div>
             </div>
             {/* Pagination Controls - Always visible, matching admin page style */}

@@ -111,6 +111,7 @@ const isPublicRouteClerk = createRouteMatcher([
   '/api/diagnostic(.*)',
   '/api/logs(.*)',
   '/events(.*)',
+  '/browse-events(.*)',
   '/sponsors(.*)',
   '/team(.*)',
   '/gallery(.*)',
