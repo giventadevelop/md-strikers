@@ -3,6 +3,7 @@
 import { fetchWithJwtRetry } from '@/lib/proxyHandler';
 import { getTenantId, getAppUrl, getApiBaseUrl } from '@/lib/env';
 import { withTenantId } from '@/lib/withTenantId';
+import { throwFormattedBackendError } from '@/lib/api/formatBackendError';
 import type { GalleryAlbumDTO, EventMediaDTO } from '@/types';
 
 // Lazy getter — evaluated at call time, not module load time (critical for Lambda cold starts)
@@ -35,7 +36,7 @@ export async function createAlbumServer(
     if (!res.ok) {
       const errorText = await res.text();
       console.error('Failed to create album:', res.status, errorText);
-      throw new Error(`Failed to create album: ${errorText}`);
+      throwFormattedBackendError(errorText, 'Failed to create album');
     }
 
     return await res.json();
@@ -138,7 +139,7 @@ export async function updateAlbumServer(
     if (!res.ok) {
       const errorText = await res.text();
       console.error('Failed to update album:', res.status, errorText);
-      throw new Error(`Failed to update album: ${errorText}`);
+      throwFormattedBackendError(errorText, 'Failed to update album');
     }
 
     return await res.json();
@@ -162,7 +163,7 @@ export async function deleteAlbumServer(albumId: number): Promise<void> {
     if (!res.ok) {
       const errorText = await res.text();
       console.error('Failed to delete album:', res.status, errorText);
-      throw new Error(`Failed to delete album: ${errorText}`);
+      throwFormattedBackendError(errorText, 'Failed to delete album');
     }
   } catch (error) {
     console.error('Error deleting album:', error);

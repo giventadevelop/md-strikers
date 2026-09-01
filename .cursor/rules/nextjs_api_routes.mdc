@@ -503,29 +503,26 @@ alwaysApply: true
   - See `src/pages/api/proxy/event-ticket-transactions/[...slug].ts` for a working example.
   - See `src/pages/api/proxy/discount-codes/[...slug].ts` for the required fix.
 
-- **Port-Agnostic App URL Configuration**
-  - Use `getAppUrl()` from `@/lib/env` instead of hardcoded URLs for server-side API calls.
-  - This ensures the application works on any port (3000, 3001, etc.) without hardcoding.
-  - **DO:**
-    ```typescript
-    import { getAppUrl } from '@/lib/env';
-    const baseUrl = getAppUrl();
-    const response = await fetch(`${baseUrl}/api/proxy/event-details`);
-    ```
-  - **DON'T:**
-    ```typescript
-    // ❌ DON'T: Hardcode port numbers
-    const baseUrl = 'http://localhost:3000';
-    // ❌ DON'T: Use environment variable with hardcoded fallback
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    ```
-  - **Rationale:**
-    - Makes the application truly port-agnostic
-    - Supports development on any port (3000, 3001, 3002, etc.)
-    - Maintains compatibility with production environment variables
+- **App URL and fetch targets (client vs server) — use the right base**
+  - **Local `NEXT_PUBLIC_APP_URL` ports are stale.** `.env.local` may be `http://localhost:3002` while you run `npm run dev:clean -- -p 3003`. [getAppUrl](mdc:src/lib/env.ts) **ignores** that localhost port. See [port_agnostic_app_url.mdc](mdc:.cursor/rules/port_agnostic_app_url.mdc).
+  - **Browser / `'use client'` calling `/api/proxy/*` (public data): use same-origin relative URLs**
+    - **DO:** `fetch('/api/proxy/executive-committee-team-members?isActive.equals=true&sort=priorityOrder,asc', { ... })`
+    - **DON'T:** `const baseUrl = getAppUrl(); fetch(\`${baseUrl}/api/proxy/...\`)` from the browser.
+    - **DON'T:** `process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'`
+    - **Why:** Relative paths always hit the current tab’s origin (any port).
+    - **Do NOT add `tenantId.equals` in the query** when calling the proxy; `createProxyHandler` injects it for list GETs (see rule above).
+  - **Server code calling the backend API directly (server components, server actions, `ApiServerActions.ts`): use `getApiBaseUrl()` + `fetchWithJwtRetry`**
+    - **DO:** `await fetchWithJwtRetry(\`${getApiBaseUrl()}/api/resource?tenantId.equals=${getTenantId()}&...\`, { cache: 'no-store' })` (add `tenantId.equals` when the backend criteria require it; `fetchWithJwtRetry` adds `Authorization` and `X-Tenant-ID`).
+    - **DON'T:** Loop through the Next app with `getAppUrl() + '/api/proxy/...'` from server code unless you have a specific reason (extra hop, wrong port if env is stale).
+  - **Server code that must call this Next app (e.g. multipart upload to a Pages API route): prefer request host**
+    - **DO:** `await getAppUrlFromRequestHeaders()` from `@/lib/env` (uses `x-forwarded-host` / `host`).
+    - **Fallback:** `getAppUrl()` when `headers()` is unavailable — never hardcode `http://localhost:3000`.
+  - **`getAppUrl()` in local dev**
+    - Browser: `window.location.origin`.
+    - Server: live listen port (`PORT`, `next dev -p 3003`, `__NEXT_PRIVATE_ORIGIN`) — **not** the port in `NEXT_PUBLIC_APP_URL`.
+    - Production: real domain from `AMPLIFY_NEXT_PUBLIC_APP_URL` / `NEXT_PUBLIC_APP_URL`.
   - **References:**
-    - See `src/app/page.tsx` for correct usage
-    - See `src/lib/env.ts` for the `getAppUrl()` implementation
+    - See `src/lib/env.ts` for `getAppUrl()`, `getAppUrlFromRequestHeaders()`, and `getApiBaseUrl()`
 
 - **Graceful API Failure Handling**
   - Always handle API fetch failures gracefully in server components to prevent page crashes.
@@ -570,14 +567,13 @@ alwaysApply: true
   - **Rationale:** Server actions called from client components can trigger `headers()` without awaiting, causing runtime errors in Next.js 15+.
   - **DO:**
     ```typescript
-    // ✅ DO: Use direct fetch to proxy endpoints from client components on public pages
+    // ✅ DO: Same-origin relative URL to /api/proxy/* from client on public pages (no getAppUrl in browser)
     'use client';
     export function TeamSection() {
       useEffect(() => {
         const loadData = async () => {
-          const baseUrl = getAppUrl();
           const response = await fetch(
-            `${baseUrl}/api/proxy/executive-committee-team-members?isActive.equals=true&sort=priorityOrder,asc`,
+            '/api/proxy/executive-committee-team-members?isActive.equals=true&sort=priorityOrder,asc',
             {
               method: 'GET',
               headers: { 'Content-Type': 'application/json' },
@@ -594,6 +590,7 @@ alwaysApply: true
     }
     ```
   - **Executive committee priority order:** The list is sorted by `priorityOrder` ascending (`sort=priorityOrder,asc`). **Lower number = higher rank** (0 appears first, 10 later). Show this tip in the admin form (tooltip or info above the Priority Order field).
+  - **DON'T (client):** `getAppUrl()` / `NEXT_PUBLIC_APP_URL` + absolute `/api/proxy/...` from the browser — use relative URLs (see **App URL and fetch targets** above).
   - **DON'T:**
     ```typescript
     // ❌ DON'T: Call server actions from client components on public pages

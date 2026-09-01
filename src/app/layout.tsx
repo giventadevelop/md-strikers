@@ -13,8 +13,9 @@ import TenantIdInjector from "../components/TenantIdInjector";
 import { TenantSettingsProvider } from "../components/TenantSettingsProvider";
 import { headers } from "next/headers";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { getAppUrl, getTenantId, getApiBaseUrl } from "@/lib/env";
+import { getAppUrlFromRequestHeaders, getTenantId, getApiBaseUrl, originFromRequestHost } from "@/lib/env";
 import { fetchWithJwtRetry } from "@/lib/proxyHandler";
+import { logServerFetchFailure } from "@/lib/logServerFetchFailure";
 import { isAdminRole } from "@/lib/utils";
 
 const DEBUG_LAYOUT = process.env.NEXT_PUBLIC_DEBUG_LAYOUT === 'true';
@@ -99,7 +100,9 @@ export default async function RootLayout({
       afterSignOutUrl: '/',
     }
     : {
-      allowedRedirectOrigins: appUrl ? [appUrl] : [],
+      allowedRedirectOrigins: hostname
+        ? [originFromRequestHost(hostname, headersList.get('x-forwarded-proto'))]
+        : [],
       afterSignOutUrl: '/',
     };
 
@@ -153,14 +156,15 @@ export default async function RootLayout({
       }
 
       if (userId) {
-        const baseUrl = getAppUrl();
+        const baseUrl = await getAppUrlFromRequestHeaders();
+        const apiBase = getApiBaseUrl();
         const tenantId = getTenantId();
-        debugLog('[Layout] 🔍 Fetching user profile:', { userId, tenantId, baseUrl });
+        debugLog('[Layout] 🔍 Fetching user profile:', { userId, tenantId, apiBase });
 
-        // Step 1: Check if userId + tenantId combination exists
-        const url = `${baseUrl}/api/proxy/user-profiles?userId.equals=${encodeURIComponent(userId)}&tenantId.equals=${encodeURIComponent(tenantId)}&size=1`;
+        // Step 1: Check if userId + tenantId combination exists (direct backend — avoid SSR self-fetch)
+        const url = `${apiBase}/api/user-profiles?userId.equals=${encodeURIComponent(userId)}&tenantId.equals=${encodeURIComponent(tenantId)}&size=1`;
         debugLog('[Layout] 🔍 Profile fetch URL:', url);
-        const resp = await fetch(url, { cache: 'no-store', headers: { 'Content-Type': 'application/json' } });
+        const resp = await fetchWithJwtRetry(url, { cache: 'no-store', timeout: 8000 });
         debugLog('[Layout] 🔍 Profile fetch response:', { status: resp.status, ok: resp.ok });
 
         if (resp.ok) {
@@ -186,8 +190,8 @@ export default async function RootLayout({
 
               if (userEmail) {
                 // Check for existing profile with same email + tenantId but different userId
-                const emailCheckUrl = `${baseUrl}/api/proxy/user-profiles?email.equals=${encodeURIComponent(userEmail)}&tenantId.equals=${encodeURIComponent(tenantId)}&size=1`;
-                const emailResp = await fetch(emailCheckUrl, { cache: 'no-store', headers: { 'Content-Type': 'application/json' } });
+                const emailCheckUrl = `${apiBase}/api/user-profiles?email.equals=${encodeURIComponent(userEmail)}&tenantId.equals=${encodeURIComponent(tenantId)}&size=1`;
+                const emailResp = await fetchWithJwtRetry(emailCheckUrl, { cache: 'no-store', timeout: 8000 });
 
                 if (emailResp.ok) {
                   const emailArr = await emailResp.json();
@@ -323,7 +327,7 @@ export default async function RootLayout({
                 console.warn('[Layout] User has no email address, skipping profile creation');
               }
             } catch (err) {
-              console.error('[Layout] Error in user profile creation/update logic:', err);
+              logServerFetchFailure('Layout profile create/update', err);
             }
           } else {
             // Step 5: Profile found by userId + tenantId - check admin status
@@ -349,7 +353,7 @@ export default async function RootLayout({
       }
     } catch (e) {
       // Fail closed (no admin) on error
-      console.error('[Layout] ❌ Error determining admin status:', e);
+      logServerFetchFailure('Layout admin status', e);
       isTenantAdmin = false;
     }
   } else {
