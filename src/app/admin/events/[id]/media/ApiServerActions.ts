@@ -40,6 +40,7 @@ export async function fetchMediaFilteredServer(
     isHomePageHeroImage?: boolean;
     isFeaturedEventImage?: boolean;
     isLiveEventImage?: boolean;
+    isAgendaFlyer?: boolean;
     eventFocusGroupId?: number | null;
   } = {}
 ) {
@@ -79,6 +80,9 @@ export async function fetchMediaFilteredServer(
   if (filters.isLiveEventImage !== undefined) {
     params.append('isLiveEventImage.equals', String(filters.isLiveEventImage));
   }
+  if (filters.isAgendaFlyer !== undefined) {
+    params.append('isAgendaFlyer.equals', String(filters.isAgendaFlyer));
+  }
   if (filters.eventFocusGroupId != null && filters.eventFocusGroupId !== undefined) {
     params.append('eventFocusGroupId.equals', String(filters.eventFocusGroupId));
   }
@@ -112,6 +116,22 @@ export async function fetchOfficialDocsServer(eventId: string) {
   return Array.isArray(data) ? data : [data];
 }
 
+export async function fetchAgendaFlyerServer(eventId: string | number): Promise<EventMediaDTO | null> {
+  const params = new URLSearchParams({
+    'eventId.equals': String(eventId),
+    'isAgendaFlyer.equals': 'true',
+    'tenantId.equals': getTenantId(),
+    size: '1',
+  });
+  const res = await fetchWithJwtRetry(`${getApiBase()}/api/event-medias?${params.toString()}`, {
+    cache: 'no-store',
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  const list = Array.isArray(data) ? data : data ? [data] : [];
+  return (list[0] as EventMediaDTO) || null;
+}
+
 export interface MediaUploadParams {
   title: string; // Required parameter
   description: string;
@@ -119,6 +139,7 @@ export interface MediaUploadParams {
   storageType?: string; // Optional in new schema
   fileUrl?: string; // Optional in new schema
   eventFlyer: boolean;
+  isAgendaFlyer?: boolean;
   isEventManagementOfficialDocument: boolean;
   isHeroImage: boolean;
   isActiveHeroImage: boolean;
@@ -140,6 +161,7 @@ export async function uploadMedia(eventId: number, {
   storageType,
   fileUrl,
   eventFlyer,
+  isAgendaFlyer = false,
   isEventManagementOfficialDocument,
   isHeroImage,
   isActiveHeroImage,
@@ -175,6 +197,7 @@ export async function uploadMedia(eventId: number, {
   // Append other parameters as form data (not query params)
   formData.append('eventId', String(eventId));
   formData.append('eventFlyer', String(eventFlyer));
+  formData.append('isAgendaFlyer', String(Boolean(isAgendaFlyer)));
   formData.append('isEventManagementOfficialDocument', String(isEventManagementOfficialDocument));
   formData.append('isHeroImage', String(isHeroImage));
   formData.append('isActiveHeroImage', String(isActiveHeroImage));
@@ -284,6 +307,7 @@ export async function uploadMediaServer(params: {
   title: string;
   description: string;
   eventFlyer: boolean;
+  isAgendaFlyer?: boolean;
   isEventManagementOfficialDocument: boolean;
   isHeroImage: boolean;
   isActiveHeroImage: boolean;
