@@ -281,6 +281,7 @@ export function EventList({
             <th className="p-2 border" rowSpan={2}>Upload</th>
             <th className="p-2 border" rowSpan={2}>Calendar</th>
             <th className="p-2 border" rowSpan={2}>Tickets</th>
+            <th className="p-2 border" rowSpan={2}>Competitions</th>
           </tr>
           <tr className="bg-blue-50 font-bold border-b border-blue-200">
             <th className="p-2 border text-xs font-bold text-center">Deactivate</th>
@@ -548,6 +549,17 @@ export function EventList({
                   ) : (
                     <span className="text-gray-400 text-xs">—</span>
                   )}
+                </td>
+                {/* Competitions Button Cell */}
+                <td className="p-2 border text-center align-middle">
+                  <Link href={`/events/${event.id}/competitions`} className="inline-block w-full h-full" title="Manage Competitions" aria-label="Manage Competitions">
+                    <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-indigo-100 hover:bg-indigo-200 flex items-center justify-center transition-all duration-300 hover:scale-110 mx-auto">
+                      <svg className="w-10 h-10 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4zM7 4H5a2 2 0 00-2 2 3 3 0 003 3M17 4h2a2 2 0 012 2 3 3 0 01-3 3" />
+                      </svg>
+                    </div>
+                    <span className="text-[10px] text-gray-600 mt-1 block font-bold">Competitions</span>
+                  </Link>
                 </td>
 
                 {showDetailsOnHover && hoveredEventId === event.id && (
