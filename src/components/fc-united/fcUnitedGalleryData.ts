@@ -1,5 +1,7 @@
 /** Encode each path segment so spaces and special chars work under `/public`. */
 export function encodePublicPath(path: string): string {
+  // Absolute URLs (e.g. S3) must pass through unchanged
+  if (/^https?:\/\//i.test(path)) return path;
   return path
     .split('/')
     .map((seg) => (seg ? encodeURIComponent(seg) : ''))

@@ -945,6 +945,73 @@ export interface ExecutiveCommitteeTeamMemberDTO {
 }
 
 /**
+ * DTO for team groups (e.g. First Team), matches backend TeamGroupDTO.
+ */
+export interface TeamGroupDTO {
+  id: number | null;
+  tenantId?: string;
+  teamType?: string;
+  name: string;
+  slug?: string;
+  description?: string;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+/**
+ * DTO for squad / roster team members, matches backend TeamMemberDTO.
+ */
+export interface TeamMemberDTO {
+  id: number | null;
+  tenantId?: string;
+  teamGroupId?: number | null;
+  userProfileId?: number | null;
+  firstName: string;
+  lastName: string;
+  title?: string;
+  designation?: string;
+  bio?: string;
+  email?: string;
+  profileImageUrl?: string;
+  expertise?: string;
+  imageBackground?: string;
+  imageStyle?: string;
+  department?: string;
+  joinDate?: string;
+  isActive?: boolean;
+  linkedinUrl?: string;
+  twitterUrl?: string;
+  priorityOrder?: number;
+  websiteUrl?: string;
+  jerseyNumber?: number | null;
+  position?: string;
+  lineupSubtitle?: string;
+  instrument?: string;
+  vocalRole?: string;
+}
+
+/**
+ * DTO for homepage Last Match cards, matches backend LastMatchDTO.
+ */
+export interface LastMatchDTO {
+  id: number | null;
+  tenantId?: string;
+  homeLogoUrl: string;
+  awayLogoUrl: string;
+  matchDateLabel: string;
+  homeScore: number;
+  awayScore: number;
+  leagueName: string;
+  title: string;
+  /** PAST = results; UPCOMING = scheduled fixtures */
+  matchKind?: 'PAST' | 'UPCOMING' | string;
+  priorityOrder?: number;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/**
  * DTO for event featured performers, matches backend OpenAPI schema.
  */
 export interface EventFeaturedPerformersDTO {
