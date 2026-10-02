@@ -7,7 +7,7 @@ import type { EventWithMedia, EventDetailsDTO } from "@/types";
 import { formatInTimeZone } from 'date-fns-tz';
 import { isRecurringEvent, getNextOccurrenceDate } from '@/lib/eventUtils';
 import { isDonationBasedEvent, isTicketedFundraiserEvent } from '@/lib/donation/utils';
-import { resolveBuyTicketsTarget } from '@/lib/eventcube/utils';
+import { resolveBuyTicketsTarget, resolveRegisterTarget } from '@/lib/eventcube/utils';
 import { getTenantId } from '@/lib/env';
 import { useDeferredFetch } from '@/hooks/usePageReady';
 import { getHomepageCacheKey } from '@/lib/homepageCacheKeys';
@@ -631,11 +631,19 @@ const UpcomingEventsSection: React.FC = () => {
                         </Link>
 
                         {/* Register Here Button - Show if registration is required and event is upcoming */}
-                        {isUpcomingEvents && event.isRegistrationRequired === true && (
+                        {isUpcomingEvents && (() => {
+                          const registerTarget = resolveRegisterTarget(event);
+                          if (!registerTarget) return null;
+                          return (
                           <Link
-                            href={`/events/${event.id}/register`}
+                            href={registerTarget.href}
                             onClick={(e) => e.stopPropagation()}
                             className="transition-transform hover:scale-105 inline-block"
+                            title="Register Here"
+                            aria-label="Register Here"
+                            {...(registerTarget.kind === 'external'
+                              ? { target: '_blank', rel: 'noopener noreferrer' }
+                              : {})}
                           >
                             <img
                               src="/images/register_here_button.jpg"
@@ -647,7 +655,8 @@ const UpcomingEventsSection: React.FC = () => {
                               }}
                             />
                           </Link>
-                        )}
+                          );
+                        })()}
 
                         {/* Buy Tickets — Event Cube → external URL → Givebutter → internal */}
                         {isUpcomingEvents && (() => {

@@ -111,6 +111,20 @@ export default function AdminPage() {
       key: 'gallery-albums'
     },
     {
+      href: '/admin/homepage-youtube-live',
+      icon: 'youtube',
+      label: 'Homepage YouTube',
+      color: 'youtubeLive',
+      key: 'homepage-youtube-live'
+    },
+    {
+      href: '/admin/gallery-youtube-videos',
+      icon: 'youtube',
+      label: 'Gallery YouTube',
+      color: 'galleryVideos',
+      key: 'gallery-youtube-videos'
+    },
+    {
       href: '/admin/executive-committee',
       icon: 'userTie',
       label: 'Executive Committee',
@@ -238,7 +252,9 @@ export default function AdminPage() {
       brightYellow: 'bg-yellow-50 hover:bg-yellow-100 text-yellow-800',
       deepTeal: 'bg-teal-50 hover:bg-teal-100 text-teal-800',
       lightCyan: 'bg-cyan-50 hover:bg-cyan-100 text-cyan-800',
-      mintGreen: 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800'
+      mintGreen: 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800',
+      youtubeLive: 'bg-[#f4f7e8] hover:bg-[#e7efc8] text-[#3f6212]',
+      galleryVideos: 'bg-[#fff7ed] hover:bg-[#ffedd5] text-[#9a3412]'
     };
     return colorMap[color] || colorMap.blue;
   };
@@ -270,7 +286,9 @@ export default function AdminPage() {
       brightYellow: 'bg-yellow-100',
       deepTeal: 'bg-teal-100',
       lightCyan: 'bg-cyan-100',
-      mintGreen: 'bg-emerald-100'
+      mintGreen: 'bg-emerald-100',
+      youtubeLive: 'bg-[#d9e8a8]',
+      galleryVideos: 'bg-[#fed7aa]'
     };
     return colorMap[color] || colorMap.blue;
   };
@@ -302,7 +320,9 @@ export default function AdminPage() {
       brightYellow: 'text-yellow-500',
       deepTeal: 'text-teal-500',
       lightCyan: 'text-cyan-500',
-      mintGreen: 'text-emerald-500'
+      mintGreen: 'text-emerald-500',
+      youtubeLive: 'text-[#4d7c0f]',
+      galleryVideos: 'text-[#c2410c]'
     };
     return colorMap[color] || colorMap.blue;
   };
@@ -359,6 +379,8 @@ export default function AdminPage() {
         return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>;
       case 'moneyBill':
         return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>;
+      case 'youtube':
+        return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
       default:
         return null;
     }
