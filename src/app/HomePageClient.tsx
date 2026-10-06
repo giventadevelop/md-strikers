@@ -9,7 +9,6 @@ import LiveEventsSection from '../components/LiveEventsSection';
 import FeaturedEventsSection from '../components/FeaturedEventsSection';
 import ServicesSection from '../components/ServicesSection';
 import AboutSection from '../components/AboutSection';
-import UpcomingEventsSection from '../components/UpcomingEventsSection';
 import CausesSection from '../components/CausesSection';
 import TeamSection from '../components/TeamSection';
 import OurSponsorsSection from '../components/OurSponsorsSection';
@@ -78,7 +77,7 @@ const TeamFallback = () => (
 
 // Main content component that uses tenant settings
 function HomePageContent({ initialFeaturedEvents }: { initialFeaturedEvents: FeaturedEventWithMedia[] }) {
-  const { showEventsSection, showTeamSection, showSponsorsSection, loading, settings } = useTenantSettings();
+  const { showTeamSection, showSponsorsSection, loading, settings } = useTenantSettings();
   const hasAnySocial = settings?.facebookUrl?.trim() || settings?.instagramUrl?.trim() || settings?.twitterUrl?.trim() || settings?.linkedinUrl?.trim() || settings?.youtubeUrl?.trim() || settings?.tiktokUrl?.trim();
 
   // Handle hash navigation on page load and hash changes
@@ -296,11 +295,6 @@ function HomePageContent({ initialFeaturedEvents }: { initialFeaturedEvents: Fea
         </div>
       ) : (
         <>
-          {showEventsSection && (
-            <ErrorBoundary fallback={<EventsFallback />}>
-              <UpcomingEventsSection />
-            </ErrorBoundary>
-          )}
           {showTeamSection && (
             <ErrorBoundary fallback={<TeamFallback />}>
               <TeamSection />
