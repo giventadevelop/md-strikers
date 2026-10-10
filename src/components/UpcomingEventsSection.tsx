@@ -74,6 +74,23 @@ const UpcomingEventsSection: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
   const [isUpcomingEvents, setIsUpcomingEvents] = useState(true);
+  const [listingRefreshNonce, setListingRefreshNonce] = useState(0);
+  const hasCompletedInitialLoadRef = useRef(false);
+
+  useEffect(() => {
+    if (!loading) {
+      hasCompletedInitialLoadRef.current = true;
+    }
+  }, [loading]);
+
+  useSilentListingRefresh(() => {
+    try {
+      sessionStorage.removeItem(CACHE_KEY);
+    } catch {
+      /* ignore */
+    }
+    setListingRefreshNonce((n) => n + 1);
+  });
 
   // Defer upcoming events API call until page ready + 300ms
   // This section mounts after TenantSettings loads, adding natural delay on top
@@ -119,6 +136,7 @@ const UpcomingEventsSection: React.FC = () => {
 
   useEffect(() => {
     async function fetchEvents() {
+      const silent = listingRefreshNonce > 0 && hasCompletedInitialLoadRef.current;
       // Check cache first (instant, no deferral needed for cached data)
       try {
         const cachedData = sessionStorage.getItem(CACHE_KEY);
@@ -139,8 +157,10 @@ const UpcomingEventsSection: React.FC = () => {
       // Defer network request until page is ready + delay
       if (!shouldFetch) return;
 
-      setLoading(true);
-      setFetchError(false);
+      if (!silent) {
+        setLoading(true);
+        setFetchError(false);
+      }
       try {
         // First try to get upcoming events
         // Fetch more events (15) to account for recurring events being grouped into single occurrences
@@ -156,7 +176,7 @@ const UpcomingEventsSection: React.FC = () => {
           'isActive.equals': 'true' // Only show active events
         });
 
-        const upcomingRes = await fetch(`/api/proxy/event-details?${upcomingParams.toString()}`);
+        const upcomingRes = await fetch(`/api/proxy/event-details?${upcomingParams.toString()}`, { cache: 'no-store' });
         if (!upcomingRes.ok) throw new Error('Failed to fetch upcoming events');
         const upcomingEvents: EventDetailsDTO[] = await upcomingRes.json();
         let upcomingEventList = Array.isArray(upcomingEvents) ? upcomingEvents : [upcomingEvents];
@@ -244,12 +264,12 @@ const UpcomingEventsSection: React.FC = () => {
             limitedEvents.map(async (event: EventDetailsDTO) => {
               try {
                 // First try to find homepage hero image (tenant-scoped)
-                let mediaRes = await fetch(`/api/proxy/event-medias?tenantId.equals=${encodeURIComponent(tenantId)}&eventId.equals=${event.id}&isHomePageHeroImage.equals=true`);
+                let mediaRes = await fetch(`/api/proxy/event-medias?tenantId.equals=${encodeURIComponent(tenantId)}&eventId.equals=${event.id}&isHomePageHeroImage.equals=true`, { cache: 'no-store' });
                 let mediaData = await mediaRes.json();
 
                 // If no homepage hero image found, try regular hero image
                 if (!mediaData || mediaData.length === 0) {
-                  mediaRes = await fetch(`/api/proxy/event-medias?tenantId.equals=${encodeURIComponent(tenantId)}&eventId.equals=${event.id}&isHeroImage.equals=true`);
+                  mediaRes = await fetch(`/api/proxy/event-medias?tenantId.equals=${encodeURIComponent(tenantId)}&eventId.equals=${event.id}&isHeroImage.equals=true`, { cache: 'no-store' });
                   mediaData = await mediaRes.json();
                 }
 
@@ -289,7 +309,7 @@ const UpcomingEventsSection: React.FC = () => {
             'isActive.equals': 'true' // Only show active events
           });
 
-          const pastRes = await fetch(`/api/proxy/event-details?${pastParams.toString()}`);
+          const pastRes = await fetch(`/api/proxy/event-details?${pastParams.toString()}`, { cache: 'no-store' });
           if (!pastRes.ok) throw new Error('Failed to fetch past events');
           const pastEvents: EventDetailsDTO[] = await pastRes.json();
           let pastEventList = Array.isArray(pastEvents) ? pastEvents : [pastEvents];
@@ -375,12 +395,12 @@ const UpcomingEventsSection: React.FC = () => {
             limitedPastEvents.map(async (event: EventDetailsDTO) => {
               try {
                 // First try to find homepage hero image (tenant-scoped)
-                let mediaRes = await fetch(`/api/proxy/event-medias?tenantId.equals=${encodeURIComponent(tenantId)}&eventId.equals=${event.id}&isHomePageHeroImage.equals=true`);
+                let mediaRes = await fetch(`/api/proxy/event-medias?tenantId.equals=${encodeURIComponent(tenantId)}&eventId.equals=${event.id}&isHomePageHeroImage.equals=true`, { cache: 'no-store' });
                 let mediaData = await mediaRes.json();
 
                 // If no homepage hero image found, try regular hero image
                 if (!mediaData || mediaData.length === 0) {
-                  mediaRes = await fetch(`/api/proxy/event-medias?tenantId.equals=${encodeURIComponent(tenantId)}&eventId.equals=${event.id}&isHeroImage.equals=true`);
+                  mediaRes = await fetch(`/api/proxy/event-medias?tenantId.equals=${encodeURIComponent(tenantId)}&eventId.equals=${event.id}&isHeroImage.equals=true`, { cache: 'no-store' });
                   mediaData = await mediaRes.json();
                 }
 
@@ -514,7 +534,7 @@ const UpcomingEventsSection: React.FC = () => {
             <p className="text-gray-600 font-medium">Events</p>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            {isUpcomingEvents ? 'Upcoming Events' : 'Recent Events'}
+            {isUpcomingEvents ? 'Upcoming Events' : 'Past Events'}
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             {isUpcomingEvents
