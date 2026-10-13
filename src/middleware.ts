@@ -6,7 +6,7 @@ import { getAppUrl } from "@/lib/env";
 
 /** Primary app sign-in URL (Clerk satellite must redirect here — never same origin as the satellite host). */
 function primaryClerkSignInUrl(): string {
-  const pd = process.env.NEXT_PUBLIC_PRIMARY_DOMAIN || "www.event-site-manager.com";
+  const pd = process.env.NEXT_PUBLIC_PRIMARY_DOMAIN || "www.kluvo.ai";
   const host = pd.replace(/^https?:\/\//, "").replace(/\/$/, "");
   return `https://${host}/sign-in`;
 }
@@ -197,7 +197,7 @@ export default clerkMiddleware(
   },
   {
     ...satConfig,
-    // NOTE: frontendApiProxy REMOVED. The CNAME clerk.event-site-manager.com is verified
+    // NOTE: frontendApiProxy REMOVED. The CNAME clerk.kluvo.ai is verified
     // and points to frontend-api.clerk.services, so Clerk reaches its FAPI directly.
     // The proxy was causing auth failures (couldn't register in Clerk Dashboard).
     signInUrl: resolveClerkSignInUrl(),
@@ -207,7 +207,7 @@ export default clerkMiddleware(
 export const config = {
   matcher: [
     // Skip Next.js internals, static files, AND /__clerk
-    // __clerk excluded — using CNAME (clerk.event-site-manager.com) directly, no proxy needed.
+    // __clerk excluded — using CNAME (clerk.kluvo.ai) directly, no proxy needed.
     // Include video/audio (mp4, webm, …) — otherwise Clerk runs on /images/.../*.mp4 and auth.protect() returns 404 HTML instead of the file.
     '/((?!_next|__clerk|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest|mp4|webm|mov|m4v|ogg|mp3|wav|aac|opus|pdf|map)).*)',
     '/(api|trpc)(.*)',
