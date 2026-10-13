@@ -13,8 +13,8 @@ const TENANT_ID = 'tenant_demo_002';
 const BUCKET = process.env.AWS_S3_BUCKET_NAME || 'eventapp-media-bucket';
 const REGION = process.env.AWS_REGION || 'us-east-2';
 const PROFILE_PREFIX = 'dev';
-const DOCKER_CONTAINER = 'event_site_manager_db-postgresql-1';
-const DB = 'event_site_manager_db';
+const DOCKER_CONTAINER = 'kluvo_ai_db-postgresql-1';
+const DB = 'kluvo_ai_db';
 const DB_USER = 'postgres';
 
 const HOME_LOGO = path.join(

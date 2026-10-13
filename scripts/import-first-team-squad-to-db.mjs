@@ -1,6 +1,6 @@
 /**
  * One-off: scrape First Team squad from disk, copy images, insert into
- * event_site_manager_db.team_groups + team_members.
+ * kluvo_ai_db.team_groups + team_members.
  * Does not modify homepage UI.
  */
 import fs from 'fs';
@@ -17,8 +17,8 @@ const COPY_DIR = path.join(
 );
 const IMAGE_EXT = /\.(jpe?g|png|webp)$/i;
 const TENANT_ID = 'tenant_demo_002';
-const DOCKER_CONTAINER = 'event_site_manager_db-postgresql-1';
-const DB = 'event_site_manager_db';
+const DOCKER_CONTAINER = 'kluvo_ai_db-postgresql-1';
+const DB = 'kluvo_ai_db';
 const DB_USER = 'postgres';
 
 function formatMemberLabel(base, fallbackNum) {
