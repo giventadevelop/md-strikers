@@ -88,7 +88,7 @@ export default function SignUpPage() {
       }
 
       // Get primary domain from environment variable
-      const primaryDomain = process.env.NEXT_PUBLIC_PRIMARY_DOMAIN || 'www.kluvo.ai';
+      const primaryDomain = process.env.NEXT_PUBLIC_PRIMARY_DOMAIN || 'www.adwiiseagent.ai';
       const isPrimary = hostname === primaryDomain || hostname.includes(primaryDomain.replace('www.', ''));
 
       // If on primary domain, handle redirect_url parameter

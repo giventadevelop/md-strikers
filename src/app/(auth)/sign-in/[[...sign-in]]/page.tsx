@@ -1,6 +1,6 @@
 // Satellite domain - redirect to primary domain for authentication
 // For localhost - show Clerk component directly for development
-// For primary domain (kluvo.ai) - show Clerk SignIn and honor redirect_url for satellite return
+// For primary domain (adwiiseagent.ai) - show Clerk SignIn and honor redirect_url for satellite return
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -50,7 +50,7 @@ export default function SignInPage() {
 
       // CRITICAL: If we're on the primary domain, never redirect - always show SignIn.
       // This prevents blank sign-in page when NEXT_PUBLIC_CLERK_DOMAIN is mis-set on primary app.
-      const primaryDomain = process.env.NEXT_PUBLIC_PRIMARY_DOMAIN || 'www.kluvo.ai';
+      const primaryDomain = process.env.NEXT_PUBLIC_PRIMARY_DOMAIN || 'www.adwiiseagent.ai';
       const primaryHost = primaryDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
       const isPrimary =
         hostname === primaryHost ||
@@ -101,7 +101,7 @@ export default function SignInPage() {
     );
   }
 
-  // Primary domain (e.g. kluvo.ai): show Clerk SignIn so the page is not blank.
+  // Primary domain (e.g. adwiiseagent.ai): show Clerk SignIn so the page is not blank.
   // When opened with ?redirect_url=https://www.mosc-temp.com (from satellite), pass it so Clerk redirects back after sign-in.
   if (!mounted) {
     return (
