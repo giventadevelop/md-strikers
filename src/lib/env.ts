@@ -96,15 +96,30 @@ function configuredPublicAppUrl(): string | undefined {
 }
 
 /**
+ * Node-only argv reader. Uses Reflect so Edge/Turbopack static analysis does not
+ * flag `process.argv` (unsupported in Edge Runtime / middleware).
+ */
+function getNodeProcessArgv(): readonly string[] | undefined {
+  try {
+    const argv = Reflect.get(process, 'argv');
+    return Array.isArray(argv) ? (argv as string[]) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Port this Next.js process is listening on.
  * Never read from NEXT_PUBLIC_APP_URL — that value is a stale snapshot (e.g. 3002)
  * while `npm run dev:clean -- -p 3003` binds a different port.
+ * Safe to import from Edge: skips argv when unavailable.
  */
 export function getDevListenPort(): string {
   if (process.env.PORT && /^\d+$/.test(process.env.PORT)) {
     return process.env.PORT;
   }
-  const argvPort = parsePortFromProcessArgs(process.argv);
+  const argv = getNodeProcessArgv();
+  const argvPort = argv ? parsePortFromProcessArgs(argv) : undefined;
   if (argvPort) return argvPort;
   if (process.env.npm_config_port && /^\d+$/.test(process.env.npm_config_port)) {
     return process.env.npm_config_port;

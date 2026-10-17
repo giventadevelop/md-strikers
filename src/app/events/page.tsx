@@ -1,6 +1,6 @@
 import FcUnitedEventsPage from '@/components/fc-united/FcUnitedEventsPage';
 
-/** Static FC United mirror — wget `events-list`. App event catalog: `/browse-events`. */
+/** Dynamic events catalog from event_details (Future/Past toggle, search, date filters). */
 export default function EventsPage() {
   return <FcUnitedEventsPage />;
 }

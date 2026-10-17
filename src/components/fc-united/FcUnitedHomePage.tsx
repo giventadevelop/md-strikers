@@ -4,11 +4,27 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { fcUnitedAboutParagraphs, fcUnitedAboutTitle } from './fcUnitedAboutContent';
 import { FC_IMG, fcLeagueRows, fcNewsItems, fcSponsors } from './fcUnitedConstants';
-import { fetchLastMatchesServer, fetchTeamMembersImageTitleServer } from './ApiServerActions';
+import { fetchTenantSettingsServer } from '@/app/ApiServerActions';
+import { getFeaturedEventImageUrl, isPastHomepageEvent } from '@/lib/homepage/featuredEvents';
+import { fetchFeaturedEventsForHomepageServer } from '@/lib/homepage/fetchFeaturedEventsServer';
+import { fetchLiveEventsForHomepageServer } from '@/lib/homepage/fetchLiveEventsServer';
+import {
+  fetchExecutiveTeamServer,
+  fetchHomepageEventListServer,
+  fetchHomepageSponsorsServer,
+  fetchLastMatchesServer,
+  fetchTeamMembersImageTitleServer,
+} from './ApiServerActions';
 import { fcBebas, fcPoppins, fcRoboto } from './fcUnitedFonts';
 import { FcSquadCarousel, type FcSquadPlayer } from './FcSquadCarousel';
 import { TeamMembersDbSection } from './TeamMembersDbSection';
-import { LastMatchSection } from './LastMatchSection';
+import { ExecutiveTeamSection } from './ExecutiveTeamSection';
+import { HOMEPAGE_MATCHES_LIMIT, LastMatchSection } from './LastMatchSection';
+import { HeroSlider, type HeroSlide } from './HeroSlider';
+import { LiveEventsSection, liveItemsDemo } from './LiveEventsSection';
+import { FeaturedEventsSection, featuredBandEvents, featuredEventsShown } from './FeaturedEventsSection';
+import { OnSaleBand, pickOnSaleEvent, type BandEvent } from './OnSaleBand';
+import { eventToBandEvent, eventToSpotlightItem } from './homeEventDisplay';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 
@@ -19,16 +35,22 @@ const products = [
   { img: `${FC_IMG}/product-13-copyright-393x426.jpg`, tag: 'Shoes', title: 'Men Soccer Boots Predator', price: '$100.00' },
 ];
 
+type SponsorCard = {
+  key: string;
+  src: string;
+  name: string;
+  label: string;
+  tagline?: string;
+  detailsHref?: string;
+  websiteHref?: string | null;
+};
+
+/** Shown when the sponsors table returns nothing. */
 const mdStrikersHomeSponsors = [
   {
-    src: '/images/md_strikers_media/sponsors/marriott.jpg',
-    name: 'Marriott',
-    label: 'Official Sponsor',
-  },
-  {
-    src: '/images/md_strikers_media/sponsors/opal-ridge.jpg',
-    name: 'Opal Ridge',
-    label: 'Official Sponsor',
+    src: '/images/md_strikers_media/sponsors/certainty-home-lending.jpg',
+    name: 'Certainty Home Lending',
+    label: 'Diamond Sponsor',
   },
   {
     src: '/images/md_strikers_media/sponsors/samson-properties.jpg',
@@ -36,39 +58,65 @@ const mdStrikersHomeSponsors = [
     label: 'Diamond Sponsor',
   },
   {
-    src: '/images/md_strikers_media/sponsors/certainty-home-lending.jpg',
-    name: 'Certainty Home Lending',
-    label: 'Official Sponsor',
+    src: '/images/md_strikers_media/sponsors/marriott.jpg',
+    name: 'Marriott',
+    label: 'Hospitality Sponsor',
+  },
+  {
+    src: '/images/md_strikers_media/sponsors/opal-ridge.jpg',
+    name: 'Opal Ridge',
+    label: 'Gold Sponsor',
   },
 ] as const;
 
-/** Demo upcoming events for homepage (static sample data). */
-const upcomingEventsDemo = [
+/** Sample upcoming events, used only when the events backend is unreachable. */
+const upcomingEventsDemo: BandEvent[] = [
   {
+    key: 'capital-cup-2026',
     src: '/images/md_strikers_media/events/capital_2026_match_fixtures_wide_finals.jpg',
     title: 'Capital Cup 2026',
+    startDate: '2026-05-23',
     dateTime: 'Saturday, May 23, 2026 · 9:00 AM',
     venue: 'Othello Regional Park, Frederick, Maryland',
+    isFeatured: false,
+    isTicketed: true,
+    href: '/events',
   },
   {
+    key: 'u17-league-friendly',
     src: '/images/md_strikers_media/gallery/soccer-group.jpg',
     title: 'U17 League Friendly',
+    startDate: '2026-06-14',
     dateTime: 'Sunday, June 14, 2026 · 2:00 PM',
     venue: 'Black Rock Soccer Complex, Germantown, Maryland',
+    isFeatured: false,
+    isTicketed: false,
+    href: '/events',
   },
   {
+    key: 'md-strikers-open-scrimmage',
     src: '/images/md_strikers_media/gallery/Md-Strikers-image.jpg',
     title: 'MD Strikers Open Scrimmage',
+    startDate: '2026-07-11',
     dateTime: 'Saturday, July 11, 2026 · 10:30 AM',
     venue: 'South Germantown Recreational Park, Boyds, Maryland',
+    isFeatured: false,
+    isTicketed: false,
+    registrationUrl: '/events',
+    href: '/events',
   },
   {
+    key: 'capital-cup-alumni-night',
     src: '/images/md_strikers_media/gallery/Capital-Cup-image.jpg',
     title: 'Capital Cup Alumni Night',
+    startDate: '2026-08-07',
     dateTime: 'Friday, August 7, 2026 · 6:30 PM',
     venue: 'Maryland SoccerPlex, Boyds, Maryland',
+    isFeatured: false,
+    isTicketed: true,
+    href: '/events',
   },
-] as const;
+];
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
   return (
@@ -77,11 +125,98 @@ function Shell({ children, className }: { children: ReactNode; className?: strin
 }
 
 export default async function FcUnitedHomePage() {
-  const [teamMembersFromDb, lastMatches] = await Promise.all([
+  const [
+    teamMembersFromDb,
+    lastMatches,
+    eventList,
+    featuredFromDb,
+    liveFromDb,
+    sponsorsFromDb,
+    executiveTeam,
+    tenantSettings,
+  ] = await Promise.all([
     fetchTeamMembersImageTitleServer(),
     fetchLastMatchesServer(),
+    fetchHomepageEventListServer(),
+    fetchFeaturedEventsForHomepageServer(),
+    fetchLiveEventsForHomepageServer(),
+    fetchHomepageSponsorsServer(),
+    fetchExecutiveTeamServer(),
+    fetchTenantSettingsServer(),
   ]);
   const fcSquadFirstTeamPlayers: FcSquadPlayer[] = [];
+
+  const showEventsSection = tenantSettings?.showEventsSectionInHomePage !== false;
+  const showTeamSection = tenantSettings?.showTeamMembersSectionInHomePage !== false;
+  const showSponsorsSection = tenantSettings?.showSponsorsSectionInHomePage !== false;
+
+  const useSampleEvents = !eventList.reachable;
+  const listIsUpcoming = useSampleEvents || eventList.isUpcoming;
+
+  const liveItems = useSampleEvents
+    ? liveItemsDemo
+    : liveFromDb.map((item) => eventToSpotlightItem(item, 'Live Event'));
+
+  const featuredItems = useSampleEvents
+    ? featuredEventsShown
+    : featuredFromDb
+        .slice(0, 1)
+        .map((item) =>
+          eventToSpotlightItem(
+            { event: item.event, imageUrl: getFeaturedEventImageUrl(item) },
+            isPastHomepageEvent(item.event) ? 'Past Featured Event' : 'Featured Event',
+          ),
+        );
+
+  const listEvents: BandEvent[] = useSampleEvents
+    ? upcomingEventsDemo
+    : eventList.items.map((item) => eventToBandEvent(item, false));
+
+  const bandEvents: BandEvent[] = useSampleEvents
+    ? [...featuredBandEvents, ...upcomingEventsDemo]
+    : [
+        ...featuredFromDb.map((item) =>
+          eventToBandEvent({ event: item.event, imageUrl: getFeaturedEventImageUrl(item) }, true),
+        ),
+        ...listEvents,
+      ];
+  const hasOnSaleBand = pickOnSaleEvent(bandEvents) !== null;
+
+  const sponsorCards: SponsorCard[] =
+    sponsorsFromDb.length > 0
+      ? sponsorsFromDb.map((sp) => ({
+          key: `sponsor-${sp.id ?? sp.name}`,
+          src: sp.imageUrl,
+          name: sp.name,
+          label: sp.type || 'Sponsor',
+          tagline: sp.tagline,
+          detailsHref: sp.id != null ? `/sponsors/${sp.id}` : undefined,
+          websiteHref: sp.websiteHref,
+        }))
+      : mdStrikersHomeSponsors.map((sp) => ({ ...sp, key: sp.src }));
+
+  const heroEventImages = useSampleEvents
+    ? upcomingEventsDemo.map((e) => ({ key: e.key, src: e.src, alt: e.title }))
+    : eventList.isUpcoming
+      ? eventList.items.flatMap((i) =>
+          i.imageUrl ? [{ key: String(i.event.id ?? i.event.title), src: i.imageUrl, alt: i.event.title }] : [],
+        )
+      : [];
+
+  const heroSlides: HeroSlide[] = [
+    ...heroEventImages.map((img) => ({ ...img, kind: 'image' as const, key: `event-${img.key}` })),
+    ...lastMatches
+      .filter((m) => m.matchKind === 'UPCOMING')
+      .map((m) => ({
+        kind: 'match' as const,
+        key: `match-${m.id}`,
+        home: m.home,
+        away: m.away,
+        date: m.date,
+        league: m.league,
+        title: m.title,
+      })),
+  ];
 
   return (
     <div
@@ -137,16 +272,7 @@ export default async function FcUnitedHomePage() {
 
               {/* Right: hero image panel — object-contain; footer band uses --footer-band */}
               <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-white">
-                <div className="relative min-h-0 flex-1 bg-[#081224]">
-                  <Image
-                    src="/images/md_strikers_media/gallery/Capital_Cup_Hero_Image.jpg"
-                    alt="Capital Cup 2026 — Maryland Strikers"
-                    fill
-                    className="object-contain object-center"
-                    sizes="(max-width: 768px) 100vw, 70vw"
-                    priority
-                  />
-                </div>
+                <HeroSlider slides={heroSlides} />
                 <div className="shrink-0 border-t border-white/10 bg-[#262f3e] px-4 py-2.5 sm:px-6 sm:py-3">
                   <p className="text-sm font-medium text-white sm:text-base">www.mdstrikers.com</p>
                   <p className={cn(fcBebas.className, 'text-lg tracking-[0.02em] text-white sm:text-xl')}>
@@ -160,58 +286,85 @@ export default async function FcUnitedHomePage() {
       </div>
 
       <main className="flex min-w-0 flex-1 flex-col">
-      {/* Upcoming events — one per row; below hero */}
+      <LiveEventsSection items={liveItems} />
+      <FeaturedEventsSection items={featuredItems} />
+
+      {/* Events from event_details: always show title; upcoming → past fallback → empty message */}
+      {(showEventsSection || hasOnSaleBand) && (
       <section className="bg-white py-14 md:py-20">
         <Shell>
+          {showEventsSection && (
           <div className="mb-10 text-center md:mb-12 md:text-left">
             <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-[#797e87]">
               calendar
             </span>
             <h2 className={cn(fcBebas.className, 'text-4xl tracking-[0.03em] text-[#262f3e] md:text-5xl')}>
-              Upcoming Events
+              {listEvents.length === 0
+                ? 'Upcoming Events'
+                : listIsUpcoming
+                  ? 'Upcoming Events'
+                  : 'Past Events'}
             </h2>
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[#797e87] md:text-[15px]">
-              Match days, tournaments, and club nights on the Maryland Strikers calendar — sample listings for
-              the homepage layout.
+              Match days, tournaments, and club nights on the Maryland Strikers calendar.
             </p>
           </div>
+          )}
 
-          <div className="flex flex-col gap-5">
-            {upcomingEventsDemo.map((event) => (
-              <article
-                key={event.title}
-                className="overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-white transition-colors duration-300 ease-in-out hover:border-[#c8c8c8]"
-              >
-                {/* Uniform frame (~half prior 16:9 height); object-contain = no crop */}
-                <div className="relative aspect-[32/9] w-full border-b border-[#e3e3e3] bg-[#f4f4f4]">
-                  <Image
-                    src={event.src}
-                    alt={event.title}
-                    fill
-                    className="object-contain object-center"
-                    sizes="100vw"
-                  />
-                </div>
-                <div className="px-5 py-5 md:px-6 md:py-6">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#ff0000]">
-                    Upcoming Event
-                  </p>
-                  <h3
-                    className={cn(
-                      fcBebas.className,
-                      'mt-1.5 text-3xl tracking-[0.02em] text-[#262f3e] md:text-4xl',
-                    )}
+          <OnSaleBand events={bandEvents} />
+
+          {showEventsSection && (
+            listEvents.length === 0 ? (
+              <p className="rounded-[3px] border border-[#e3e3e3] bg-[#f4f4f4] px-5 py-8 text-center text-sm text-[#797e87] md:text-left">
+                No events listed.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-5">
+                {listEvents.map((event) => (
+                  <article
+                    key={event.key}
+                    className="overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-white transition-colors duration-300 ease-in-out hover:border-[#c8c8c8]"
                   >
-                    {event.title}
-                  </h3>
-                  <p className="mt-2 text-sm font-medium text-[#262f3e] md:text-[15px]">{event.dateTime}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-[#797e87] md:text-[15px]">{event.venue}</p>
-                </div>
-              </article>
-            ))}
-          </div>
+                    {/* Uniform frame (~half prior 16:9 height); object-contain = no crop */}
+                    <div className="relative aspect-[32/9] w-full border-b border-[#e3e3e3] bg-[#f4f4f4]">
+                      <Image
+                        src={event.src}
+                        alt={event.title}
+                        fill
+                        className="object-contain object-center"
+                        sizes="100vw"
+                      />
+                    </div>
+                    <div className="px-5 py-5 md:px-6 md:py-6">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#ff0000]">
+                        {listIsUpcoming ? 'Upcoming Event' : 'Past Event'}
+                      </p>
+                      <h3
+                        className={cn(
+                          fcBebas.className,
+                          'mt-1.5 text-3xl tracking-[0.02em] text-[#262f3e] md:text-4xl',
+                        )}
+                      >
+                        <Link
+                          href={event.href}
+                          className="transition-colors duration-300 hover:text-[#ff0000] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000]"
+                        >
+                          {event.title}
+                        </Link>
+                      </h3>
+                      <p className="mt-2 text-sm font-medium text-[#262f3e] md:text-[15px]">{event.dateTime}</p>
+                      {event.venue && (
+                        <p className="mt-1 text-sm leading-relaxed text-[#797e87] md:text-[15px]">{event.venue}</p>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )
+          )}
         </Shell>
       </section>
+      )}
 
       {/* Our Story — text left, club logo right */}
       <section id="about" className="bg-[#f4f4f4] py-12 md:py-16">
@@ -268,7 +421,11 @@ export default async function FcUnitedHomePage() {
 
       <div className="h-px bg-[#e3e3e3]" />
 
-      <LastMatchSection matches={lastMatches} />
+      <LastMatchSection
+        matches={lastMatches}
+        limitPerView={HOMEPAGE_MATCHES_LIMIT}
+        showSeeAll
+      />
 
       {/* League table — hidden (see layout / section index) */}
       <section className="hidden bg-white py-12 md:py-16" aria-hidden>
@@ -333,7 +490,10 @@ export default async function FcUnitedHomePage() {
 
       <TeamMembersDbSection members={teamMembersFromDb} />
 
+      {showTeamSection && <ExecutiveTeamSection members={executiveTeam} />}
+
       {/* Sponsors — one per row; design system panels */}
+      {showSponsorsSection && (
       <section className="bg-[#f4f4f4] py-14 md:py-20">
         <Shell>
           <div className="mb-10 text-center md:mb-12 md:text-left">
@@ -354,9 +514,9 @@ export default async function FcUnitedHomePage() {
           </div>
 
           <div className="flex flex-col gap-5">
-            {mdStrikersHomeSponsors.map((sponsor) => (
+            {sponsorCards.map((sponsor) => (
               <article
-                key={sponsor.src}
+                key={sponsor.key}
                 className="overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-white transition-colors duration-300 ease-in-out hover:border-[#c8c8c8]"
               >
                 {/* Full-width image: object-contain = no crop; w-full h-auto = no side gaps */}
@@ -369,26 +529,54 @@ export default async function FcUnitedHomePage() {
                     className="h-auto w-full object-contain"
                     sizes="100vw"
                   />
+                  {sponsor.label && (
+                    <span className="absolute left-3 top-3 rounded-[3px] bg-[#ff0000] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white shadow-[0_4px_12px_rgba(0,0,0,0.25)] md:left-4 md:top-4">
+                      {sponsor.label}
+                    </span>
+                  )}
                 </div>
-                {/* Title block below image — label + sponsor name (screenshot pattern) */}
                 <div className="px-5 py-5 md:px-6 md:py-6">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#ff0000]">
-                    {sponsor.label}
-                  </p>
                   <h3
                     className={cn(
                       fcBebas.className,
-                      'mt-1.5 text-3xl tracking-[0.02em] text-[#262f3e] md:text-4xl',
+                      'text-3xl tracking-[0.02em] text-[#262f3e] md:text-4xl',
                     )}
                   >
                     {sponsor.name}
                   </h3>
+                  {sponsor.tagline && (
+                    <p className="mt-2 text-sm leading-relaxed text-[#797e87] md:text-[15px]">{sponsor.tagline}</p>
+                  )}
+                  {(sponsor.detailsHref || sponsor.websiteHref) && (
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      {sponsor.detailsHref && (
+                        <Link
+                          href={sponsor.detailsHref}
+                          className="inline-flex items-center justify-center rounded-[32px] bg-[#ff0000] px-6 py-2.5 text-sm font-semibold text-white transition-[filter] duration-300 ease-in-out hover:brightness-[1.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000] motion-reduce:transition-none"
+                        >
+                          Sponsor details
+                        </Link>
+                      )}
+                      {sponsor.websiteHref && (
+                        <a
+                          href={sponsor.websiteHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center rounded-[32px] border border-[#e3e3e3] px-6 py-2.5 text-sm font-semibold text-[#262f3e] transition-[border-color,background] duration-300 ease-in-out hover:border-[#c8c8c8] hover:bg-[#f9fafb] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000] motion-reduce:transition-none"
+                        >
+                          Visit website
+                          <span className="sr-only"> (opens in a new tab)</span>
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </div>
               </article>
             ))}
           </div>
         </Shell>
       </section>
+      )}
 
       {/* Latest news */}
       <section className="bg-[#f4f4f4] py-14 md:py-20">

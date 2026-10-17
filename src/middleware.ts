@@ -2,7 +2,6 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createLogger } from "@/lib/logger";
-import { getAppUrl } from "@/lib/env";
 
 /** Primary app sign-in URL (Clerk satellite must redirect here — never same origin as the satellite host). */
 function primaryClerkSignInUrl(): string {
@@ -16,6 +15,9 @@ function primaryClerkSignInUrl(): string {
  * - Absolute URL required in production (relative `/sign-in` throws).
  * - If this app is a satellite, signInUrl MUST be the PRIMARY origin — not md-strikers.com — or:
  *   "The signInUrl needs to be on a different origin than your satellite application."
+ *
+ * Edge-safe: do not import getAppUrl from @/lib/env (it reads process.argv via
+ * getDevListenPort, which Turbopack rejects in Edge Middleware).
  */
 function resolveClerkSignInUrl(): string {
   const raw =
@@ -39,11 +41,23 @@ function resolveClerkSignInUrl(): string {
     return primaryClerkSignInUrl();
   }
 
-  const base = getAppUrl();
-  const trimmed = base.trim().replace(/\/$/, "");
+  const trimmed = raw.trim().replace(/\/$/, "");
   if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
     try {
-      return `${new URL(trimmed).origin}/sign-in`;
+      const origin = new URL(trimmed).origin;
+      const host = new URL(trimmed).hostname;
+      // Local configured URL → relative sign-in (avoids stale .env port in Edge)
+      if (
+        host === "localhost" ||
+        host === "127.0.0.1" ||
+        host === "[::1]" ||
+        host === "::1"
+      ) {
+        if (process.env.NODE_ENV !== "production") {
+          return "/sign-in";
+        }
+      }
+      return `${origin}/sign-in`;
     } catch {
       /* ignore */
     }
@@ -111,6 +125,7 @@ const isPublicRouteClerk = createRouteMatcher([
   '/api/diagnostic(.*)',
   '/api/logs(.*)',
   '/events(.*)',
+  '/matches(.*)',
   '/browse-events(.*)',
   '/sponsors(.*)',
   '/team(.*)',

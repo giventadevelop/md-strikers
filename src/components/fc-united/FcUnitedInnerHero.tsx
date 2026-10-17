@@ -11,9 +11,9 @@ function Shell({ children, className }: { children: ReactNode; className?: strin
   );
 }
 
-export function FcUnitedInnerHero({ title }: { title: string }) {
+export function FcUnitedInnerHero({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <section className="relative overflow-hidden bg-[#081224]">
+    <section className="relative overflow-hidden bg-[#081224]" aria-label={title}>
       <div className="absolute inset-0">
         <Image
           src={`${FC_IMG}/anim-bg-copyright.jpg`}
@@ -39,6 +39,9 @@ export function FcUnitedInnerHero({ title }: { title: string }) {
           <span className="text-[#f5b514]">{title}</span>
         </nav>
         <h1 className={cn(fcBebas.className, 'text-4xl tracking-wide text-white md:text-5xl lg:text-6xl')}>{title}</h1>
+        {subtitle ? (
+          <p className="mt-3 max-w-2xl text-base leading-relaxed text-white/80 md:text-lg">{subtitle}</p>
+        ) : null}
       </Shell>
     </section>
   );

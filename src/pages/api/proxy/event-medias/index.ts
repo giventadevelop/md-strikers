@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getCachedApiJwt } from "@/lib/api/jwt";
 import { getApiBaseUrl, getTenantId } from '@/lib/env';
+import { fetchWithJwtRetry } from '@/lib/proxyHandler';
 
 const API_BASE_URL = getApiBaseUrl();
 
@@ -65,11 +66,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (method === "GET") {
-      const fetch = (await import("node-fetch")).default;
-      const apiRes = await fetch(apiUrl, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // Use shared fetchWithJwtRetry (native fetch + X-Tenant-ID). node-fetch
+      // often fails against this backend with "Premature close".
+      const apiRes = await fetchWithJwtRetry(apiUrl, { method: 'GET', cache: 'no-store' }, 'event-medias-proxy');
 
       console.log(`Event media proxy response: ${apiRes.status} ${apiRes.statusText}`);
 
@@ -84,7 +83,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
       }
 
-      // Check content type to handle different response types
       const contentType = apiRes.headers.get('content-type');
       console.log(`Event media proxy content-type: ${contentType}`);
 
@@ -95,7 +93,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log(`Event media proxy success: JSON response with ${Array.isArray(data) ? data.length : 1} items${totalHeader ? `, x-total-count: ${totalHeader}` : ''}`);
         res.status(apiRes.status).json(data);
       } else {
-        // Handle non-JSON responses (shouldn't happen for this endpoint)
         const data = await apiRes.text();
         console.log(`Event media proxy success: Text response with ${data.length} characters`);
         res.status(apiRes.status).send(data);

@@ -1,5 +1,6 @@
 import type { EventDetailsDTO, EventMediaDTO } from '@/types';
 import { isTruthyApiFlag } from '@/lib/homepage/homepageApiNormalize';
+import { usableImageUrl } from '@/lib/presignedUrl';
 
 /** Same shape as `useEventsData` / `useFilteredEvents` input */
 export interface EventWithMedia {
@@ -59,13 +60,17 @@ function isHeroLikeFlag(mediaItem: MediaRow): boolean {
   );
 }
 
-/** Resolve a usable image URL from a media row (camelCase + snake_case). */
+/**
+ * Resolve a usable image URL from a media row (camelCase + snake_case, presign-aware).
+ */
 export function mediaImageUrl(mediaItem: EventMediaDTO | null | undefined): string | undefined {
   if (!mediaItem) return undefined;
   const row = mediaItem as MediaRow;
+  const expiresAt =
+    readStringField(row, 'preSignedUrlExpiresAt', 'pre_signed_url_expires_at') || null;
   return (
-    readStringField(row, 'preSignedUrl', 'pre_signed_url') ||
-    readStringField(row, 'fileUrl', 'file_url') ||
+    usableImageUrl(readStringField(row, 'preSignedUrl', 'pre_signed_url'), expiresAt) ||
+    usableImageUrl(readStringField(row, 'fileUrl', 'file_url'), expiresAt) ||
     readStringField(
       row,
       'thumbnailPreSignedUrl',
