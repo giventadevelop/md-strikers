@@ -147,7 +147,8 @@ export default async function FcUnitedHomePage() {
   const fcSquadFirstTeamPlayers: FcSquadPlayer[] = [];
 
   const showEventsSection = tenantSettings?.showEventsSectionInHomePage !== false;
-  const showTeamSection = tenantSettings?.showTeamMembersSectionInHomePage !== false;
+  const showSportsTeamSection = tenantSettings?.showTeamMembersSectionInHomePage !== false;
+  const showExecutiveTeamSection = tenantSettings?.showExecutiveCommitteeSectionInHomePage !== false;
   const showSponsorsSection = tenantSettings?.showSponsorsSectionInHomePage !== false;
 
   const useSampleEvents = !eventList.reachable;
@@ -488,9 +489,9 @@ export default async function FcUnitedHomePage() {
         </Shell>
       </section>
 
-      <TeamMembersDbSection members={teamMembersFromDb} />
+      {showSportsTeamSection && <TeamMembersDbSection members={teamMembersFromDb} />}
 
-      {showTeamSection && <ExecutiveTeamSection members={executiveTeam} />}
+      {showExecutiveTeamSection && <ExecutiveTeamSection members={executiveTeam} />}
 
       {/* Sponsors — one per row; design system panels */}
       {showSponsorsSection && (

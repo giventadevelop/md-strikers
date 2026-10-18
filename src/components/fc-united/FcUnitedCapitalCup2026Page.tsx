@@ -18,7 +18,7 @@ function Shell({ children, className }: { children: ReactNode; className?: strin
 export default function FcUnitedCapitalCup2026Page() {
   return (
     <div className={cn(fcPoppins.className, 'min-h-screen bg-[#f4f4f4] text-[#797e87] antialiased')}>
-      <FcUnitedHeader active="capitalCup2026" />
+      <FcUnitedHeader />
       <FcUnitedInnerHero title="Capital Cup 2026" />
 
       <section className="bg-white">

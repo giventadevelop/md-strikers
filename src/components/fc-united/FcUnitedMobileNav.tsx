@@ -5,14 +5,16 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { mdStrikersBrand as b } from './mdStrikersBrand';
-import { FC_UNITED_NAV_LINKS, type FcNavKey } from './fcUnitedNavLinks';
+import { FcUnitedAuthMobile } from './FcUnitedAuth';
+import { FC_UNITED_NAV_LINKS, isFcNavItemActive, isFcNavLinkActive, type FcNavItem, type FcNavKey } from './fcUnitedNavLinks';
 
 const navHoverActive =
   'cursor-pointer text-base font-bold text-[#e31837] transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628]';
 const navActive = 'text-white';
 
-export function FcUnitedMobileNav({ active }: { active?: FcNavKey }) {
+export function FcUnitedMobileNav({ active, links = FC_UNITED_NAV_LINKS }: { active?: FcNavKey; links?: FcNavItem[] }) {
   const [open, setOpen] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const pathname = usePathname();
 
   useEffect(() => {
@@ -75,22 +77,62 @@ export function FcUnitedMobileNav({ active }: { active?: FcNavKey }) {
         aria-label="Primary"
       >
         <ul className="flex flex-col px-4 py-3">
-          {FC_UNITED_NAV_LINKS.map(({ href, label, key }) => (
-            <li key={key}>
-              <Link
-                href={href}
-                className={cn(
-                  'block rounded-[3px] px-3 py-3',
-                  navHoverActive,
-                  active === key && navActive,
+          {links.map((item) =>
+            item.children && item.children.length > 0 ? (
+              <li key={item.key}>
+                <button
+                  type="button"
+                  className={cn(
+                    'flex w-full items-center justify-between rounded-[3px] px-3 py-3',
+                    navHoverActive,
+                    isFcNavItemActive(item, pathname, active) && navActive
+                  )}
+                  aria-expanded={!!openGroups[item.key]}
+                  onClick={() => setOpenGroups((current) => ({ ...current, [item.key]: !current[item.key] }))}
+                >
+                  {item.label}
+                  <svg className={cn('h-4 w-4 transition-transform', openGroups[item.key] && 'rotate-180')} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {openGroups[item.key] && (
+                  <ul className="pb-1 pl-4">
+                    {item.children.map((child) => (
+                      <li key={child.key}>
+                        <Link
+                          href={child.href}
+                          className={cn(
+                            'block rounded-[3px] px-3 py-2.5 text-sm',
+                            navHoverActive,
+                            isFcNavLinkActive(child, pathname, active) && navActive
+                          )}
+                          onClick={() => setOpen(false)}
+                        >
+                          {child.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
                 )}
-                onClick={() => setOpen(false)}
-              >
-                {label}
-              </Link>
-            </li>
-          ))}
+              </li>
+            ) : (
+              <li key={item.key}>
+                <Link
+                  href={item.href || '/'}
+                  className={cn(
+                    'block rounded-[3px] px-3 py-3',
+                    navHoverActive,
+                    isFcNavItemActive(item, pathname, active) && navActive,
+                  )}
+                  onClick={() => setOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            )
+          )}
         </ul>
+        <FcUnitedAuthMobile onNavigate={() => setOpen(false)} />
       </nav>
     </div>
   );

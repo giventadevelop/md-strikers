@@ -435,9 +435,9 @@ function sponsorWebsiteHref(url?: string | null): string | null {
 }
 
 /**
- * Active sponsors by priority (max 8). Image: SPONSOR_BANNER media → banner → hero → logo.
+ * Active sponsors by priority. Image: SPONSOR_BANNER media → banner → hero → logo.
  */
-export async function fetchHomepageSponsorsServer(): Promise<HomepageSponsor[]> {
+export async function fetchHomepageSponsorsServer(limit = 8): Promise<HomepageSponsor[]> {
   try {
     const apiBase = getApiBaseUrl();
     if (!apiBase) {
@@ -450,7 +450,7 @@ export async function fetchHomepageSponsorsServer(): Promise<HomepageSponsor[]> 
       'tenantId.equals': tenantId,
       'isActive.equals': 'true',
       sort: 'priorityRanking,asc',
-      size: '8',
+      size: String(limit),
     });
 
     const res = await fetchWithJwtRetry(
@@ -464,7 +464,7 @@ export async function fetchHomepageSponsorsServer(): Promise<HomepageSponsor[]> 
       return [];
     }
 
-    const sponsors = asList<EventSponsorsDTO>(await res.json()).slice(0, 8);
+    const sponsors = asList<EventSponsorsDTO>(await res.json()).slice(0, limit);
 
     const bannerUrl = async (sponsorId: number): Promise<string | undefined> => {
       try {
@@ -511,8 +511,8 @@ export async function fetchHomepageSponsorsServer(): Promise<HomepageSponsor[]> 
   }
 }
 
-/** Active executive committee members by priority (max 6). */
-export async function fetchExecutiveTeamServer(): Promise<ExecutiveCommitteeTeamMemberDTO[]> {
+/** Active executive committee (organization committee) members by priority. */
+export async function fetchExecutiveTeamServer(size = 6): Promise<ExecutiveCommitteeTeamMemberDTO[]> {
   try {
     const apiBase = getApiBaseUrl();
     if (!apiBase) {
@@ -524,7 +524,7 @@ export async function fetchExecutiveTeamServer(): Promise<ExecutiveCommitteeTeam
       'tenantId.equals': getTenantId(),
       'isActive.equals': 'true',
       sort: 'priorityOrder,asc',
-      size: '6',
+      size: String(size),
     });
 
     const res = await fetchWithJwtRetry(

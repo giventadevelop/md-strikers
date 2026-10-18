@@ -69,6 +69,7 @@ export default async function RootLayout({
     /^\/sponsors/,
     /^\/gallery/,
     /^\/team/,
+    /^\/executive-team/,
     /^\/about/,
     /^\/contact/,
     /^\/polls/,
@@ -77,6 +78,7 @@ export default async function RootLayout({
     /^\/focus-groups/,
     /^\/pricing/,
     /^\/capital-cup-/,
+    /^\/tournaments/,
   ];
 
   // Check if this is a public route

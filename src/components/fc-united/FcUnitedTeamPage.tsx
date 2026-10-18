@@ -79,7 +79,7 @@ export default function FcUnitedTeamPage({ items }: Props) {
   return (
     <div className={cn(fcPoppins.className, 'min-h-screen bg-[#f4f4f4] text-[#797e87] antialiased')}>
       <FcUnitedHeader active="team" />
-      <FcUnitedInnerHero title="Team" />
+      <FcUnitedInnerHero title="Sports Team" />
 
       <section className="bg-[#f4f4f4] py-12 md:py-16">
         <Shell>

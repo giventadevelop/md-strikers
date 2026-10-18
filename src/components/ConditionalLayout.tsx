@@ -15,6 +15,8 @@ const FC_UNITED_FULL_WIDTH = [
   '/events',
   '/matches',
   '/team',
+  '/executive-team',
+  '/sponsors',
   '/gallery',
   '/contacts',
   '/volunteer',
@@ -24,6 +26,7 @@ function isFcUnitedStandaloneRoute(pathname: string): boolean {
   if (FC_UNITED_FULL_WIDTH.includes(pathname)) return true;
   /** Capital Cup year pages — same MD Strikers chrome as home/about; must not nest inside global Header/Footer */
   if (pathname.startsWith('/capital-cup-')) return true;
+  if (pathname === '/tournaments' || pathname.startsWith('/tournaments/')) return true;
   return false;
 }
 

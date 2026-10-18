@@ -3,8 +3,8 @@ import FcUnitedTeamPage from '@/components/fc-united/FcUnitedTeamPage';
 import { fetchFirstTeamSquadPlayersServer } from '@/components/fc-united/ApiServerActions';
 
 export const metadata: Metadata = {
-  title: 'Team',
-  description: 'Maryland Strikers First Team — squad photos with full-screen slideshow.',
+  title: 'Sports Team',
+  description: 'Maryland Strikers sports team — squad photos with full-screen slideshow.',
 };
 
 export const dynamic = 'force-dynamic';

@@ -17,7 +17,10 @@ const quickLinks = [
   { href: '/about', label: 'About Us' },
   { href: '/events', label: 'Events' },
   { href: '/matches', label: 'Matches' },
+  { href: '/team', label: 'Sports Team' },
+  { href: '/executive-team', label: 'Executive Team' },
   { href: '/gallery', label: 'Gallery' },
+  { href: '/sponsors', label: 'Sponsors' },
   { href: '/contacts', label: 'Contact' },
 ];
 
