@@ -38,7 +38,7 @@ export function FcEventCountdown({ targetIso }: { targetIso: string }) {
         <span>{pad2(minutes)}</span>
         <span>{pad2(seconds)}</span>
       </div>
-      <p className="mt-1 grid grid-cols-4 gap-2 text-center text-[10px] uppercase text-[#848992]">
+      <p className="mt-1 grid grid-cols-4 gap-2 text-center text-[10px] uppercase text-pitch-stone">
         <span>days</span>
         <span>hrs</span>
         <span>mins</span>

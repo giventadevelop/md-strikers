@@ -10,6 +10,6 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function ExecutiveTeamPage() {
-  const members = await fetchExecutiveTeamServer(50);
+  const members = await fetchExecutiveTeamServer(200);
   return <FcUnitedExecutiveTeamPage members={members} />;
 }

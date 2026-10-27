@@ -6,7 +6,7 @@
     "purpose": "Single source of truth for AI and developers: high-level mdStrikers brand rules plus exact CSS semantics from the creator analytics dashboard reference. Use this when building new features in this project.",
     "canonicalReferenceHtml": "design_systems/creator-analytics.html",
     "baseGuidelinesJson": "design_systems/mdStrikers_site_general_design.json",
-    "lastUpdated": "2026-03-27"
+    "lastUpdated": "2026-10-21"
   },
   "sourceReferences": {
     "wgetThemeMirror": "wget/reputable-scarab-5b76b9.qwery-test.themerex.net (FC United ThemeREX reference)",
@@ -459,7 +459,62 @@
       "type": "button",
       "styles": "see typographyScale.btnPrimary",
       "hover": "filter brightness(1.08)",
-      "usage": ["Export Report", "Subscribe"]
+      "usage": ["Export Report", "Subscribe", "See All Members"]
+    },
+    "pagination": {
+      "class": "md-pagination",
+      "cssFile": "src/app/globals.css",
+      "component": "src/components/fc-united/MdPagination.tsx",
+      "pageSize": 20,
+      "scrollOnPageChange": "Previous and Next scroll the window to the top after the new page paints, so the next page opens at the top.",
+      "barClass": "md-pagination__bar",
+      "statusClass": "md-pagination__status",
+      "pageNumberClass": "md-pagination__page",
+      "countClass": "md-pagination__count",
+      "previousButton": {
+        "class": "md-pagination__prev",
+        "label": "Previous",
+        "background": "#ff0000",
+        "color": "#ffffff",
+        "border": "1px solid #ff0000",
+        "borderRadiusPx": 32,
+        "minWidthRem": 9.5,
+        "padding": "0.65rem 1.35rem",
+        "fontSizePx": 14,
+        "fontWeight": 600,
+        "hover": "filter brightness(1.08)",
+        "disabled": {
+          "opacity": 0.4,
+          "cursor": "not-allowed"
+        }
+      },
+      "nextButton": {
+        "class": "md-pagination__next",
+        "label": "Next",
+        "background": "#ff0000",
+        "color": "#ffffff",
+        "border": "1px solid #ff0000",
+        "borderRadiusPx": 32,
+        "minWidthRem": 9.5,
+        "padding": "0.65rem 1.35rem",
+        "fontSizePx": 14,
+        "fontWeight": 600,
+        "hover": "filter brightness(1.08)",
+        "disabled": {
+          "opacity": 0.4,
+          "cursor": "not-allowed"
+        }
+      },
+      "status": {
+        "pattern": "Page {current} of {total}",
+        "color": "#262f3e",
+        "pageNumberColor": "#ff0000"
+      },
+      "count": {
+        "pattern": "Showing {start} to {end} of {total} {items}",
+        "color": "#797e87",
+        "marginTopPx": 12
+      }
     },
     "statCard": {
       "class": "stat-card",
@@ -633,6 +688,7 @@
     "Map all new UI colors to designTokens.cssVariables or semanticColors—do not introduce new accent hues without updating this file.",
     "Use Bebas Neue only for display headings and brand; Poppins for all interactive and paragraph text; Roboto for numeric tables and KPI values.",
     "Primary actions use class btn-primary or identical computed styles (pill 32px, #ff0000 fill, white text).",
+    "List pagination uses class md-pagination: Previous and Next are both the red pill (md-pagination__prev and md-pagination__next, background #ff0000, white text), and page numbers use --accent.",
     "Content containers use shell for max 1308px and responsive --pad-x.",
     "Tables: header row #fafafa, hairline borders, row hover #f9fafb, tabular nums for numbers.",
     "Dark regions (top-bar, hero, footer) use --text-on-dark for primary text and --text-on-dark-muted for secondary; never use --text-body on dark backgrounds for titles.",

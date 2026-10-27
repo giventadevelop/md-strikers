@@ -16,6 +16,8 @@ import { usableImageUrl } from '@/lib/presignedUrl';
 import { normalizeEventDetailsList, normalizeEventMediasList } from '@/lib/homepage/homepageApiNormalize';
 import { parseExecutiveCommitteeTeamMembersResponse } from '@/lib/parseExecutiveCommitteeTeamMembersResponse';
 import type { FcSquadPlayer } from './FcSquadCarousel';
+import { HOMEPAGE_SPONSOR_LIMIT } from './homepageLimits';
+import { buildSportProfiles, type SportProfileView } from './playerSportProfiles';
 
 const FIRST_TEAM_SLUG = 'first-team';
 
@@ -113,6 +115,475 @@ export async function fetchFirstTeamSquadPlayersServer(): Promise<FcSquadPlayer[
   }
 }
 
+export type PublicRosterPlayer = {
+  id: number;
+  name: string;
+  givenName: string;
+  familyName: string;
+  role: string;
+  position: string;
+  jersey: string;
+  imageUrl: string;
+};
+
+export type PublicPlayerAchievement = {
+  id: number;
+  title: string;
+  description: string;
+  achievementDate: string;
+  category: string;
+  categoryLabel: string;
+  issuer: string;
+};
+
+export type PublicAchievementGroup = {
+  heading: string;
+  items: PublicPlayerAchievement[];
+};
+
+export type PublicPlayerMatch = {
+  dateLabel: string;
+  opponent: string;
+  competition: string;
+  home: boolean;
+  homeScore: number;
+  awayScore: number;
+  result: string;
+  goals: number;
+  assists: number;
+  minutes: number;
+  passAccuracy: number | null;
+  kickoff: string;
+};
+
+export type PublicPlayerDetail = PublicRosterPlayer & {
+  fullName: string;
+  preferredName: string;
+  bio: string;
+  skills: string[];
+  nationality: string;
+  dateOfBirth: string;
+  ageLabel: string;
+  spokenLanguages: string;
+  preferredFoot: string;
+  heightLabel: string;
+  weightLabel: string;
+  bodyBuild: string;
+  clubName: string;
+  leagueDivision: string;
+  secondaryPositions: string;
+  seasonLabel: string;
+  seasonAppearances: number | null;
+  seasonGoals: number | null;
+  seasonAssists: number | null;
+  seasonMinutes: number | null;
+  seasonWins: number | null;
+  seasonDraws: number | null;
+  seasonLosses: number | null;
+  passAccuracy: number | null;
+  shotAccuracy: number | null;
+  topSpeedKmh: number | null;
+  careerAppearances: number | null;
+  careerGoals: number | null;
+  careerAssists: number | null;
+  gpaLabel: string;
+  academicScore: string;
+  coachName: string;
+  coachEmail: string;
+  coachPhone: string;
+  joinDate: string;
+  links: { label: string; href: string }[];
+  achievements: PublicPlayerAchievement[];
+  achievementGroups: PublicAchievementGroup[];
+  matches: PublicPlayerMatch[];
+  sports: SportProfileView[];
+};
+
+function playerName(member: TeamMemberDTO): string {
+  const titled = member.title?.trim();
+  if (titled) return titled;
+  const joined = [member.firstName, member.lastName].filter(Boolean).join(' ').trim();
+  return joined || 'Player';
+}
+
+function playerRole(member: TeamMemberDTO): string {
+  return member.designation?.trim() || member.lineupSubtitle?.trim() || '';
+}
+
+function parseSkills(raw?: string): string[] {
+  if (!raw?.trim()) return [];
+  if (raw.trim().startsWith('[')) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed.map((item) => String(item).trim()).filter(Boolean);
+      }
+    } catch {
+      return [raw.trim()];
+    }
+  }
+  return raw
+    .split(/[,|]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function footLabel(value?: string): string {
+  if (value === 'LEFT') return 'Left';
+  if (value === 'RIGHT') return 'Right';
+  if (value === 'BOTH') return 'Both';
+  return '';
+}
+
+function formatIsoDate(value?: string): string {
+  if (!value) return '';
+  const date = new Date(`${value.slice(0, 10)}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function shortMatchDate(value?: string): string {
+  if (!value) return '';
+  const date = new Date(`${value.slice(0, 10)}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return '';
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${String(date.getDate()).padStart(2, '0')} ${months[date.getMonth()]} ${date.getFullYear()}`;
+}
+
+function finiteNumber(value: unknown): number | null {
+  if (value == null || value === '') return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function ageLabel(value?: string): string {
+  if (!value) return '';
+  const dob = new Date(`${value.slice(0, 10)}T00:00:00`);
+  if (Number.isNaN(dob.getTime())) return '';
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const monthDelta = today.getMonth() - dob.getMonth();
+  if (monthDelta < 0 || (monthDelta === 0 && today.getDate() < dob.getDate())) age -= 1;
+  return age > 0 && age < 80 ? `${age} years` : '';
+}
+
+function detailName(member: TeamMemberDTO): string {
+  const first = member.firstName?.trim() || '';
+  const last = member.lastName?.trim() || '';
+  const full = [first, last].filter(Boolean).join(' ');
+  if (full && first.toLowerCase() !== 'player') return full;
+  return member.preferredName?.trim() || playerName(member);
+}
+
+function parseMatches(raw?: string): PublicPlayerMatch[] {
+  if (!raw?.trim()) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.flatMap((item) => {
+      if (!item || typeof item !== 'object') return [];
+      const row = item as Record<string, unknown>;
+      const opponent = String(row.opponent || '').trim();
+      if (!opponent) return [];
+      const result = String(row.result || '').trim().toUpperCase();
+      return [
+        {
+          dateLabel: shortMatchDate(String(row.date || '')),
+          opponent,
+          competition: String(row.competition || '').trim(),
+          home: row.home !== false,
+          homeScore: finiteNumber(row.homeScore) ?? 0,
+          awayScore: finiteNumber(row.awayScore) ?? 0,
+          result: result === 'WIN' || result === 'LOSS' || result === 'DRAW' ? result : '',
+          goals: finiteNumber(row.goals) ?? 0,
+          assists: finiteNumber(row.assists) ?? 0,
+          minutes: finiteNumber(row.minutes) ?? 0,
+          passAccuracy: finiteNumber(row.passAccuracy),
+          kickoff: String(row.kickoff || '').trim(),
+        },
+      ];
+    });
+  } catch {
+    return [];
+  }
+}
+
+async function loadFirstTeamGroupId(): Promise<number | null> {
+  const apiBase = getApiBaseUrl();
+  if (!apiBase) return null;
+  const tenantId = getTenantId();
+  const groupParams = new URLSearchParams({
+    'slug.equals': FIRST_TEAM_SLUG,
+    'tenantId.equals': tenantId,
+    'isActive.equals': 'true',
+    size: '1',
+  });
+  const groupRes = await fetchWithJwtRetry(
+    `${apiBase}/api/team-groups?${groupParams.toString()}`,
+    { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+    'first-team-group',
+  );
+  if (!groupRes.ok) return null;
+  const groups = asList<TeamGroupDTO>(await groupRes.json());
+  return groups[0]?.id ?? null;
+}
+
+/** Active First Team roster for the public listing. */
+export async function fetchPublicRosterServer(): Promise<PublicRosterPlayer[]> {
+  try {
+    const apiBase = getApiBaseUrl();
+    const groupId = await loadFirstTeamGroupId();
+    if (!apiBase || groupId == null) return [];
+    const tenantId = getTenantId();
+    const memberParams = new URLSearchParams({
+      'teamGroupId.equals': String(groupId),
+      'tenantId.equals': tenantId,
+      'isActive.equals': 'true',
+      sort: 'priorityOrder,asc',
+      size: '200',
+    });
+    const memberRes = await fetchWithJwtRetry(
+      `${apiBase}/api/team-members?${memberParams.toString()}`,
+      { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+      'public-roster',
+    );
+    if (!memberRes.ok) return [];
+    return asList<TeamMemberDTO>(await memberRes.json())
+      .filter((member) => member.id != null)
+      .map((member) => ({
+        id: member.id as number,
+        name: playerName(member),
+        givenName: member.firstName?.trim() || '',
+        familyName: member.lastName?.trim() || '',
+        role: playerRole(member),
+        position: member.position?.trim() || '',
+        jersey:
+          member.jerseyNumber != null && Number.isFinite(member.jerseyNumber) ? String(member.jerseyNumber) : '',
+        imageUrl: member.profileImageUrl?.trim() || '',
+      }));
+  } catch (error) {
+    console.error('[fetchPublicRosterServer] Error:', error);
+    return [];
+  }
+}
+
+const ACHIEVEMENT_SECTIONS: Record<string, { heading: string; order: number }> = {
+  MEDAL: { heading: 'Medals', order: 1 },
+  TROPHY: { heading: 'Trophies', order: 2 },
+  RECOGNITION: { heading: 'Recognition', order: 3 },
+  HONOR: { heading: 'Recognition', order: 3 },
+  AWARD: { heading: 'Awards', order: 4 },
+  CAP: { heading: 'Caps', order: 5 },
+  OTHER: { heading: 'Other', order: 9 },
+};
+
+function readableCategory(code: string): string {
+  const labels: Record<string, string> = {
+    MEDAL: 'Medal',
+    TROPHY: 'Trophy',
+    RECOGNITION: 'Recognition',
+    HONOR: 'Honor',
+    AWARD: 'Award',
+    CAP: 'Cap',
+    OTHER: 'Other',
+  };
+  if (labels[code]) return labels[code];
+  if (!code) return '';
+  return code
+    .toLowerCase()
+    .split(/[_-]/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function groupAchievements(items: PublicPlayerAchievement[]): PublicAchievementGroup[] {
+  const groups = new Map<string, PublicAchievementGroup & { order: number }>();
+  for (const item of items) {
+    const known = ACHIEVEMENT_SECTIONS[item.category];
+    const heading = known?.heading || item.categoryLabel || 'Other';
+    const order = known?.order ?? 8;
+    const existing = groups.get(heading);
+    if (existing) existing.items.push(item);
+    else groups.set(heading, { heading, order, items: [item] });
+  }
+  return [...groups.values()].sort((a, b) => a.order - b.order).map(({ heading, items: rows }) => ({ heading, items: rows }));
+}
+
+export async function fetchPublicPlayerServer(id: number): Promise<PublicPlayerDetail | null> {
+  try {
+    const apiBase = getApiBaseUrl();
+    if (!apiBase || !Number.isFinite(id)) return null;
+    const tenantId = getTenantId();
+    const res = await fetchWithJwtRetry(
+      `${apiBase}/api/team-members/${id}`,
+      { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+      'public-player',
+    );
+    if (!res.ok) return null;
+    const member = (await res.json()) as TeamMemberDTO;
+    if (!member?.id || member.tenantId !== tenantId || member.isActive === false) return null;
+
+    let achievements: PublicPlayerAchievement[] = [];
+    const achievementParams = new URLSearchParams({
+      'teamMemberId.equals': String(member.id),
+      'tenantId.equals': tenantId,
+      sort: 'displayOrder,asc',
+      size: '100',
+    });
+    const [achievementRes, categoryRes] = await Promise.all([
+      fetchWithJwtRetry(
+        `${apiBase}/api/team-member-achievements?${achievementParams.toString()}`,
+        { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+        'public-player-achievements',
+      ),
+      fetchWithJwtRetry(
+        `${apiBase}/api/achievement-categories?size=500&sort=sortOrder,asc`,
+        {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json', 'X-Tenant-ID': tenantId },
+          cache: 'no-store',
+        },
+        'public-achievement-categories',
+      ),
+    ]);
+    const categoryLabels = new Map<string, string>();
+    if (categoryRes.ok) {
+      const rows = asList<{ code?: string; label?: string; tenantId?: string | null }>(await categoryRes.json());
+      for (const row of rows) {
+        const code = row.code?.trim();
+        const label = row.label?.trim();
+        if (!code || !label) continue;
+        if (!categoryLabels.has(code) || row.tenantId === tenantId) categoryLabels.set(code, label);
+      }
+    }
+    if (achievementRes.ok) {
+      achievements = asList<{
+        id?: number;
+        title?: string;
+        description?: string;
+        achievementDate?: string;
+        category?: string;
+        issuer?: string;
+      }>(await achievementRes.json())
+        .filter((row) => row.id != null && row.title?.trim())
+        .map((row) => {
+          const category = row.category?.trim() || '';
+          return {
+            id: row.id as number,
+            title: row.title!.trim(),
+            description: row.description?.trim() || '',
+            achievementDate: formatIsoDate(row.achievementDate),
+            category,
+            categoryLabel: categoryLabels.get(category) || readableCategory(category),
+            issuer: row.issuer?.trim() || '',
+          };
+        });
+    }
+    const achievementGroups = groupAchievements(achievements);
+
+    const links = [
+      member.instagramUrl?.trim() ? { label: 'Instagram', href: member.instagramUrl.trim() } : null,
+      member.linkedinUrl?.trim() ? { label: 'LinkedIn', href: member.linkedinUrl.trim() } : null,
+      member.twitterUrl?.trim() ? { label: 'X', href: member.twitterUrl.trim() } : null,
+      member.websiteUrl?.trim() ? { label: 'Website', href: member.websiteUrl.trim() } : null,
+    ].filter((link): link is { label: string; href: string } => link != null);
+
+    const heightCm = finiteNumber(member.heightCm);
+    const weightKg = finiteNumber(member.weightKg);
+    const gpa = finiteNumber(member.gpa);
+    const fullName = [member.firstName, member.lastName]
+      .map((part) => part?.trim())
+      .filter(Boolean)
+      .join(' ');
+
+    return {
+      id: member.id,
+      name: detailName(member),
+      givenName: member.firstName?.trim() || '',
+      familyName: member.lastName?.trim() || '',
+      fullName: fullName && member.firstName?.trim().toLowerCase() !== 'player' ? fullName : detailName(member),
+      preferredName: member.preferredName?.trim() || '',
+      role: playerRole(member),
+      position: member.position?.trim() || '',
+      jersey:
+        member.jerseyNumber != null && Number.isFinite(member.jerseyNumber) ? String(member.jerseyNumber) : '',
+      imageUrl: member.profileImageUrl?.trim() || '',
+      bio: member.bio?.trim() || '',
+      skills: parseSkills(member.expertise),
+      nationality: member.nationality?.trim() || '',
+      dateOfBirth: formatIsoDate(member.dateOfBirth),
+      ageLabel: ageLabel(member.dateOfBirth),
+      spokenLanguages: member.spokenLanguages?.trim() || '',
+      preferredFoot: footLabel(member.preferredFoot),
+      heightLabel: heightCm != null ? `${(heightCm / 100).toFixed(2)} m` : '',
+      weightLabel: weightKg != null ? `${weightKg} kg` : '',
+      bodyBuild: member.bodyBuild?.trim() || '',
+      clubName: member.clubName?.trim() || '',
+      leagueDivision: member.leagueDivision?.trim() || '',
+      secondaryPositions: member.secondaryPositions?.trim() || '',
+      seasonLabel: member.seasonLabel?.trim() || '',
+      seasonAppearances: finiteNumber(member.seasonAppearances),
+      seasonGoals: finiteNumber(member.seasonGoals),
+      seasonAssists: finiteNumber(member.seasonAssists),
+      seasonMinutes: finiteNumber(member.seasonMinutes),
+      seasonWins: finiteNumber(member.seasonWins),
+      seasonDraws: finiteNumber(member.seasonDraws),
+      seasonLosses: finiteNumber(member.seasonLosses),
+      passAccuracy: finiteNumber(member.passAccuracyPct),
+      shotAccuracy: finiteNumber(member.shotAccuracyPct),
+      topSpeedKmh: finiteNumber(member.topSpeedKmh),
+      careerAppearances: finiteNumber(member.careerAppearances),
+      careerGoals: finiteNumber(member.careerGoals),
+      careerAssists: finiteNumber(member.careerAssists),
+      gpaLabel: gpa != null ? gpa.toFixed(2) : '',
+      academicScore: member.academicScore?.trim() || '',
+      coachName: member.coachName?.trim() || '',
+      coachEmail: member.coachEmail?.trim() || '',
+      coachPhone: member.coachPhone?.trim() || '',
+      joinDate: formatIsoDate(member.joinDate),
+      links,
+      achievements,
+      achievementGroups,
+      matches: parseMatches(member.recentMatches),
+      sports: buildSportProfiles(member.sportProfiles, {
+        position: member.position?.trim() || '',
+        secondaryPositions: member.secondaryPositions?.trim() || '',
+        jersey:
+          member.jerseyNumber != null && Number.isFinite(member.jerseyNumber) ? String(member.jerseyNumber) : '',
+        seasonLabel: member.seasonLabel?.trim() || '',
+        seasonWins: finiteNumber(member.seasonWins),
+        seasonLosses: finiteNumber(member.seasonLosses),
+        seasonDraws: finiteNumber(member.seasonDraws),
+        seasonGoals: finiteNumber(member.seasonGoals),
+        seasonAssists: finiteNumber(member.seasonAssists),
+        seasonAppearances: finiteNumber(member.seasonAppearances),
+        seasonMinutes: finiteNumber(member.seasonMinutes),
+        passAccuracy: finiteNumber(member.passAccuracyPct),
+        shotAccuracy: finiteNumber(member.shotAccuracyPct),
+        topSpeedKmh: finiteNumber(member.topSpeedKmh),
+        careerAppearances: finiteNumber(member.careerAppearances),
+        careerGoals: finiteNumber(member.careerGoals),
+        careerAssists: finiteNumber(member.careerAssists),
+        preferredFoot: footLabel(member.preferredFoot),
+        bodyBuild: member.bodyBuild?.trim() || '',
+        leagueDivision: member.leagueDivision?.trim() || '',
+        role: playerRole(member),
+        dateOfBirth: formatIsoDate(member.dateOfBirth),
+        spokenLanguages: member.spokenLanguages?.trim() || '',
+        gpaLabel: gpa != null ? gpa.toFixed(2) : '',
+        academicScore: member.academicScore?.trim() || '',
+        coachName: member.coachName?.trim() || '',
+        coachPhone: member.coachPhone?.trim() || '',
+        skills: parseSkills(member.expertise),
+        matches: parseMatches(member.recentMatches),
+      }),
+    };
+  } catch (error) {
+    console.error('[fetchPublicPlayerServer] Error:', error);
+    return null;
+  }
+}
+
 export type TeamMemberImageTitle = {
   id: number;
   title: string;
@@ -204,25 +675,36 @@ export async function fetchLastMatchesServer(): Promise<LastMatchCard[]> {
     }
 
     const tenantId = getTenantId();
-    const params = new URLSearchParams({
-      'tenantId.equals': tenantId,
-      'isActive.equals': 'true',
-      sort: 'priorityOrder,asc',
-      size: '50',
-    });
-
-    const res = await fetchWithJwtRetry(
-      `${apiBase}/api/last-matches?${params.toString()}`,
-      { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
-      'last-matches',
-    );
-
-    if (!res.ok) {
-      console.error('[fetchLastMatchesServer] last-matches failed:', res.status);
-      return [];
+    const pageSize = 100;
+    const maxRows = 400;
+    const rows: LastMatchDTO[] = [];
+    let page = 0;
+    let total = Number.POSITIVE_INFINITY;
+    while (rows.length < maxRows && rows.length < total && page < 10) {
+      const params = new URLSearchParams({
+        'tenantId.equals': tenantId,
+        'isActive.equals': 'true',
+        sort: 'priorityOrder,asc',
+        page: String(page),
+        size: String(pageSize),
+      });
+      const res = await fetchWithJwtRetry(
+        `${apiBase}/api/last-matches?${params.toString()}`,
+        { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+        'last-matches',
+      );
+      if (!res.ok) {
+        console.error('[fetchLastMatchesServer] last-matches failed:', res.status);
+        if (page === 0) return [];
+        break;
+      }
+      const reported = Number.parseInt(res.headers.get('x-total-count') || '', 10);
+      if (Number.isFinite(reported)) total = reported;
+      const batch = asList<LastMatchDTO>(await res.json());
+      rows.push(...batch);
+      if (batch.length < pageSize) break;
+      page += 1;
     }
-
-    const rows = asList<LastMatchDTO>(await res.json());
     return rows
       .filter(
         (m) =>
@@ -434,37 +916,55 @@ function sponsorWebsiteHref(url?: string | null): string | null {
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
+export type SponsorsCatalogResult = {
+  sponsors: HomepageSponsor[];
+  totalCount: number;
+};
+
 /**
- * Active sponsors by priority. Image: SPONSOR_BANNER media → banner → hero → logo.
+ * Active sponsors by priority, one page at a time.
+ * Image: SPONSOR_BANNER media → banner → hero → logo.
  */
-export async function fetchHomepageSponsorsServer(limit = 8): Promise<HomepageSponsor[]> {
+export async function fetchSponsorsCatalogServer(input: {
+  page: number;
+  size: number;
+  name?: string;
+}): Promise<SponsorsCatalogResult> {
+  const empty: SponsorsCatalogResult = { sponsors: [], totalCount: 0 };
   try {
     const apiBase = getApiBaseUrl();
     if (!apiBase) {
-      console.error('[fetchHomepageSponsorsServer] API base URL not configured');
-      return [];
+      console.error('[fetchSponsorsCatalogServer] API base URL not configured');
+      return empty;
     }
 
+    const page = Math.max(0, input.page);
+    const size = Math.max(1, input.size);
     const tenantId = getTenantId();
     const params = new URLSearchParams({
       'tenantId.equals': tenantId,
       'isActive.equals': 'true',
       sort: 'priorityRanking,asc',
-      size: String(limit),
+      page: String(page),
+      size: String(size),
     });
+    const name = input.name?.trim();
+    if (name) params.append('name.contains', name);
 
     const res = await fetchWithJwtRetry(
       `${apiBase}/api/event-sponsors?${params.toString()}`,
       { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
-      'homepage-sponsors',
+      'sponsors-catalog',
     );
 
     if (!res.ok) {
-      console.error('[fetchHomepageSponsorsServer] event-sponsors failed:', res.status);
-      return [];
+      console.error('[fetchSponsorsCatalogServer] event-sponsors failed:', res.status);
+      return empty;
     }
 
-    const sponsors = asList<EventSponsorsDTO>(await res.json()).slice(0, limit);
+    const totalHeader = res.headers.get('x-total-count');
+    const sponsors = asList<EventSponsorsDTO>(await res.json());
+    const totalCount = totalHeader ? parseInt(totalHeader, 10) : sponsors.length;
 
     const bannerUrl = async (sponsorId: number): Promise<string | undefined> => {
       try {
@@ -478,7 +978,7 @@ export async function fetchHomepageSponsorsServer(limit = 8): Promise<HomepageSp
         const mediaRes = await fetchWithJwtRetry(
           `${apiBase}/api/event-medias?${mediaParams.toString()}`,
           { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
-          'homepage-sponsor-banner',
+          'sponsor-banner',
         );
         if (!mediaRes.ok) return undefined;
         return normalizeEventMediasList(await mediaRes.json()).map(mediaImageUrl).find(Boolean);
@@ -487,7 +987,7 @@ export async function fetchHomepageSponsorsServer(limit = 8): Promise<HomepageSp
       }
     };
 
-    return Promise.all(
+    const mapped = await Promise.all(
       sponsors.map(async (sp) => {
         const banner = sp.id != null ? await bannerUrl(sp.id) : undefined;
         return {
@@ -505,10 +1005,26 @@ export async function fetchHomepageSponsorsServer(limit = 8): Promise<HomepageSp
         };
       }),
     );
+
+    return {
+      sponsors: mapped,
+      totalCount: Number.isFinite(totalCount) ? totalCount : mapped.length,
+    };
   } catch (error) {
-    console.error('[fetchHomepageSponsorsServer] Error:', error);
-    return [];
+    console.error('[fetchSponsorsCatalogServer] Error:', error);
+    return empty;
   }
+}
+
+/**
+ * Active sponsors for the homepage. Never returns more than HOMEPAGE_SPONSOR_LIMIT.
+ */
+export async function fetchHomepageSponsorsServer(
+  limit = HOMEPAGE_SPONSOR_LIMIT,
+): Promise<HomepageSponsor[]> {
+  const capped = Math.min(Math.max(1, limit), HOMEPAGE_SPONSOR_LIMIT);
+  const { sponsors } = await fetchSponsorsCatalogServer({ page: 0, size: capped });
+  return sponsors.slice(0, HOMEPAGE_SPONSOR_LIMIT);
 }
 
 /** Active executive committee (organization committee) members by priority. */
@@ -520,25 +1036,37 @@ export async function fetchExecutiveTeamServer(size = 6): Promise<ExecutiveCommi
       return [];
     }
 
-    const params = new URLSearchParams({
-      'tenantId.equals': getTenantId(),
-      'isActive.equals': 'true',
-      sort: 'priorityOrder,asc',
-      size: String(size),
-    });
-
-    const res = await fetchWithJwtRetry(
-      `${apiBase}/api/executive-committee-team-members?${params.toString()}`,
-      { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
-      'homepage-executive-team',
-    );
-
-    if (!res.ok) {
-      console.error('[fetchExecutiveTeamServer] executive-committee-team-members failed:', res.status);
-      return [];
+    const pageSize = Math.min(size, 100);
+    const rows: ExecutiveCommitteeTeamMemberDTO[] = [];
+    let page = 0;
+    let total = Number.POSITIVE_INFINITY;
+    while (rows.length < size && rows.length < total && page < 10) {
+      const params = new URLSearchParams({
+        'tenantId.equals': getTenantId(),
+        'isActive.equals': 'true',
+        sort: 'priorityOrder,asc',
+        page: String(page),
+        size: String(pageSize),
+      });
+      const res = await fetchWithJwtRetry(
+        `${apiBase}/api/executive-committee-team-members?${params.toString()}`,
+        { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+        'homepage-executive-team',
+      );
+      if (!res.ok) {
+        console.error('[fetchExecutiveTeamServer] executive-committee-team-members failed:', res.status);
+        if (page === 0) return [];
+        break;
+      }
+      const reported = Number.parseInt(res.headers.get('x-total-count') || '', 10);
+      if (Number.isFinite(reported)) total = reported;
+      const batch = parseExecutiveCommitteeTeamMembersResponse(await res.json());
+      rows.push(...batch);
+      if (batch.length < pageSize) break;
+      page += 1;
     }
 
-    return parseExecutiveCommitteeTeamMembersResponse(await res.json()).slice(0, 6);
+    return rows.slice(0, size);
   } catch (error) {
     console.error('[fetchExecutiveTeamServer] Error:', error);
     return [];

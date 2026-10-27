@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import FcUnitedSponsorsPage from '@/components/fc-united/FcUnitedSponsorsPage';
-import { fetchHomepageSponsorsServer } from '@/components/fc-united/ApiServerActions';
 
 export const metadata: Metadata = {
   title: 'Sponsors',
@@ -9,7 +8,6 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default async function SponsorsPage() {
-  const sponsors = await fetchHomepageSponsorsServer(50);
-  return <FcUnitedSponsorsPage sponsors={sponsors} />;
+export default function SponsorsPage() {
+  return <FcUnitedSponsorsPage />;
 }

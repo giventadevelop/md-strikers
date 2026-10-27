@@ -46,7 +46,7 @@ export function LiveEventsSection({ items }: { items: SpotlightItem[] }) {
       eyebrow="Happening now"
       heading="Live Events & Matches"
       lead="Matches in progress and club events open right now."
-      badge={{ label: 'Live now', className: 'bg-[#ff0000]', pulse: true }}
+      badge={{ label: 'Live now', className: 'bg-pitch-charcoal/80', pulse: true }}
       items={items}
     />
   );

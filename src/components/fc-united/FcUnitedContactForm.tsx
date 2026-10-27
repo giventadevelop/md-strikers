@@ -173,7 +173,7 @@ export function FcUnitedContactForm() {
           placeholder="name *"
           value={formData.full_name}
           onChange={(e) => setFormData((p) => ({ ...p, full_name: e.target.value }))}
-          className="rounded-[3px] border border-[#e3e3e3] bg-[#fafafa] px-4 py-3 text-sm text-[#262f3e] placeholder:text-[#797e87] focus-visible:border-[#e31837] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837]/30"
+          className="rounded-xl border border-pitch-charcoal/10 bg-pitch-chalk/60 px-4 py-3 text-sm text-pitch-charcoal placeholder:text-pitch-charcoal/70 focus-visible:border-pitch-olive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive/30"
         />
         <input
           type="email"
@@ -181,7 +181,7 @@ export function FcUnitedContactForm() {
           placeholder="email *"
           value={formData.email_address}
           onChange={(e) => setFormData((p) => ({ ...p, email_address: e.target.value }))}
-          className="rounded-[3px] border border-[#e3e3e3] bg-[#fafafa] px-4 py-3 text-sm text-[#262f3e] placeholder:text-[#797e87] focus-visible:border-[#e31837] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837]/30"
+          className="rounded-xl border border-pitch-charcoal/10 bg-pitch-chalk/60 px-4 py-3 text-sm text-pitch-charcoal placeholder:text-pitch-charcoal/70 focus-visible:border-pitch-olive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive/30"
         />
       </div>
       <input
@@ -190,7 +190,7 @@ export function FcUnitedContactForm() {
         placeholder="phone (optional)"
         value={formData.phone_number}
         onChange={(e) => setFormData((p) => ({ ...p, phone_number: e.target.value }))}
-        className="w-full rounded-[3px] border border-[#e3e3e3] bg-[#fafafa] px-4 py-3 text-sm text-[#262f3e] placeholder:text-[#797e87] focus-visible:border-[#e31837] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837]/30"
+        className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-chalk/60 px-4 py-3 text-sm text-pitch-charcoal placeholder:text-pitch-charcoal/70 focus-visible:border-pitch-olive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive/30"
       />
       <textarea
         name="feedback"
@@ -198,9 +198,9 @@ export function FcUnitedContactForm() {
         rows={6}
         value={formData.feedback}
         onChange={(e) => setFormData((p) => ({ ...p, feedback: e.target.value }))}
-        className="w-full rounded-[3px] border border-[#e3e3e3] bg-[#fafafa] px-4 py-3 text-sm text-[#262f3e] placeholder:text-[#797e87] focus-visible:border-[#e31837] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837]/30"
+        className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-chalk/60 px-4 py-3 text-sm text-pitch-charcoal placeholder:text-pitch-charcoal/70 focus-visible:border-pitch-olive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive/30"
       />
-      <label className="flex items-start gap-2 text-sm text-[#797e87]">
+      <label className="flex items-start gap-2 text-sm text-pitch-charcoal/70">
         <input
           type="checkbox"
           checked={consent}
@@ -221,7 +221,7 @@ export function FcUnitedContactForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="cursor-pointer rounded-[32px] bg-[#ff0000] px-8 py-3 text-sm font-semibold text-white transition-[filter] duration-300 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000] disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none motion-reduce:hover:brightness-100"
+          className="cursor-pointer rounded-full bg-pitch-forest px-8 py-3 text-sm font-semibold text-white transition-colors duration-300 hover:bg-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none motion-reduce:hover:brightness-100"
         >
           {isSubmitting ? 'Sending...' : 'Send Your Message'}
         </button>

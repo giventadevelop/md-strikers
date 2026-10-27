@@ -18,6 +18,15 @@ const config = {
     },
     extend: {
       colors: {
+        /* MD Strikers "pitch" palette (see src/components/fc-united/pitchUi.tsx) */
+        pitch: {
+          forest: "#142820",
+          charcoal: "#171B19",
+          olive: "#526B50",
+          chalk: "#F2F1EA",
+          stone: "#A5AAA4",
+          lime: "#A8BB83",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -118,6 +127,10 @@ const config = {
           DEFAULT: "#ff7903",
           bg: "#ffc81533",
         },
+      },
+      boxShadow: {
+        pitch: "0 24px 48px -24px rgba(0, 0, 0, 0.55)",
+        "pitch-soft": "0 12px 32px -16px rgba(23, 27, 25, 0.25)",
       },
       borderRadius: {
         lg: "var(--radius)",

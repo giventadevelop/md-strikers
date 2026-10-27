@@ -8,7 +8,7 @@ import {
   mdStrikersMemorableMomentsHeading,
 } from './fcUnitedAboutContent';
 import { encodePublicPath } from './fcUnitedGalleryData';
-import { fcBebas, fcPoppins } from './fcUnitedFonts';
+import { fcManrope } from './fcUnitedFonts';
 
 const items = mdStrikersMemorableMomentTiles;
 
@@ -63,12 +63,11 @@ export function FcMemorableMomentsSection() {
   );
 
   return (
-    <section className="overflow-x-hidden bg-white py-12 md:py-16">
+    <section className="overflow-x-hidden bg-white py-20 md:py-28">
       <div className="mx-auto mb-8 w-full max-w-[1308px] px-4 md:mb-10 md:px-7 lg:px-12">
         <h2
           className={cn(
-            fcBebas.className,
-            'text-center text-3xl uppercase tracking-[0.12em] text-[#262f3e] md:text-4xl',
+            'font-extrabold tracking-[-0.02em] text-center text-2xl text-pitch-charcoal md:text-3xl',
           )}
         >
           {mdStrikersMemorableMomentsHeading}
@@ -83,9 +82,9 @@ export function FcMemorableMomentsSection() {
               key={tile.src}
               type="button"
               onClick={() => openAt(index)}
-              className="group w-full cursor-pointer border-b border-[#e3e3e3] bg-white text-left last:border-b-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e31837] motion-reduce:transition-none"
+              className="group w-full cursor-pointer border-b border-pitch-charcoal/10 bg-white text-left last:border-b-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pitch-olive motion-reduce:transition-none"
             >
-              <div className="relative h-[min(58vh,640px)] min-h-[300px] w-full overflow-hidden bg-[#081224] sm:min-h-[380px] md:min-h-[440px]">
+              <div className="relative h-[min(58vh,640px)] min-h-[300px] w-full overflow-hidden bg-pitch-charcoal sm:min-h-[380px] md:min-h-[440px]">
                 <Image
                   src={encodePublicPath(tile.src)}
                   alt={tile.caption}
@@ -98,12 +97,12 @@ export function FcMemorableMomentsSection() {
               </div>
               <div
                 className={cn(
-                  fcPoppins.className,
+                  fcManrope.className,
                   'mx-auto w-full max-w-[1308px] px-4 py-5 md:px-7 md:py-6 lg:px-12',
                 )}
               >
-                <p className="text-xs uppercase tracking-wide text-[#797e87]">Memorable moment</p>
-                <p className={cn(fcBebas.className, 'mt-1 text-xl leading-snug text-[#262f3e] md:text-2xl')}>
+                <p className="text-xs uppercase tracking-wide text-pitch-charcoal/70">Memorable moment</p>
+                <p className={cn('font-extrabold tracking-[-0.02em] mt-1 text-lg leading-snug text-pitch-charcoal md:text-xl')}>
                   {tile.caption}
                 </p>
               </div>
@@ -132,7 +131,7 @@ export function FcMemorableMomentsSection() {
                 e.stopPropagation();
                 close();
               }}
-              className="pointer-events-auto flex h-12 min-w-[5.5rem] cursor-pointer items-center justify-center gap-2 rounded-full bg-[#e31837] px-4 text-sm font-semibold text-white shadow-lg ring-2 ring-white/30 transition-colors duration-200 hover:bg-[#c41430] hover:ring-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/90"
+              className="pointer-events-auto flex h-12 min-w-[5.5rem] cursor-pointer items-center justify-center gap-2 rounded-full bg-pitch-forest px-4 text-sm font-semibold text-white shadow-lg ring-2 ring-white/30 transition-colors duration-200 hover:bg-pitch-olive hover:ring-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/90"
               title="Close"
               aria-label="Close slideshow"
             >
@@ -151,7 +150,7 @@ export function FcMemorableMomentsSection() {
                   e.stopPropagation();
                   goPrev();
                 }}
-                className="absolute left-2 top-1/2 z-[205] flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-slate-900/95 text-amber-400 shadow-lg ring-2 ring-amber-400/70 transition-colors duration-200 hover:bg-slate-800 hover:text-amber-300 hover:ring-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black/90 md:left-6"
+                className="absolute left-2 top-1/2 z-[205] flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-pitch-charcoal/95 text-pitch-lime shadow-lg ring-2 ring-pitch-lime/70 transition-colors duration-200 hover:bg-pitch-forest hover:text-pitch-chalk hover:ring-pitch-lime focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-2 focus-visible:ring-offset-black/90 md:left-6"
                 title="Previous"
                 aria-label="Previous image"
               >
@@ -165,7 +164,7 @@ export function FcMemorableMomentsSection() {
                   e.stopPropagation();
                   goNext();
                 }}
-                className="absolute right-2 top-1/2 z-[205] flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-slate-900/95 text-amber-400 shadow-lg ring-2 ring-amber-400/70 transition-colors duration-200 hover:bg-slate-800 hover:text-amber-300 hover:ring-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black/90 md:right-6"
+                className="absolute right-2 top-1/2 z-[205] flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-pitch-charcoal/95 text-pitch-lime shadow-lg ring-2 ring-pitch-lime/70 transition-colors duration-200 hover:bg-pitch-forest hover:text-pitch-chalk hover:ring-pitch-lime focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-2 focus-visible:ring-offset-black/90 md:right-6"
                 title="Next"
                 aria-label="Next image"
               >
@@ -198,16 +197,16 @@ export function FcMemorableMomentsSection() {
               id="memorable-moment-description"
               className="relative z-[205] mt-4 w-full max-w-3xl shrink-0 self-center rounded-lg border border-white/15 bg-white/5 px-4 py-4 text-left backdrop-blur-sm sm:px-6 sm:py-5"
             >
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-400/90">Description</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-pitch-lime">Description</p>
               {hasSeparateDescription ? (
                 <>
-                  <p className={cn(fcBebas.className, 'mt-2 text-xl leading-snug text-white md:text-2xl')}>{current.caption}</p>
-                  <p className={cn(fcPoppins.className, 'mt-3 text-sm leading-relaxed text-white/90 md:text-base')}>
+                  <p className={cn('font-extrabold tracking-[-0.02em] mt-2 text-lg leading-snug text-white md:text-xl')}>{current.caption}</p>
+                  <p className={cn(fcManrope.className, 'mt-3 text-sm leading-relaxed text-white/90 md:text-base')}>
                     {currentLongDescription}
                   </p>
                 </>
               ) : (
-                <p className={cn(fcPoppins.className, 'mt-3 text-base leading-relaxed text-white md:text-lg')}>
+                <p className={cn(fcManrope.className, 'mt-3 text-base leading-relaxed text-white md:text-lg')}>
                   {current.caption}
                 </p>
               )}

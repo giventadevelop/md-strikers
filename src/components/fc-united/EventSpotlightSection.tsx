@@ -1,7 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { fcBebas, fcRoboto } from './fcUnitedFonts';
+import { fcManrope } from './fcUnitedFonts';
+import { PitchHeading, PitchShell, pitchButton, pitchSection } from './pitchUi';
 
 export type SpotlightItem = {
   key: string;
@@ -19,28 +20,28 @@ type Tone = 'dark' | 'light';
 
 const toneStyles = {
   dark: {
-    section: '',
-    eyebrow: 'text-[#848992]',
-    heading: 'text-white',
-    muted: 'text-[#848992]',
-    card: 'border-white/10 bg-white/[0.03] hover:border-white/20',
-    media: 'bg-[#081224]',
-    title: 'text-white',
-    value: 'text-white',
-    rule: 'border-white/10',
-    secondary: 'border-white/20 text-white hover:border-white/35 hover:bg-white/[0.06]',
+    section: 'bg-pitch-forest',
+    muted: 'text-pitch-stone',
+    card: 'border-pitch-chalk/10 bg-pitch-charcoal/40 hover:border-pitch-chalk/20',
+    media: 'bg-pitch-charcoal',
+    title: 'text-pitch-chalk',
+    value: 'text-pitch-chalk',
+    rule: 'border-pitch-chalk/10',
+    marker: 'bg-pitch-lime',
+    primary: pitchButton.primary,
+    secondary: pitchButton.ghost,
   },
   light: {
-    section: 'bg-[#f4f4f4]',
-    eyebrow: 'text-[#797e87]',
-    heading: 'text-[#262f3e]',
-    muted: 'text-[#797e87]',
-    card: 'border-[#e3e3e3] bg-white hover:border-[#c8c8c8]',
-    media: 'bg-white',
-    title: 'text-[#262f3e]',
-    value: 'text-[#262f3e]',
-    rule: 'border-[#e3e3e3]',
-    secondary: 'border-[#e3e3e3] text-[#262f3e] hover:border-[#c8c8c8] hover:bg-[#f9fafb]',
+    section: 'bg-pitch-chalk',
+    muted: 'text-pitch-charcoal/70',
+    card: 'border-pitch-charcoal/10 bg-white/60 hover:border-pitch-charcoal/20',
+    media: 'bg-pitch-charcoal/[0.04]',
+    title: 'text-pitch-charcoal',
+    value: 'text-pitch-charcoal',
+    rule: 'border-pitch-charcoal/10',
+    marker: 'bg-pitch-olive',
+    primary: pitchButton.primaryOnLight,
+    secondary: pitchButton.ghostOnLight,
   },
 } as const;
 
@@ -59,33 +60,16 @@ export function EventSpotlightSection({ tone, id, eyebrow, heading, lead, badge,
   const headingId = `${id}-heading`;
 
   return (
-    <section
-      id={id}
-      className={cn('py-14 md:py-20', t.section)}
-      style={
-        tone === 'dark'
-          ? { background: 'linear-gradient(135deg, #081224 0%, #0f1f38 55%, #262f3e 100%)' }
-          : undefined
-      }
-      aria-labelledby={headingId}
-    >
-      <div className="mx-auto w-full max-w-[1308px] px-4 md:px-7 lg:px-12">
-        <div className="mb-10 text-center md:mb-12 md:text-left">
-          <span className={cn('mb-2 block text-xs font-semibold uppercase tracking-[0.2em]', t.eyebrow)}>
-            {eyebrow}
-          </span>
-          <h2 id={headingId} className={cn(fcBebas.className, 'text-4xl tracking-[0.03em] md:text-5xl', t.heading)}>
-            {heading}
-          </h2>
-          <p className={cn('mt-4 max-w-2xl text-sm leading-relaxed md:text-[15px]', t.muted)}>{lead}</p>
-        </div>
+    <section id={id} className={cn(fcManrope.className, pitchSection, t.section)} aria-labelledby={headingId}>
+      <PitchShell>
+        <PitchHeading tone={tone} id={headingId} eyebrow={eyebrow} title={heading} lead={lead} />
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-8">
           {items.map((item) => (
             <article
               key={item.key}
               className={cn(
-                'grid overflow-hidden rounded-[3px] border transition-colors duration-300 ease-in-out lg:grid-cols-[1.15fr_1fr]',
+                'grid overflow-hidden rounded-3xl border transition-colors duration-300 ease-in-out lg:grid-cols-[1.15fr_1fr]',
                 t.card,
               )}
             >
@@ -99,29 +83,28 @@ export function EventSpotlightSection({ tone, id, eyebrow, heading, lead, badge,
                 />
                 <span
                   className={cn(
-                    'absolute left-3 top-3 inline-flex items-center gap-2 rounded-[32px] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white',
+                    'absolute left-4 top-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-pitch-chalk backdrop-blur',
                     badge.className,
                   )}
                 >
                   {badge.pulse && (
                     <span className="relative flex h-2 w-2" aria-hidden>
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75 motion-reduce:animate-none" />
-                      <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-pitch-lime opacity-60 [animation-duration:2s] motion-reduce:animate-none" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-pitch-lime" />
                     </span>
                   )}
                   {badge.label}
                 </span>
               </div>
 
-              <div className="flex flex-col px-5 py-6 sm:px-7 sm:py-8 lg:px-9">
+              <div className="flex flex-col p-6 sm:p-8 lg:p-12">
                 <p className={cn('flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em]', t.muted)}>
-                  <span className="h-2 w-2 rounded-[1px] bg-[#ff0000]" aria-hidden />
+                  <span className={cn('h-2 w-2 rounded-full', t.marker)} aria-hidden />
                   {item.label}
                 </p>
                 <h3
                   className={cn(
-                    fcBebas.className,
-                    'mt-2 text-4xl leading-[1.05] tracking-[0.02em] md:text-5xl',
+                    'mt-4 text-3xl font-extrabold leading-[1.1] tracking-[-0.02em] md:text-4xl',
                     t.title,
                   )}
                 >
@@ -129,26 +112,26 @@ export function EventSpotlightSection({ tone, id, eyebrow, heading, lead, badge,
                 </h3>
 
                 {item.score && (
-                  <div className={cn('mt-4 flex items-center justify-between gap-4 rounded-[3px] border px-4 py-3', t.rule)}>
+                  <div className={cn('mt-6 flex items-center justify-between gap-4 rounded-2xl border px-6 py-4', t.rule)}>
                     <span className={cn('text-sm font-medium', t.value)}>{item.score.home}</span>
                     <span
-                      className={cn(fcRoboto.className, 'text-2xl font-medium tabular-nums', t.value)}
+                      className={cn('text-2xl font-extrabold tabular-nums', t.value)}
                       aria-label={`Score ${item.score.homeGoals} to ${item.score.awayGoals}, minute ${item.score.minute}`}
                     >
                       {item.score.homeGoals}
                       <span className={cn('mx-2', t.muted)}>–</span>
                       {item.score.awayGoals}
-                      <span className="ml-3 text-sm text-[#ff0000]">{item.score.minute}</span>
+                      <span className="ml-3 text-sm font-semibold text-pitch-lime">{item.score.minute}</span>
                     </span>
                     <span className={cn('text-right text-sm font-medium', t.value)}>{item.score.away}</span>
                   </div>
                 )}
 
-                <p className={cn('mt-4 text-sm leading-relaxed md:text-[15px]', t.muted)}>{item.description}</p>
+                <p className={cn('mt-6 text-base leading-relaxed', t.muted)}>{item.description}</p>
 
-                <dl className={cn('mt-6 border-t', t.rule)}>
+                <dl className={cn('mt-8 border-t', t.rule)}>
                   {item.details.map((row) => (
-                    <div key={row.label} className={cn('flex items-start justify-between gap-6 border-b py-3', t.rule)}>
+                    <div key={row.label} className={cn('flex items-start justify-between gap-6 border-b py-4', t.rule)}>
                       <dt className={cn('shrink-0 text-[11px] font-semibold uppercase tracking-[0.14em]', t.muted)}>
                         {row.label}
                       </dt>
@@ -157,10 +140,10 @@ export function EventSpotlightSection({ tone, id, eyebrow, heading, lead, badge,
                   ))}
                 </dl>
 
-                <div className="mt-6 flex flex-wrap gap-3">
+                <div className="mt-8 flex flex-wrap gap-4">
                   <Link
                     href={item.primary.href}
-                    className="inline-flex items-center justify-center rounded-[32px] bg-[#ff0000] px-7 py-3 text-sm font-semibold text-white transition-[filter] duration-300 ease-in-out hover:brightness-[1.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000] motion-reduce:transition-none"
+                    className={t.primary}
                     {...(item.primary.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                   >
                     {item.primary.label}
@@ -168,10 +151,7 @@ export function EventSpotlightSection({ tone, id, eyebrow, heading, lead, badge,
                   </Link>
                   <Link
                     href={item.secondary.href}
-                    className={cn(
-                      'inline-flex items-center justify-center rounded-[32px] border px-7 py-3 text-sm font-semibold transition-[border-color,background] duration-300 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000] motion-reduce:transition-none',
-                      t.secondary,
-                    )}
+                    className={t.secondary}
                   >
                     {item.secondary.label}
                   </Link>
@@ -180,7 +160,7 @@ export function EventSpotlightSection({ tone, id, eyebrow, heading, lead, badge,
             </article>
           ))}
         </div>
-      </div>
+      </PitchShell>
     </section>
   );
 }

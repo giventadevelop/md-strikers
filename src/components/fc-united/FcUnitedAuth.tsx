@@ -9,7 +9,7 @@ import { isAdminRole } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 const authLink =
-  'cursor-pointer text-base font-bold text-white transition-colors duration-200 hover:text-[#e31837] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628]';
+  'cursor-pointer text-sm font-semibold text-pitch-stone transition-colors duration-200 hover:text-pitch-chalk focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-2 focus-visible:ring-offset-pitch-charcoal';
 
 function displayName(user: ReturnType<typeof useUser>['user']): string {
   return user?.firstName || user?.fullName || user?.emailAddresses?.[0]?.emailAddress || 'User';
@@ -151,7 +151,7 @@ function AvatarButton({
       <button
         type="button"
         onClick={() => setIsOpen((open) => !open)}
-        className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-white/30 bg-[#e31837] text-white hover:border-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
+        className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-pitch-chalk/25 bg-pitch-olive text-pitch-chalk hover:border-pitch-chalk focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime"
         aria-label="User menu"
         aria-expanded={isOpen}
         aria-haspopup="true"
@@ -173,7 +173,7 @@ function AvatarButton({
             onClick={() => setIsOpen(false)}
             className={cn(
               'block px-4 py-2.5 text-sm font-semibold hover:bg-[#f4f4f4]',
-              pathname === '/profile' && 'text-[#e31837]'
+              pathname === '/profile' && 'text-pitch-olive'
             )}
           >
             Profile
@@ -185,7 +185,7 @@ function AvatarButton({
               setIsOpen(false);
               onSignOut();
             }}
-            className="block w-full cursor-pointer px-4 py-2.5 text-left text-sm font-semibold text-[#e31837] hover:bg-[#fff1f2] disabled:cursor-not-allowed disabled:text-[#797e87]"
+            className="block w-full cursor-pointer px-4 py-2.5 text-left text-sm font-semibold text-pitch-olive hover:bg-pitch-chalk disabled:cursor-not-allowed disabled:text-[#797e87]"
           >
             {isSigningOut ? 'Signing Out...' : 'Sign Out'}
           </button>
@@ -208,7 +208,7 @@ export function FcUnitedAuthDesktop() {
         </Link>
         <Link
           href="/sign-up"
-          className="inline-flex cursor-pointer items-center rounded-[32px] bg-[#e31837] px-4 py-2 text-sm font-bold text-white hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
+          className="inline-flex cursor-pointer items-center rounded-full border border-pitch-chalk/25 px-5 py-2 text-sm font-semibold text-pitch-chalk transition-colors duration-300 hover:border-pitch-lime hover:text-pitch-lime focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime"
         >
           Sign up
         </Link>
@@ -219,7 +219,7 @@ export function FcUnitedAuthDesktop() {
   return (
     <div className="hidden shrink-0 items-center gap-4 md:flex">
       {isAdmin && (
-        <Link href="/admin" className={cn(authLink, pathname?.startsWith('/admin') && 'text-[#e31837]')}>
+        <Link href="/admin" className={cn(authLink, pathname?.startsWith('/admin') && 'text-pitch-chalk')}>
           Admin
         </Link>
       )}
@@ -241,7 +241,7 @@ export function FcUnitedAuthMobile({ onNavigate }: { onNavigate: () => void }) {
         <Link
           href="/sign-up"
           onClick={onNavigate}
-          className="rounded-[32px] bg-[#e31837] px-3 py-3 text-center text-sm font-bold text-white"
+          className="rounded-full bg-pitch-chalk px-3 py-3 text-center text-sm font-semibold text-pitch-charcoal"
         >
           Sign up
         </Link>
@@ -255,7 +255,7 @@ export function FcUnitedAuthMobile({ onNavigate }: { onNavigate: () => void }) {
   return (
     <div className="mt-2 border-t border-white/10 px-3 py-3">
       <p className="px-3 text-sm font-semibold text-white">{name}</p>
-      {email ? <p className="px-3 text-xs text-[#94a3b8]">{email}</p> : null}
+      {email ? <p className="px-3 text-xs text-pitch-stone">{email}</p> : null}
       <div className="mt-2 flex flex-col">
         {isAdmin && (
           <Link href="/admin" onClick={onNavigate} className={cn(authLink, 'rounded-[3px] px-3 py-3')}>
@@ -272,7 +272,7 @@ export function FcUnitedAuthMobile({ onNavigate }: { onNavigate: () => void }) {
             onNavigate();
             handleSignOut();
           }}
-          className="cursor-pointer rounded-[3px] px-3 py-3 text-left text-base font-bold text-[#e31837] disabled:cursor-not-allowed"
+          className="cursor-pointer rounded-[3px] px-3 py-3 text-left text-sm font-semibold text-pitch-lime disabled:cursor-not-allowed"
         >
           {isSigningOut ? 'Signing Out...' : 'Sign Out'}
         </button>

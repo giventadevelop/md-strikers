@@ -36,7 +36,7 @@ export interface GalleryPageDataWithAlbums {
  */
 export async function fetchEventsForGallery(
   page: number = 0,
-  size: number = 12,
+  size: number = 20,
   searchTerm: string = '',
   startDate?: string,
   endDate?: string
@@ -94,7 +94,7 @@ export async function fetchEventsForGallery(
         mediaParams.append('isPublic.equals', 'true');
         mediaParams.append('sort', 'displayOrder,asc');
         mediaParams.append('sort', 'updatedAt,desc');
-        mediaParams.append('size', '50');
+        mediaParams.append('size', '200');
 
         const mediaUrl = `${getApiBase()}/api/event-medias?${mediaParams.toString()}`;
         console.log(`Fetching media for event ${event.id}: ${mediaUrl}`);
@@ -233,7 +233,7 @@ export async function searchEventsForGallery(
  */
 export async function fetchAlbumsForGallery(
   page: number = 0,
-  size: number = 12,
+  size: number = 20,
   searchTerm: string = '',
   startDate?: string,
   endDate?: string
@@ -296,7 +296,7 @@ export async function fetchAlbumsForGallery(
         mediaParams.append('isPublic.equals', 'true');
         mediaParams.append('sort', 'displayOrder,asc');
         mediaParams.append('sort', 'updatedAt,desc');
-        mediaParams.append('size', '50');
+        mediaParams.append('size', '200');
 
         const mediaUrl = `${getApiBase()}/api/event-medias?${mediaParams.toString()}`;
         console.log(`Fetching media for album ${album.id}: ${mediaUrl}`);

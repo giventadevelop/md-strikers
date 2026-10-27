@@ -1,6 +1,13 @@
+import type { Metadata } from 'next';
 import FcUnitedGalleryPage from '@/components/fc-united/FcUnitedGalleryPage';
 
-/** Static FC United gallery mirror (wget gallery) with no backend calls. */
+export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Gallery',
+  description: 'Maryland Strikers photo albums and event galleries.',
+};
+
 export default function GalleryPage() {
   return <FcUnitedGalleryPage />;
 }

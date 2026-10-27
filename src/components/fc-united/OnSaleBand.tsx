@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { isUpcomingEventStartDate } from '@/lib/homepage/homepageEventBands';
-import { fcBebas } from './fcUnitedFonts';
+import { PitchArrow, pitchButton } from './pitchUi';
 
 export type BandEvent = {
   key: string;
@@ -51,8 +51,7 @@ function bandCta(event: BandEvent) {
   return { heading: 'Coming up', label: 'View event', href: event.href, external: false };
 }
 
-const buttonClass =
-  'inline-flex shrink-0 items-center justify-center gap-2 rounded-[32px] bg-[#ff0000] px-7 py-3 text-sm font-semibold text-white transition-[filter] duration-300 ease-in-out hover:brightness-[1.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000] motion-reduce:transition-none';
+const buttonClass = cn(pitchButton.primary, 'group shrink-0');
 
 export function OnSaleBand({ events }: { events: BandEvent[] }) {
   const event = pickOnSaleEvent(events);
@@ -63,27 +62,27 @@ export function OnSaleBand({ events }: { events: BandEvent[] }) {
   return (
     <aside
       aria-labelledby="on-sale-band-heading"
-      className="mb-8 overflow-hidden rounded-[3px] border border-white/10 bg-[#262f3e] md:mb-10"
+      className="group/band mb-12 overflow-hidden rounded-3xl border border-pitch-chalk/10 bg-pitch-forest md:mb-16"
     >
       <div className="flex flex-col md:flex-row md:items-stretch">
-        <div className="relative aspect-[16/9] w-full shrink-0 bg-[#081224] md:aspect-auto md:min-h-[180px] md:w-64 lg:w-80">
-          <Image src={event.src} alt={event.title} fill className="object-contain object-center" sizes="(max-width: 768px) 100vw, 320px" />
+        <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-pitch-charcoal md:aspect-auto md:min-h-[200px] md:w-72 lg:w-96">
+          <Image src={event.src} alt={event.title} fill className="object-cover object-center transition-transform duration-700 ease-out group-hover/band:scale-105 motion-reduce:transition-none" sizes="(max-width: 768px) 100vw, 384px" />
         </div>
 
-        <div className="flex flex-1 flex-col gap-5 px-5 py-6 sm:px-7 md:flex-row md:items-center md:justify-between md:gap-8">
+        <div className="flex flex-1 flex-col gap-6 p-6 sm:p-8 md:flex-row md:items-center md:justify-between md:gap-8 lg:px-12">
           <div className="min-w-0">
-            <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#848992]">
-              <span className="h-2 w-2 rounded-[1px] bg-[#ff0000]" aria-hidden />
+            <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-pitch-lime">
+              <span className="h-2 w-2 rounded-full bg-pitch-lime" aria-hidden />
               {event.isFeatured ? 'Featured event' : 'Upcoming event'}
             </p>
             <h3
               id="on-sale-band-heading"
-              className={cn(fcBebas.className, 'mt-1 text-3xl tracking-[0.03em] text-white md:text-4xl')}
+              className="mt-3 text-2xl font-extrabold tracking-[-0.02em] text-pitch-chalk md:text-3xl"
             >
               {cta.heading}
             </h3>
-            <p className="mt-1 text-base font-medium text-white">{event.title}</p>
-            <p className="mt-1 text-sm leading-relaxed text-[#848992]">
+            <p className="mt-2 text-base font-semibold text-pitch-chalk">{event.title}</p>
+            <p className="mt-2 text-sm leading-relaxed text-pitch-stone">
               {[event.dateTime, event.venue].filter(Boolean).join(' · ')}
             </p>
           </div>
@@ -99,6 +98,7 @@ export function OnSaleBand({ events }: { events: BandEvent[] }) {
           ) : (
             <Link href={cta.href} className={buttonClass}>
               {cta.label}
+              <PitchArrow />
             </Link>
           )}
         </div>

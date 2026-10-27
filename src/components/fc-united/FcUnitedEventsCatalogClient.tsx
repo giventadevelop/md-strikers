@@ -3,24 +3,65 @@
 /**
  * MD Strikers /events catalog — design tokens from
  * design_systems/mdStrikers_site_general_design_final.json
- * (navy / red / hairline cards, Bebas + Poppins, pill CTAs).
+ * Parity with kcnj-prod /events: Future/Past toggle, title + date search,
+ * auto-switch to past when no upcoming, description expand, Add to Calendar,
+ * Buy Tickets / Register / Donate, pagination.
  */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { MdPagination } from './MdPagination';
 import type { EventDetailsDTO } from '@/types';
 import { isRecurringEvent, getNextOccurrenceDate } from '@/lib/eventUtils';
 import { isDonationBasedEvent, isTicketedFundraiserEvent } from '@/lib/donation/utils';
 import { resolveBuyTicketsTarget, resolveRegisterTarget } from '@/lib/eventcube/utils';
 import { resolveEventImageUrlsServer } from './ApiServerActions';
 import { DEFAULT_EVENT_IMAGE, formatEventDate, eventHref } from './homeEventDisplay';
-import { fcBebas } from './fcUnitedFonts';
+
 
 const PAGE_SIZE = 20;
-const FETCH_SIZE = 50;
 
 type CatalogEvent = EventDetailsDTO & { thumbnailUrl?: string };
+
+function DescriptionDisplay({
+  description,
+  isExpanded,
+}: {
+  description: string;
+  isExpanded: boolean;
+}) {
+  const maxLength = 200;
+  if (description.length <= maxLength) {
+    return (
+      <p className="mt-3 text-sm leading-relaxed text-pitch-charcoal/70 whitespace-pre-wrap break-words md:text-[15px]">
+        {description}
+      </p>
+    );
+  }
+  const truncated = description.substring(0, maxLength).trim();
+  return (
+    <p className="mt-3 text-sm leading-relaxed text-pitch-charcoal/70 whitespace-pre-wrap break-words md:text-[15px]">
+      {isExpanded ? description : `${truncated}…`}
+    </p>
+  );
+}
+
+function toGoogleCalendarDate(date: string, time: string) {
+  if (!date || !time) return '';
+  const [year, month, day] = date.split('-');
+  let [hour, minute] = time.split(':');
+  let ampm = '';
+  if (minute && minute.includes(' ')) {
+    [minute, ampm] = minute.split(' ');
+  }
+  let h = parseInt(hour, 10);
+  if (isNaN(h)) h = 0;
+  if (ampm && ampm.toUpperCase() === 'PM' && h !== 12) h += 12;
+  if (ampm && ampm.toUpperCase() === 'AM' && h === 12) h = 0;
+  const min = minute && !isNaN(parseInt(minute, 10)) ? minute : '00';
+  return `${year}${month}${day}T${String(h).padStart(2, '0')}${min.padStart(2, '0')}00`;
+}
 
 function Shell({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
@@ -67,10 +108,10 @@ function collapseRecurring(list: EventDetailsDTO[], keepFinished: boolean): Even
 }
 
 const pillCta =
-  'inline-flex items-center justify-center gap-2 rounded-[32px] bg-[#ff0000] px-6 py-2.5 text-sm font-semibold text-white transition-[filter] duration-300 ease-in-out hover:brightness-[1.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000]';
+  'inline-flex items-center justify-center gap-2 rounded-full bg-pitch-forest px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-300 ease-in-out hover:bg-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
 
 const secondaryCta =
-  'inline-flex items-center justify-center gap-2 rounded-[32px] border border-[#e3e3e3] bg-white px-6 py-2.5 text-sm font-semibold text-[#262f3e] transition-colors duration-300 hover:border-[#c8c8c8] hover:text-[#ff0000] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000]';
+  'inline-flex items-center justify-center gap-2 rounded-full border border-pitch-charcoal/10 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-colors duration-300 hover:border-pitch-charcoal/25 hover:text-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
 
 export function FcUnitedEventsCatalogClient() {
   const [events, setEvents] = useState<CatalogEvent[]>([]);
@@ -89,6 +130,8 @@ export function FcUnitedEventsCatalogClient() {
   const [pastCount, setPastCount] = useState<number | null>(null);
   const [checkedInitial, setCheckedInitial] = useState(false);
   const [autoSwitching, setAutoSwitching] = useState(false);
+  const [expandedDescriptions, setExpandedDescriptions] = useState<Record<number, boolean>>({});
+  const loadGenRef = useRef(0);
 
   useEffect(() => {
     if (autoSwitching) {
@@ -96,9 +139,12 @@ export function FcUnitedEventsCatalogClient() {
       return;
     }
 
+    const gen = ++loadGenRef.current;
+
     async function load() {
       setLoading(true);
       setFetchError(false);
+      setEvents([]);
       try {
         const today = todayIso();
         let loadingPast = showPastEvents;
@@ -122,6 +168,7 @@ export function FcUnitedEventsCatalogClient() {
             fetch(`/api/proxy/event-details?${futureQs}`),
             fetch(`/api/proxy/event-details?${pastQs}`),
           ]);
+          if (gen !== loadGenRef.current) return;
           const fCount = futureRes.ok ? parseInt(futureRes.headers.get('x-total-count') || '0', 10) : 0;
           const pCount = pastRes.ok ? parseInt(pastRes.headers.get('x-total-count') || '0', 10) : 0;
           setFutureCount(fCount);
@@ -137,7 +184,7 @@ export function FcUnitedEventsCatalogClient() {
         const qs = new URLSearchParams({
           sort: loadingPast ? 'startDate,desc' : 'startDate,asc',
           page: String(page),
-          size: String(FETCH_SIZE),
+          size: String(PAGE_SIZE),
           'isActive.equals': 'true',
         });
         if (appliedTitle.trim()) qs.append('title.contains', appliedTitle.trim());
@@ -151,43 +198,40 @@ export function FcUnitedEventsCatalogClient() {
         }
 
         const res = await fetch(`/api/proxy/event-details?${qs}`);
+        if (gen !== loadGenRef.current) return;
         if (!res.ok) throw new Error('Failed to fetch events');
         const total = parseInt(res.headers.get('x-total-count') || '0', 10);
         setTotalCount(total);
 
         const raw = await res.json();
         const list: EventDetailsDTO[] = Array.isArray(raw) ? raw : raw ? [raw] : [];
-        const processed = collapseRecurring(list, loadingPast)
-          .sort((a, b) =>
-            loadingPast
-              ? (b.startDate || '').localeCompare(a.startDate || '')
-              : (a.startDate || '').localeCompare(b.startDate || ''),
-          )
-          .slice(0, PAGE_SIZE);
+        const processed = collapseRecurring(list, loadingPast).sort((a, b) =>
+          loadingPast
+            ? (b.startDate || '').localeCompare(a.startDate || '')
+            : (a.startDate || '').localeCompare(b.startDate || ''),
+        );
 
-        // Same event_media resolution as homepage (server JWT → backend), not client proxy
         const imageMap = await resolveEventImageUrlsServer(
           processed.map((e) => e.id).filter((id): id is number => id != null),
         );
+        if (gen !== loadGenRef.current) return;
         const withMedia: CatalogEvent[] = processed.map((event) => ({
           ...event,
           thumbnailUrl: event.id != null ? imageMap[event.id] ?? undefined : undefined,
         }));
         setEvents(withMedia);
       } catch {
+        if (gen !== loadGenRef.current) return;
         setFetchError(true);
         setEvents([]);
       } finally {
-        setLoading(false);
+        if (gen === loadGenRef.current) setLoading(false);
       }
     }
 
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, showPastEvents, appliedTitle, appliedFrom, appliedTo]);
-
-  const totalPages = Math.max(1, Math.ceil(totalCount / FETCH_SIZE));
-  const displayPage = page + 1;
 
   const handleSearch = () => {
     setAppliedTitle(searchTitle);
@@ -204,20 +248,21 @@ export function FcUnitedEventsCatalogClient() {
     setAppliedFrom('');
     setAppliedTo('');
     setPage(0);
+    setShowPastEvents(false);
   };
 
   return (
-    <section className="bg-[#f4f4f4] pb-16 pt-2 md:pb-20 md:pt-4">
+    <section className="bg-pitch-chalk pb-16 pt-2 md:pb-20 md:pt-4">
       <Shell>
         {/* Section header — label → headline → detail */}
         <div className="mb-8 text-center md:mb-10 md:text-left">
-          <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-[#797e87]">
+          <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">
             calendar
           </span>
-          <h2 className={cn(fcBebas.className, 'text-4xl tracking-[0.03em] text-[#262f3e] md:text-5xl')}>
+          <h2 className={cn('font-extrabold tracking-[-0.02em] text-3xl text-pitch-charcoal md:text-4xl')}>
             {showPastEvents ? 'Past Events' : 'Upcoming Events'}
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#797e87] md:text-[15px]">
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-pitch-charcoal/70 md:text-[15px]">
             {showPastEvents
               ? 'Events that have already ended. Switch to Future Events for what is coming up.'
               : 'Match days, tournaments, and club nights on the Maryland Strikers calendar.'}
@@ -229,7 +274,7 @@ export function FcUnitedEventsCatalogClient() {
           <span
             className={cn(
               'text-2xl font-semibold uppercase tracking-[0.14em] transition-colors duration-300',
-              !showPastEvents ? 'text-[#ff0000]' : 'text-[#797e87]',
+              !showPastEvents ? 'text-pitch-olive' : 'text-pitch-charcoal/70',
             )}
           >
             Future
@@ -241,8 +286,8 @@ export function FcUnitedEventsCatalogClient() {
               setPage(0);
             }}
             className={cn(
-              'relative inline-flex h-20 w-32 items-center rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff0000] focus-visible:ring-offset-2',
-              showPastEvents ? 'bg-[#262f3e]' : 'bg-[#ff0000]',
+              'relative inline-flex h-20 w-32 items-center rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2',
+              showPastEvents ? 'bg-pitch-forest' : 'bg-pitch-forest',
             )}
             title={showPastEvents ? 'Show Future Events' : 'Show Past Events'}
             aria-label={showPastEvents ? 'Show Future Events' : 'Show Past Events'}
@@ -254,11 +299,11 @@ export function FcUnitedEventsCatalogClient() {
               )}
             >
               {showPastEvents ? (
-                <svg className="h-8 w-8 text-[#262f3e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-8 w-8 text-pitch-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               ) : (
-                <svg className="h-8 w-8 text-[#ff0000]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-8 w-8 text-pitch-olive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               )}
@@ -267,7 +312,7 @@ export function FcUnitedEventsCatalogClient() {
           <span
             className={cn(
               'text-2xl font-semibold uppercase tracking-[0.14em] transition-colors duration-300',
-              showPastEvents ? 'text-[#262f3e]' : 'text-[#797e87]',
+              showPastEvents ? 'text-pitch-charcoal' : 'text-pitch-charcoal/70',
             )}
           >
             Past
@@ -275,13 +320,13 @@ export function FcUnitedEventsCatalogClient() {
         </div>
 
         {/* Search — flat bordered panel */}
-        <div className="mb-8 rounded-[3px] border border-[#e3e3e3] bg-white p-5 md:p-6">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#797e87]">
+        <div className="mb-8 rounded-xl border border-pitch-charcoal/10 bg-white p-5 md:p-6">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">
             Search events
           </p>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div>
-              <label htmlFor="md-events-title" className="mb-1.5 block text-sm font-medium text-[#262f3e]">
+              <label htmlFor="md-events-title" className="mb-1.5 block text-sm font-medium text-pitch-charcoal">
                 Title
               </label>
               <input
@@ -290,25 +335,25 @@ export function FcUnitedEventsCatalogClient() {
                 value={searchTitle}
                 onChange={(e) => setSearchTitle(e.target.value)}
                 placeholder="Search by title…"
-                className="w-full rounded-[3px] border border-[#e3e3e3] bg-white px-3 py-2.5 text-sm text-[#262f3e] outline-none transition-colors duration-300 focus:border-[#ff0000]"
+                className="w-full rounded-xl border border-pitch-charcoal/10 bg-white px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
               />
             </div>
             <div>
-              <span className="mb-1.5 block text-sm font-medium text-[#262f3e]">Date range</span>
+              <span className="mb-1.5 block text-sm font-medium text-pitch-charcoal">Date range</span>
               <div className="grid grid-cols-2 gap-2">
                 <input
                   type="date"
                   value={searchDateFrom}
                   onChange={(e) => setSearchDateFrom(e.target.value)}
                   aria-label="From date"
-                  className="w-full rounded-[3px] border border-[#e3e3e3] bg-white px-2 py-2.5 text-sm text-[#262f3e] outline-none focus:border-[#ff0000]"
+                  className="w-full rounded-xl border border-pitch-charcoal/10 bg-white px-2 py-2.5 text-sm text-pitch-charcoal outline-none focus:border-pitch-olive"
                 />
                 <input
                   type="date"
                   value={searchDateTo}
                   onChange={(e) => setSearchDateTo(e.target.value)}
                   aria-label="To date"
-                  className="w-full rounded-[3px] border border-[#e3e3e3] bg-white px-2 py-2.5 text-sm text-[#262f3e] outline-none focus:border-[#ff0000]"
+                  className="w-full rounded-xl border border-pitch-charcoal/10 bg-white px-2 py-2.5 text-sm text-pitch-charcoal outline-none focus:border-pitch-olive"
                 />
               </div>
             </div>
@@ -322,38 +367,44 @@ export function FcUnitedEventsCatalogClient() {
             </div>
           </div>
           {(appliedTitle || appliedFrom || appliedTo) && (
-            <p className="mt-4 text-sm text-[#797e87]">
-              Active filters
-              {appliedTitle ? ` · title “${appliedTitle}”` : ''}
-              {appliedFrom || appliedTo
-                ? ` · dates ${appliedFrom || '…'} → ${appliedTo || '…'}`
-                : ''}
+            <p className="mt-4 text-sm text-pitch-charcoal/70">
+              <strong className="font-semibold text-pitch-charcoal">Search active:</strong>
+              {appliedTitle ? ` title contains “${appliedTitle}”` : ''}
+              {appliedTitle && (appliedFrom || appliedTo) ? ' and' : ''}
+              {appliedFrom && appliedTo
+                ? ` date between “${appliedFrom}” and “${appliedTo}”`
+                : appliedFrom
+                  ? ` date from “${appliedFrom}” onwards`
+                  : appliedTo
+                    ? ` date until “${appliedTo}”`
+                    : ''}
+              {(appliedFrom || appliedTo) && ' (overrides the Future/Past toggle)'}
             </p>
           )}
         </div>
 
         {/* Status messages */}
         {!loading && checkedInitial && futureCount === 0 && pastCount === 0 && events.length === 0 && !fetchError && (
-          <p className="mb-6 rounded-[3px] border border-[#e3e3e3] bg-white px-5 py-8 text-center text-sm text-[#797e87]">
+          <p className="mb-6 rounded-xl border border-pitch-charcoal/10 bg-white px-5 py-8 text-center text-sm text-pitch-charcoal/70">
             No events listed yet. Check back soon.
           </p>
         )}
         {!loading && checkedInitial && showPastEvents && futureCount === 0 && (pastCount ?? 0) > 0 && !fetchError && (
-          <p className="mb-6 rounded-[3px] border border-[#e3e3e3] bg-white px-5 py-4 text-sm text-[#797e87]">
+          <p className="mb-6 rounded-xl border border-pitch-charcoal/10 bg-white px-5 py-4 text-sm text-pitch-charcoal/70">
             Showing recent events. New upcoming events will appear here when scheduled.
           </p>
         )}
 
         {loading ? (
           <div className="flex min-h-[240px] items-center justify-center">
-            <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#e3e3e3] border-t-[#ff0000]" aria-label="Loading" />
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-pitch-charcoal/10 border-t-pitch-olive" aria-label="Loading" />
           </div>
         ) : fetchError ? (
-          <p className="rounded-[3px] border border-[#ff0000]/30 bg-white px-5 py-8 text-center text-sm font-medium text-[#ff0000]">
+          <p className="rounded-xl border border-pitch-olive/30 bg-white px-5 py-8 text-center text-sm font-medium text-pitch-olive">
             Could not load events. Please try again later.
           </p>
         ) : events.length === 0 ? (
-          <p className="rounded-[3px] border border-[#e3e3e3] bg-white px-5 py-8 text-center text-sm text-[#797e87]">
+          <p className="rounded-xl border border-pitch-charcoal/10 bg-white px-5 py-8 text-center text-sm text-pitch-charcoal/70">
             No events found.
           </p>
         ) : (
@@ -374,53 +425,109 @@ export function FcUnitedEventsCatalogClient() {
               const registerTarget = isUpcoming ? resolveRegisterTarget(event) : null;
               const showDonation =
                 isDonationBasedEvent(event) && isUpcoming && !isTicketedFundraiserEvent(event);
+              const isLongDescription = !!event.description && event.description.length > 200;
+              const descExpanded = !!(event.id && expandedDescriptions[event.id]);
+
+              let calendarLink: string | null = null;
+              if (isUpcoming && event.startDate && event.startTime) {
+                const start = toGoogleCalendarDate(event.startDate, event.startTime);
+                const end = toGoogleCalendarDate(
+                  event.endDate || event.startDate,
+                  event.endTime || event.startTime,
+                );
+                if (start && end) {
+                  calendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${start}/${end}&details=${encodeURIComponent(event.description || '')}&location=${encodeURIComponent(event.location || '')}`;
+                }
+              }
 
               return (
                 <article
                   key={event.id ?? event.title}
-                  className="overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-white transition-colors duration-300 ease-in-out hover:border-[#c8c8c8]"
+                  className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-white transition-colors duration-300 ease-in-out hover:border-pitch-charcoal/25"
                 >
-                  <div className="relative aspect-[32/9] w-full border-b border-[#e3e3e3] bg-[#f4f4f4]">
+                  {/* Container takes the image's own aspect ratio: full width, no side gaps, no cropping */}
+                  <div className="relative w-full border-b border-pitch-charcoal/10 bg-pitch-chalk">
                     <Image
                       src={imgSrc}
                       alt={event.title}
-                      fill
-                      className="object-contain object-center"
-                      sizes="100vw"
+                      width={1600}
+                      height={900}
+                      className="block h-auto w-full"
+                      sizes="(max-width: 1240px) 100vw, 1240px"
                     />
                     {showPastEvents && (
-                      <span className="absolute left-3 top-3 rounded-[3px] bg-[#262f3e] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-white">
+                      <span className="absolute left-3 top-3 rounded-xl bg-pitch-forest px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-white">
                         Past Event
                       </span>
                     )}
                   </div>
                   <div className="px-5 py-5 md:px-6 md:py-6">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#ff0000]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-pitch-olive">
                       {showPastEvents ? 'Past Event' : 'Upcoming Event'}
                     </p>
                     <h3
                       className={cn(
-                        fcBebas.className,
-                        'mt-1.5 text-3xl tracking-[0.02em] text-[#262f3e] md:text-4xl',
+                        'font-extrabold tracking-[-0.02em] mt-1.5 text-2xl text-pitch-charcoal md:text-3xl',
                       )}
                     >
                       <Link
                         href={href}
-                        className="transition-colors duration-300 hover:text-[#ff0000] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000]"
+                        className="transition-colors duration-300 hover:text-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive"
                       >
                         {event.title}
                       </Link>
                     </h3>
                     {dateLabel && (
-                      <p className="mt-2 text-sm font-medium text-[#262f3e] md:text-[15px]">{dateLabel}</p>
+                      <p className="mt-2 text-sm font-medium text-pitch-charcoal md:text-[15px]">{dateLabel}</p>
                     )}
                     {event.location?.trim() && (
-                      <p className="mt-1 text-sm leading-relaxed text-[#797e87] md:text-[15px]">
-                        {event.location.trim()}
+                      <p className="mt-1 flex flex-wrap items-center gap-2 text-sm leading-relaxed text-pitch-charcoal/70 md:text-[15px]">
+                        <span>{event.location.trim()}</span>
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location.trim())}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-semibold text-pitch-olive transition-colors hover:underline"
+                          title="Open in Google Maps"
+                          aria-label="Open location in Google Maps"
+                        >
+                          Map
+                        </a>
                       </p>
+                    )}
+                    {event.description && (
+                      <DescriptionDisplay description={event.description} isExpanded={descExpanded} />
                     )}
 
                     <div className="mt-5 flex flex-wrap gap-3">
+                      {isLongDescription && event.id != null && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setExpandedDescriptions((prev) => ({
+                              ...prev,
+                              [event.id!]: !prev[event.id!],
+                            }))
+                          }
+                          className={secondaryCta}
+                          title={descExpanded ? 'Show Less' : 'Read More'}
+                          aria-label={descExpanded ? 'Show Less' : 'Read More'}
+                        >
+                          {descExpanded ? 'Show less' : 'Read more'}
+                        </button>
+                      )}
+                      {calendarLink && (
+                        <a
+                          href={calendarLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={secondaryCta}
+                          title="Add to Calendar"
+                          aria-label="Add to Calendar"
+                        >
+                          Add to Calendar
+                        </a>
+                      )}
                       <Link href={href} className={secondaryCta}>
                         View event
                       </Link>
@@ -459,32 +566,15 @@ export function FcUnitedEventsCatalogClient() {
           </div>
         )}
 
-        {/* Pagination */}
-        {!loading && events.length > 0 && (
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-            <button
-              type="button"
-              disabled={page === 0}
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              className={cn(secondaryCta, 'disabled:cursor-not-allowed disabled:opacity-40')}
-            >
-              Previous
-            </button>
-            <p className="text-sm font-medium text-[#262f3e]">
-              Page <span className="text-[#ff0000]">{displayPage}</span> of {totalPages}
-              {totalCount > 0 && (
-                <span className="ml-2 text-[#797e87]">({totalCount} total)</span>
-              )}
-            </p>
-            <button
-              type="button"
-              disabled={page >= totalPages - 1}
-              onClick={() => setPage((p) => p + 1)}
-              className={cn(secondaryCta, 'disabled:cursor-not-allowed disabled:opacity-40')}
-            >
-              Next
-            </button>
-          </div>
+        {!loading && (
+          <MdPagination
+            page={page}
+            pageSize={PAGE_SIZE}
+            totalCount={totalCount}
+            onPageChange={setPage}
+            itemLabel="events"
+            loading={loading}
+          />
         )}
       </Shell>
     </section>

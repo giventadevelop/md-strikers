@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { fcBebas, fcPoppins } from './fcUnitedFonts';
+import { fcManrope } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
@@ -10,7 +10,7 @@ import type { PublicTournament } from '@/lib/tournaments/publicTournaments';
 import { menuLabel } from '@/lib/tournaments/publicTournaments';
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn('mx-auto w-full max-w-[1308px] px-4 md:px-7 lg:px-12', className)}>{children}</div>;
+  return <div className={cn('mx-auto w-full max-w-[1240px] px-4 sm:px-6 lg:px-8', className)}>{children}</div>;
 }
 
 function filled(value?: string | null) {
@@ -32,19 +32,21 @@ export default function FcUnitedTournamentPage({
   const resultsLabel = tournament.externalResultsLabel?.trim() || 'Open schedule in new tab';
 
   return (
-    <div className={cn(fcPoppins.className, 'min-h-screen bg-[#f4f4f4] text-[#797e87] antialiased')}>
+    <div className={cn(fcManrope.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader active="tournaments" />
       <FcUnitedInnerHero title={label} />
 
       <section className="bg-white">
         {filled(tournament.heroImageUrl) && (
-          <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 overflow-hidden bg-[#081224]">
-            <div className="relative aspect-[16/9] w-full sm:aspect-[16/8] md:aspect-[16/7] lg:aspect-[16/6]">
+          <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 overflow-hidden bg-pitch-charcoal">
+            {/* Container takes the image's own aspect ratio: full width, no side gaps, no cropping */}
+            <div className="relative w-full">
               <Image
                 src={tournament.heroImageUrl!}
                 alt={`${label} tournament poster`}
-                fill
-                className="object-center"
+                width={1920}
+                height={1080}
+                className="block h-auto w-full"
                 sizes="100vw"
                 priority
               />
@@ -58,7 +60,7 @@ export default function FcUnitedTournamentPage({
 
             {filled(tournament.aboutText) && (
               <div>
-                <h2 className={cn(fcBebas.className, 'text-2xl tracking-wide text-[#262f3e] md:text-3xl')}>
+                <h2 className={cn('font-extrabold tracking-[-0.02em] text-xl text-pitch-charcoal md:text-2xl')}>
                   About the Tournament
                 </h2>
                 <p className="mt-4">{tournament.aboutText}</p>
@@ -67,18 +69,19 @@ export default function FcUnitedTournamentPage({
 
             {(filled(tournament.chiefGuestName) || filled(tournament.chiefGuestImageUrl)) && (
               <div>
-                <h2 className={cn(fcBebas.className, 'text-2xl tracking-wide text-[#262f3e] md:text-3xl')}>
+                <h2 className={cn('font-extrabold tracking-[-0.02em] text-xl text-pitch-charcoal md:text-2xl')}>
                   Chief Guest{tournament.ageGroupLabel ? ` · ${tournament.ageGroupLabel}` : ''}
                 </h2>
                 {filled(tournament.chiefGuestName) && <p className="mt-4">{tournament.chiefGuestName}</p>}
                 {filled(tournament.chiefGuestImageUrl) && (
-                  <div className="relative mt-6 overflow-hidden rounded-[3px]">
-                    <div className="relative mx-auto aspect-[4/3] w-full max-w-xl md:aspect-[16/10]">
+                  <div className="relative mt-6 overflow-hidden rounded-xl">
+                    <div className="relative mx-auto w-full max-w-xl overflow-hidden rounded-xl">
                       <Image
                         src={tournament.chiefGuestImageUrl!}
                         alt={tournament.chiefGuestName ? `Chief guest — ${tournament.chiefGuestName}` : 'Chief guest'}
-                        fill
-                        className="object-contain object-center"
+                        width={1200}
+                        height={900}
+                        className="block h-auto w-full"
                         sizes="(max-width: 768px) 100vw, 576px"
                       />
                     </div>
@@ -89,7 +92,7 @@ export default function FcUnitedTournamentPage({
 
             {filled(tournament.detailsText) && (
               <div>
-                <h2 className={cn(fcBebas.className, 'text-2xl tracking-wide text-[#262f3e] md:text-3xl')}>
+                <h2 className={cn('font-extrabold tracking-[-0.02em] text-xl text-pitch-charcoal md:text-2xl')}>
                   Tournament Details
                 </h2>
                 <p className="mt-4">{tournament.detailsText}</p>
@@ -98,12 +101,12 @@ export default function FcUnitedTournamentPage({
 
             {filled(tournament.registrationEmail) && (
               <div>
-                <h2 className={cn(fcBebas.className, 'text-2xl tracking-wide text-[#262f3e] md:text-3xl')}>
+                <h2 className={cn('font-extrabold tracking-[-0.02em] text-xl text-pitch-charcoal md:text-2xl')}>
                   Registration
                 </h2>
                 <p className="mt-4">
                   Teams interested in participating can reach out to us at{' '}
-                  <a href={`mailto:${tournament.registrationEmail}`} className="font-medium text-[#ff0000] hover:underline">
+                  <a href={`mailto:${tournament.registrationEmail}`} className="font-medium text-pitch-olive hover:underline">
                     {tournament.registrationEmail}
                   </a>{' '}
                   for registration details and tournament guidelines.
@@ -112,10 +115,10 @@ export default function FcUnitedTournamentPage({
             )}
 
             <div>
-              <h2 className={cn(fcBebas.className, 'text-2xl tracking-wide text-[#262f3e] md:text-3xl')}>Results</h2>
-              {inProgress && <p className="mt-4 font-medium text-[#262f3e]">Tournament in progress</p>}
+              <h2 className={cn('font-extrabold tracking-[-0.02em] text-xl text-pitch-charcoal md:text-2xl')}>Results</h2>
+              {inProgress && <p className="mt-4 font-medium text-pitch-charcoal">Tournament in progress</p>}
               {completedWithPodium && (
-                <ol className="mt-4 list-decimal space-y-2 pl-5 text-[#262f3e]">
+                <ol className="mt-4 list-decimal space-y-2 pl-5 text-pitch-charcoal">
                   {filled(tournament.winnerName) && <li>Winner: {tournament.winnerName}</li>}
                   {filled(tournament.runnerUpName) && <li>Runner-up: {tournament.runnerUpName}</li>}
                   {filled(tournament.thirdPlaceName) && <li>Third place: {tournament.thirdPlaceName}</li>}
@@ -132,8 +135,7 @@ export default function FcUnitedTournamentPage({
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(
-                    fcBebas.className,
-                    'mt-6 inline-flex items-center justify-center rounded-[3px] bg-[#e31837] px-6 py-3 text-lg tracking-wide text-white hover:bg-[#c41430]',
+                    'font-extrabold tracking-[-0.02em] mt-6 inline-flex items-center justify-center rounded-xl bg-pitch-forest px-6 py-3 text-lg text-white hover:bg-pitch-olive',
                   )}
                 >
                   {resultsLabel}
@@ -144,14 +146,15 @@ export default function FcUnitedTournamentPage({
         </Shell>
 
         {filled(tournament.fixturesImageUrl) && (
-          <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 overflow-hidden bg-[#f4f4f4]">
-            <div className="relative aspect-[3/2] w-full md:min-h-[78vh] lg:min-h-[85vh]">
+          <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 overflow-hidden bg-pitch-chalk">
+            <div className="relative w-full">
               <Image
                 src={tournament.fixturesImageUrl!}
                 alt={`${label} match fixtures`}
-                fill
+                width={1920}
+                height={1280}
                 unoptimized
-                className="object-contain object-center"
+                className="block h-auto w-full"
                 sizes="100vw"
               />
             </div>
@@ -159,14 +162,14 @@ export default function FcUnitedTournamentPage({
         )}
 
         {resultsUrl && (
-          <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 border-t border-[#e3e3e3] bg-[#f8f8f8] pb-8 pt-6 md:pb-12 md:pt-8">
+          <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 border-t border-pitch-charcoal/10 bg-pitch-chalk/60 pb-8 pt-6 md:pb-12 md:pt-8">
             <Shell>
-              <h2 className={cn(fcBebas.className, 'mb-4 text-center text-2xl tracking-wide text-[#262f3e] md:text-3xl')}>
+              <h2 className={cn('font-extrabold tracking-[-0.02em] mb-4 text-center text-xl text-pitch-charcoal md:text-2xl')}>
                 Schedule &amp; results
               </h2>
             </Shell>
             <div className="mx-auto w-full max-w-[1400px] px-2 sm:px-4 md:px-6">
-              <div className="overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-white shadow-sm">
+              <div className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-white shadow-sm">
                 <iframe
                   title={`${label} — live schedule and results`}
                   src={resultsUrl}
@@ -183,14 +186,14 @@ export default function FcUnitedTournamentPage({
 
         {previous.length > 0 && (
           <Shell className="pb-12 pt-10 md:pb-16 md:pt-12">
-            <div className="mx-auto max-w-3xl border-t border-[#e3e3e3] pt-10">
-              <h3 className={cn(fcBebas.className, 'text-xl tracking-wide text-[#262f3e] md:text-2xl')}>
+            <div className="mx-auto max-w-3xl border-t border-pitch-charcoal/10 pt-10">
+              <h3 className={cn('font-extrabold tracking-[-0.02em] text-lg text-pitch-charcoal md:text-xl')}>
                 Previous tournaments
               </h3>
               <ul className="mt-4 list-disc space-y-2 pl-5">
                 {previous.map((item) => (
                   <li key={item.slug}>
-                    <Link href={`/tournaments/${item.slug}`} className="text-[#ff0000] hover:underline">
+                    <Link href={`/tournaments/${item.slug}`} className="text-pitch-olive hover:underline">
                       {menuLabel(item)}
                     </Link>
                   </li>

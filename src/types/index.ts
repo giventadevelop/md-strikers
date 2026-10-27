@@ -638,6 +638,7 @@ export interface TenantSettingsDTO {
   showEventsSectionInHomePage?: boolean;
   showTeamMembersSectionInHomePage?: boolean;
   showSponsorsSectionInHomePage?: boolean;
+  showHeaderNews?: boolean | null;
   isMembershipSubscriptionEnabled?: boolean;
   homepageCacheVersion?: number;
   // Contact and Address Fields
@@ -988,6 +989,39 @@ export interface TeamMemberDTO {
   lineupSubtitle?: string;
   instrument?: string;
   vocalRole?: string;
+  nationality?: string;
+  dateOfBirth?: string;
+  preferredFoot?: string;
+  heightCm?: number | null;
+  instagramUrl?: string;
+  preferredName?: string;
+  spokenLanguages?: string;
+  weightKg?: number | null;
+  bodyBuild?: string;
+  clubName?: string;
+  leagueDivision?: string;
+  secondaryPositions?: string;
+  seasonLabel?: string;
+  seasonAppearances?: number | null;
+  seasonGoals?: number | null;
+  seasonAssists?: number | null;
+  seasonMinutes?: number | null;
+  seasonWins?: number | null;
+  seasonDraws?: number | null;
+  seasonLosses?: number | null;
+  passAccuracyPct?: number | null;
+  shotAccuracyPct?: number | null;
+  topSpeedKmh?: number | null;
+  careerAppearances?: number | null;
+  careerGoals?: number | null;
+  careerAssists?: number | null;
+  gpa?: number | null;
+  academicScore?: string;
+  coachName?: string;
+  coachEmail?: string;
+  coachPhone?: string;
+  recentMatches?: string;
+  sportProfiles?: string;
 }
 
 /**

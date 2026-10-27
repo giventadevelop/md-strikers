@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,6 +7,20 @@ import type { EventSponsorsDTO, EventMediaDTO } from "@/types";
 import { Camera, Video, Eye } from 'lucide-react';
 import styles from '../../events/[id]/GalleryThumbnails.module.css';
 import { EventMediaSlideshow } from '@/app/gallery/components/EventMediaSlideshow';
+import { cn } from '@/lib/utils';
+import { FcUnitedFooter } from '@/components/fc-united/FcUnitedFooter';
+import { FcUnitedHeader } from '@/components/fc-united/FcUnitedHeader';
+import { fcPoppins } from '@/components/fc-united/fcUnitedFonts';
+
+function SponsorDetailChrome({ children }: { children: ReactNode }) {
+  return (
+    <div className={cn(fcPoppins.className, 'min-h-screen bg-[#f4f4f4] text-[#797e87] antialiased')}>
+      <FcUnitedHeader active="sponsors" />
+      {children}
+      <FcUnitedFooter />
+    </div>
+  );
+}
 
 // Array of modern background colors for sponsor cards
 const cardBackgrounds = [
@@ -91,8 +105,20 @@ export default function SponsorDetailsPage() {
     fetchSponsorDetails();
   }, [sponsorId]);
 
-  if (loading) return <div className="p-8 text-center">Loading sponsor details...</div>;
-  if (!sponsor) return <div className="p-8 text-center text-red-500">Sponsor not found.</div>;
+  if (loading) {
+    return (
+      <SponsorDetailChrome>
+        <div className="p-8 text-center">Loading sponsor details...</div>
+      </SponsorDetailChrome>
+    );
+  }
+  if (!sponsor) {
+    return (
+      <SponsorDetailChrome>
+        <div className="p-8 text-center text-red-500">Sponsor not found.</div>
+      </SponsorDetailChrome>
+    );
+  }
 
   // Banner (hero): use SPONSOR_BANNER media with lowest priority (media already sorted by priorityRanking,asc)
   const primaryBannerMedia = media.find((m) => m.fileUrl && (m.eventMediaType === 'SPONSOR_BANNER'));
@@ -106,7 +132,8 @@ export default function SponsorDetailsPage() {
   const remainingCount = Math.max(0, gallery.length - 12);
 
   return (
-    <div className="pt-20">
+    <SponsorDetailChrome>
+    <div>
       {/* Hero Section - Full width banner image */}
       <section className="relative w-full bg-transparent">
         <div className="w-full relative min-h-[200px]">
@@ -441,6 +468,7 @@ export default function SponsorDetailsPage() {
         </div>
       </div>
     </div>
+    </SponsorDetailChrome>
   );
 }
 
