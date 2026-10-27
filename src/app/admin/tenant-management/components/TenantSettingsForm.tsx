@@ -70,6 +70,7 @@ export default function TenantSettingsForm({
       showEventsSectionInHomePage: initialData?.showEventsSectionInHomePage ?? true,
       showTeamMembersSectionInHomePage: initialData?.showTeamMembersSectionInHomePage ?? true,
       showSponsorsSectionInHomePage: initialData?.showSponsorsSectionInHomePage ?? true,
+      showHeaderNews: initialData?.showHeaderNews === true,
       isMembershipSubscriptionEnabled: initialData?.isMembershipSubscriptionEnabled ?? false,
       // Enhanced WhatsApp Integration Fields
       whatsappPhoneNumber: initialData?.whatsappPhoneNumber || '',
@@ -860,6 +861,16 @@ export default function TenantSettingsForm({
                   description="Display the team members section on the homepage"
                   checked={watchedValues.showTeamMembersSectionInHomePage || false}
                   onChange={(checked) => setValue('showTeamMembersSectionInHomePage', checked)}
+                />
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <ToggleSwitch
+                  name="showHeaderNews"
+                  label="Show News Menu"
+                  description="Display the News item in the site header. Matches the admin Header Menu switch: off until turned on."
+                  checked={watchedValues.showHeaderNews === true}
+                  onChange={(checked) => setValue('showHeaderNews', checked)}
                 />
               </div>
 

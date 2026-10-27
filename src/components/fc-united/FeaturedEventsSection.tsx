@@ -76,7 +76,7 @@ export function FeaturedEventsSection({ items }: { items: SpotlightItem[] }) {
       eyebrow="Spotlight"
       heading="Featured Event"
       lead="Highlights from the Maryland Strikers calendar."
-      badge={{ label: 'Featured', className: 'bg-[#262f3e]' }}
+      badge={{ label: 'Featured', className: 'bg-pitch-charcoal/80' }}
       items={items}
     />
   );

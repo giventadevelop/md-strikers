@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { fcSponsors } from './fcUnitedConstants';
-import { fcBebas, fcPoppins } from './fcUnitedFonts';
+import { fcManrope } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
@@ -10,7 +10,7 @@ import Image from 'next/image';
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('mx-auto w-full max-w-[1308px] px-4 md:px-7 lg:px-12', className)}>{children}</div>
+    <div className={cn('mx-auto w-full max-w-[1240px] px-4 sm:px-6 lg:px-8', className)}>{children}</div>
   );
 }
 
@@ -28,12 +28,12 @@ const detailContacts = [
 
 export default function FcUnitedContactsPage() {
   return (
-    <div className={cn(fcPoppins.className, 'min-h-screen bg-[#f4f4f4] text-[#797e87] antialiased')}>
+    <div className={cn(fcManrope.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader active="contacts" />
       <FcUnitedInnerHero title="Contacts" />
 
       <section className="bg-white">
-        <div className="relative h-[min(60vh,604px)] w-full overflow-hidden bg-[#e3e3e3]">
+        <div className="relative h-[min(60vh,604px)] w-full overflow-hidden bg-pitch-charcoal/10">
           <iframe
             title="Maryland Strikers — location map"
             className="h-full w-full border-0"
@@ -43,20 +43,19 @@ export default function FcUnitedContactsPage() {
           />
         </div>
 
-        <Shell className="py-12 md:py-16">
+        <Shell className="py-20 md:py-28">
           <div className="mx-auto max-w-3xl">
-            <div className="relative overflow-hidden rounded-2xl border border-[#e3e3e3] bg-gradient-to-br from-[#f8f8f8] via-white to-[#f4f4f4] p-6 shadow-sm md:p-10">
+            <div className="relative overflow-hidden rounded-2xl border border-pitch-charcoal/10 bg-gradient-to-br from-pitch-chalk via-white to-pitch-chalk p-6 shadow-sm md:p-10">
               <div
                 className="pointer-events-none absolute inset-0 opacity-[0.35]"
                 style={{
-                  backgroundImage: 'radial-gradient(circle at top left, rgba(227, 24, 55, 0.08), transparent 55%)',
+                  backgroundImage: 'radial-gradient(circle at top left, rgba(82, 107, 80, 0.12), transparent 55%)',
                 }}
               />
               <div className="relative">
                 <p
                   className={cn(
-                    fcBebas.className,
-                    'text-center text-2xl uppercase tracking-[0.14em] text-[#262f3e] md:text-3xl',
+                    'font-extrabold tracking-[-0.02em] text-center text-xl text-pitch-charcoal md:text-2xl',
                   )}
                 >
                   For details contact
@@ -65,12 +64,12 @@ export default function FcUnitedContactsPage() {
                   {detailContacts.map((c) => (
                     <div
                       key={c.name}
-                      className="flex flex-col gap-4 rounded-xl border border-[#e3e3e3]/80 bg-white/90 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+                      className="flex flex-col gap-4 rounded-xl border border-pitch-charcoal/10/80 bg-white/90 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100">
+                        <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-pitch-forest/10">
                           <svg
-                            className="h-6 w-6 text-blue-600"
+                            className="h-6 w-6 text-pitch-olive"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -84,18 +83,18 @@ export default function FcUnitedContactsPage() {
                             />
                           </svg>
                         </span>
-                        <span className={cn(fcBebas.className, 'text-lg tracking-wide text-[#262f3e] md:text-xl')}>
+                        <span className={cn('font-extrabold tracking-[-0.02em] text-lg text-pitch-charcoal md:text-lg')}>
                           {c.name}
                         </span>
                       </div>
                       <a
                         href={`tel:${c.tel}`}
-                        className="inline-flex cursor-pointer items-center gap-2 self-start rounded-lg bg-green-50 px-4 py-2.5 text-[#262f3e] transition-colors duration-200 hover:bg-green-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white motion-reduce:transition-none sm:self-center"
+                        className="inline-flex cursor-pointer items-center gap-2 self-start rounded-lg bg-pitch-olive/10 px-4 py-2.5 text-pitch-charcoal transition-colors duration-200 hover:bg-pitch-olive/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2 focus-visible:ring-offset-white motion-reduce:transition-none sm:self-center"
                         title={`Call ${c.name}`}
                       >
-                        <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-green-100">
+                        <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-pitch-olive/15">
                           <svg
-                            className="h-5 w-5 text-green-600"
+                            className="h-5 w-5 text-pitch-olive"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -116,12 +115,12 @@ export default function FcUnitedContactsPage() {
                 </div>
                 <a
                   href={`mailto:${DETAIL_CONTACT_EMAIL}`}
-                  className="relative mt-8 flex cursor-pointer flex-wrap items-center justify-center gap-3 rounded-xl border border-[#e3e3e3] bg-white px-4 py-4 text-center transition-colors duration-200 hover:bg-[#fafafa] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f8f8f8] motion-reduce:transition-none sm:gap-4"
+                  className="relative mt-8 flex cursor-pointer flex-wrap items-center justify-center gap-3 rounded-xl border border-pitch-charcoal/10 bg-white px-4 py-4 text-center transition-colors duration-200 hover:bg-pitch-chalk/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2 focus-visible:ring-offset-pitch-chalk motion-reduce:transition-none sm:gap-4"
                   title="Email Maryland Strikers"
                 >
-                  <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-amber-100">
+                  <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-pitch-forest/10">
                     <svg
-                      className="h-6 w-6 text-amber-600"
+                      className="h-6 w-6 text-pitch-olive"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -136,8 +135,8 @@ export default function FcUnitedContactsPage() {
                     </svg>
                   </span>
                   <span className="text-left text-sm md:text-base">
-                    <span className="block text-xs font-semibold uppercase tracking-[0.15em] text-[#797e87]">Email</span>
-                    <span className="mt-0.5 block font-medium text-[#ff0000] hover:underline">{DETAIL_CONTACT_EMAIL}</span>
+                    <span className="block text-xs font-semibold uppercase tracking-[0.15em] text-pitch-charcoal/70">Email</span>
+                    <span className="mt-0.5 block font-medium text-pitch-olive hover:underline">{DETAIL_CONTACT_EMAIL}</span>
                   </span>
                 </a>
               </div>
@@ -146,8 +145,8 @@ export default function FcUnitedContactsPage() {
 
           <div className="mt-14 md:mt-16">
             <div className="mx-auto max-w-md text-center">
-              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100">
-                <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-pitch-forest/10">
+                <svg className="h-6 w-6 text-pitch-olive" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -157,7 +156,7 @@ export default function FcUnitedContactsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
-              <h3 className={cn(fcBebas.className, 'text-xl text-[#262f3e]')}>Address</h3>
+              <h3 className={cn('font-extrabold tracking-[-0.02em] text-lg text-pitch-charcoal')}>Address</h3>
               <p className="mt-3 text-sm leading-relaxed">
                 13881 Hopkins Rd
                 <br />
@@ -166,16 +165,16 @@ export default function FcUnitedContactsPage() {
             </div>
           </div>
 
-          <div className="mt-16 border-t border-[#e3e3e3] pt-12 text-center">
-            <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-[#797e87]">have a question?</span>
-            <h2 className={cn(fcBebas.className, 'text-3xl text-[#262f3e] md:text-4xl')}>drop a line</h2>
+          <div className="mt-16 border-t border-pitch-charcoal/10 pt-12 text-center">
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">have a question?</span>
+            <h2 className={cn('font-extrabold tracking-[-0.02em] text-2xl text-pitch-charcoal md:text-3xl')}>drop a line</h2>
 
             <FcUnitedContactForm />
           </div>
         </Shell>
       </section>
 
-      <section className="border-t border-[#e3e3e3] bg-[#f4f4f4] py-10">
+      <section className="border-t border-pitch-charcoal/10 bg-pitch-chalk py-10">
         <Shell>
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 lg:justify-between">
             {fcSponsors.map((src) => (

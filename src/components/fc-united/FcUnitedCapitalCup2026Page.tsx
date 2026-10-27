@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { fcBebas, fcPoppins } from './fcUnitedFonts';
+import { fcManrope } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
@@ -10,19 +10,19 @@ const GALLERY = '/images/md_strikers_media/gallery';
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('mx-auto w-full max-w-[1308px] px-4 md:px-7 lg:px-12', className)}>{children}</div>
+    <div className={cn('mx-auto w-full max-w-[1240px] px-4 sm:px-6 lg:px-8', className)}>{children}</div>
   );
 }
 
 /** Content aligned with https://www.mdstrikers.com/capitalcup2026.html */
 export default function FcUnitedCapitalCup2026Page() {
   return (
-    <div className={cn(fcPoppins.className, 'min-h-screen bg-[#f4f4f4] text-[#797e87] antialiased')}>
+    <div className={cn(fcManrope.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader />
       <FcUnitedInnerHero title="Capital Cup 2026" />
 
       <section className="bg-white">
-        <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 overflow-hidden bg-[#081224]">
+        <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 overflow-hidden bg-pitch-charcoal">
           <div className="relative aspect-[16/9] w-full sm:aspect-[16/8] md:aspect-[16/7] lg:aspect-[16/6]">
             <Image
               src={`${GALLERY}/Capital_Cup_Hero_Image.jpg`}
@@ -44,7 +44,7 @@ export default function FcUnitedCapitalCup2026Page() {
             </p>
 
             <div>
-              <h2 className={cn(fcBebas.className, 'text-2xl tracking-wide text-[#262f3e] md:text-3xl')}>
+              <h2 className={cn('font-extrabold tracking-[-0.02em] text-xl text-pitch-charcoal md:text-2xl')}>
                 About the Tournament
               </h2>
               <p className="mt-4">
@@ -55,10 +55,10 @@ export default function FcUnitedCapitalCup2026Page() {
             </div>
 
             <div>
-              <h2 className={cn(fcBebas.className, 'text-2xl tracking-wide text-[#262f3e] md:text-3xl')}>
+              <h2 className={cn('font-extrabold tracking-[-0.02em] text-xl text-pitch-charcoal md:text-2xl')}>
                 Chief Guest
               </h2>
-              <div className="relative mt-6 overflow-hidden rounded-[3px]">
+              <div className="relative mt-6 overflow-hidden rounded-xl">
                 <div className="relative mx-auto aspect-[4/3] w-full max-w-xl md:aspect-[16/10]">
                   <Image
                     src={`${GALLERY}/IM_Vijayan-Image-2.jpg`}
@@ -72,7 +72,7 @@ export default function FcUnitedCapitalCup2026Page() {
             </div>
 
             <div>
-              <h2 className={cn(fcBebas.className, 'text-2xl tracking-wide text-[#262f3e] md:text-3xl')}>
+              <h2 className={cn('font-extrabold tracking-[-0.02em] text-xl text-pitch-charcoal md:text-2xl')}>
                 Tournament Details
               </h2>
               <p className="mt-4">
@@ -82,14 +82,14 @@ export default function FcUnitedCapitalCup2026Page() {
             </div>
 
             <div>
-              <h2 className={cn(fcBebas.className, 'text-2xl tracking-wide text-[#262f3e] md:text-3xl')}>
+              <h2 className={cn('font-extrabold tracking-[-0.02em] text-xl text-pitch-charcoal md:text-2xl')}>
                 Registration
               </h2>
               <p className="mt-4">
                 Teams interested in participating can reach out to us at{' '}
                 <a
                   href="mailto:mdstrikersinc@gmail.com"
-                  className="cursor-pointer font-medium text-[#ff0000] underline-offset-2 transition-colors duration-200 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff0000] focus-visible:ring-offset-2 focus-visible:ring-offset-white motion-reduce:transition-none"
+                  className="cursor-pointer font-medium text-pitch-olive underline-offset-2 transition-colors duration-200 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2 focus-visible:ring-offset-white motion-reduce:transition-none"
                 >
                   mdstrikersinc@gmail.com
                 </a>{' '}
@@ -97,14 +97,14 @@ export default function FcUnitedCapitalCup2026Page() {
               </p>
             </div>
 
-            <h2 className={cn(fcBebas.className, 'text-2xl tracking-wide text-[#262f3e] md:text-3xl')}>
+            <h2 className={cn('font-extrabold tracking-[-0.02em] text-xl text-pitch-charcoal md:text-2xl')}>
               Match Fixtures
             </h2>
           </div>
         </Shell>
 
         {/* Full-bleed fixtures poster (same breakout pattern as hero; outside Shell padding) */}
-        <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 overflow-hidden bg-[#f4f4f4]">
+        <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 overflow-hidden bg-pitch-chalk">
           {/* Mobile: aspect only (no min-h) so the 3:2 poster fills width without top/bottom gaps */}
           <div className="relative w-full aspect-[3/2] md:min-h-[78vh] lg:min-h-[85vh]">
             <Image
@@ -120,15 +120,15 @@ export default function FcUnitedCapitalCup2026Page() {
 
         <Shell className="pb-12 pt-10 md:pb-16 md:pt-12">
           <div className="mx-auto max-w-3xl space-y-10 text-sm leading-relaxed md:text-base">
-            <div className="border-t border-[#e3e3e3] pt-10">
-              <h3 className={cn(fcBebas.className, 'text-xl tracking-wide text-[#262f3e] md:text-2xl')}>
+            <div className="border-t border-pitch-charcoal/10 pt-10">
+              <h3 className={cn('font-extrabold tracking-[-0.02em] text-lg text-pitch-charcoal md:text-xl')}>
                 Previous Tournaments
               </h3>
               <ul className="mt-4 list-disc space-y-2 pl-5">
                 <li>
                   <a
                     href="/capital-cup-2025"
-                    className="cursor-pointer text-[#ff0000] underline-offset-2 transition-colors duration-200 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff0000] focus-visible:ring-offset-2 focus-visible:ring-offset-white motion-reduce:transition-none"
+                    className="cursor-pointer text-pitch-olive underline-offset-2 transition-colors duration-200 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2 focus-visible:ring-offset-white motion-reduce:transition-none"
                   >
                     Capital Cup 2025
                   </a>

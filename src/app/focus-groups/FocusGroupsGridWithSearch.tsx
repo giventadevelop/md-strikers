@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { MdPagination } from '@/components/fc-united/MdPagination';
 
 interface FocusGroupWithEvents {
   id: number;
@@ -32,18 +33,11 @@ export default function FocusGroupsGridWithSearch({ groups, total }: FocusGroups
     : groups;
 
   const filteredCount = filteredGroups.length;
-  const totalPages = Math.max(1, Math.ceil(filteredCount / pageSize));
-  const startItem = filteredCount > 0 ? page * pageSize + 1 : 0;
-  const endItem = filteredCount > 0 ? Math.min((page + 1) * pageSize, filteredCount) : 0;
   const paginatedGroups = filteredGroups.slice(page * pageSize, (page + 1) * pageSize);
 
   useEffect(() => {
     setPage(0);
   }, [searchTerm]);
-
-  const isPrevDisabled = page <= 0;
-  const isNextDisabled = page + 1 >= totalPages;
-  const displayPage = totalPages === 0 ? 0 : page + 1;
 
   return (
     <div className="space-y-6">
@@ -173,61 +167,14 @@ export default function FocusGroupsGridWithSearch({ groups, total }: FocusGroups
       )}
 
       {/* Pagination - only when there are results */}
-      {filteredCount > 0 && (
-        <div className="mt-8">
-          <div className="flex justify-between items-center">
-            <button
-              type="button"
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={isPrevDisabled}
-              className={`px-5 py-2.5 bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold rounded-lg shadow-sm border-2 border-blue-400 hover:border-blue-500 disabled:bg-blue-100 disabled:border-blue-300 disabled:text-blue-500 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-md ${
-                isPrevDisabled ? 'opacity-50 cursor-not-allowed pointer-events-none hover:scale-100' : ''
-              }`}
-              title="Previous Page"
-              aria-label="Previous Page"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-              </svg>
-              <span>Previous</span>
-            </button>
-
-            <div className="px-4 py-2 bg-blue-50 border-2 border-blue-300 rounded-lg shadow-sm">
-              <span className="text-sm font-bold text-blue-700">
-                Page <span className="text-blue-600">{displayPage}</span> of{' '}
-                <span className="text-blue-600">{totalPages}</span>
-              </span>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-              disabled={isNextDisabled}
-              className={`px-5 py-2.5 bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold rounded-lg shadow-sm border-2 border-blue-400 hover:border-blue-500 disabled:bg-blue-100 disabled:border-blue-300 disabled:text-blue-500 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-md ${
-                isNextDisabled ? 'opacity-50 cursor-not-allowed pointer-events-none hover:scale-100' : ''
-              }`}
-              title="Next Page"
-              aria-label="Next Page"
-            >
-              <span>Next</span>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="text-center mt-3">
-            <div className="inline-flex items-center px-4 py-2 bg-blue-50 border-2 border-blue-300 rounded-lg shadow-sm">
-              <span className="text-sm text-gray-700">
-                Showing <span className="font-bold text-blue-600">{startItem}</span> to{' '}
-                <span className="font-bold text-blue-600">{endItem}</span> of{' '}
-                <span className="font-bold text-blue-600">{filteredCount}</span> focus groups
-                {searchTerm.trim() ? ` (filtered from ${groups.length})` : ''}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
+      <MdPagination
+        page={page}
+        pageSize={pageSize}
+        totalCount={filteredCount}
+        onPageChange={setPage}
+        itemLabel="focus groups"
+        itemLabelSingular="focus group"
+      />
     </div>
   );
 }

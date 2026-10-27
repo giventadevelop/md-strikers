@@ -47,6 +47,7 @@ export interface TenantSettingsDTO {
   showEventsSectionInHomePage?: boolean;
   showTeamMembersSectionInHomePage?: boolean;
   showSponsorsSectionInHomePage?: boolean;
+  showHeaderNews?: boolean | null;
   isMembershipSubscriptionEnabled?: boolean;
   // Enhanced WhatsApp Integration Fields
   whatsappPhoneNumber?: string;

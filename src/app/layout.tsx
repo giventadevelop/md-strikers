@@ -8,6 +8,7 @@ import Footer from "../components/Footer";
 import ConditionalLayout from "../components/ConditionalLayout";
 import ClerkSyncUrlCleanup from "../components/ClerkSyncUrlCleanup";
 import ClerkSatelliteSyncGate from "../components/ClerkSatelliteSyncGate";
+import PaginationScrollToTop from "../components/fc-united/PaginationScrollToTop";
 import MobileDebugConsole from "../components/MobileDebugConsole";
 import TenantIdInjector from "../components/TenantIdInjector";
 import { TenantSettingsProvider } from "../components/TenantSettingsProvider";
@@ -388,6 +389,7 @@ export default async function RootLayout({
           <ClerkProvider publishableKey={CLERK_KEY} {...clerkProps}>
           <ClerkSyncUrlCleanup />
           <ClerkSatelliteSyncGate />
+          <PaginationScrollToTop />
           <TenantIdInjector />
           <TrpcProvider>
             <TenantSettingsProvider>
@@ -425,6 +427,7 @@ export default async function RootLayout({
           <>
           <ClerkSyncUrlCleanup />
           <ClerkSatelliteSyncGate />
+          <PaginationScrollToTop />
           <TenantIdInjector />
           <TrpcProvider>
             <TenantSettingsProvider>

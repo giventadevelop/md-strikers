@@ -10,6 +10,7 @@ export type FcNavKey =
   | 'team'
   | 'executive'
   | 'gallery'
+  | 'news'
   | 'sponsors'
   | 'contacts';
 
@@ -37,6 +38,7 @@ const BASE_LINKS: FcNavLink[] = [
   { href: '/about', label: 'About', key: 'about' },
   { href: '/events', label: 'Events', key: 'events' },
   { href: '/matches', label: 'Matches', key: 'matches' },
+  { href: '/news', label: 'News', key: 'news' },
   { href: '/team', label: 'Sports Team', key: 'team' },
   { href: '/executive-team', label: 'Executive Team', key: 'executive' },
   { href: '/gallery', label: 'Gallery', key: 'gallery' },
@@ -53,6 +55,7 @@ export type FcHeaderMenuVisibility = {
   home?: boolean | null;
   about?: boolean | null;
   events?: boolean | null;
+  news?: boolean | null;
   gallery?: boolean | null;
   contacts?: boolean | null;
   team?: boolean | null;
@@ -62,6 +65,8 @@ export type FcHeaderMenuVisibility = {
 
 function isHeaderItemVisible(key: string, visibility?: FcHeaderMenuVisibility): boolean {
   if (key === 'matches') return true;
+  // News follows the admin Header Menu switch: hidden until showHeaderNews is turned on.
+  if (key === 'news') return visibility?.news === true;
   if (!visibility || !(key in visibility)) return true;
   const flag = visibility[key as keyof FcHeaderMenuVisibility];
   return flag !== false;
@@ -105,6 +110,8 @@ export function buildFcUnitedNavLinks(
   if (events) items.push(events);
   const matches = visible.get('matches');
   if (matches) items.push(matches);
+  const news = visible.get('news');
+  if (news) items.push(news);
 
   if (showTournaments) {
     items.push({ href: '/tournaments', label: 'Tournaments', key: 'tournaments' });

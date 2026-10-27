@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import { fetchLastMatchesServer } from './ApiServerActions';
-import { fcPoppins } from './fcUnitedFonts';
+import { fcManrope } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
@@ -13,7 +13,7 @@ export default async function FcUnitedMatchesPage() {
   const matches = await fetchLastMatchesServer();
 
   return (
-    <div className={cn(fcPoppins.className, 'min-h-screen bg-[#f4f4f4] text-[#797e87] antialiased')}>
+    <div className={cn(fcManrope.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader active="matches" />
       <FcUnitedInnerHero title="Matches" />
       <main>

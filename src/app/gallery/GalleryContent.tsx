@@ -9,7 +9,7 @@ import { GalleryPagination } from './components/GalleryPagination';
 import { fetchEventsForGallery, fetchAlbumsForGallery } from './ApiServerActions';
 import type { GalleryPageData, GalleryAlbumWithMedia } from './ApiServerActions';
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 20;
 
 type TabType = 'albums' | 'events';
 
@@ -181,15 +181,15 @@ export function GalleryContent() {
           eventsCount={eventsCount}
           loading={true}
         />
-        <GallerySearch onSearch={handleSearch} loading={loading} />
+        <GallerySearch
+        onSearch={handleSearch}
+        loading={loading}
+        placeholder={activeTab === 'albums' ? 'Enter album title…' : 'Enter event title…'}
+      />
 
         {/* Grid Container with Bold Dark Gradient Background - Matching events page style */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 border border-white/10 shadow-2xl mb-8">
-          {/* Bold Dark Radial Gradient Overlay */}
-          <div className="absolute inset-0 pointer-events-none opacity-70" style={{ backgroundImage: 'radial-gradient(circle at top left, rgba(255,255,255,0.18), transparent 55%)' }} />
-
-          {/* Grid Content */}
-          <div className="relative px-6 py-10 sm:px-10 lg:px-14">
+        <div className="mb-8">
+          <div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
                 <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
@@ -232,10 +232,14 @@ export function GalleryContent() {
             eventsCount={eventsCount}
             loading={loading}
           />
-          <GallerySearch onSearch={handleSearch} loading={loading} />
+          <GallerySearch
+            onSearch={handleSearch}
+            loading={loading}
+            placeholder={activeTab === 'albums' ? 'Enter album title…' : 'Enter event title…'}
+          />
           <div className="text-center py-12">
             <div className="text-gray-400 text-6xl mb-4">📸</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-semibold text-pitch-charcoal mb-2">
               {hasFilters ? 'No albums found' : 'No albums available'}
             </h3>
             <p className="text-gray-600">
@@ -247,7 +251,7 @@ export function GalleryContent() {
             {hasFilters && (
               <button
                 onClick={() => handleSearch({ searchTerm: '', startDate: undefined, endDate: undefined })}
-                className="mt-4 text-blue-600 hover:text-blue-800 font-medium"
+                className="mt-4 text-pitch-olive hover:text-pitch-forest font-medium"
               >
                 Clear all filters
               </button>
@@ -276,15 +280,15 @@ export function GalleryContent() {
           eventsCount={eventsCount}
           loading={loading}
         />
-        <GallerySearch onSearch={handleSearch} loading={loading} />
+        <GallerySearch
+        onSearch={handleSearch}
+        loading={loading}
+        placeholder={activeTab === 'albums' ? 'Enter album title…' : 'Enter event title…'}
+      />
 
         {/* Grid Container with Bold Dark Gradient Background - Matching events page style */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 border border-white/10 shadow-2xl mb-8">
-          {/* Bold Dark Radial Gradient Overlay */}
-          <div className="absolute inset-0 pointer-events-none opacity-70" style={{ backgroundImage: 'radial-gradient(circle at top left, rgba(255,255,255,0.18), transparent 55%)' }} />
-
-          {/* Grid Content */}
-          <div className="relative px-6 py-10 sm:px-10 lg:px-14">
+        <div className="mb-8">
+          <div>
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
@@ -338,10 +342,14 @@ export function GalleryContent() {
           eventsCount={eventsCount}
           loading={loading}
         />
-        <GallerySearch onSearch={handleSearch} loading={loading} />
+        <GallerySearch
+        onSearch={handleSearch}
+        loading={loading}
+        placeholder={activeTab === 'albums' ? 'Enter album title…' : 'Enter event title…'}
+      />
         <div className="text-center py-12">
           <div className="text-gray-400 text-6xl mb-4">📸</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          <h3 className="text-xl font-semibold text-pitch-charcoal mb-2">
             {hasFilters ? 'No events found' : 'No events available'}
           </h3>
           <p className="text-gray-600">
@@ -353,7 +361,7 @@ export function GalleryContent() {
           {hasFilters && (
             <button
               onClick={() => handleSearch({ searchTerm: '', startDate: undefined, endDate: undefined })}
-              className="mt-4 text-blue-600 hover:text-blue-800 font-medium"
+              className="mt-4 text-pitch-olive hover:text-pitch-forest font-medium"
             >
               Clear all filters
             </button>
@@ -384,15 +392,15 @@ export function GalleryContent() {
         eventsCount={eventsCount}
         loading={loading}
       />
-      <GallerySearch onSearch={handleSearch} loading={loading} />
+      <GallerySearch
+        onSearch={handleSearch}
+        loading={loading}
+        placeholder={activeTab === 'albums' ? 'Enter album title…' : 'Enter event title…'}
+      />
 
       {/* Grid Container with Bold Dark Gradient Background - Matching events page style */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 border border-white/10 shadow-2xl mb-8">
-        {/* Bold Dark Radial Gradient Overlay */}
-        <div className="absolute inset-0 pointer-events-none opacity-70" style={{ backgroundImage: 'radial-gradient(circle at top left, rgba(255,255,255,0.18), transparent 55%)' }} />
-
-        {/* Grid Content */}
-        <div className="relative px-6 py-10 sm:px-10 lg:px-14">
+      <div className="mb-8">
+        <div>
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (

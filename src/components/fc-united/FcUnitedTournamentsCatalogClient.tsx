@@ -10,7 +10,8 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { PublicTournament } from '@/lib/tournaments/publicTournaments';
 import { DEFAULT_EVENT_IMAGE, formatEventDate } from './homeEventDisplay';
-import { fcBebas } from './fcUnitedFonts';
+
+import { MdPagination } from './MdPagination';
 
 const PAGE_SIZE = 12;
 
@@ -62,10 +63,10 @@ function plainText(value?: string | null, max = 180): string {
 }
 
 const pillCta =
-  'inline-flex items-center justify-center gap-2 rounded-[32px] bg-[#ff0000] px-6 py-2.5 text-sm font-semibold text-white transition-[filter] duration-300 ease-in-out hover:brightness-[1.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000]';
+  'inline-flex items-center justify-center gap-2 rounded-full bg-pitch-forest px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-300 ease-in-out hover:bg-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
 
 const secondaryCta =
-  'inline-flex items-center justify-center gap-2 rounded-[32px] border border-[#e3e3e3] bg-white px-6 py-2.5 text-sm font-semibold text-[#262f3e] transition-colors duration-300 hover:border-[#c8c8c8] hover:text-[#ff0000] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000]';
+  'inline-flex items-center justify-center gap-2 rounded-full border border-pitch-charcoal/10 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-colors duration-300 hover:border-pitch-charcoal/25 hover:text-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
 
 export function FcUnitedTournamentsCatalogClient() {
   const [tournaments, setTournaments] = useState<PublicTournament[]>([]);
@@ -151,16 +152,16 @@ export function FcUnitedTournamentsCatalogClient() {
   };
 
   return (
-    <section className="bg-[#f4f4f4] pb-16 pt-2 md:pb-20 md:pt-4">
+    <section className="bg-pitch-chalk pb-16 pt-2 md:pb-20 md:pt-4">
       <Shell>
         <div className="mb-8 text-center md:mb-10 md:text-left">
-          <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-[#797e87]">
+          <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">
             club calendar
           </span>
-          <h2 className={cn(fcBebas.className, 'text-4xl tracking-[0.03em] text-[#262f3e] md:text-5xl')}>
+          <h2 className={cn('font-extrabold tracking-[-0.02em] text-3xl text-pitch-charcoal md:text-4xl')}>
             {showPast ? 'Past Tournaments' : 'Upcoming Tournaments'}
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#797e87] md:text-[15px]">
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-pitch-charcoal/70 md:text-[15px]">
             {showPast
               ? 'Tournaments this club has already hosted. Switch to Future for what is coming up.'
               : 'Every published tournament for this club. Open a card for fixtures, guests, and registration.'}
@@ -171,7 +172,7 @@ export function FcUnitedTournamentsCatalogClient() {
           <span
             className={cn(
               'text-2xl font-semibold uppercase tracking-[0.14em] transition-colors duration-300',
-              !showPast ? 'text-[#ff0000]' : 'text-[#797e87]',
+              !showPast ? 'text-pitch-olive' : 'text-pitch-charcoal/70',
             )}
           >
             Future
@@ -183,8 +184,8 @@ export function FcUnitedTournamentsCatalogClient() {
               setPage(0);
             }}
             className={cn(
-              'relative inline-flex h-20 w-32 items-center rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff0000] focus-visible:ring-offset-2',
-              showPast ? 'bg-[#262f3e]' : 'bg-[#ff0000]',
+              'relative inline-flex h-20 w-32 items-center rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2',
+              showPast ? 'bg-pitch-forest' : 'bg-pitch-forest',
             )}
             title={showPast ? 'Show upcoming tournaments' : 'Show past tournaments'}
             aria-label={showPast ? 'Show upcoming tournaments' : 'Show past tournaments'}
@@ -196,11 +197,11 @@ export function FcUnitedTournamentsCatalogClient() {
               )}
             >
               {showPast ? (
-                <svg className="h-8 w-8 text-[#262f3e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-8 w-8 text-pitch-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               ) : (
-                <svg className="h-8 w-8 text-[#ff0000]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-8 w-8 text-pitch-olive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               )}
@@ -209,20 +210,20 @@ export function FcUnitedTournamentsCatalogClient() {
           <span
             className={cn(
               'text-2xl font-semibold uppercase tracking-[0.14em] transition-colors duration-300',
-              showPast ? 'text-[#262f3e]' : 'text-[#797e87]',
+              showPast ? 'text-pitch-charcoal' : 'text-pitch-charcoal/70',
             )}
           >
             Past
           </span>
         </div>
 
-        <div className="mb-8 rounded-[3px] border border-[#e3e3e3] bg-white p-5 md:p-6">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#797e87]">
+        <div className="mb-8 rounded-xl border border-pitch-charcoal/10 bg-white p-5 md:p-6">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">
             Search tournaments
           </p>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label htmlFor="md-tournaments-title" className="mb-1.5 block text-sm font-medium text-[#262f3e]">
+              <label htmlFor="md-tournaments-title" className="mb-1.5 block text-sm font-medium text-pitch-charcoal">
                 Title
               </label>
               <input
@@ -234,7 +235,7 @@ export function FcUnitedTournamentsCatalogClient() {
                   if (e.key === 'Enter') handleSearch();
                 }}
                 placeholder="Search by title…"
-                className="w-full rounded-[3px] border border-[#e3e3e3] bg-white px-3 py-2.5 text-sm text-[#262f3e] outline-none transition-colors duration-300 focus:border-[#ff0000]"
+                className="w-full rounded-xl border border-pitch-charcoal/10 bg-white px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
               />
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
@@ -247,31 +248,31 @@ export function FcUnitedTournamentsCatalogClient() {
             </div>
           </div>
           {appliedTitle && (
-            <p className="mt-4 text-sm text-[#797e87]">Active filters · title “{appliedTitle}”</p>
+            <p className="mt-4 text-sm text-pitch-charcoal/70">Active filters · title “{appliedTitle}”</p>
           )}
         </div>
 
         {!loading && !fetchError && tournaments.length === 0 && (
-          <p className="mb-6 rounded-[3px] border border-[#e3e3e3] bg-white px-5 py-8 text-center text-sm text-[#797e87]">
+          <p className="mb-6 rounded-xl border border-pitch-charcoal/10 bg-white px-5 py-8 text-center text-sm text-pitch-charcoal/70">
             No tournaments listed yet. Check back soon.
           </p>
         )}
         {!loading && !fetchError && showPast && futureCount === 0 && pastCount > 0 && (
-          <p className="mb-6 rounded-[3px] border border-[#e3e3e3] bg-white px-5 py-4 text-sm text-[#797e87]">
+          <p className="mb-6 rounded-xl border border-pitch-charcoal/10 bg-white px-5 py-4 text-sm text-pitch-charcoal/70">
             Showing recent tournaments. New upcoming tournaments will appear here when published.
           </p>
         )}
 
         {loading ? (
           <div className="flex min-h-[240px] items-center justify-center">
-            <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#e3e3e3] border-t-[#ff0000]" aria-label="Loading" />
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-pitch-charcoal/10 border-t-pitch-olive" aria-label="Loading" />
           </div>
         ) : fetchError ? (
-          <p className="rounded-[3px] border border-[#ff0000]/30 bg-white px-5 py-8 text-center text-sm font-medium text-[#ff0000]">
+          <p className="rounded-xl border border-pitch-olive/30 bg-white px-5 py-8 text-center text-sm font-medium text-pitch-olive">
             Could not load tournaments. Please try again later.
           </p>
         ) : pageRows.length === 0 ? (
-          <p className="rounded-[3px] border border-[#e3e3e3] bg-white px-5 py-8 text-center text-sm text-[#797e87]">
+          <p className="rounded-xl border border-pitch-charcoal/10 bg-white px-5 py-8 text-center text-sm text-pitch-charcoal/70">
             No tournaments found.
           </p>
         ) : (
@@ -285,41 +286,43 @@ export function FcUnitedTournamentsCatalogClient() {
               return (
                 <article
                   key={tournament.id ?? tournament.slug}
-                  className="overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-white transition-colors duration-300 ease-in-out hover:border-[#c8c8c8]"
+                  className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-white transition-colors duration-300 ease-in-out hover:border-pitch-charcoal/25"
                 >
-                  <div className="relative aspect-[32/9] w-full border-b border-[#e3e3e3] bg-[#f4f4f4]">
+                  {/* Container takes the image's own aspect ratio: full width, no side gaps, no cropping */}
+                  <div className="relative w-full border-b border-pitch-charcoal/10 bg-pitch-chalk">
                     <Image
                       src={imgSrc}
                       alt={tournament.title}
-                      fill
-                      className="object-contain object-center"
-                      sizes="100vw"
+                      width={1600}
+                      height={900}
+                      className="block h-auto w-full"
+                      sizes="(max-width: 1240px) 100vw, 1240px"
                     />
                     {past && (
-                      <span className="absolute left-3 top-3 rounded-[3px] bg-[#262f3e] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-white">
+                      <span className="absolute left-3 top-3 rounded-xl bg-pitch-forest px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-white">
                         Past tournament
                       </span>
                     )}
                   </div>
                   <div className="px-5 py-5 md:px-6 md:py-6">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#ff0000]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-pitch-olive">
                       {statusLabel(tournament, past)}
                     </p>
-                    <h3 className={cn(fcBebas.className, 'mt-1.5 text-3xl tracking-[0.02em] text-[#262f3e] md:text-4xl')}>
+                    <h3 className={cn('font-extrabold tracking-[-0.02em] mt-1.5 text-2xl text-pitch-charcoal md:text-3xl')}>
                       <Link
                         href={href}
-                        className="transition-colors duration-300 hover:text-[#ff0000] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000]"
+                        className="transition-colors duration-300 hover:text-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive"
                       >
                         {tournament.title}
                       </Link>
                     </h3>
-                    {dates && <p className="mt-2 text-sm font-medium text-[#262f3e] md:text-[15px]">{dates}</p>}
+                    {dates && <p className="mt-2 text-sm font-medium text-pitch-charcoal md:text-[15px]">{dates}</p>}
                     {tournament.ageGroupLabel?.trim() && (
-                      <p className="mt-1 text-sm leading-relaxed text-[#797e87] md:text-[15px]">
+                      <p className="mt-1 text-sm leading-relaxed text-pitch-charcoal/70 md:text-[15px]">
                         {tournament.ageGroupLabel.trim()}
                       </p>
                     )}
-                    {blurb && <p className="mt-2 text-sm leading-relaxed text-[#797e87] md:text-[15px]">{blurb}</p>}
+                    {blurb && <p className="mt-2 text-sm leading-relaxed text-pitch-charcoal/70 md:text-[15px]">{blurb}</p>}
                     <div className="mt-5 flex flex-wrap gap-3">
                       <Link href={href} className={pillCta}>
                         View tournament
@@ -332,29 +335,14 @@ export function FcUnitedTournamentsCatalogClient() {
           </div>
         )}
 
-        {!loading && pageRows.length > 0 && (
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-            <button
-              type="button"
-              disabled={safePage === 0}
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              className={cn(secondaryCta, 'disabled:cursor-not-allowed disabled:opacity-40')}
-            >
-              Previous
-            </button>
-            <p className="text-sm font-medium text-[#262f3e]">
-              Page <span className="text-[#ff0000]">{safePage + 1}</span> of {totalPages}
-              <span className="ml-2 text-[#797e87]">({filtered.length} total)</span>
-            </p>
-            <button
-              type="button"
-              disabled={safePage >= totalPages - 1}
-              onClick={() => setPage((p) => p + 1)}
-              className={cn(secondaryCta, 'disabled:cursor-not-allowed disabled:opacity-40')}
-            >
-              Next
-            </button>
-          </div>
+        {!loading && (
+          <MdPagination
+            page={safePage}
+            pageSize={PAGE_SIZE}
+            totalCount={filtered.length}
+            onPageChange={setPage}
+            itemLabel="tournaments"
+          />
         )}
       </Shell>
     </section>

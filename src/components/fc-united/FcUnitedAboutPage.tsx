@@ -21,7 +21,7 @@ import {
   mdStrikersWhatWeDoBody,
   mdStrikersWhatWeDoHeading,
 } from './fcUnitedAboutContent';
-import { fcBebas, fcPoppins } from './fcUnitedFonts';
+import { fcManrope } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcMemorableMomentsSection } from './FcMemorableMomentsSection';
 import { FcUnitedHeader } from './FcUnitedHeader';
@@ -33,7 +33,7 @@ const MD_STRIKERS_LOGO_ABOUT =
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('mx-auto w-full max-w-[1308px] px-4 md:px-7 lg:px-12', className)}>{children}</div>
+    <div className={cn('mx-auto w-full max-w-[1240px] px-4 sm:px-6 lg:px-8', className)}>{children}</div>
   );
 }
 
@@ -49,7 +49,7 @@ const ABOUT_SUBNAV_ITEMS = [
 function AboutPageSubnav() {
   return (
     <nav
-      className="border-b border-[#e3e3e3] bg-white"
+      className="border-b border-pitch-charcoal/10 bg-white"
       aria-label="Jump to section on this page"
     >
       <Shell className="py-3 md:py-4">
@@ -59,8 +59,8 @@ function AboutPageSubnav() {
               <a
                 href={`#${item.id}`}
                 className={cn(
-                  fcPoppins.className,
-                  'inline-block rounded-[3px] px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#f5b514] transition-colors hover:bg-[#0a1628] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f5b514] md:text-sm',
+                  fcManrope.className,
+                  'inline-block rounded-xl px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-pitch-lime transition-colors hover:bg-pitch-charcoal hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-lime md:text-sm',
                 )}
               >
                 {item.label}
@@ -77,8 +77,8 @@ export default function FcUnitedAboutPage() {
   return (
     <div
       className={cn(
-        fcPoppins.className,
-        'flex min-h-screen flex-col bg-[#f4f4f4] text-[#797e87] antialiased',
+        fcManrope.className,
+        'flex min-h-screen flex-col bg-pitch-chalk text-pitch-charcoal/70 antialiased',
       )}
     >
       <FcUnitedHeader active="about" />
@@ -89,17 +89,17 @@ export default function FcUnitedAboutPage() {
 
         <section id="about-intro" className="scroll-mt-24 bg-white py-12 md:py-16">
           <Shell>
-            <div className="mx-auto max-w-4xl rounded-[3px] border border-[#e3e3e3] bg-[#f4f4f4] p-6 md:p-10">
-              <h2 className={cn(fcBebas.className, 'text-3xl tracking-wide text-[#262f3e] md:text-4xl')}>
+            <div className="mx-auto max-w-4xl rounded-xl border border-pitch-charcoal/10 bg-pitch-chalk p-6 md:p-10">
+              <h2 className={cn('font-extrabold tracking-[-0.02em] text-2xl text-pitch-charcoal md:text-3xl')}>
                 {fcUnitedAboutTitle}
               </h2>
-              <div className="mt-6 space-y-4 text-sm leading-relaxed text-[#797e87] md:text-base">
+              <div className="mt-6 space-y-4 text-sm leading-relaxed text-pitch-charcoal/70 md:text-base">
                 <p>{fcUnitedAboutP1}</p>
                 <p>
                   {fcUnitedAboutP2BeforeNamslLink}{' '}
                   <a
                     href={fcUnitedAboutNamslUrl}
-                    className="font-medium text-[#ff0000] underline-offset-2 hover:underline"
+                    className="font-medium text-pitch-olive underline-offset-2 hover:underline"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -114,7 +114,7 @@ export default function FcUnitedAboutPage() {
         </section>
 
         {/* Content from https://www.mdstrikers.com/index.html — integrated below existing about copy */}
-        <section className="border-t border-[#e3e3e3] bg-[#f4f4f4] py-12 md:py-16">
+        <section className="border-t border-pitch-charcoal/10 bg-pitch-chalk py-12 md:py-16">
           <Shell>
             <div className="mx-auto max-w-4xl space-y-10">
               <div className="flex justify-center px-2">
@@ -130,8 +130,7 @@ export default function FcUnitedAboutPage() {
               </div>
               <p
                 className={cn(
-                  fcBebas.className,
-                  'text-center text-2xl leading-snug tracking-wide text-[#262f3e] md:text-3xl',
+                  'font-extrabold tracking-[-0.02em] text-center text-xl leading-snug text-pitch-charcoal md:text-2xl',
                 )}
               >
                 {mdStrikersIndexTagline}
@@ -140,33 +139,32 @@ export default function FcUnitedAboutPage() {
               <div>
                 <h2
                   className={cn(
-                    fcBebas.className,
-                    'mb-8 text-center text-3xl uppercase tracking-[0.12em] text-[#262f3e] md:text-4xl',
+                    'font-extrabold tracking-[-0.02em] mb-8 text-center text-2xl text-pitch-charcoal md:text-3xl',
                   )}
                 >
                   {mdStrikersLearnMoreHeading}
                 </h2>
 
-                <div className="space-y-10 rounded-[3px] border border-[#e3e3e3] bg-white p-6 md:p-10">
+                <div className="space-y-10 rounded-xl border border-pitch-charcoal/10 bg-white p-6 md:p-10">
                   <div id="what-we-do" className="scroll-mt-28">
-                    <h3 className={cn(fcBebas.className, 'text-xl tracking-wide text-[#262f3e] md:text-2xl')}>
+                    <h3 className={cn('font-extrabold tracking-[-0.02em] text-lg text-pitch-charcoal md:text-xl')}>
                       {mdStrikersWhatWeDoHeading}
                     </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-[#797e87] md:text-base">{mdStrikersWhatWeDoBody}</p>
+                    <p className="mt-3 text-sm leading-relaxed text-pitch-charcoal/70 md:text-base">{mdStrikersWhatWeDoBody}</p>
                   </div>
 
                   <div id="history" className="scroll-mt-28">
-                    <h3 className={cn(fcBebas.className, 'text-xl tracking-wide text-[#262f3e] md:text-2xl')}>
+                    <h3 className={cn('font-extrabold tracking-[-0.02em] text-lg text-pitch-charcoal md:text-xl')}>
                       {mdStrikersHistoryHeading}
                     </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-[#797e87] md:text-base">{mdStrikersHistoryBody}</p>
+                    <p className="mt-3 text-sm leading-relaxed text-pitch-charcoal/70 md:text-base">{mdStrikersHistoryBody}</p>
                   </div>
 
                   <div id="news" className="scroll-mt-28">
-                    <h3 className={cn(fcBebas.className, 'text-xl tracking-wide text-[#262f3e] md:text-2xl')}>
+                    <h3 className={cn('font-extrabold tracking-[-0.02em] text-lg text-pitch-charcoal md:text-xl')}>
                       {mdStrikersNewsHeading}
                     </h3>
-                    <div className="mt-3 space-y-4 text-sm leading-relaxed text-[#797e87] md:text-base">
+                    <div className="mt-3 space-y-4 text-sm leading-relaxed text-pitch-charcoal/70 md:text-base">
                       {mdStrikersNewsParagraphs.map((p, i) => (
                         <p key={`news-${i}`}>{p}</p>
                       ))}
@@ -174,22 +172,22 @@ export default function FcUnitedAboutPage() {
                   </div>
 
                   <div id="supporters" className="scroll-mt-28">
-                    <h3 className={cn(fcBebas.className, 'text-xl tracking-wide text-[#262f3e] md:text-2xl')}>
+                    <h3 className={cn('font-extrabold tracking-[-0.02em] text-lg text-pitch-charcoal md:text-xl')}>
                       {mdStrikersSupportersHeading}
                     </h3>
-                    <div className="mt-3 space-y-4 text-sm leading-relaxed text-[#797e87] md:text-base">
+                    <div className="mt-3 space-y-4 text-sm leading-relaxed text-pitch-charcoal/70 md:text-base">
                       {mdStrikersSupportersParagraphs.map((p, i) => (
                         <p key={`supporters-${i}`}>{p}</p>
                       ))}
                     </div>
                   </div>
 
-                  <div id="sponsors" className="scroll-mt-28 border-t border-[#e3e3e3] pt-10">
-                    <p className="text-sm font-semibold text-[#262f3e] md:text-base">{mdStrikersThankYouSponsorsLine}</p>
-                    <h4 className={cn(fcBebas.className, 'mt-6 text-lg tracking-wide text-[#262f3e] md:text-xl')}>
+                  <div id="sponsors" className="scroll-mt-28 border-t border-pitch-charcoal/10 pt-10">
+                    <p className="text-sm font-semibold text-pitch-charcoal md:text-base">{mdStrikersThankYouSponsorsLine}</p>
+                    <h4 className={cn('font-extrabold tracking-[-0.02em] mt-6 text-lg text-pitch-charcoal md:text-lg')}>
                       {mdStrikersBecomeASponsorHeading}
                     </h4>
-                    <p className="mt-2 text-sm leading-relaxed text-[#797e87] md:text-base">{mdStrikersBecomeASponsorBody}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-pitch-charcoal/70 md:text-base">{mdStrikersBecomeASponsorBody}</p>
                   </div>
                 </div>
               </div>

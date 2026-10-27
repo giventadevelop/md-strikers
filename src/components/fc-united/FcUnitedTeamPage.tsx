@@ -1,217 +1,175 @@
 'use client';
 
-/**
- * Team roster grid — portrait cells with `object-cover` + top alignment so tiles
- * fill the frame (no letterboxing) and framing favors head/chest over lower body.
- */
-
-import { useCallback, useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { fcSponsors } from './fcUnitedConstants';
-import { fcBebas, fcPoppins } from './fcUnitedFonts';
+import { fcManrope } from './fcUnitedFonts';
 import { encodePublicPath } from './fcUnitedGalleryData';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
+import { MdPagination } from './MdPagination';
+import type { PublicRosterPlayer } from './ApiServerActions';
+
+const PAGE_SIZE = 20;
+
+const pillCta =
+  'inline-flex items-center justify-center gap-2 rounded-full bg-pitch-forest px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-300 ease-in-out hover:bg-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-50';
+
+const secondaryCta =
+  'inline-flex items-center justify-center gap-2 rounded-full border border-pitch-charcoal/10 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-colors duration-300 hover:border-pitch-charcoal/25 hover:text-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-40';
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <div className={cn('mx-auto w-full max-w-[1308px] px-4 md:px-7 lg:px-12', className)}>{children}</div>
-  );
+  return <div className={cn('mx-auto w-full max-w-[1240px] px-4 sm:px-6 lg:px-8', className)}>{children}</div>;
 }
 
-export type FcTeamGalleryItem = {
-  src: string;
-  title: string;
-  tag: string;
-  kind: 'image';
-};
+function matchesQuery(player: PublicRosterPlayer, query: string): boolean {
+  if (!query) return true;
+  const haystack = [player.givenName, player.familyName, player.name, player.role, player.position, player.jersey]
+    .join(' ')
+    .toLowerCase();
+  return query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .every((part) => haystack.includes(part));
+}
 
-type Props = {
-  items: FcTeamGalleryItem[];
-};
+export default function FcUnitedTeamPage({ players }: { players: PublicRosterPlayer[] }) {
+  const [searchDraft, setSearchDraft] = useState('');
+  const [appliedName, setAppliedName] = useState('');
+  const [page, setPage] = useState(0);
 
-export default function FcUnitedTeamPage({ items }: Props) {
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const filtered = useMemo(
+    () => players.filter((player) => matchesQuery(player, appliedName)),
+    [players, appliedName],
+  );
+  const totalCount = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages - 1);
+  const pageItems = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
 
-  const close = useCallback(() => setLightboxIndex(null), []);
+  const applySearch = () => {
+    setAppliedName(searchDraft.trim());
+    setPage(0);
+  };
 
-  const goPrev = useCallback(() => {
-    setLightboxIndex((i) => {
-      if (i === null) return i;
-      return (i - 1 + items.length) % items.length;
-    });
-  }, [items.length]);
-
-  const goNext = useCallback(() => {
-    setLightboxIndex((i) => {
-      if (i === null) return i;
-      return (i + 1) % items.length;
-    });
-  }, [items.length]);
-
-  useEffect(() => {
-    if (lightboxIndex === null) return;
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') close();
-      if (e.key === 'ArrowLeft') goPrev();
-      if (e.key === 'ArrowRight') goNext();
-    };
-
-    document.addEventListener('keydown', onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [lightboxIndex, close, goPrev, goNext]);
-
-  const openAt = (index: number) => setLightboxIndex(index);
-
-  const current = lightboxIndex !== null ? items[lightboxIndex] : null;
-  const currentSrc = current ? encodePublicPath(current.src) : '';
+  const clearSearch = () => {
+    setSearchDraft('');
+    setAppliedName('');
+    setPage(0);
+  };
 
   return (
-    <div className={cn(fcPoppins.className, 'min-h-screen bg-[#f4f4f4] text-[#797e87] antialiased')}>
+    <div className={cn(fcManrope.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader active="team" />
       <FcUnitedInnerHero title="Sports Team" />
 
-      <section className="bg-[#f4f4f4] py-12 md:py-16">
+      <section className="bg-pitch-chalk pb-16 pt-8 md:pb-20">
         <Shell>
-          <p className="mb-8 text-sm text-[#797e87] md:text-base">
-            First Team — photos from <span className="font-medium text-[#262f3e]">squad/members</span>. Thumbnails fill each card from the top (head & chest); click for the full slideshow.
-          </p>
+          <div className="mb-8 rounded-xl border border-pitch-charcoal/10 bg-white p-5 md:p-6">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">Search players</p>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto] md:items-end">
+              <div>
+                <label htmlFor="md-team-name" className="mb-1.5 block text-sm font-medium text-pitch-charcoal">
+                  Name
+                </label>
+                <input
+                  id="md-team-name"
+                  type="search"
+                  value={searchDraft}
+                  onChange={(e) => setSearchDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      applySearch();
+                    }
+                  }}
+                  placeholder="Search by player name…"
+                  className="w-full rounded-xl border border-pitch-charcoal/10 bg-white px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
+                />
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <button type="button" onClick={applySearch} className={cn(pillCta, 'w-full sm:w-auto')}>
+                  Search
+                </button>
+                <button type="button" onClick={clearSearch} className={cn(secondaryCta, 'w-full sm:w-auto')}>
+                  Clear
+                </button>
+              </div>
+            </div>
+            {appliedName ? (
+              <p className="mt-4 text-sm text-pitch-charcoal/70">Active filter · name contains “{appliedName}”</p>
+            ) : null}
+          </div>
 
-          {items.length === 0 ? (
-            <div className="rounded-[3px] border border-[#e3e3e3] bg-white p-10 text-center text-[#797e87] shadow-sm">
-              <p className={cn(fcBebas.className, 'text-2xl text-[#262f3e]')}>No squad photos yet</p>
-              <p className="mt-2 text-sm">Add images to <code className="rounded bg-[#f0f0f0] px-1.5 py-0.5 text-xs">public/images/md_strikers_media/squad/members/</code></p>
+          {pageItems.length === 0 ? (
+            <div className="rounded-xl border border-pitch-charcoal/10 bg-white p-10 text-center text-pitch-charcoal/70 shadow-sm">
+              <p className={cn('font-extrabold tracking-[-0.02em] text-xl text-pitch-charcoal')}>
+                {appliedName ? 'No players found' : 'No squad players yet'}
+              </p>
+              {appliedName ? (
+                <button type="button" onClick={clearSearch} className={cn(secondaryCta, 'mt-4')}>
+                  Clear search
+                </button>
+              ) : null}
             </div>
           ) : (
-            <>
-              {/* Portrait tiles: cover + top anchor — fills cell, crops below chest/waist on tall shots */}
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {items.map((item, index) => (
-                <button
-                  key={`${item.src}-${index}`}
-                  type="button"
-                  onClick={() => openAt(index)}
-                  className="group flex cursor-pointer flex-col overflow-hidden rounded-[3px] border border-[#e3e3e3] bg-white text-left shadow-sm transition-shadow duration-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e31837] focus-visible:ring-offset-2 focus-visible:ring-offset-white motion-reduce:transition-none"
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {pageItems.map((player) => (
+                <Link
+                  key={player.id}
+                  href={`/team/${player.id}`}
+                  className="group flex flex-col overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-white text-left shadow-sm transition-shadow duration-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-2"
                 >
-                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-t-[3px] bg-[#081224]">
-                    {/* Slight zoom clips baked-in white borders in source files; top anchor = upper body */}
-                    <Image
-                      src={encodePublicPath(item.src)}
-                      alt={item.title}
-                      fill
-                      className="origin-top scale-[1.2] object-cover object-top transition-transform duration-300 group-hover:scale-[1.26] motion-reduce:transition-none motion-reduce:group-hover:scale-[1.2]"
-                      sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
-                    />
+                  {/* Same 4:5 frame for every card; photos fill it from the top (portraits are 0.67–0.79 wide, so trimming is minimal) */}
+                  <div className="relative aspect-[4/5] w-full overflow-hidden bg-pitch-charcoal">
+                    {player.imageUrl ? (
+                      <Image
+                        src={encodePublicPath(player.imageUrl)}
+                        alt={player.name}
+                        fill
+                        className="object-cover object-top transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                        sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
+                      />
+                    ) : (
+                      <div className={cn('font-extrabold tracking-[-0.02em] flex h-full items-center justify-center text-4xl text-white')}>
+                        {player.name.slice(0, 1)}
+                      </div>
+                    )}
+                    {player.jersey ? (
+                      <span className="absolute left-3 top-3 rounded-xl bg-pitch-forest px-2.5 py-1 text-sm font-semibold text-white">
+                        {player.jersey}
+                      </span>
+                    ) : null}
                   </div>
-                  <div className="p-4">
-                    <p className="text-xs uppercase tracking-wide text-[#797e87]">{item.tag}</p>
-                    <h3 className={cn(fcBebas.className, 'mt-1 text-xl leading-tight text-[#262f3e]')}>{item.title}</h3>
+                  <div className="flex min-h-[5.5rem] flex-1 flex-col justify-center p-4">
+                    {player.position || player.role ? (
+                      <p className="truncate text-xs uppercase tracking-wide text-pitch-charcoal/70">
+                        {[player.position, player.role].filter(Boolean).join(' · ')}
+                      </p>
+                    ) : null}
+                    <h3 className={cn('font-extrabold tracking-[-0.02em] mt-1 truncate text-lg leading-tight text-pitch-charcoal')}>{player.name}</h3>
                   </div>
-                </button>
+                </Link>
               ))}
-              </div>
-            </>
+            </div>
           )}
+
+          <MdPagination
+            page={safePage}
+            pageSize={PAGE_SIZE}
+            totalCount={totalCount}
+            onPageChange={setPage}
+            itemLabel="players"
+          />
         </Shell>
       </section>
 
-      {lightboxIndex !== null && current && items.length > 0 && (
-        <div
-          className="fixed inset-0 z-[200] flex cursor-pointer flex-col items-center justify-center bg-black/92 p-4"
-          style={{ paddingTop: 'max(1rem, env(safe-area-inset-top, 0px))', paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 0px))' }}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Team slideshow"
-          onClick={close}
-        >
-          <div className="pointer-events-none absolute inset-x-0 top-0 z-[210] flex items-start justify-end gap-2 p-3 md:p-4">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                close();
-              }}
-              className="pointer-events-auto flex h-12 min-w-[5.5rem] cursor-pointer items-center justify-center gap-2 rounded-full bg-[#e31837] px-4 text-sm font-semibold text-white shadow-lg ring-2 ring-white/30 transition-colors duration-200 hover:bg-[#c41430] hover:ring-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/90"
-              title="Close"
-              aria-label="Close slideshow"
-            >
-              <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              Close
-            </button>
-          </div>
-
-          {items.length > 1 && (
-            <>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  goPrev();
-                }}
-                className="absolute left-2 top-1/2 z-[205] flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-slate-900/95 text-amber-400 shadow-lg ring-2 ring-amber-400/70 transition-colors duration-200 hover:bg-slate-800 hover:text-amber-300 hover:ring-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black/90 md:left-6"
-                title="Previous"
-                aria-label="Previous image"
-              >
-                <svg className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  goNext();
-                }}
-                className="absolute right-2 top-1/2 z-[205] flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-slate-900/95 text-amber-400 shadow-lg ring-2 ring-amber-400/70 transition-colors duration-200 hover:bg-slate-800 hover:text-amber-300 hover:ring-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black/90 md:right-6"
-                title="Next"
-                aria-label="Next image"
-              >
-                <svg className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </>
-          )}
-
-          <div
-            className="relative mt-14 flex max-h-[min(72vh,calc(100vh-8rem))] w-full max-w-5xl cursor-default flex-1 items-center justify-center sm:mt-12"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="relative h-[min(72vh,800px)] w-full max-w-5xl">
-              <Image
-                src={currentSrc}
-                alt={current.title}
-                fill
-                className="object-contain"
-                sizes="(max-width:1280px) 100vw, 1024px"
-                priority
-              />
-            </div>
-          </div>
-
-          <div className="relative z-[205] mt-4 max-w-2xl px-2 text-center text-white" onClick={(e) => e.stopPropagation()}>
-            <p className="text-xs uppercase tracking-wide text-white/70">{current.tag}</p>
-            <h2 className={cn(fcBebas.className, 'mt-1 text-2xl text-white md:text-3xl')}>{current.title}</h2>
-            <p className="mt-2 text-sm text-white/80">
-              {lightboxIndex + 1} / {items.length} — Arrow keys, side buttons, or tap Close / backdrop
-            </p>
-          </div>
-        </div>
-      )}
-
-      <section className="border-t border-[#e3e3e3] bg-[#f4f4f4] py-10">
+      <section className="border-t border-pitch-charcoal/10 bg-pitch-chalk py-10">
         <Shell>
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 lg:justify-between">
             {fcSponsors.map((src) => (
