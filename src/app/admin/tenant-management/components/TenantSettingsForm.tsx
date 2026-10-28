@@ -70,6 +70,8 @@ export default function TenantSettingsForm({
       showEventsSectionInHomePage: initialData?.showEventsSectionInHomePage ?? true,
       showTeamMembersSectionInHomePage: initialData?.showTeamMembersSectionInHomePage ?? true,
       showSponsorsSectionInHomePage: initialData?.showSponsorsSectionInHomePage ?? true,
+      showLeagueStandingsSectionInHomePage: initialData?.showLeagueStandingsSectionInHomePage ?? false,
+      showHeaderLeagues: initialData?.showHeaderLeagues === true,
       showHeaderNews: initialData?.showHeaderNews === true,
       isMembershipSubscriptionEnabled: initialData?.isMembershipSubscriptionEnabled ?? false,
       // Enhanced WhatsApp Integration Fields
@@ -881,6 +883,26 @@ export default function TenantSettingsForm({
                   description="Display the sponsors section on the homepage"
                   checked={watchedValues.showSponsorsSectionInHomePage || false}
                   onChange={(checked) => setValue('showSponsorsSectionInHomePage', checked)}
+                />
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <ToggleSwitch
+                  name="showLeagueStandingsSectionInHomePage"
+                  label="League standings on homepage"
+                  description="Show the selected league tables on the homepage instead of the fixture-derived table"
+                  checked={watchedValues.showLeagueStandingsSectionInHomePage || false}
+                  onChange={(checked) => setValue('showLeagueStandingsSectionInHomePage', checked)}
+                />
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <ToggleSwitch
+                  name="showHeaderLeagues"
+                  label="Leagues in header"
+                  description="Add a Leagues item to the site header"
+                  checked={watchedValues.showHeaderLeagues === true}
+                  onChange={(checked) => setValue('showHeaderLeagues', checked)}
                 />
               </div>
 

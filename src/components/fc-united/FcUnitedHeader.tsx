@@ -64,6 +64,7 @@ export function FcUnitedHeader({ active }: { active?: FcNavKey }) {
           sponsors: settings?.showSponsorsSectionInHomePage,
         };
         const showTournaments = settings?.showHeaderTournament === true;
+        const showLeagues = settings?.showHeaderLeagues === true;
         const featured: FeaturedTournamentLink[] = [];
         if (showTournaments) {
           const res = await fetch(
@@ -79,7 +80,7 @@ export function FcUnitedHeader({ active }: { active?: FcNavKey }) {
             }
           }
         }
-        if (!cancelled) setLinks(buildFcUnitedNavLinks(featured, visibility, showTournaments));
+        if (!cancelled) setLinks(buildFcUnitedNavLinks(featured, visibility, showTournaments, showLeagues));
       } catch {
         // Keep the base navigation when the tournament API is unavailable.
       }

@@ -222,6 +222,20 @@ export default function AdminPage() {
       label: 'Manual Payments [Zelle, Venmo…]',
       color: 'mintGreen',
       key: 'manual-payments'
+    },
+    {
+      href: '/admin/leagues',
+      icon: 'chartBar',
+      label: 'Leagues',
+      color: 'amber',
+      key: 'leagues'
+    },
+    {
+      href: '/admin/squads',
+      icon: 'userFriends',
+      label: 'Squads',
+      color: 'violet',
+      key: 'squads'
     }
   ];
 

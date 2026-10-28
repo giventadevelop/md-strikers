@@ -14,6 +14,7 @@ import {
   fetchHomepageEventListServer,
   fetchHomepageSponsorsServer,
   fetchLastMatchesServer,
+  fetchHomepageLeagueTablesServer,
   fetchTeamMembersImageTitleServer,
 } from './ApiServerActions';
 import { HOMEPAGE_SPONSOR_LIMIT } from './homepageLimits';
@@ -32,6 +33,7 @@ import { ViewAllSponsorsButton } from './ViewAllSponsorsButton';
 import { HeroSlider, type HeroSlide } from './HeroSlider';
 import { NextMatchPanel } from './NextMatchPanel';
 import { buildStandings } from './homeStandings';
+import { LeagueStandingsTable } from './LeagueStandingsTable';
 import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchFocus, pitchSection } from './pitchUi';
 
 const STORY_IMAGE = '/images/md_strikers_media/gallery/mdstrikers_com/gal03.jpg';
@@ -146,6 +148,7 @@ export default async function FcUnitedHomePage() {
     executiveTeam,
     tenantSettings,
     latestNews,
+    homepageLeagues,
   ] = await Promise.all([
     fetchTeamMembersImageTitleServer(),
     fetchLastMatchesServer(),
@@ -156,6 +159,7 @@ export default async function FcUnitedHomePage() {
     fetchExecutiveTeamServer(),
     fetchTenantSettingsServer(),
     fetchClubNewsArticles(3),
+    fetchHomepageLeagueTablesServer(),
   ]);
   const fcSquadFirstTeamPlayers: FcSquadPlayer[] = [];
 
@@ -163,6 +167,7 @@ export default async function FcUnitedHomePage() {
   const showSportsTeamSection = tenantSettings?.showTeamMembersSectionInHomePage !== false;
   const showExecutiveTeamSection = tenantSettings?.showExecutiveCommitteeSectionInHomePage !== false;
   const showSponsorsSection = tenantSettings?.showSponsorsSectionInHomePage !== false;
+  const showLeagueStandings = tenantSettings?.showLeagueStandingsSectionInHomePage === true;
 
   const useSampleEvents = !eventList.reachable;
   const listIsUpcoming = useSampleEvents || eventList.isUpcoming;
@@ -437,7 +442,33 @@ export default async function FcUnitedHomePage() {
         )}
 
         {/* Standings — computed from recorded results in last_matches */}
-        {standings.length > 1 && (
+        {showLeagueStandings
+          ? homepageLeagues.map(({ league, rows }) => (
+              <section
+                key={league.id}
+                className={cn(pitchSection, 'bg-pitch-forest')}
+                aria-labelledby={`home-league-${league.id}`}
+              >
+                <PitchShell>
+                  <PitchHeading
+                    id={`home-league-${league.id}`}
+                    eyebrow={league.seasonLabel || 'League'}
+                    title={league.name}
+                    lead="Published table for this league."
+                    action={
+                      league.slug ? (
+                        <Link href={`/leagues/${league.slug}`} className={pitchButton.ghost}>
+                          Full league
+                          <PitchArrow />
+                        </Link>
+                      ) : null
+                    }
+                  />
+                  <LeagueStandingsTable rows={rows} />
+                </PitchShell>
+              </section>
+            ))
+          : standings.length > 1 && (
           <section className={cn(pitchSection, 'bg-pitch-forest')} aria-labelledby="home-standings-heading">
             <PitchShell>
               <PitchHeading

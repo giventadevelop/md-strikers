@@ -6,6 +6,7 @@ export type FcNavKey =
   | 'about'
   | 'events'
   | 'matches'
+  | 'leagues'
   | 'tournaments'
   | 'team'
   | 'executive'
@@ -88,7 +89,8 @@ function groupMenu(label: string, key: string, children: FcNavLink[]): FcNavItem
 export function buildFcUnitedNavLinks(
   featured: FeaturedTournamentLink[] = [],
   visibility?: FcHeaderMenuVisibility,
-  showTournaments = false
+  showTournaments = false,
+  showLeagues = false
 ): FcNavItem[] {
   const visible = new Map(
     BASE_LINKS.filter((link) => isHeaderItemVisible(link.key, visibility)).map((link) => [link.key, link])
@@ -110,6 +112,9 @@ export function buildFcUnitedNavLinks(
   if (events) items.push(events);
   const matches = visible.get('matches');
   if (matches) items.push(matches);
+  if (showLeagues) {
+    items.push({ href: '/leagues', label: 'Leagues', key: 'leagues' });
+  }
   const news = visible.get('news');
   if (news) items.push(news);
 

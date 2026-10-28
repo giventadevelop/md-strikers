@@ -136,6 +136,7 @@ const isPublicRouteClerk = createRouteMatcher([
   '/capital-cup-2026(.*)',
   '/capital-cup-2025(.*)',
   '/tournaments(.*)',
+  '/leagues(.*)',
   '/contact(.*)',
   '/polls(.*)',
   '/charity-theme(.*)',

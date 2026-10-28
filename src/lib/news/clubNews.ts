@@ -20,6 +20,8 @@ export type ClubAdSlot = {
   embedHtml: string | null;
   mediaUrl: string | null;
   linkUrl: string | null;
+  /** False when the admin news-ad switch hides this creative. Missing means shown. */
+  isVisible: boolean;
 };
 
 export type ClubNewsPageData = {
@@ -108,6 +110,7 @@ function mapAd(raw: Record<string, unknown>): ClubAdSlot | null {
     embedHtml: typeof attrs.embedHtml === 'string' && attrs.embedHtml.trim() ? attrs.embedHtml : null,
     mediaUrl: mediaUrl(attrs.media),
     linkUrl: typeof attrs.linkUrl === 'string' && attrs.linkUrl.trim() ? attrs.linkUrl : null,
+    isVisible: attrs.isVisible !== false,
   };
 }
 
@@ -175,7 +178,7 @@ export async function fetchClubNewsPageData(): Promise<ClubNewsPageData> {
   ]);
   const ads = (Array.isArray(adsRes?.data) ? adsRes.data : [])
     .map((row) => mapAd(row as Record<string, unknown>))
-    .filter((row): row is ClubAdSlot => row !== null);
+    .filter((row): row is ClubAdSlot => row !== null && row.isVisible);
   return {
     ...empty,
     mainNews,

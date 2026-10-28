@@ -477,6 +477,14 @@ export default function TenantSettingsViewClient({ settings, settingsId, organiz
                 </dd>
               </div>
               <div>
+                <dt className="text-sm font-medium text-gray-500">League standings on homepage</dt>
+                <dd className="mt-1 text-sm text-gray-900">{settings?.showLeagueStandingsSectionInHomePage ? 'Visible' : 'Hidden'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-gray-500">Leagues in header</dt>
+                <dd className="mt-1 text-sm text-gray-900">{settings?.showHeaderLeagues === true ? 'Visible' : 'Hidden'}</dd>
+              </div>
+              <div>
                 <dt className="text-sm font-medium text-gray-500">Show Sponsors Section</dt>
                 <dd className="mt-1">
                   {settings?.showSponsorsSectionInHomePage ? (

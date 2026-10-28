@@ -12,7 +12,7 @@ import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
 import { MdPagination } from './MdPagination';
-import type { PublicRosterPlayer } from './ApiServerActions';
+import type { PublicRosterPlayer, PublicSquadMembership, PublicSquadOption } from './ApiServerActions';
 
 const PAGE_SIZE = 20;
 
@@ -38,15 +38,51 @@ function matchesQuery(player: PublicRosterPlayer, query: string): boolean {
     .every((part) => haystack.includes(part));
 }
 
-export default function FcUnitedTeamPage({ players }: { players: PublicRosterPlayer[] }) {
+function activeMemberships(player: PublicRosterPlayer, memberships: PublicSquadMembership[]) {
+  return memberships.filter((row) => row.teamMemberId === player.id && row.isActive !== false);
+}
+
+function playerInSquad(player: PublicRosterPlayer, squadId: number, memberships: PublicSquadMembership[]): boolean {
+  const rows = activeMemberships(player, memberships);
+  if (rows.length > 0) return rows.some((row) => row.teamGroupId === squadId);
+  return player.primaryGroupId === squadId;
+}
+
+function withSquadDetails(
+  player: PublicRosterPlayer,
+  squadId: number,
+  memberships: PublicSquadMembership[],
+): PublicRosterPlayer {
+  const row = activeMemberships(player, memberships).find((item) => item.teamGroupId === squadId);
+  if (!row) return player;
+  return {
+    ...player,
+    jersey: row.jerseyNumber != null && Number.isFinite(row.jerseyNumber) ? String(row.jerseyNumber) : player.jersey,
+    position: row.position?.trim() || player.position,
+  };
+}
+
+export default function FcUnitedTeamPage({
+  players,
+  squads,
+  memberships,
+}: {
+  players: PublicRosterPlayer[];
+  squads: PublicSquadOption[];
+  memberships: PublicSquadMembership[];
+}) {
   const [searchDraft, setSearchDraft] = useState('');
   const [appliedName, setAppliedName] = useState('');
+  const [squadId, setSquadId] = useState('');
   const [page, setPage] = useState(0);
 
-  const filtered = useMemo(
-    () => players.filter((player) => matchesQuery(player, appliedName)),
-    [players, appliedName],
-  );
+  const filtered = useMemo(() => {
+    const selected = squadId ? Number(squadId) : null;
+    return players
+      .filter((player) => matchesQuery(player, appliedName))
+      .filter((player) => (selected == null ? true : playerInSquad(player, selected, memberships)))
+      .map((player) => (selected == null ? player : withSquadDetails(player, selected, memberships)));
+  }, [players, appliedName, squadId, memberships]);
   const totalCount = filtered.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const safePage = Math.min(page, totalPages - 1);
@@ -60,6 +96,7 @@ export default function FcUnitedTeamPage({ players }: { players: PublicRosterPla
   const clearSearch = () => {
     setSearchDraft('');
     setAppliedName('');
+    setSquadId('');
     setPage(0);
   };
 
@@ -72,7 +109,7 @@ export default function FcUnitedTeamPage({ players }: { players: PublicRosterPla
         <Shell>
           <div className="mb-8 rounded-xl border border-pitch-charcoal/10 bg-white p-5 md:p-6">
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">Search players</p>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto] md:items-end">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_16rem_auto] md:items-end">
               <div>
                 <label htmlFor="md-team-name" className="mb-1.5 block text-sm font-medium text-pitch-charcoal">
                   Name
@@ -92,6 +129,27 @@ export default function FcUnitedTeamPage({ players }: { players: PublicRosterPla
                   className="w-full rounded-xl border border-pitch-charcoal/10 bg-white px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
                 />
               </div>
+              <div>
+                <label htmlFor="md-team-squad" className="mb-1.5 block text-sm font-medium text-pitch-charcoal">
+                  Team
+                </label>
+                <select
+                  id="md-team-squad"
+                  value={squadId}
+                  onChange={(e) => {
+                    setSquadId(e.target.value);
+                    setPage(0);
+                  }}
+                  className="w-full rounded-xl border border-pitch-charcoal/10 bg-white px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
+                >
+                  <option value="">All teams</option>
+                  {squads.map((squad) => (
+                    <option key={squad.id} value={squad.id}>
+                      {squad.categoryLabel ? `${squad.name} · ${squad.categoryLabel}` : squad.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <button type="button" onClick={applySearch} className={cn(pillCta, 'w-full sm:w-auto')}>
                   Search
@@ -109,7 +167,7 @@ export default function FcUnitedTeamPage({ players }: { players: PublicRosterPla
           {pageItems.length === 0 ? (
             <div className="rounded-xl border border-pitch-charcoal/10 bg-white p-10 text-center text-pitch-charcoal/70 shadow-sm">
               <p className={cn('font-extrabold tracking-[-0.02em] text-xl text-pitch-charcoal')}>
-                {appliedName ? 'No players found' : 'No squad players yet'}
+                {appliedName || squadId ? 'No players found' : 'No squad players yet'}
               </p>
               {appliedName ? (
                 <button type="button" onClick={clearSearch} className={cn(secondaryCta, 'mt-4')}>

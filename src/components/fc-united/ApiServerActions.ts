@@ -7,7 +7,12 @@ import type {
   EventSponsorsDTO,
   ExecutiveCommitteeTeamMemberDTO,
   LastMatchDTO,
+  LeagueClubDTO,
+  LeagueDTO,
+  LeagueMatchDTO,
+  LeagueStandingRowDTO,
   TeamGroupDTO,
+  TeamGroupMembershipDTO,
   TeamMemberDTO,
 } from '@/types';
 import { getNextOccurrenceDate, isRecurringEvent } from '@/lib/eventUtils';
@@ -124,6 +129,22 @@ export type PublicRosterPlayer = {
   position: string;
   jersey: string;
   imageUrl: string;
+  /** Primary squad on the member row. Used when membership rows are missing. */
+  primaryGroupId?: number | null;
+};
+
+export type PublicSquadOption = {
+  id: number;
+  name: string;
+  categoryLabel: string;
+};
+
+export type PublicSquadMembership = {
+  teamMemberId: number;
+  teamGroupId: number;
+  jerseyNumber?: number | null;
+  position?: string;
+  isActive?: boolean;
 };
 
 export type PublicPlayerAchievement = {
@@ -308,39 +329,91 @@ function parseMatches(raw?: string): PublicPlayerMatch[] {
   }
 }
 
-async function loadFirstTeamGroupId(): Promise<number | null> {
-  const apiBase = getApiBaseUrl();
-  if (!apiBase) return null;
-  const tenantId = getTenantId();
-  const groupParams = new URLSearchParams({
-    'slug.equals': FIRST_TEAM_SLUG,
-    'tenantId.equals': tenantId,
-    'isActive.equals': 'true',
-    size: '1',
-  });
-  const groupRes = await fetchWithJwtRetry(
-    `${apiBase}/api/team-groups?${groupParams.toString()}`,
-    { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
-    'first-team-group',
-  );
-  if (!groupRes.ok) return null;
-  const groups = asList<TeamGroupDTO>(await groupRes.json());
-  return groups[0]?.id ?? null;
+function toRosterPlayer(member: TeamMemberDTO): PublicRosterPlayer {
+  return {
+    id: member.id as number,
+    name: playerName(member),
+    givenName: member.firstName?.trim() || '',
+    familyName: member.lastName?.trim() || '',
+    role: playerRole(member),
+    position: member.position?.trim() || '',
+    jersey: member.jerseyNumber != null && Number.isFinite(member.jerseyNumber) ? String(member.jerseyNumber) : '',
+    imageUrl: member.profileImageUrl?.trim() || '',
+    primaryGroupId: member.teamGroupId ?? null,
+  };
 }
 
-/** Active First Team roster for the public listing. */
+/** Active squads for the team-page filter. */
+export async function fetchPublicSquadsServer(): Promise<PublicSquadOption[]> {
+  try {
+    const apiBase = getApiBaseUrl();
+    if (!apiBase) return [];
+    const params = new URLSearchParams({
+      'tenantId.equals': getTenantId(),
+      'isActive.equals': 'true',
+      sort: 'displayOrder,asc',
+      size: '100',
+    });
+    const response = await fetchWithJwtRetry(
+      `${apiBase}/api/team-groups?${params.toString()}`,
+      { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+      'public-squads',
+    );
+    if (!response.ok) return [];
+    return asList<TeamGroupDTO>(await response.json())
+      .filter((group) => group.id != null && group.name)
+      .map((group) => ({
+        id: group.id as number,
+        name: group.name,
+        categoryLabel: group.categoryLabel?.trim() || '',
+      }));
+  } catch (error) {
+    console.error('[fetchPublicSquadsServer] Error:', error);
+    return [];
+  }
+}
+
+/** Squad assignments used to filter the public roster. */
+export async function fetchPublicSquadMembershipsServer(): Promise<PublicSquadMembership[]> {
+  try {
+    const apiBase = getApiBaseUrl();
+    if (!apiBase) return [];
+    const params = new URLSearchParams({
+      'tenantId.equals': getTenantId(),
+      size: '2000',
+    });
+    const response = await fetchWithJwtRetry(
+      `${apiBase}/api/team-group-memberships?${params.toString()}`,
+      { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+      'public-squad-memberships',
+    );
+    if (!response.ok) return [];
+    return asList<TeamGroupMembershipDTO>(await response.json())
+      .filter((row) => row.teamMemberId != null && row.teamGroupId != null)
+      .map((row) => ({
+        teamMemberId: row.teamMemberId,
+        teamGroupId: row.teamGroupId,
+        jerseyNumber: row.jerseyNumber,
+        position: row.position,
+        isActive: row.isActive,
+      }));
+  } catch (error) {
+    console.error('[fetchPublicSquadMembershipsServer] Error:', error);
+    return [];
+  }
+}
+
+/** Every active member once. The team page filters this list by squad membership. */
 export async function fetchPublicRosterServer(): Promise<PublicRosterPlayer[]> {
   try {
     const apiBase = getApiBaseUrl();
-    const groupId = await loadFirstTeamGroupId();
-    if (!apiBase || groupId == null) return [];
+    if (!apiBase) return [];
     const tenantId = getTenantId();
     const memberParams = new URLSearchParams({
-      'teamGroupId.equals': String(groupId),
       'tenantId.equals': tenantId,
       'isActive.equals': 'true',
       sort: 'priorityOrder,asc',
-      size: '200',
+      size: '500',
     });
     const memberRes = await fetchWithJwtRetry(
       `${apiBase}/api/team-members?${memberParams.toString()}`,
@@ -348,21 +421,151 @@ export async function fetchPublicRosterServer(): Promise<PublicRosterPlayer[]> {
       'public-roster',
     );
     if (!memberRes.ok) return [];
+    const seen = new Set<number>();
     return asList<TeamMemberDTO>(await memberRes.json())
       .filter((member) => member.id != null)
-      .map((member) => ({
-        id: member.id as number,
-        name: playerName(member),
-        givenName: member.firstName?.trim() || '',
-        familyName: member.lastName?.trim() || '',
-        role: playerRole(member),
-        position: member.position?.trim() || '',
-        jersey:
-          member.jerseyNumber != null && Number.isFinite(member.jerseyNumber) ? String(member.jerseyNumber) : '',
-        imageUrl: member.profileImageUrl?.trim() || '',
-      }));
+      .filter((member) => {
+        const id = member.id as number;
+        if (seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      })
+      .map(toRosterPlayer);
   } catch (error) {
     console.error('[fetchPublicRosterServer] Error:', error);
+    return [];
+  }
+}
+
+export type PublicLeagueBundle = {
+  league: LeagueDTO;
+  rows: LeagueStandingRowDTO[];
+};
+
+async function leagueList(query: string): Promise<LeagueDTO[]> {
+  const apiBase = getApiBaseUrl();
+  if (!apiBase) return [];
+  const response = await fetchWithJwtRetry(
+    `${apiBase}/api/leagues?${query}`,
+    { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+    'public-leagues',
+  );
+  if (!response.ok) return [];
+  return asList<LeagueDTO>(await response.json()).filter((league) => league.id != null && league.slug);
+}
+
+export async function fetchPublishedLeaguesServer(): Promise<LeagueDTO[]> {
+  try {
+    const params = new URLSearchParams({
+      'tenantId.equals': getTenantId(),
+      'isPublished.equals': 'true',
+      sort: 'homepageDisplayOrder,asc',
+      size: '100',
+    });
+    return await leagueList(params.toString());
+  } catch (error) {
+    console.error('[fetchPublishedLeaguesServer] Error:', error);
+    return [];
+  }
+}
+
+export async function fetchHomepageLeagueTablesServer(): Promise<PublicLeagueBundle[]> {
+  try {
+    const params = new URLSearchParams({
+      'tenantId.equals': getTenantId(),
+      'isPublished.equals': 'true',
+      'showOnHomepage.equals': 'true',
+      sort: 'homepageDisplayOrder,asc',
+      size: '20',
+    });
+    const leagues = await leagueList(params.toString());
+    return Promise.all(
+      leagues.map(async (league) => ({
+        league,
+        rows: await fetchLeagueStandingsServer(league.id as number),
+      })),
+    );
+  } catch (error) {
+    console.error('[fetchHomepageLeagueTablesServer] Error:', error);
+    return [];
+  }
+}
+
+export async function fetchLeagueBySlugServer(slug: string): Promise<LeagueDTO | null> {
+  try {
+    const params = new URLSearchParams({
+      'tenantId.equals': getTenantId(),
+      'slug.equals': slug,
+      'isPublished.equals': 'true',
+      size: '1',
+    });
+    const leagues = await leagueList(params.toString());
+    return leagues[0] ?? null;
+  } catch (error) {
+    console.error('[fetchLeagueBySlugServer] Error:', error);
+    return null;
+  }
+}
+
+export async function fetchLeagueStandingsServer(leagueId: number): Promise<LeagueStandingRowDTO[]> {
+  try {
+    const apiBase = getApiBaseUrl();
+    if (!apiBase) return [];
+    const response = await fetchWithJwtRetry(
+      `${apiBase}/api/leagues/${leagueId}/standings-table`,
+      { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+      'league-standings-table',
+    );
+    if (!response.ok) return [];
+    return asList<LeagueStandingRowDTO>(await response.json());
+  } catch (error) {
+    console.error('[fetchLeagueStandingsServer] Error:', error);
+    return [];
+  }
+}
+
+export async function fetchLeagueClubsServer(leagueId: number): Promise<LeagueClubDTO[]> {
+  try {
+    const apiBase = getApiBaseUrl();
+    if (!apiBase) return [];
+    const params = new URLSearchParams({
+      'tenantId.equals': getTenantId(),
+      'leagueId.equals': String(leagueId),
+      sort: 'displayOrder,asc',
+      size: '100',
+    });
+    const response = await fetchWithJwtRetry(
+      `${apiBase}/api/league-clubs?${params.toString()}`,
+      { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+      'league-clubs',
+    );
+    if (!response.ok) return [];
+    return asList<LeagueClubDTO>(await response.json());
+  } catch (error) {
+    console.error('[fetchLeagueClubsServer] Error:', error);
+    return [];
+  }
+}
+
+export async function fetchLeagueMatchesServer(leagueId: number): Promise<LeagueMatchDTO[]> {
+  try {
+    const apiBase = getApiBaseUrl();
+    if (!apiBase) return [];
+    const params = new URLSearchParams({
+      'tenantId.equals': getTenantId(),
+      'leagueId.equals': String(leagueId),
+      sort: 'playedAt,asc',
+      size: '200',
+    });
+    const response = await fetchWithJwtRetry(
+      `${apiBase}/api/league-matches?${params.toString()}`,
+      { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+      'league-matches',
+    );
+    if (!response.ok) return [];
+    return asList<LeagueMatchDTO>(await response.json());
+  } catch (error) {
+    console.error('[fetchLeagueMatchesServer] Error:', error);
     return [];
   }
 }
