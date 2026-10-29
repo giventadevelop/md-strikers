@@ -28,6 +28,7 @@ function isFcUnitedStandaloneRoute(pathname: string): boolean {
   /** Capital Cup year pages — same MD Strikers chrome as home/about; must not nest inside global Header/Footer */
   if (pathname.startsWith('/capital-cup-')) return true;
   if (pathname === '/tournaments' || pathname.startsWith('/tournaments/')) return true;
+  if (pathname === '/leagues' || pathname.startsWith('/leagues/')) return true;
   if (pathname.startsWith('/sponsors/')) return true;
   if (pathname.startsWith('/news/')) return true;
   if (pathname.startsWith('/team/')) return true;

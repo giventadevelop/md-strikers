@@ -12,7 +12,13 @@ function crest(row: LeagueStandingRowDTO) {
   return <img src={row.logoUrl} alt="" width={28} height={28} className="h-7 w-7 shrink-0 object-contain" />;
 }
 
-export function LeagueStandingsTable({ rows }: { rows: LeagueStandingRowDTO[] }) {
+export function LeagueStandingsTable({
+  rows,
+  highlightChampion = false,
+}: {
+  rows: LeagueStandingRowDTO[];
+  highlightChampion?: boolean;
+}) {
   if (rows.length === 0) {
     return <p className="text-sm text-pitch-stone">No clubs in this table yet.</p>;
   }
@@ -48,7 +54,10 @@ export function LeagueStandingsTable({ rows }: { rows: LeagueStandingRowDTO[] })
           {rows.map((row, index) => (
             <tr
               key={row.leagueClubId}
-              className="border-t border-pitch-chalk/10 tabular-nums text-pitch-chalk transition-colors duration-200 hover:bg-pitch-chalk/[0.03]"
+              className={cn(
+                'border-t border-pitch-chalk/10 tabular-nums text-pitch-chalk transition-colors duration-200 hover:bg-pitch-chalk/[0.03]',
+                highlightChampion && index === 0 && 'bg-pitch-lime/10',
+              )}
             >
               <td className={cn('px-4 py-4 font-semibold md:px-6', index === 0 ? 'text-pitch-lime' : 'text-pitch-stone')}>
                 {row.position ?? index + 1}
@@ -56,7 +65,14 @@ export function LeagueStandingsTable({ rows }: { rows: LeagueStandingRowDTO[] })
               <td className="px-2 py-4 sm:px-4">
                 <span className="flex items-center gap-3 font-semibold">
                   {crest(row)}
-                  <span className="max-w-[10rem] truncate sm:max-w-none">{row.clubName}</span>
+                  <span className="max-w-[10rem] truncate sm:max-w-none">
+                    {row.clubName}
+                    {highlightChampion && index === 0 ? (
+                      <span className="ml-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-pitch-lime">
+                        Champions
+                      </span>
+                    ) : null}
+                  </span>
                 </span>
               </td>
               <td className="px-2 py-4 text-center text-pitch-stone sm:px-3">{row.played}</td>

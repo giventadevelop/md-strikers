@@ -6,7 +6,20 @@ import { PitchShell } from './pitchUi';
 
 const INNER_HERO_IMAGE = '/images/md_strikers_media/gallery/mdstrikers_com/2021-msl.jpg';
 
-export function FcUnitedInnerHero({ title, subtitle }: { title: string; subtitle?: string }) {
+const crumbLink =
+  'rounded-sm text-pitch-stone transition-colors duration-300 hover:text-pitch-chalk focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-2 focus-visible:ring-offset-pitch-charcoal';
+
+export function FcUnitedInnerHero({
+  title,
+  subtitle,
+  parentHref,
+  parentLabel,
+}: {
+  title: string;
+  subtitle?: string;
+  parentHref?: string;
+  parentLabel?: string;
+}) {
   return (
     <section className={cn(fcManrope.className, 'relative isolate overflow-hidden bg-pitch-charcoal')} aria-label={title}>
       <Image src={INNER_HERO_IMAGE} alt="" fill priority className="-z-20 object-cover object-[center_40%]" sizes="100vw" />
@@ -16,12 +29,19 @@ export function FcUnitedInnerHero({ title, subtitle }: { title: string; subtitle
       />
       <PitchShell className="py-20 md:py-28">
         <nav className="mb-6 text-xs font-semibold uppercase tracking-[0.24em]" aria-label="Breadcrumb">
-          <Link
-            href="/"
-            className="rounded-sm text-pitch-stone transition-colors duration-300 hover:text-pitch-chalk focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-2 focus-visible:ring-offset-pitch-charcoal"
-          >
+          <Link href="/" className={crumbLink}>
             Home
           </Link>
+          {parentHref && parentLabel ? (
+            <>
+              <span className="mx-3 text-pitch-chalk/25" aria-hidden>
+                /
+              </span>
+              <Link href={parentHref} className={crumbLink}>
+                {parentLabel}
+              </Link>
+            </>
+          ) : null}
           <span className="mx-3 text-pitch-chalk/25" aria-hidden>
             /
           </span>

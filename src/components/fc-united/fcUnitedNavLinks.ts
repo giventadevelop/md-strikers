@@ -5,6 +5,7 @@ export type FcNavKey =
   | 'home'
   | 'about'
   | 'events'
+  | 'competitions'
   | 'matches'
   | 'leagues'
   | 'tournaments'
@@ -83,8 +84,8 @@ function groupMenu(label: string, key: string, children: FcNavLink[]): FcNavItem
 }
 
 /**
- * Top bar stays short: club pages sit under About, and the two rosters sit under Team.
- * Tournaments and each published header label stay on the top bar after Matches.
+ * Top bar stays short: club pages under About, fixtures/tables/cups under Competitions,
+ * and the two rosters under Team.
  */
 export function buildFcUnitedNavLinks(
   featured: FeaturedTournamentLink[] = [],
@@ -110,22 +111,26 @@ export function buildFcUnitedNavLinks(
 
   const events = visible.get('events');
   if (events) items.push(events);
-  const matches = visible.get('matches');
-  if (matches) items.push(matches);
-  if (showLeagues) {
-    items.push({ href: '/leagues', label: 'Leagues', key: 'leagues' });
-  }
-  const news = visible.get('news');
-  if (news) items.push(news);
 
+  const competitionChildren: FcNavLink[] = [];
+  const matches = visible.get('matches');
+  if (matches) competitionChildren.push(matches);
+  if (showLeagues) {
+    competitionChildren.push({ href: '/leagues', label: 'Leagues', key: 'leagues' });
+  }
   if (showTournaments) {
-    items.push({ href: '/tournaments', label: 'Tournaments', key: 'tournaments' });
+    competitionChildren.push({ href: '/tournaments', label: 'Tournaments', key: 'tournaments' });
     for (const item of featured) {
       const label = item.label.trim();
       if (!item.href || !item.slug || !label) continue;
-      items.push({ href: item.href, label, key: `featured-${item.slug}` });
+      competitionChildren.push({ href: item.href, label, key: `featured-${item.slug}` });
     }
   }
+  const competitionsMenu = groupMenu('Competitions', 'competitions', competitionChildren);
+  if (competitionsMenu) items.push(competitionsMenu);
+
+  const news = visible.get('news');
+  if (news) items.push(news);
 
   const teamChildren = TEAM_CHILD_KEYS.flatMap((key) => {
     const link = visible.get(key);
@@ -143,9 +148,13 @@ export function isFcNavItemActive(item: FcNavItem, pathname: string | null, acti
   return isFcNavLinkActive({ href: item.href, label: item.label, key: item.key }, pathname, active);
 }
 
-/** Catalog is active only on /tournaments. A featured label is active on its own page. */
+/** Catalog is active only on /tournaments. Featured cups are active on their own page. Leagues covers /leagues and detail slugs. */
 export function isFcNavLinkActive(link: FcNavLink, pathname: string | null, active?: string): boolean {
-  if (link.href === '/tournaments') return pathname === '/tournaments';
+  if (link.href === '/tournaments') return pathname === '/tournaments' || active === 'tournaments';
+  if (link.href === '/leagues') {
+    if (active === 'leagues') return true;
+    return Boolean(pathname === '/leagues' || pathname?.startsWith('/leagues/'));
+  }
   if (link.key.startsWith('featured-')) return pathname === link.href;
   if (pathname) {
     if (link.href === '/') return pathname === '/';

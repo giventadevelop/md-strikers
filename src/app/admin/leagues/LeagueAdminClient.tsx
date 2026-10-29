@@ -201,6 +201,7 @@ export default function LeagueAdminClient() {
           <div className="grid grid-cols-2 gap-3">
             <select className="border rounded-lg px-3 py-2" value={league.status || 'DRAFT'} onChange={(e) => setLeague({ ...league, status: e.target.value })}>
               <option value="DRAFT">Draft</option>
+              <option value="UPCOMING">Upcoming</option>
               <option value="ACTIVE">Active</option>
               <option value="COMPLETED">Completed</option>
             </select>

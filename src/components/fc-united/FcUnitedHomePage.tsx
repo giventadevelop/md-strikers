@@ -33,7 +33,7 @@ import { ViewAllSponsorsButton } from './ViewAllSponsorsButton';
 import { HeroSlider, type HeroSlide } from './HeroSlider';
 import { NextMatchPanel } from './NextMatchPanel';
 import { buildStandings } from './homeStandings';
-import { LeagueStandingsTable } from './LeagueStandingsTable';
+import { HomeLeagueSection } from './HomeLeagueSection';
 import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchFocus, pitchSection } from './pitchUi';
 
 const STORY_IMAGE = '/images/md_strikers_media/gallery/mdstrikers_com/gal03.jpg';
@@ -441,34 +441,9 @@ export default async function FcUnitedHomePage() {
           </section>
         )}
 
-        {/* Standings — computed from recorded results in last_matches */}
-        {showLeagueStandings
-          ? homepageLeagues.map(({ league, rows }) => (
-              <section
-                key={league.id}
-                className={cn(pitchSection, 'bg-pitch-forest')}
-                aria-labelledby={`home-league-${league.id}`}
-              >
-                <PitchShell>
-                  <PitchHeading
-                    id={`home-league-${league.id}`}
-                    eyebrow={league.seasonLabel || 'League'}
-                    title={league.name}
-                    lead="Published table for this league."
-                    action={
-                      league.slug ? (
-                        <Link href={`/leagues/${league.slug}`} className={pitchButton.ghost}>
-                          Full league
-                          <PitchArrow />
-                        </Link>
-                      ) : null
-                    }
-                  />
-                  <LeagueStandingsTable rows={rows} />
-                </PitchShell>
-              </section>
-            ))
-          : standings.length > 1 && (
+        {showLeagueStandings && homepageLeagues.length > 0 ? (
+          <HomeLeagueSection leagues={homepageLeagues} />
+        ) : standings.length > 1 && (
           <section className={cn(pitchSection, 'bg-pitch-forest')} aria-labelledby="home-standings-heading">
             <PitchShell>
               <PitchHeading
