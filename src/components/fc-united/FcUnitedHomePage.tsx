@@ -258,8 +258,8 @@ export default async function FcUnitedHomePage() {
           className={cn('bg-pitch-charcoal pt-8 md:pt-12', hasMatchPanel ? 'pb-28 md:pb-36' : 'pb-12 md:pb-16')}
           aria-labelledby="home-hero-heading"
         >
-          <PitchShell>
-            <div className="grid gap-6 md:min-h-[520px] md:grid-cols-[300px_minmax(0,1fr)] lg:min-h-[560px] lg:grid-cols-[340px_minmax(0,1fr)] lg:gap-8">
+          <PitchShell wide>
+            <div className="grid gap-6 md:grid-cols-[300px_minmax(0,1fr)] lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-8">
               {/* Left: logo panel + primary CTA */}
               <div className="flex flex-col gap-4">
                 <div className="flex flex-1 flex-col items-center justify-center rounded-3xl border border-pitch-chalk/10 bg-pitch-forest px-6 py-10 text-center">
@@ -297,7 +297,7 @@ export default async function FcUnitedHomePage() {
 
               {/* Right: upcoming event slider + caption band */}
               <div className="flex min-h-0 flex-col overflow-hidden rounded-3xl border border-pitch-chalk/10 bg-pitch-forest">
-                <div className="relative flex aspect-[4/3] flex-col sm:aspect-[16/10] md:aspect-auto md:flex-1">
+                <div className="relative flex aspect-[4/3] flex-col sm:aspect-[16/10]">
                   <HeroSlider slides={heroSlides} />
                 </div>
                 <div className="border-t border-pitch-chalk/10 px-6 py-4 md:px-8">

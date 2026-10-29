@@ -7,8 +7,29 @@ import { cn } from '@/lib/utils';
  * (section padding 80/112px, card padding 24/32px, grid gaps 24/32px).
  */
 
-export function PitchShell({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn('mx-auto w-full max-w-[1240px] px-4 sm:px-6 lg:px-8', className)}>{children}</div>;
+export function PitchShell({
+  children,
+  className,
+  wide = false,
+}: {
+  children: ReactNode;
+  className?: string;
+  /** On wide monitors, grow past 1240px but stay capped so the hero image is not letterboxed. */
+  wide?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        'mx-auto w-full px-4 sm:px-6 lg:px-8',
+        wide
+          ? 'max-w-[1240px] min-[1440px]:max-w-[1500px] min-[1440px]:px-10 min-[1920px]:max-w-[1620px] min-[1920px]:px-12'
+          : 'max-w-[1240px]',
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
 }
 
 /** Vertical padding shared by every homepage section. */

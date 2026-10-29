@@ -29,7 +29,7 @@ export function NextMatchPanel({ matches }: { matches: LastMatchCard[] }) {
 
   return (
     <section aria-labelledby="next-match-heading" className="relative z-10 -mt-20 md:-mt-28">
-      <PitchShell>
+      <PitchShell wide>
         <div className="rounded-3xl border border-pitch-chalk/10 bg-pitch-forest/95 px-6 py-8 shadow-pitch backdrop-blur sm:px-10 md:px-16 md:py-12">
           <div className="flex flex-col gap-4 border-b border-pitch-chalk/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
             <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.24em] text-pitch-lime">
