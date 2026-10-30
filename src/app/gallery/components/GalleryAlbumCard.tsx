@@ -183,7 +183,7 @@ export function GalleryAlbumCard({ albumWithMedia, cardIndex = -1 }: GalleryAlbu
               console.log('View Gallery clicked for album:', album.title, 'Media count:', media.length);
               setShowSlideshow(true);
             }}
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-pitch-forest px-7 py-3 text-sm font-semibold text-white transition-colors duration-300 ease-in-out hover:bg-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:brightness-100"
+            className="flex w-full items-center justify-center gap-2 rounded-lg md-btn-primary px-7 py-3 text-sm font-semibold text-white transition-all duration-300 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:brightness-100 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0"
             title="View Gallery"
             aria-label="View Gallery"
             disabled={media.length === 0}

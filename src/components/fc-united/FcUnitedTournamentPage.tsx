@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { fcManrope } from './fcUnitedFonts';
+import { fcBrand } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
@@ -32,7 +32,7 @@ export default function FcUnitedTournamentPage({
   const resultsLabel = tournament.externalResultsLabel?.trim() || 'Open schedule in new tab';
 
   return (
-    <div className={cn(fcManrope.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader active="tournaments" />
       <FcUnitedInnerHero title={label} />
 
@@ -135,7 +135,7 @@ export default function FcUnitedTournamentPage({
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(
-                    'font-extrabold tracking-[-0.02em] mt-6 inline-flex items-center justify-center rounded-xl bg-pitch-forest px-6 py-3 text-lg text-white hover:bg-pitch-olive',
+                    'font-extrabold tracking-[-0.02em] mt-6 inline-flex items-center justify-center rounded-lg md-btn-primary px-6 py-3 text-lg text-white transition-all hover:-translate-y-0.5 motion-reduce:hover:translate-y-0',
                   )}
                 >
                   {resultsLabel}

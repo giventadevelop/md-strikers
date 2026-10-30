@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { newsHref, type ClubAdSlot, type ClubNewsArticle, type ClubNewsPageData } from '@/lib/news/clubNews';
-import { fcManrope } from './fcUnitedFonts';
+import { fcBrand } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
@@ -14,7 +14,7 @@ import { MdPagination } from './MdPagination';
 const MAIN_NEWS_PAGE_SIZE = 20;
 
 const secondaryCta =
-  'inline-flex items-center justify-center gap-2 rounded-full border border-pitch-charcoal/10 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-colors duration-300 hover:border-pitch-charcoal/25 hover:text-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
+  'inline-flex items-center justify-center gap-2 rounded-lg border border-brand-orange/55 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-orange hover:bg-brand-orange/[0.06] hover:text-pitch-olive motion-reduce:hover:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
 
 const sectionLinks = [
   { id: 'main-news', label: 'Main News' },
@@ -140,7 +140,7 @@ export default function FcUnitedNewsPage({ data }: { data: ClubNewsPageData }) {
   const safePage = Math.min(page, totalPages - 1);
   const visibleMain = data.mainNews.slice(safePage * MAIN_NEWS_PAGE_SIZE, (safePage + 1) * MAIN_NEWS_PAGE_SIZE);
   return (
-    <div className={cn(fcManrope.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader active="news" />
       <FcUnitedInnerHero title="News" subtitle="Latest news from Maryland Strikers." />
       <main className="bg-pitch-chalk py-12 md:py-16">

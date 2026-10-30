@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { fcManrope } from './fcUnitedFonts';
+import { fcBrand } from './fcUnitedFonts';
 import { PitchHeading, PitchShell, pitchButton, pitchSection } from './pitchUi';
 
 export type SpotlightItem = {
@@ -60,7 +60,7 @@ export function EventSpotlightSection({ tone, id, eyebrow, heading, lead, badge,
   const headingId = `${id}-heading`;
 
   return (
-    <section id={id} className={cn(fcManrope.className, pitchSection, t.section)} aria-labelledby={headingId}>
+    <section id={id} className={cn(fcBrand.className, pitchSection, t.section)} aria-labelledby={headingId}>
       <PitchShell>
         <PitchHeading tone={tone} id={headingId} eyebrow={eyebrow} title={heading} lead={lead} />
 

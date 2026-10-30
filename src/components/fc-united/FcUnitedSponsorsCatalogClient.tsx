@@ -26,10 +26,10 @@ function Shell({ children, className }: { children: React.ReactNode; className?:
 }
 
 const pillCta =
-  'inline-flex items-center justify-center gap-2 rounded-full bg-pitch-forest px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-300 ease-in-out hover:bg-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-50';
+  'inline-flex items-center justify-center gap-2 rounded-lg md-btn-primary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-50 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0';
 
 const secondaryCta =
-  'inline-flex items-center justify-center gap-2 rounded-full border border-pitch-charcoal/10 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-colors duration-300 hover:border-pitch-charcoal/25 hover:text-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-40';
+  'inline-flex items-center justify-center gap-2 rounded-lg border border-brand-orange/55 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-orange hover:bg-brand-orange/[0.06] hover:text-pitch-olive motion-reduce:hover:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-40';
 
 export function FcUnitedSponsorsCatalogClient() {
   const [sponsors, setSponsors] = useState<HomepageSponsor[]>([]);
@@ -178,7 +178,7 @@ export function FcUnitedSponsorsCatalogClient() {
                     sizes="100vw"
                   />
                   {sponsor.type ? (
-                    <span className="absolute left-3 top-3 rounded-xl bg-pitch-forest px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white shadow-[0_4px_12px_rgba(0,0,0,0.25)] md:left-4 md:top-4">
+                    <span className="absolute left-3 top-3 rounded-md bg-pitch-lime px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-pitch-charcoal shadow-[0_4px_12px_rgba(0,0,0,0.25)] md:left-4 md:top-4">
                       {sponsor.type}
                     </span>
                   ) : null}

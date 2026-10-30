@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { fcManrope } from './fcUnitedFonts';
+import { fcBrand } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
@@ -17,7 +17,7 @@ function Shell({ children, className }: { children: ReactNode; className?: strin
 
 export default function FcUnitedCapitalCup2025Page() {
   return (
-    <div className={cn(fcManrope.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader />
       <FcUnitedInnerHero title="Capital Cup 2025" />
 
@@ -42,7 +42,7 @@ export default function FcUnitedCapitalCup2025Page() {
               target="_blank"
               rel="noopener noreferrer"
               className={cn(
-                'font-extrabold tracking-[-0.02em] inline-flex cursor-pointer items-center justify-center rounded-xl bg-pitch-forest px-6 py-3 text-lg text-white transition-colors duration-200 hover:bg-pitch-olive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2 focus-visible:ring-offset-white motion-reduce:transition-none',
+                'font-extrabold tracking-[-0.02em] inline-flex cursor-pointer items-center justify-center rounded-lg md-btn-primary px-6 py-3 text-lg text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2 focus-visible:ring-offset-white motion-reduce:transition-none hover:-translate-y-0.5 motion-reduce:hover:translate-y-0',
               )}
             >
               Open schedule in new tab

@@ -221,7 +221,7 @@ export function FcUnitedContactForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="cursor-pointer rounded-full bg-pitch-forest px-8 py-3 text-sm font-semibold text-white transition-colors duration-300 hover:bg-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none motion-reduce:hover:brightness-100"
+          className="cursor-pointer rounded-lg md-btn-primary px-8 py-3 text-sm font-semibold text-white transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none motion-reduce:hover:brightness-100 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0"
         >
           {isSubmitting ? 'Sending...' : 'Send Your Message'}
         </button>

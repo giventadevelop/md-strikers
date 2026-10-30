@@ -6,7 +6,7 @@ import { fetchPublishedLeaguesServer } from '@/components/fc-united/ApiServerAct
 import { FcUnitedFooter } from '@/components/fc-united/FcUnitedFooter';
 import { FcUnitedHeader } from '@/components/fc-united/FcUnitedHeader';
 import { FcUnitedInnerHero } from '@/components/fc-united/FcUnitedInnerHero';
-import { fcManrope } from '@/components/fc-united/fcUnitedFonts';
+import { fcBrand } from '@/components/fc-united/fcUnitedFonts';
 import { PitchShell } from '@/components/fc-united/pitchUi';
 
 export const metadata: Metadata = {
@@ -56,7 +56,7 @@ export default async function LeaguesPage() {
   const other = leagues.filter((league) => !GROUPS.some((group) => group.status === league.status));
 
   return (
-    <div className={cn(fcManrope.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader active="leagues" />
       <FcUnitedInnerHero title="Leagues" subtitle="Tables, clubs, and results for each published league." />
       <section className="bg-pitch-chalk pb-20 pt-10">

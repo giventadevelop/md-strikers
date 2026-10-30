@@ -6,7 +6,7 @@ import { useCallback, useRef, type ElementRef } from 'react';
 import { cn } from '@/lib/utils';
 import type { TeamMemberImageTitle } from './ApiServerActions';
 import { encodePublicPath } from './fcUnitedGalleryData';
-import { fcManrope } from './fcUnitedFonts';
+import { fcBrand } from './fcUnitedFonts';
 import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchSection } from './pitchUi';
 
 type Props = { members: TeamMemberImageTitle[] };
@@ -34,7 +34,7 @@ export function TeamMembersDbSection({ members }: Props) {
   if (members.length === 0) return null;
 
   return (
-    <section className={cn(fcManrope.className, pitchSection, 'overflow-hidden bg-pitch-forest')}>
+    <section className={cn(fcBrand.className, pitchSection, 'md-sport-bg overflow-hidden bg-pitch-forest')}>
       <PitchShell>
         <PitchHeading
           eyebrow="Squad"

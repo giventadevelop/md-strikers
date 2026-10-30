@@ -36,7 +36,7 @@ export function GalleryTabs({
           }}
           disabled={(showEvents && albumsDisabled) || (!showEvents && eventsDisabled)}
           className={`relative inline-flex h-10 w-16 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 ${
-            showEvents ? 'bg-pitch-forest focus:ring-pitch-charcoal' : 'bg-pitch-forest focus:ring-pitch-olive'
+            showEvents ? 'bg-gradient-to-r from-brand-red to-brand-orange focus:ring-pitch-charcoal' : 'bg-gradient-to-r from-brand-red to-brand-orange focus:ring-pitch-olive'
           }`}
           title={showEvents ? 'Show albums' : 'Show event based albums'}
           aria-label={showEvents ? 'Show albums' : 'Show event based albums'}

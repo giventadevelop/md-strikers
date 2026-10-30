@@ -96,7 +96,7 @@ export function HeroSlider({ slides: upcomingSlides }: { slides: HeroSlide[] }) 
               />
             </>
           ) : (
-            <div className="flex h-full w-full flex-col items-center justify-center bg-[radial-gradient(ellipse_at_center,rgba(82,107,80,0.45)_0%,rgba(20,40,32,1)_70%)] px-14 py-4 text-center sm:px-16 sm:py-8">
+            <div className="flex h-full w-full flex-col items-center justify-center bg-[radial-gradient(ellipse_at_center,rgba(239,48,34,0.32)_0%,rgba(36,36,36,1)_70%)] px-14 py-4 text-center sm:px-16 sm:py-8">
               <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.24em] text-pitch-lime">
                 <span className="relative flex h-2 w-2" aria-hidden>
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-pitch-lime opacity-60 [animation-duration:2s] motion-reduce:animate-none" />

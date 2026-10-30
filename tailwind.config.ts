@@ -18,14 +18,31 @@ const config = {
     },
     extend: {
       colors: {
-        /* MD Strikers "pitch" palette (see src/components/fc-united/pitchUi.tsx) */
+        /*
+         * MD Strikers brand palette, taken from the club crest. Values live in CSS variables
+         * (src/app/globals.css, "MD STRIKERS BRAND DESIGN SYSTEM"). `pitch-*` names are roles:
+         * charcoal = dark surface / dark text, forest = secondary dark surface,
+         * olive = deep brand red for accents on light, lime = crest gold for accents on dark,
+         * chalk = warm white surface / light text, stone = muted text.
+         */
         pitch: {
-          forest: "#142820",
-          charcoal: "#171B19",
-          olive: "#526B50",
-          chalk: "#F2F1EA",
-          stone: "#A5AAA4",
-          lime: "#A8BB83",
+          forest: "rgb(var(--md-rgb-dark-secondary) / <alpha-value>)",
+          charcoal: "rgb(var(--md-rgb-dark) / <alpha-value>)",
+          olive: "rgb(var(--md-rgb-primary-deep) / <alpha-value>)",
+          chalk: "rgb(var(--md-rgb-light) / <alpha-value>)",
+          stone: "rgb(var(--md-rgb-muted) / <alpha-value>)",
+          lime: "rgb(var(--md-rgb-accent) / <alpha-value>)",
+        },
+        brand: {
+          red: "rgb(var(--md-rgb-primary) / <alpha-value>)",
+          "red-deep": "rgb(var(--md-rgb-primary-deep) / <alpha-value>)",
+          orange: "rgb(var(--md-rgb-secondary) / <alpha-value>)",
+          gold: "rgb(var(--md-rgb-accent) / <alpha-value>)",
+          dark: "rgb(var(--md-rgb-dark) / <alpha-value>)",
+          "dark-2": "rgb(var(--md-rgb-dark-secondary) / <alpha-value>)",
+          light: "rgb(var(--md-rgb-light) / <alpha-value>)",
+          text: "rgb(var(--md-rgb-text) / <alpha-value>)",
+          muted: "rgb(var(--md-rgb-muted) / <alpha-value>)",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -130,7 +147,8 @@ const config = {
       },
       boxShadow: {
         pitch: "0 24px 48px -24px rgba(0, 0, 0, 0.55)",
-        "pitch-soft": "0 12px 32px -16px rgba(23, 27, 25, 0.25)",
+        "pitch-soft": "0 12px 32px -16px rgba(23, 23, 23, 0.25)",
+        brand: "0 10px 24px -10px rgba(239, 48, 34, 0.55)",
       },
       borderRadius: {
         lg: "var(--radius)",

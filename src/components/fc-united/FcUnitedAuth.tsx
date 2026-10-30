@@ -9,7 +9,7 @@ import { isAdminRole } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 const authLink =
-  'cursor-pointer text-sm font-semibold text-pitch-stone transition-colors duration-200 hover:text-pitch-chalk focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-2 focus-visible:ring-offset-pitch-charcoal';
+  'cursor-pointer text-sm font-semibold text-pitch-stone transition-colors duration-200 hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-2 focus-visible:ring-offset-pitch-charcoal';
 
 function displayName(user: ReturnType<typeof useUser>['user']): string {
   return user?.firstName || user?.fullName || user?.emailAddresses?.[0]?.emailAddress || 'User';
@@ -208,7 +208,7 @@ export function FcUnitedAuthDesktop() {
         </Link>
         <Link
           href="/sign-up"
-          className="inline-flex cursor-pointer items-center rounded-full border border-pitch-chalk/25 px-5 py-2 text-sm font-semibold text-pitch-chalk transition-colors duration-300 hover:border-pitch-lime hover:text-pitch-lime focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime"
+          className="md-btn md-btn-primary px-5 py-2 text-xs"
         >
           Sign up
         </Link>
@@ -241,7 +241,7 @@ export function FcUnitedAuthMobile({ onNavigate }: { onNavigate: () => void }) {
         <Link
           href="/sign-up"
           onClick={onNavigate}
-          className="rounded-full bg-pitch-chalk px-3 py-3 text-center text-sm font-semibold text-pitch-charcoal"
+          className="md-btn md-btn-primary w-full px-3 py-3"
         >
           Sign up
         </Link>

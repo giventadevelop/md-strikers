@@ -640,6 +640,8 @@ export interface TenantSettingsDTO {
   showSponsorsSectionInHomePage?: boolean;
   showLeagueStandingsSectionInHomePage?: boolean;
   showHeaderLeagues?: boolean;
+  /** News page advertisements. True until an admin turns them off. */
+  showNewsAdvertisements?: boolean;
   showHeaderNews?: boolean | null;
   isMembershipSubscriptionEnabled?: boolean;
   homepageCacheVersion?: number;

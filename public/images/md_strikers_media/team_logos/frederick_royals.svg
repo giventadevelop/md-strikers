@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <path d="M32 4 56 14v20c0 14-12 24-24 28C20 58 8 48 8 34V14Z" fill="#b45309"/>
+  <path d="M32 10 50 18v16c0 11-8 19-18 22-10-3-18-11-18-22V18Z" fill="#fff" fill-opacity=".16"/>
+  <text x="32" y="40" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#fff">FR</text>
+</svg>

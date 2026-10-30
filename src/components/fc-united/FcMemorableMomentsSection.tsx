@@ -8,7 +8,7 @@ import {
   mdStrikersMemorableMomentsHeading,
 } from './fcUnitedAboutContent';
 import { encodePublicPath } from './fcUnitedGalleryData';
-import { fcManrope } from './fcUnitedFonts';
+import { fcBrand } from './fcUnitedFonts';
 
 const items = mdStrikersMemorableMomentTiles;
 
@@ -97,7 +97,7 @@ export function FcMemorableMomentsSection() {
               </div>
               <div
                 className={cn(
-                  fcManrope.className,
+                  fcBrand.className,
                   'mx-auto w-full max-w-[1308px] px-4 py-5 md:px-7 md:py-6 lg:px-12',
                 )}
               >
@@ -131,7 +131,7 @@ export function FcMemorableMomentsSection() {
                 e.stopPropagation();
                 close();
               }}
-              className="pointer-events-auto flex h-12 min-w-[5.5rem] cursor-pointer items-center justify-center gap-2 rounded-full bg-pitch-forest px-4 text-sm font-semibold text-white shadow-lg ring-2 ring-white/30 transition-colors duration-200 hover:bg-pitch-olive hover:ring-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/90"
+              className="pointer-events-auto flex h-12 min-w-[5.5rem] cursor-pointer items-center justify-center gap-2 rounded-lg md-btn-primary px-4 text-sm font-semibold text-white shadow-lg ring-2 ring-white/30 transition-all duration-200 hover:ring-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/90 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0"
               title="Close"
               aria-label="Close slideshow"
             >
@@ -201,12 +201,12 @@ export function FcMemorableMomentsSection() {
               {hasSeparateDescription ? (
                 <>
                   <p className={cn('font-extrabold tracking-[-0.02em] mt-2 text-lg leading-snug text-white md:text-xl')}>{current.caption}</p>
-                  <p className={cn(fcManrope.className, 'mt-3 text-sm leading-relaxed text-white/90 md:text-base')}>
+                  <p className={cn(fcBrand.className, 'mt-3 text-sm leading-relaxed text-white/90 md:text-base')}>
                     {currentLongDescription}
                   </p>
                 </>
               ) : (
-                <p className={cn(fcManrope.className, 'mt-3 text-base leading-relaxed text-white md:text-lg')}>
+                <p className={cn(fcBrand.className, 'mt-3 text-base leading-relaxed text-white md:text-lg')}>
                   {current.caption}
                 </p>
               )}

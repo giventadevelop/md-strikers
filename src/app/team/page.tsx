@@ -13,11 +13,23 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default async function TeamPage() {
+export default async function TeamPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ squad?: string }>;
+}) {
+  const { squad } = await searchParams;
   const [players, squads, memberships] = await Promise.all([
     fetchPublicRosterServer(),
     fetchPublicSquadsServer(),
     fetchPublicSquadMembershipsServer(),
   ]);
-  return <FcUnitedTeamPage players={players} squads={squads} memberships={memberships} />;
+  return (
+    <FcUnitedTeamPage
+      players={players}
+      squads={squads}
+      memberships={memberships}
+      initialSquadSlug={squad || ''}
+    />
+  );
 }

@@ -2086,7 +2086,7 @@ To use a consistent, modern checkbox style with a custom tick mark, use:
   animation: zoomOut 0.5s ease-out forwards;
 }
 
-/* MD Strikers pagination — "pitch" palette (see src/components/fc-united/pitchUi.tsx) */
+/* MD Strikers pagination — brand palette (see "MD STRIKERS BRAND DESIGN SYSTEM" below) */
 .md-pagination {
   margin-top: 2.5rem;
 }
@@ -2113,7 +2113,7 @@ To use a consistent, modern checkbox style with a custom tick mark, use:
   font-weight: 600;
   line-height: 1.25;
   cursor: pointer;
-  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, filter 0.3s ease;
+  transition: var(--transition-smooth);
 }
 
 .md-pagination__prev svg,
@@ -2129,15 +2129,18 @@ To use a consistent, modern checkbox style with a custom tick mark, use:
 
 .md-pagination__prev,
 .md-pagination__next {
-  background: #142820;
-  color: #f2f1ea;
-  border: 1px solid #142820;
+  background: var(--gradient-brand);
+  color: var(--color-white);
+  border: 1px solid transparent;
+  border-radius: var(--radius-button);
+  box-shadow: var(--shadow-button);
 }
 
 .md-pagination__prev:hover:not(:disabled),
 .md-pagination__next:hover:not(:disabled) {
-  background: #526b50;
-  border-color: #526b50;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button-hover);
+  filter: saturate(1.1);
 }
 
 .md-pagination__prev:disabled,
@@ -2149,7 +2152,7 @@ To use a consistent, modern checkbox style with a custom tick mark, use:
 
 .md-pagination__prev:focus-visible,
 .md-pagination__next:focus-visible {
-  outline: 2px solid #526b50;
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
@@ -2157,11 +2160,11 @@ To use a consistent, modern checkbox style with a custom tick mark, use:
   margin: 0;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #171b19;
+  color: var(--color-text);
 }
 
 .md-pagination__page {
-  color: #526b50;
+  color: var(--color-primary-deep);
   font-variant-numeric: tabular-nums;
 }
 
@@ -2169,5 +2172,193 @@ To use a consistent, modern checkbox style with a custom tick mark, use:
   margin: 0.75rem 0 0;
   text-align: center;
   font-size: 0.875rem;
-  color: rgba(23, 27, 25, 0.7);
+  color: rgb(var(--md-rgb-text) / 0.7);
+}
+
+/* ========================================
+   MD STRIKERS BRAND DESIGN SYSTEM
+   Colours from the club crest: red, orange, gold, black, white.
+   Tailwind exposes these as `brand-*` and as the role names `pitch-*` (tailwind.config).
+   ======================================== */
+:root {
+  --color-primary: #ef3022;
+  --color-primary-deep: #c62b1c; /* accessible red for small text on light surfaces */
+  --color-secondary: #f47b20;
+  --color-accent: #ffad1f;
+  --color-dark: #171717;
+  --color-dark-secondary: #242424;
+  --color-light: #fff8ef;
+  --color-white: #ffffff;
+  --color-text: #202020;
+  --color-text-light: #f5f5f5;
+  --color-muted: #a6a6a6;
+
+  /* Space-separated RGB channels so Tailwind opacity modifiers work (bg-pitch-charcoal/60). */
+  --md-rgb-primary: 239 48 34;
+  --md-rgb-primary-deep: 198 43 28;
+  --md-rgb-secondary: 244 123 32;
+  --md-rgb-accent: 255 173 31;
+  --md-rgb-dark: 23 23 23;
+  --md-rgb-dark-secondary: 36 36 36;
+  --md-rgb-light: 255 248 239;
+  --md-rgb-text: 32 32 32;
+  --md-rgb-muted: 166 166 166;
+
+  --gradient-brand: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  --radius-button: 0.5rem;
+  --shadow-button: 0 10px 24px -12px rgba(239, 48, 34, 0.65);
+  --shadow-button-hover: 0 16px 32px -14px rgba(244, 123, 32, 0.75);
+  --transition-smooth: all 0.3s ease;
+}
+
+/* Typography: Inter body (set by the fcBrand font class), Barlow Condensed headings. */
+.md-brand :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-md-display), 'Arial Narrow', sans-serif;
+  letter-spacing: 0.01em;
+  line-height: 1.08;
+}
+.md-brand :is(h1, h2) {
+  text-transform: uppercase;
+}
+
+@layer components {
+  /* Buttons — labels and handlers stay in the components; only the look lives here. */
+  .md-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: var(--radius-button);
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: var(--transition-smooth);
+    cursor: pointer;
+  }
+  .md-btn:hover {
+    transform: translateY(-2px);
+  }
+  .md-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  .md-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    transform: none;
+  }
+  .md-btn-primary {
+    background: var(--gradient-brand);
+    color: var(--color-white);
+    box-shadow: var(--shadow-button);
+  }
+  .md-btn-primary:hover {
+    box-shadow: var(--shadow-button-hover);
+    filter: saturate(1.15) brightness(1.04);
+  }
+  /* Secondary on dark surfaces: transparent with a gold edge. */
+  .md-btn-secondary {
+    border: 1px solid rgb(var(--md-rgb-accent) / 0.6);
+    background: transparent;
+    color: var(--color-white);
+  }
+  .md-btn-secondary:hover {
+    border-color: var(--color-accent);
+    background: rgb(var(--md-rgb-accent) / 0.1);
+    color: var(--color-accent);
+  }
+  /* Secondary on light surfaces: dark text, orange edge. */
+  .md-btn-secondary-light {
+    border: 1px solid rgb(var(--md-rgb-secondary) / 0.55);
+    background: transparent;
+    color: var(--color-text);
+  }
+  .md-btn-secondary-light:hover {
+    border-color: var(--color-secondary);
+    background: rgb(var(--md-rgb-secondary) / 0.08);
+    color: var(--color-primary-deep);
+  }
+
+  /* Thin red→orange→gold rule used under section eyebrows and card tops. */
+  .md-brand-rule {
+    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary), var(--color-accent));
+  }
+
+  /*
+   * Sports background: faint pitch lines + a football watermark (::before)
+   * and a slow-drifting red/orange stadium glow (::after). Decorative only.
+   */
+  .md-sport-bg {
+    position: relative;
+    isolation: isolate;
+  }
+  .md-sport-bg::before,
+  .md-sport-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+  .md-sport-bg::before {
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120' fill='none' stroke='%23ffffff' stroke-opacity='0.07' stroke-width='2'%3E%3Ccircle cx='60' cy='60' r='56'/%3E%3Cpath d='M60 34l18 13-7 21H49l-7-21z'/%3E%3Cpath d='M60 34V6M78 47l26-9M71 68l17 22M49 68L32 90M42 47l-26-9'/%3E%3C/svg%3E"),
+      radial-gradient(circle at 50% 50%, transparent 0 119px, rgba(255, 255, 255, 0.05) 120px 121px, transparent 122px),
+      linear-gradient(90deg, transparent calc(50% - 0.5px), rgba(255, 255, 255, 0.05) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+      repeating-linear-gradient(115deg, transparent 0 46px, rgba(255, 255, 255, 0.018) 46px 47px);
+    background-repeat: no-repeat, no-repeat, no-repeat, repeat;
+    background-size: 220px 220px, 100% 100%, 100% 100%, auto;
+    background-position: right -40px top -40px, center, center, 0 0;
+    opacity: 0.9;
+    animation: md-ball-drift 28s ease-in-out infinite alternate;
+  }
+  .md-sport-bg::after {
+    background:
+      radial-gradient(40rem 22rem at 12% 0%, rgba(239, 48, 34, 0.16), transparent 70%),
+      radial-gradient(34rem 20rem at 92% 100%, rgba(244, 123, 32, 0.12), transparent 70%);
+    animation: md-glow-pulse 12s ease-in-out infinite alternate;
+  }
+  /* Light surfaces: same idea, toned for warm white. */
+  .md-sport-bg-light::before {
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120' fill='none' stroke='%23202020' stroke-width='2'%3E%3Ccircle cx='60' cy='60' r='56'/%3E%3Cpath d='M60 34l18 13-7 21H49l-7-21z'/%3E%3Cpath d='M60 34V6M78 47l26-9M71 68l17 22M49 68L32 90M42 47l-26-9'/%3E%3C/svg%3E"),
+      repeating-linear-gradient(115deg, transparent 0 46px, rgba(32, 32, 32, 0.022) 46px 47px);
+    background-repeat: no-repeat, repeat;
+    background-size: 200px 200px, auto;
+    background-position: right -48px top -48px, 0 0;
+    opacity: 0.06;
+  }
+  .md-sport-bg-light::after {
+    background: radial-gradient(36rem 18rem at 0% 0%, rgba(244, 123, 32, 0.08), transparent 70%);
+  }
+}
+
+@keyframes md-ball-drift {
+  from {
+    background-position: right -40px top -40px, center, center, 0 0;
+  }
+  to {
+    background-position: right -10px top -20px, center, center, 47px 0;
+  }
+}
+@keyframes md-glow-pulse {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .md-sport-bg::before,
+  .md-sport-bg::after {
+    animation: none;
+  }
+  .md-btn,
+  .md-btn:hover {
+    transition: none;
+    transform: none;
+  }
 }

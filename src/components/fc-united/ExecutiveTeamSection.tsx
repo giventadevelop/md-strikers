@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { ExecutiveCommitteeTeamMemberDTO } from '@/types';
-import { fcManrope } from './fcUnitedFonts';
+import { fcBrand } from './fcUnitedFonts';
 import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchSection } from './pitchUi';
 import { MdPagination } from './MdPagination';
 
@@ -41,7 +41,7 @@ export function ExecutiveTeamSection({
   const visible = members.slice(safePage * pageSize, safePage * pageSize + pageSize);
 
   return (
-    <section className={cn(fcManrope.className, pitchSection, 'bg-pitch-chalk')} aria-labelledby="executive-team-heading">
+    <section className={cn(fcBrand.className, pitchSection, 'bg-pitch-chalk')} aria-labelledby="executive-team-heading">
       <PitchShell>
         <PitchHeading
           tone="light"

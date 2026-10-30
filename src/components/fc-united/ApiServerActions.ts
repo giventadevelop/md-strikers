@@ -136,6 +136,7 @@ export type PublicRosterPlayer = {
 export type PublicSquadOption = {
   id: number;
   name: string;
+  slug: string;
   categoryLabel: string;
 };
 
@@ -365,6 +366,7 @@ export async function fetchPublicSquadsServer(): Promise<PublicSquadOption[]> {
       .map((group) => ({
         id: group.id as number,
         name: group.name,
+        slug: group.slug?.trim() || '',
         categoryLabel: group.categoryLabel?.trim() || '',
       }));
   } catch (error) {

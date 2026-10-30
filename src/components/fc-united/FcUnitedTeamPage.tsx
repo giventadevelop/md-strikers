@@ -4,9 +4,10 @@ import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { fcSponsors } from './fcUnitedConstants';
-import { fcManrope } from './fcUnitedFonts';
+import { fcBrand } from './fcUnitedFonts';
 import { encodePublicPath } from './fcUnitedGalleryData';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
@@ -17,10 +18,10 @@ import type { PublicRosterPlayer, PublicSquadMembership, PublicSquadOption } fro
 const PAGE_SIZE = 20;
 
 const pillCta =
-  'inline-flex items-center justify-center gap-2 rounded-full bg-pitch-forest px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-300 ease-in-out hover:bg-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-50';
+  'inline-flex items-center justify-center gap-2 rounded-lg md-btn-primary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-50 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0';
 
 const secondaryCta =
-  'inline-flex items-center justify-center gap-2 rounded-full border border-pitch-charcoal/10 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-colors duration-300 hover:border-pitch-charcoal/25 hover:text-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-40';
+  'inline-flex items-center justify-center gap-2 rounded-lg border border-brand-orange/55 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-orange hover:bg-brand-orange/[0.06] hover:text-pitch-olive motion-reduce:hover:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-40';
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
   return <div className={cn('mx-auto w-full max-w-[1240px] px-4 sm:px-6 lg:px-8', className)}>{children}</div>;
@@ -66,14 +67,20 @@ export default function FcUnitedTeamPage({
   players,
   squads,
   memberships,
+  initialSquadSlug = '',
 }: {
   players: PublicRosterPlayer[];
   squads: PublicSquadOption[];
   memberships: PublicSquadMembership[];
+  initialSquadSlug?: string;
 }) {
+  const router = useRouter();
   const [searchDraft, setSearchDraft] = useState('');
   const [appliedName, setAppliedName] = useState('');
-  const [squadId, setSquadId] = useState('');
+  const [squadId, setSquadId] = useState(() => {
+    const match = squads.find((squad) => squad.slug === initialSquadSlug);
+    return match ? String(match.id) : '';
+  });
   const [page, setPage] = useState(0);
 
   const filtered = useMemo(() => {
@@ -96,14 +103,27 @@ export default function FcUnitedTeamPage({
   const clearSearch = () => {
     setSearchDraft('');
     setAppliedName('');
-    setSquadId('');
-    setPage(0);
+    chooseSquad('');
   };
 
+  const chooseSquad = (value: string) => {
+    setSquadId(value);
+    setPage(0);
+    const slug = squads.find((squad) => String(squad.id) === value)?.slug;
+    router.replace(slug ? `/team?squad=${encodeURIComponent(slug)}` : '/team', { scroll: false });
+  };
+
+  const selectedSquad = squads.find((squad) => String(squad.id) === squadId);
+  const title = selectedSquad
+    ? selectedSquad.categoryLabel
+      ? `${selectedSquad.name} · ${selectedSquad.categoryLabel}`
+      : selectedSquad.name
+    : 'Sports Team';
+
   return (
-    <div className={cn(fcManrope.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader active="team" />
-      <FcUnitedInnerHero title="Sports Team" />
+      <FcUnitedInnerHero title={title} />
 
       <section className="bg-pitch-chalk pb-16 pt-8 md:pb-20">
         <Shell>
@@ -136,10 +156,7 @@ export default function FcUnitedTeamPage({
                 <select
                   id="md-team-squad"
                   value={squadId}
-                  onChange={(e) => {
-                    setSquadId(e.target.value);
-                    setPage(0);
-                  }}
+                  onChange={(e) => chooseSquad(e.target.value)}
                   className="w-full rounded-xl border border-pitch-charcoal/10 bg-white px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
                 >
                   <option value="">All teams</option>
@@ -199,7 +216,7 @@ export default function FcUnitedTeamPage({
                       </div>
                     )}
                     {player.jersey ? (
-                      <span className="absolute left-3 top-3 rounded-xl bg-pitch-forest px-2.5 py-1 text-sm font-semibold text-white">
+                      <span className="absolute left-3 top-3 rounded-md bg-pitch-lime px-2.5 py-1 text-sm font-semibold text-pitch-charcoal">
                         {player.jersey}
                       </span>
                     ) : null}

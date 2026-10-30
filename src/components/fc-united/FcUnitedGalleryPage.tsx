@@ -2,7 +2,7 @@
 
 import { Suspense } from 'react';
 import { cn } from '@/lib/utils';
-import { fcManrope } from './fcUnitedFonts';
+import { fcBrand } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
@@ -10,7 +10,7 @@ import { GalleryContent } from '@/app/gallery/GalleryContent';
 
 export default function FcUnitedGalleryPage() {
   return (
-    <div className={cn(fcManrope.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader active="gallery" />
       <FcUnitedInnerHero
         title="Gallery"

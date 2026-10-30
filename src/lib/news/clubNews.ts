@@ -168,23 +168,27 @@ export async function fetchClubNewsPageData(): Promise<ClubNewsPageData> {
     betweenAds: [],
     sidebarAds: [],
   };
-  const adsPath = `/advertisement-slots?filters[$or][0][position][$eq]=sidebar&filters[$or][1][position][$eq]=top&filters[$or][2][position][$eq]=between_sections&${tenantFilter()}&populate=media&sort=priority:asc&pagination[pageSize]=20`;
-  const [mainNews, featured, pressRelease, mostRead, adsRes] = await Promise.all([
+  const [mainNews, featured, pressRelease, mostRead, adsEnabled] = await Promise.all([
     fetchCategoryArticles(NEWS_SECTIONS.mainNews, 200),
     fetchCategoryArticles(NEWS_SECTIONS.featured, 6),
     fetchCategoryArticles(NEWS_SECTIONS.pressRelease, 10),
     fetchCategoryArticles(NEWS_SECTIONS.mostRead, 5),
-    fetchStrapi<unknown[]>(adsPath),
+    import('@/lib/news/newsAdsEnabled')
+      .then((mod) => mod.newsAdvertisementsEnabled())
+      .catch(() => true),
   ]);
+  const articles = { mainNews, featured, pressRelease, mostRead };
+  if (!adsEnabled) {
+    return { ...empty, ...articles };
+  }
+  const adsPath = `/advertisement-slots?filters[$or][0][position][$eq]=sidebar&filters[$or][1][position][$eq]=top&filters[$or][2][position][$eq]=between_sections&${tenantFilter()}&populate=media&sort=priority:asc&pagination[pageSize]=20`;
+  const adsRes = await fetchStrapi<unknown[]>(adsPath);
   const ads = (Array.isArray(adsRes?.data) ? adsRes.data : [])
     .map((row) => mapAd(row as Record<string, unknown>))
     .filter((row): row is ClubAdSlot => row !== null && row.isVisible);
   return {
     ...empty,
-    mainNews,
-    featured,
-    pressRelease,
-    mostRead,
+    ...articles,
     topAds: ads.filter((ad) => ad.position === 'top'),
     betweenAds: ads.filter((ad) => ad.position === 'between_sections'),
     sidebarAds: ads.filter((ad) => ad.position === 'sidebar'),

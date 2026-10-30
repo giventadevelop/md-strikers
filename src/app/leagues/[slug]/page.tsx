@@ -12,7 +12,8 @@ import {
 import { FcUnitedFooter } from '@/components/fc-united/FcUnitedFooter';
 import { FcUnitedHeader } from '@/components/fc-united/FcUnitedHeader';
 import { FcUnitedInnerHero } from '@/components/fc-united/FcUnitedInnerHero';
-import { fcManrope } from '@/components/fc-united/fcUnitedFonts';
+import { fcBrand } from '@/components/fc-united/fcUnitedFonts';
+import { ClubMark } from '@/components/fc-united/ClubMark';
 import { LeagueStandingsTable } from '@/components/fc-united/LeagueStandingsTable';
 import { PitchShell, pitchButton } from '@/components/fc-united/pitchUi';
 
@@ -26,8 +27,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return { title: league?.name || 'League' };
 }
 
-function clubName(clubs: { id?: number | null; name: string }[], id: number) {
-  return clubs.find((club) => club.id === id)?.name || 'Club';
+function clubById(clubs: { id?: number | null; name: string; logoUrl?: string | null }[], id: number) {
+  return clubs.find((club) => club.id === id);
+}
+
+function ClubLabel({
+  club,
+}: {
+  club?: { name: string; logoUrl?: string | null };
+}) {
+  const name = club?.name || 'Club';
+  return (
+    <span className="inline-flex min-w-0 items-center gap-2">
+      <ClubMark name={name} logoUrl={club?.logoUrl} size="sm" />
+      <span className="truncate">{name}</span>
+    </span>
+  );
 }
 
 function when(value?: string) {
@@ -76,7 +91,7 @@ export default async function LeaguePage({ params }: PageProps) {
     .join(' · ');
 
   return (
-    <div className={cn(fcManrope.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader active="leagues" />
       <FcUnitedInnerHero
         title={league.name}
@@ -91,7 +106,8 @@ export default async function LeaguePage({ params }: PageProps) {
             <div className="flex flex-col gap-4 rounded-2xl border border-pitch-lime/35 bg-pitch-forest/70 px-6 py-8 md:flex-row md:items-center md:justify-between md:px-10">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-pitch-lime">Champions</p>
-                <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.02em] text-pitch-chalk md:text-4xl">
+                <h2 className="mt-3 flex items-center gap-3 text-3xl font-extrabold tracking-[-0.02em] text-pitch-chalk md:text-4xl">
+                  <ClubMark name={winner.clubName} logoUrl={winner.logoUrl} />
                   {winner.clubName}
                 </h2>
                 <p className="mt-2 text-sm text-pitch-chalk/75 md:text-base">
@@ -152,7 +168,10 @@ export default async function LeaguePage({ params }: PageProps) {
                     : 'border-pitch-charcoal/10',
                 )}
               >
-                <p className="font-semibold text-pitch-charcoal">{club.name}</p>
+                <p className="flex items-center gap-3 font-semibold text-pitch-charcoal">
+                  <ClubMark name={club.name} logoUrl={club.logoUrl} size="sm" />
+                  {club.name}
+                </p>
                 {club.isHomeClub ? (
                   <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-pitch-olive">This club</p>
                 ) : null}
@@ -173,8 +192,10 @@ export default async function LeaguePage({ params }: PageProps) {
                   key={match.id}
                   className="flex flex-col gap-1 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <p className="font-semibold text-pitch-charcoal">
-                    {clubName(clubs, match.homeClubId)} vs {clubName(clubs, match.awayClubId)}
+                  <p className="flex flex-wrap items-center gap-2 font-semibold text-pitch-charcoal">
+                    <ClubLabel club={clubById(clubs, match.homeClubId)} />
+                    <span className="text-xs font-semibold uppercase tracking-[0.14em] text-pitch-charcoal/45">vs</span>
+                    <ClubLabel club={clubById(clubs, match.awayClubId)} />
                   </p>
                   <p className="text-sm">
                     {match.status === 'PLAYED' && match.homeScore != null && match.awayScore != null

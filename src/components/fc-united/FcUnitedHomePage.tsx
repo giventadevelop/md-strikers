@@ -18,7 +18,7 @@ import {
   fetchTeamMembersImageTitleServer,
 } from './ApiServerActions';
 import { HOMEPAGE_SPONSOR_LIMIT } from './homepageLimits';
-import { fcBebas, fcManrope, fcPoppins, fcRoboto } from './fcUnitedFonts';
+import { fcBebas, fcBrand, fcPoppins, fcRoboto } from './fcUnitedFonts';
 import { FcSquadCarousel, type FcSquadPlayer } from './FcSquadCarousel';
 import { TeamMembersDbSection } from './TeamMembersDbSection';
 import { ExecutiveTeamSection } from './ExecutiveTeamSection';
@@ -249,13 +249,13 @@ export default async function FcUnitedHomePage() {
   const hasMatchPanel = lastMatches.length > 0;
 
   return (
-    <div className={cn(fcManrope.className, 'flex min-h-screen flex-col bg-pitch-charcoal text-pitch-stone antialiased')}>
+    <div className={cn(fcBrand.className, 'flex min-h-screen flex-col bg-pitch-charcoal text-pitch-stone antialiased')}>
       <FcUnitedHeader active="home" />
 
       <main className="flex min-w-0 flex-1 flex-col">
         {/* Hero — club panel (logo, name, CTA) beside an auto-playing slider of upcoming event images */}
         <section
-          className={cn('bg-pitch-charcoal pt-8 md:pt-12', hasMatchPanel ? 'pb-28 md:pb-36' : 'pb-12 md:pb-16')}
+          className={cn('md-sport-bg bg-pitch-charcoal pt-8 md:pt-12', hasMatchPanel ? 'pb-28 md:pb-36' : 'pb-12 md:pb-16')}
           aria-labelledby="home-hero-heading"
         >
           <PitchShell wide>
@@ -388,7 +388,7 @@ export default async function FcUnitedHomePage() {
         )}
 
         {latestNews.length > 0 && (
-          <section className={cn(pitchSection, 'bg-pitch-chalk')} aria-labelledby="home-news-heading">
+          <section className={cn(pitchSection, 'md-sport-bg md-sport-bg-light bg-pitch-chalk')} aria-labelledby="home-news-heading">
             <PitchShell>
               <PitchHeading
                 tone="light"
@@ -444,7 +444,7 @@ export default async function FcUnitedHomePage() {
         {showLeagueStandings && homepageLeagues.length > 0 ? (
           <HomeLeagueSection leagues={homepageLeagues} />
         ) : standings.length > 1 && (
-          <section className={cn(pitchSection, 'bg-pitch-forest')} aria-labelledby="home-standings-heading">
+          <section className={cn(pitchSection, 'md-sport-bg bg-pitch-forest')} aria-labelledby="home-standings-heading">
             <PitchShell>
               <PitchHeading
                 id="home-standings-heading"
@@ -521,7 +521,7 @@ export default async function FcUnitedHomePage() {
             <div className="grid items-center gap-12 md:grid-cols-[minmax(0,1fr)_auto] md:gap-16">
               <div className="max-w-2xl">
                 <p className="mb-4 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.24em] text-pitch-lime">
-                  <span className="h-px w-8 bg-pitch-lime/60" aria-hidden />
+                  <span className="md-brand-rule h-0.5 w-10 rounded-full" aria-hidden />
                   Our story
                 </p>
                 <h2

@@ -38,21 +38,19 @@ export const pitchSection = 'py-20 md:py-28';
 export const pitchFocus =
   'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-lime';
 
-const buttonBase = cn(
-  'inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-[background-color,border-color,color,transform] duration-300 ease-out hover:-translate-y-px motion-reduce:transition-none motion-reduce:hover:translate-y-0',
-  pitchFocus,
-);
-
+/**
+ * Buttons use the shared `.md-btn*` classes in globals.css (red→orange gradient primary,
+ * gold/orange-edged secondary, lift + glow on hover, reduced-motion aware).
+ */
 export const pitchButton = {
   /** Primary on dark surfaces. */
-  primary: cn(buttonBase, 'bg-pitch-chalk text-pitch-charcoal hover:bg-pitch-lime'),
-  /** Primary on chalk surfaces. */
-  primaryOnLight: cn(buttonBase, 'bg-pitch-forest text-pitch-chalk hover:bg-pitch-olive'),
-  ghost: cn(buttonBase, 'border border-pitch-chalk/20 text-pitch-chalk hover:border-pitch-chalk/50 hover:bg-pitch-chalk/5'),
-  ghostOnLight: cn(
-    buttonBase,
-    'border border-pitch-charcoal/15 text-pitch-charcoal hover:border-pitch-charcoal/40 hover:bg-pitch-charcoal/[0.03]',
-  ),
+  primary: 'md-btn md-btn-primary',
+  /** Primary on light surfaces (same brand gradient). */
+  primaryOnLight: 'md-btn md-btn-primary',
+  /** Secondary on dark surfaces. */
+  ghost: 'md-btn md-btn-secondary',
+  /** Secondary on light surfaces. */
+  ghostOnLight: 'md-btn md-btn-secondary-light',
 };
 
 export function PitchArrow({ className }: { className?: string }) {
@@ -100,13 +98,13 @@ export function PitchHeading({
             dark ? 'text-pitch-lime' : 'text-pitch-olive',
           )}
         >
-          <span className={cn('h-px w-8', dark ? 'bg-pitch-lime/60' : 'bg-pitch-olive/60')} aria-hidden />
+          <span className="md-brand-rule h-0.5 w-10 rounded-full" aria-hidden />
           {eyebrow}
         </p>
         <h2
           id={id}
           className={cn(
-            'text-3xl font-extrabold leading-[1.1] tracking-[-0.02em] md:text-[2.75rem]',
+            'text-4xl font-extrabold md:text-5xl',
             dark ? 'text-pitch-chalk' : 'text-pitch-charcoal',
           )}
         >

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { fcSponsors } from './fcUnitedConstants';
-import { fcManrope } from './fcUnitedFonts';
+import { fcBrand } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
@@ -28,7 +28,7 @@ const detailContacts = [
 
 export default function FcUnitedContactsPage() {
   return (
-    <div className={cn(fcManrope.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader active="contacts" />
       <FcUnitedInnerHero title="Contacts" />
 
@@ -49,7 +49,7 @@ export default function FcUnitedContactsPage() {
               <div
                 className="pointer-events-none absolute inset-0 opacity-[0.35]"
                 style={{
-                  backgroundImage: 'radial-gradient(circle at top left, rgba(82, 107, 80, 0.12), transparent 55%)',
+                  backgroundImage: 'radial-gradient(circle at top left, rgba(244, 123, 32, 0.12), transparent 55%)',
                 }}
               />
               <div className="relative">

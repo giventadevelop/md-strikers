@@ -2,23 +2,24 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { FcUnitedAuthMobile } from './FcUnitedAuth';
 import { FC_UNITED_NAV_LINKS, isFcNavItemActive, isFcNavLinkActive, type FcNavItem, type FcNavKey } from './fcUnitedNavLinks';
 
 const navHoverActive =
   'cursor-pointer text-base font-semibold text-pitch-stone transition-colors duration-200 hover:bg-pitch-chalk/5 hover:text-pitch-chalk focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime';
-const navActive = 'bg-pitch-chalk/5 text-pitch-chalk shadow-[inset_2px_0_0_theme(colors.pitch.lime)]';
+const navActive = 'bg-pitch-chalk/5 text-brand-orange shadow-[inset_3px_0_0_var(--color-primary)]';
 
 export function FcUnitedMobileNav({ active, links = FC_UNITED_NAV_LINKS }: { active?: FcNavKey; links?: FcNavItem[] }) {
   const [open, setOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const pathname = usePathname();
+  const search = useSearchParams().toString();
 
   useEffect(() => {
     setOpen(false);
-  }, [pathname]);
+  }, [pathname, search]);
 
   useEffect(() => {
     if (!open) return;
@@ -83,7 +84,7 @@ export function FcUnitedMobileNav({ active, links = FC_UNITED_NAV_LINKS }: { act
                   className={cn(
                     'flex w-full items-center justify-between rounded-xl px-4 py-3',
                     navHoverActive,
-                    isFcNavItemActive(item, pathname, active) && navActive
+                    isFcNavItemActive(item, pathname, active, search) && navActive
                   )}
                   aria-expanded={!!openGroups[item.key]}
                   onClick={() => setOpenGroups((current) => ({ ...current, [item.key]: !current[item.key] }))}
@@ -102,7 +103,7 @@ export function FcUnitedMobileNav({ active, links = FC_UNITED_NAV_LINKS }: { act
                           className={cn(
                             'block rounded-xl px-4 py-3 text-sm',
                             navHoverActive,
-                            isFcNavLinkActive(child, pathname, active) && navActive
+                            isFcNavLinkActive(child, pathname, active, search) && navActive
                           )}
                           onClick={() => setOpen(false)}
                         >
@@ -120,7 +121,7 @@ export function FcUnitedMobileNav({ active, links = FC_UNITED_NAV_LINKS }: { act
                   className={cn(
                     'block rounded-xl px-4 py-3',
                     navHoverActive,
-                    isFcNavItemActive(item, pathname, active) && navActive,
+                    isFcNavItemActive(item, pathname, active, search) && navActive,
                   )}
                   onClick={() => setOpen(false)}
                 >

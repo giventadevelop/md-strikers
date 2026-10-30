@@ -21,7 +21,7 @@ import {
   mdStrikersWhatWeDoBody,
   mdStrikersWhatWeDoHeading,
 } from './fcUnitedAboutContent';
-import { fcManrope } from './fcUnitedFonts';
+import { fcBrand } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcMemorableMomentsSection } from './FcMemorableMomentsSection';
 import { FcUnitedHeader } from './FcUnitedHeader';
@@ -59,7 +59,7 @@ function AboutPageSubnav() {
               <a
                 href={`#${item.id}`}
                 className={cn(
-                  fcManrope.className,
+                  fcBrand.className,
                   'inline-block rounded-xl px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-pitch-lime transition-colors hover:bg-pitch-charcoal hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-lime md:text-sm',
                 )}
               >
@@ -77,7 +77,7 @@ export default function FcUnitedAboutPage() {
   return (
     <div
       className={cn(
-        fcManrope.className,
+        fcBrand.className,
         'flex min-h-screen flex-col bg-pitch-chalk text-pitch-charcoal/70 antialiased',
       )}
     >

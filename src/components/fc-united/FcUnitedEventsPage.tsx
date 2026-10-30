@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { fcManrope } from './fcUnitedFonts';
+import { fcBrand } from './fcUnitedFonts';
 import { FcUnitedEventsCatalogClient } from './FcUnitedEventsCatalogClient';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
@@ -11,7 +11,7 @@ import { FcUnitedInnerHero } from './FcUnitedInnerHero';
  */
 export default function FcUnitedEventsPage() {
   return (
-    <div className={cn(fcManrope.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader active="events" />
       <FcUnitedInnerHero
         title="All Events"

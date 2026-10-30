@@ -93,7 +93,7 @@ export function GallerySearch({
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex items-center justify-center rounded-full bg-pitch-forest px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-pitch-olive disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center justify-center rounded-lg md-btn-primary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0"
         >
           Search
         </button>
@@ -101,7 +101,7 @@ export function GallerySearch({
           type="button"
           onClick={handleClear}
           disabled={loading}
-          className="inline-flex items-center justify-center rounded-full border border-pitch-charcoal/10 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-colors duration-300 hover:border-pitch-charcoal/25 hover:text-pitch-olive disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center justify-center rounded-lg border border-brand-orange/55 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-orange hover:bg-brand-orange/[0.06] hover:text-pitch-olive motion-reduce:hover:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           title="Clear search"
           aria-label="Clear search"
         >

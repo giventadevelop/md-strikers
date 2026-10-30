@@ -108,10 +108,10 @@ function collapseRecurring(list: EventDetailsDTO[], keepFinished: boolean): Even
 }
 
 const pillCta =
-  'inline-flex items-center justify-center gap-2 rounded-full bg-pitch-forest px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-300 ease-in-out hover:bg-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
+  'inline-flex items-center justify-center gap-2 rounded-lg md-btn-primary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive hover:-translate-y-0.5 motion-reduce:hover:translate-y-0';
 
 const secondaryCta =
-  'inline-flex items-center justify-center gap-2 rounded-full border border-pitch-charcoal/10 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-colors duration-300 hover:border-pitch-charcoal/25 hover:text-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
+  'inline-flex items-center justify-center gap-2 rounded-lg border border-brand-orange/55 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-orange hover:bg-brand-orange/[0.06] hover:text-pitch-olive motion-reduce:hover:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
 
 export function FcUnitedEventsCatalogClient() {
   const [events, setEvents] = useState<CatalogEvent[]>([]);
@@ -287,7 +287,7 @@ export function FcUnitedEventsCatalogClient() {
             }}
             className={cn(
               'relative inline-flex h-20 w-32 items-center rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2',
-              showPastEvents ? 'bg-pitch-forest' : 'bg-pitch-forest',
+              'bg-gradient-to-r from-brand-red to-brand-orange',
             )}
             title={showPastEvents ? 'Show Future Events' : 'Show Past Events'}
             aria-label={showPastEvents ? 'Show Future Events' : 'Show Past Events'}
@@ -456,7 +456,7 @@ export function FcUnitedEventsCatalogClient() {
                       sizes="(max-width: 1240px) 100vw, 1240px"
                     />
                     {showPastEvents && (
-                      <span className="absolute left-3 top-3 rounded-xl bg-pitch-forest px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-white">
+                      <span className="absolute left-3 top-3 rounded-md bg-pitch-lime px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-pitch-charcoal">
                         Past Event
                       </span>
                     )}

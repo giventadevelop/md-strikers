@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { fcManrope } from './fcUnitedFonts';
+import { fcBrand } from './fcUnitedFonts';
 
 const focusRing =
   'focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-2 focus-visible:ring-offset-pitch-charcoal';
@@ -75,7 +75,7 @@ function FooterHeading({ children }: { children: ReactNode }) {
 
 export function FcUnitedFooter() {
   return (
-    <footer className={cn(fcManrope.className, 'border-t border-pitch-chalk/10 bg-pitch-charcoal text-pitch-stone')}>
+    <footer className={cn(fcBrand.className, 'md-sport-bg border-t-2 border-t-brand-orange bg-pitch-charcoal text-pitch-stone')}>
       <Shell className="pb-16 pt-20 md:pb-20 md:pt-24">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1.3fr_0.9fr] lg:gap-16">
           <div className="flex flex-col items-start">

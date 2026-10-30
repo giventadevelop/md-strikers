@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { LastMatchCard } from './ApiServerActions';
-import { fcManrope } from './fcUnitedFonts';
+import { fcBrand } from './fcUnitedFonts';
 import { PitchArrow, PitchShell, pitchButton, pitchSection } from './pitchUi';
 import { MdPagination } from './MdPagination';
 
@@ -70,7 +70,7 @@ export function LastMatchSection({
   };
 
   return (
-    <section className={cn(fcManrope.className, pitchSection, 'bg-pitch-chalk')}>
+    <section className={cn(fcBrand.className, pitchSection, 'bg-pitch-chalk')}>
       <PitchShell>
         <div
           className={cn(
@@ -87,7 +87,7 @@ export function LastMatchSection({
                 toggleCentered && 'justify-center',
               )}
             >
-              <span className="h-px w-8 bg-pitch-olive/60" aria-hidden />
+              <span className="md-brand-rule h-0.5 w-10 rounded-full" aria-hidden />
               {isUpcoming ? 'Fixtures' : 'Results'}
             </p>
             <h2 className="text-3xl font-extrabold leading-[1.1] tracking-[-0.02em] text-pitch-charcoal md:text-[2.75rem]">
@@ -109,7 +109,7 @@ export function LastMatchSection({
               className={cn(
                 'rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive',
                 view === 'UPCOMING'
-                  ? 'border-pitch-forest bg-pitch-forest text-pitch-chalk'
+                  ? 'border-transparent md-btn-primary text-white'
                   : 'border-pitch-charcoal/15 text-pitch-charcoal/70 hover:border-pitch-charcoal/40 hover:text-pitch-charcoal',
               )}
               aria-pressed={view === 'UPCOMING'}
@@ -122,7 +122,7 @@ export function LastMatchSection({
               className={cn(
                 'rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive',
                 view === 'PAST'
-                  ? 'border-pitch-forest bg-pitch-forest text-pitch-chalk'
+                  ? 'border-transparent md-btn-primary text-white'
                   : 'border-pitch-charcoal/15 text-pitch-charcoal/70 hover:border-pitch-charcoal/40 hover:text-pitch-charcoal',
               )}
               aria-pressed={view === 'PAST'}

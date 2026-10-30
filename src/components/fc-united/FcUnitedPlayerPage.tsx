@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { fcSponsors } from './fcUnitedConstants';
-import { fcManrope } from './fcUnitedFonts';
+import { fcBrand } from './fcUnitedFonts';
 import { encodePublicPath } from './fcUnitedGalleryData';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
@@ -68,7 +68,7 @@ function RadarChart({
         const [x, y] = point(index, 1);
         return <line key={index} x1={cx} y1={cy} x2={x} y2={y} stroke="white" strokeOpacity="0.18" />;
       })}
-      <polygon points={shape} fill="rgba(255,255,255,0.08)" stroke="#A8BB83" strokeWidth="2.4" />
+      <polygon points={shape} fill="rgba(255,255,255,0.08)" stroke="#FFAD1F" strokeWidth="2.4" />
       {axes.map((axis, index) => {
         const [x, y] = point(index, 1.28);
         return (
@@ -169,7 +169,7 @@ export default function FcUnitedPlayerPage({ player }: { player: PublicPlayerDet
   const clubShort = club.split(' - ')[0] || club;
 
   return (
-    <div className={cn(fcManrope.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader active="team" />
       <FcUnitedInnerHero title={player.name} />
 
@@ -188,7 +188,7 @@ export default function FcUnitedPlayerPage({ player }: { player: PublicPlayerDet
                     type="button"
                     onClick={() => setSportId(item.id)}
                     className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                      active ? 'bg-pitch-forest text-white' : 'bg-white text-pitch-charcoal ring-1 ring-pitch-charcoal/10'
+                      active ? 'md-btn-primary text-white' : 'bg-white text-pitch-charcoal ring-1 ring-pitch-charcoal/10'
                     }`}
                     aria-pressed={active}
                   >

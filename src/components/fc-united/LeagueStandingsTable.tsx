@@ -1,16 +1,6 @@
 import type { LeagueStandingRowDTO } from '@/types';
 import { cn } from '@/lib/utils';
-
-function crest(row: LeagueStandingRowDTO) {
-  if (!row.logoUrl) {
-    return (
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-pitch-chalk/10 text-xs font-semibold">
-        {row.clubName.slice(0, 1)}
-      </span>
-    );
-  }
-  return <img src={row.logoUrl} alt="" width={28} height={28} className="h-7 w-7 shrink-0 object-contain" />;
-}
+import { ClubMark } from './ClubMark';
 
 export function LeagueStandingsTable({
   rows,
@@ -64,7 +54,7 @@ export function LeagueStandingsTable({
               </td>
               <td className="px-2 py-4 sm:px-4">
                 <span className="flex items-center gap-3 font-semibold">
-                  {crest(row)}
+                  <ClubMark name={row.clubName} logoUrl={row.logoUrl} size="sm" />
                   <span className="max-w-[10rem] truncate sm:max-w-none">
                     {row.clubName}
                     {highlightChampion && index === 0 ? (
