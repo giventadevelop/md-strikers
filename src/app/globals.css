@@ -1610,6 +1610,13 @@ body {
   }
 }
 
+/* Sports public routes: pitch shell on first paint, before page content streams in.
+   Unlayered so it wins over the `@layer base` body background above. */
+body.md-public {
+  background-color: #171717;
+  color: #a6a6a6;
+}
+
 /* Add custom styles from HTML template, refactored for Tailwind and deduplicated */
 
 .hero-section {

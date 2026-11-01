@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { fcBrand } from './fcUnitedFonts';
+import { pitchPageInset } from './pitchUi';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
@@ -10,7 +11,7 @@ import type { PublicTournament } from '@/lib/tournaments/publicTournaments';
 import { menuLabel } from '@/lib/tournaments/publicTournaments';
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn('mx-auto w-full max-w-[1240px] px-4 sm:px-6 lg:px-8', className)}>{children}</div>;
+  return <div className={cn(pitchPageInset, className)}>{children}</div>;
 }
 
 function filled(value?: string | null) {

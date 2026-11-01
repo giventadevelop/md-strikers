@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { fcBrand } from './fcUnitedFonts';
+import { pitchPageInset } from './pitchUi';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('mx-auto w-full max-w-[1240px] px-4 sm:px-6 lg:px-8', className)}>{children}</div>
+    <div className={cn(pitchPageInset, className)}>{children}</div>
   );
 }
 

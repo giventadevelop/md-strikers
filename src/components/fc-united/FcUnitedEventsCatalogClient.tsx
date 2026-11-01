@@ -18,6 +18,7 @@ import { isDonationBasedEvent, isTicketedFundraiserEvent } from '@/lib/donation/
 import { resolveBuyTicketsTarget, resolveRegisterTarget } from '@/lib/eventcube/utils';
 import { resolveEventImageUrlsServer } from './ApiServerActions';
 import { DEFAULT_EVENT_IMAGE, formatEventDate, eventHref } from './homeEventDisplay';
+import { pitchPageInset } from './pitchUi';
 
 
 const PAGE_SIZE = 20;
@@ -65,7 +66,7 @@ function toGoogleCalendarDate(date: string, time: string) {
 
 function Shell({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn('mx-auto w-full max-w-[1308px] px-4 sm:px-7 lg:px-12', className)}>
+    <div className={cn(pitchPageInset, className)}>
       {children}
     </div>
   );

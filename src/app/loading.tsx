@@ -1,4 +1,18 @@
-export default function Loading() {
+import { headers } from 'next/headers';
+import { isFcUnitedStandaloneRoute } from '@/lib/fcUnitedRoutes';
+
+export default async function Loading() {
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') || '';
+
+  if (isFcUnitedStandaloneRoute(pathname)) {
+    return (
+      <div className="min-h-screen bg-[#171717]" aria-busy="true" aria-live="polite">
+        <span className="sr-only">Loading...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="grid place-items-center animate-pulse text-neutral-300 p-4">
       <div role="status">

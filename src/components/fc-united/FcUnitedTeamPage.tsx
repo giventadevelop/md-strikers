@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { fcSponsors } from './fcUnitedConstants';
 import { fcBrand } from './fcUnitedFonts';
+import { pitchPageInset } from './pitchUi';
 import { encodePublicPath } from './fcUnitedGalleryData';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
@@ -24,7 +25,7 @@ const secondaryCta =
   'inline-flex items-center justify-center gap-2 rounded-lg border border-brand-orange/55 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-orange hover:bg-brand-orange/[0.06] hover:text-pitch-olive motion-reduce:hover:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-40';
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn('mx-auto w-full max-w-[1240px] px-4 sm:px-6 lg:px-8', className)}>{children}</div>;
+  return <div className={cn(pitchPageInset, className)}>{children}</div>;
 }
 
 function matchesQuery(player: PublicRosterPlayer, query: string): boolean {

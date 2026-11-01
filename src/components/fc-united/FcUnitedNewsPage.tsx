@@ -9,6 +9,7 @@ import { fcBrand } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
+import { pitchPageInset } from './pitchUi';
 import { MdPagination } from './MdPagination';
 
 const MAIN_NEWS_PAGE_SIZE = 20;
@@ -144,7 +145,7 @@ export default function FcUnitedNewsPage({ data }: { data: ClubNewsPageData }) {
       <FcUnitedHeader active="news" />
       <FcUnitedInnerHero title="News" subtitle="Latest news from Maryland Strikers." />
       <main className="bg-pitch-chalk py-12 md:py-16">
-        <div className="mx-auto w-full max-w-[1240px] px-4 sm:px-6 lg:px-8">
+        <div className={pitchPageInset}>
           <nav className="mb-8 flex flex-wrap gap-2" aria-label="News sections">
             {sectionLinks.map((link) => (
               <a key={link.id} href={`#${link.id}`} className={secondaryCta}>

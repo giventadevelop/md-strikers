@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { fcSponsors } from './fcUnitedConstants';
 import { fcBrand } from './fcUnitedFonts';
+import { pitchPageInset } from './pitchUi';
 import { encodePublicPath } from './fcUnitedGalleryData';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
@@ -13,7 +14,7 @@ import { FcUnitedInnerHero } from './FcUnitedInnerHero';
 import type { PublicPlayerDetail } from './ApiServerActions';
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn('mx-auto w-full max-w-[1240px] px-4 sm:px-6 lg:px-8', className)}>{children}</div>;
+  return <div className={cn(pitchPageInset, className)}>{children}</div>;
 }
 
 function formatCount(value: number | null): string {

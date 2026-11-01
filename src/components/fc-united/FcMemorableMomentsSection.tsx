@@ -9,6 +9,7 @@ import {
 } from './fcUnitedAboutContent';
 import { encodePublicPath } from './fcUnitedGalleryData';
 import { fcBrand } from './fcUnitedFonts';
+import { pitchPageInset } from './pitchUi';
 
 const items = mdStrikersMemorableMomentTiles;
 
@@ -64,7 +65,7 @@ export function FcMemorableMomentsSection() {
 
   return (
     <section className="overflow-x-hidden bg-white py-20 md:py-28">
-      <div className="mx-auto mb-8 w-full max-w-[1308px] px-4 md:mb-10 md:px-7 lg:px-12">
+      <div className={cn(pitchPageInset, 'mb-8 md:mb-10')}>
         <h2
           className={cn(
             'font-extrabold tracking-[-0.02em] text-center text-2xl text-pitch-charcoal md:text-3xl',
@@ -98,7 +99,8 @@ export function FcMemorableMomentsSection() {
               <div
                 className={cn(
                   fcBrand.className,
-                  'mx-auto w-full max-w-[1308px] px-4 py-5 md:px-7 md:py-6 lg:px-12',
+                  pitchPageInset,
+                  'py-5 md:py-6',
                 )}
               >
                 <p className="text-xs uppercase tracking-wide text-pitch-charcoal/70">Memorable moment</p>

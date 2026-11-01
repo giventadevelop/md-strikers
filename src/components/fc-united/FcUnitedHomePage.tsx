@@ -34,7 +34,7 @@ import { HeroSlider, type HeroSlide } from './HeroSlider';
 import { NextMatchPanel } from './NextMatchPanel';
 import { buildStandings } from './homeStandings';
 import { HomeLeagueSection } from './HomeLeagueSection';
-import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchFocus, pitchSection } from './pitchUi';
+import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchFocus, pitchPageInset, pitchSection } from './pitchUi';
 
 const STORY_IMAGE = '/images/md_strikers_media/gallery/mdstrikers_com/gal03.jpg';
 
@@ -133,7 +133,7 @@ const upcomingEventsDemo: BandEvent[] = [
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('mx-auto w-full max-w-[1308px] px-4 md:px-7 lg:px-12', className)}>{children}</div>
+    <div className={cn(pitchPageInset, className)}>{children}</div>
   );
 }
 

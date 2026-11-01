@@ -12,12 +12,13 @@ import type { PublicTournament } from '@/lib/tournaments/publicTournaments';
 import { DEFAULT_EVENT_IMAGE, formatEventDate } from './homeEventDisplay';
 
 import { MdPagination } from './MdPagination';
+import { pitchPageInset } from './pitchUi';
 
 const PAGE_SIZE = 12;
 
 function Shell({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn('mx-auto w-full max-w-[1308px] px-4 sm:px-7 lg:px-12', className)}>
+    <div className={cn(pitchPageInset, className)}>
       {children}
     </div>
   );

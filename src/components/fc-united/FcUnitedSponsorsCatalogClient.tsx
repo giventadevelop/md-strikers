@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 import { MdPagination } from './MdPagination';
+import { pitchPageInset } from './pitchUi';
 import {
   fetchSponsorsCatalogServer,
   type HomepageSponsor,
@@ -19,7 +20,7 @@ const PAGE_SIZE = 20;
 
 function Shell({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn('mx-auto w-full max-w-[1308px] px-4 sm:px-7 lg:px-12', className)}>
+    <div className={cn(pitchPageInset, className)}>
       {children}
     </div>
   );

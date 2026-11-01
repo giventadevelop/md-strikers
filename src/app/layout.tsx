@@ -18,6 +18,8 @@ import { getAppUrlFromRequestHeaders, getTenantId, getApiBaseUrl, originFromRequ
 import { fetchWithJwtRetry } from "@/lib/proxyHandler";
 import { logServerFetchFailure } from "@/lib/logServerFetchFailure";
 import { isAdminRole } from "@/lib/utils";
+import { isFcUnitedStandaloneRoute, MD_PUBLIC_BODY_CLASS } from "@/lib/fcUnitedRoutes";
+import FcUnitedThemeGuard from "../components/FcUnitedThemeGuard";
 
 const DEBUG_LAYOUT = process.env.NEXT_PUBLIC_DEBUG_LAYOUT === 'true';
 const debugLog = (...args: unknown[]) => { if (DEBUG_LAYOUT) console.log(...args); };
@@ -43,12 +45,14 @@ export default async function RootLayout({
   const satelliteDomain = process.env.NEXT_PUBLIC_CLERK_DOMAIN || process.env.AMPLIFY_NEXT_PUBLIC_CLERK_DOMAIN || 'www.mosc-temp.com';
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.AMPLIFY_NEXT_PUBLIC_APP_URL || '';
   let clerkProps: { isSatellite?: boolean; domain?: string; signInUrl?: string; signUpUrl?: string; allowedRedirectOrigins?: string[] } = appUrl ? { allowedRedirectOrigins: [appUrl] } : {};
+  let requestPathname = '';
 
   try {
   // CRITICAL: Next.js 15+ - await headers() first before any other async or header-dependent code (e.g. auth()).
   const headersList = await headers();
   const hostname = headersList.get('host') || '';
   const pathname = headersList.get('x-pathname') || '';
+  requestPathname = pathname;
 
   // Define public routes that don't require authentication checks
   // These routes can skip auth() calls to avoid Next.js 15+ headers() async errors
@@ -375,6 +379,12 @@ export default async function RootLayout({
 
   // Clerk v7 / Core 3: ClerkProvider must be inside <body>, not wrapping <html>.
   // We inline the ClerkProvider wrapping instead of using a separate layoutContent variable.
+  const bodyClassName = [
+    inter.className,
+    'flex flex-col min-h-screen',
+    isFcUnitedStandaloneRoute(requestPathname) ? MD_PUBLIC_BODY_CLASS : '',
+  ].filter(Boolean).join(' ');
+
   return (
       <html lang="en" suppressHydrationWarning>
         <head>
@@ -386,7 +396,8 @@ export default async function RootLayout({
           <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Epilogue:wght@300;400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
           <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
         </head>
-        <body className={inter.className + " flex flex-col min-h-screen"} suppressHydrationWarning>
+        <body className={bodyClassName} suppressHydrationWarning>
+          <FcUnitedThemeGuard />
           {CLERK_KEY ? (
           <ClerkProvider publishableKey={CLERK_KEY} {...clerkProps}>
           <ClerkSyncUrlCleanup />

@@ -6,6 +6,7 @@ import { fcBrand } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
+import { pitchPageInset } from './pitchUi';
 
 function formatNewsDate(value: string | null): string {
   if (!value) return '';
@@ -25,7 +26,7 @@ export default function FcUnitedNewsArticlePage({ article }: { article: ClubNews
       <FcUnitedHeader active="news" />
       <FcUnitedInnerHero title="News" subtitle={article.title} />
       <main className="bg-pitch-chalk py-12 md:py-16">
-        <article className="mx-auto w-full max-w-[860px] px-4 md:px-7">
+        <article className={pitchPageInset}>
           <Link
             href="/news"
             className="mb-6 inline-flex text-sm font-semibold text-pitch-olive hover:bg-pitch-olive"

@@ -3,6 +3,7 @@ import { fcBrand } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
+import { pitchPageInset } from './pitchUi';
 import { ExecutiveTeamSection } from './ExecutiveTeamSection';
 import type { ExecutiveCommitteeTeamMemberDTO } from '@/types';
 
@@ -23,7 +24,7 @@ export default function FcUnitedExecutiveTeamPage({
         <ExecutiveTeamSection members={members} paginate />
       ) : (
         <section className="bg-white py-16">
-          <p className="mx-auto max-w-[1308px] px-4 text-center text-sm text-pitch-charcoal/70 md:px-7 lg:px-12">
+          <p className={cn(pitchPageInset, 'text-center text-sm text-pitch-charcoal/70')}>
             The executive team will be listed here once members are published.
           </p>
         </section>
