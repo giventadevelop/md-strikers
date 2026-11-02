@@ -3,13 +3,11 @@
 import { useState } from 'react';
 
 /**
- * Public contact email — same flow as mosc-temp `MoscRedesignFooter` (POST /api/proxy/contact-form-email).
+ * Public contact email — POST /api/proxy/contact-form-email.
  * Backend: POST /api/contact-form-email/send with tenantId injected by proxy.
+ * The inbox is sales@giventa.com. emailType CONTACT also sends a copy to the address entered on the form.
  */
-const DEFAULT_TO_EMAIL =
-  process.env.NEXT_PUBLIC_CONTACT_TO_EMAIL ||
-  process.env.NEXT_PUBLIC_MOSC_CONTACT_TO_EMAIL ||
-  'mdstrikersinc@gmail.com';
+const SALES_INBOX = 'sales@giventa.com';
 
 /** Log prefix / tag — filter CloudWatch or browser console with this string. */
 const CONTACT_FORM_LOG_TAG = '[FcUnitedContactForm]';
@@ -97,7 +95,9 @@ export function FcUnitedContactForm() {
       lastName,
       messageBody,
       fromEmail: email,
-      toEmail: DEFAULT_TO_EMAIL,
+      senderEmail: email,
+      toEmail: SALES_INBOX,
+      emailType: 'CONTACT',
     };
 
     try {
