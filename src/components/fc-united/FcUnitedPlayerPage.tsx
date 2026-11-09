@@ -97,7 +97,7 @@ function MetricTile({
   tone: 'coral' | 'rose' | 'white';
 }) {
   const toneClass =
-    tone === 'white' ? 'bg-white text-pitch-charcoal' : tone === 'rose' ? 'bg-pitch-olive text-pitch-chalk' : 'bg-pitch-lime text-pitch-charcoal';
+    tone === 'white' ? 'bg-pitch-card text-pitch-charcoal' : tone === 'rose' ? 'bg-pitch-olive text-pitch-chalk' : 'bg-pitch-lime text-pitch-charcoal';
   return (
     <div className={cn('rounded-2xl px-5 py-6 shadow-lg', toneClass)}>
       <p className="text-xs font-semibold uppercase tracking-[0.16em] opacity-80">{label}</p>
@@ -174,7 +174,7 @@ export default function FcUnitedPlayerPage({ player }: { player: PublicPlayerDet
       <FcUnitedHeader active="team" />
       <FcUnitedInnerHero title={player.name} />
 
-      <section className="bg-pitch-chalk py-8 md:py-12">
+      <section className="md-sport-bg bg-pitch-chalk py-8 md:py-12">
         <Shell>
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <Link href="/team" className="inline-flex text-sm font-semibold text-pitch-olive hover:underline">
@@ -189,7 +189,7 @@ export default function FcUnitedPlayerPage({ player }: { player: PublicPlayerDet
                     type="button"
                     onClick={() => setSportId(item.id)}
                     className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                      active ? 'md-btn-primary text-white' : 'bg-white text-pitch-charcoal ring-1 ring-pitch-charcoal/10'
+                      active ? 'md-btn-primary text-white' : 'md-btn-gold'
                     }`}
                     aria-pressed={active}
                   >
@@ -203,7 +203,7 @@ export default function FcUnitedPlayerPage({ player }: { player: PublicPlayerDet
               <select
                 value={sport?.id ?? 'football'}
                 onChange={(event) => setSportId(event.target.value as typeof sportId)}
-                className="rounded-full border border-pitch-charcoal/10 bg-white px-4 py-2 text-sm font-semibold text-pitch-charcoal outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive"
+                className="rounded-full border border-pitch-charcoal/10 bg-pitch-card px-4 py-2 text-sm font-semibold text-pitch-charcoal outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive"
                 aria-label="Sport category"
               >
                 {player.sports.map((item) => (
@@ -457,7 +457,7 @@ export default function FcUnitedPlayerPage({ player }: { player: PublicPlayerDet
         </Shell>
       </section>
 
-      <section className="border-t border-pitch-charcoal/10 bg-pitch-chalk py-10">
+      <section className="md-sport-bg border-t border-pitch-charcoal/10 bg-pitch-chalk py-10">
         <Shell>
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 lg:justify-between">
             {fcSponsors.map((src) => (

@@ -789,11 +789,24 @@ export async function fetchPublicPlayerServer(id: number): Promise<PublicPlayerD
   }
 }
 
+function finiteStat(value: number | null | undefined): number | null {
+  return value != null && Number.isFinite(value) ? value : null;
+}
+
 export type TeamMemberImageTitle = {
   id: number;
   title: string;
   designation: string;
   profileImageUrl: string;
+  position: string;
+  jerseyNumber: number | null;
+  seasonLabel: string;
+  seasonAppearances: number | null;
+  seasonGoals: number | null;
+  seasonAssists: number | null;
+  careerAppearances: number | null;
+  careerGoals: number | null;
+  careerAssists: number | null;
 };
 
 export type LastMatchCard = {
@@ -860,6 +873,15 @@ export async function fetchTeamMembersImageTitleServer(): Promise<TeamMemberImag
         title: m.title!.trim(),
         designation: (m.designation && m.designation.trim()) || '',
         profileImageUrl: m.profileImageUrl!.trim(),
+        position: (m.position && m.position.trim()) || '',
+        jerseyNumber: m.jerseyNumber != null && Number.isFinite(m.jerseyNumber) ? m.jerseyNumber : null,
+        seasonLabel: (m.seasonLabel && m.seasonLabel.trim()) || '',
+        seasonAppearances: finiteStat(m.seasonAppearances),
+        seasonGoals: finiteStat(m.seasonGoals),
+        seasonAssists: finiteStat(m.seasonAssists),
+        careerAppearances: finiteStat(m.careerAppearances),
+        careerGoals: finiteStat(m.careerGoals),
+        careerAssists: finiteStat(m.careerAssists),
       }));
   } catch (error) {
     console.error('[fetchTeamMembersImageTitleServer] Error:', error);

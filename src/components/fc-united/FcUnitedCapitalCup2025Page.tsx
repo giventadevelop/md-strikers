@@ -22,7 +22,7 @@ export default function FcUnitedCapitalCup2025Page() {
       <FcUnitedHeader />
       <FcUnitedInnerHero title="Capital Cup 2025" />
 
-      <section className="bg-white">
+      <section className="md-sport-bg bg-pitch-chalk">
         <Shell className="py-8 md:py-10">
           <p className="mx-auto max-w-3xl text-center text-sm leading-relaxed text-pitch-charcoal/70 md:text-base">
             Live schedule, fixtures, standings, and match results for Capital Cup 2025 are powered by Tournify — the same
@@ -51,7 +51,7 @@ export default function FcUnitedCapitalCup2025Page() {
             <Link
               href="/capital-cup-2026"
               className={cn(
-                'font-extrabold tracking-[-0.02em] inline-flex cursor-pointer items-center justify-center rounded-xl border border-pitch-charcoal/10 bg-white px-6 py-3 text-lg text-pitch-charcoal transition-colors duration-200 hover:bg-pitch-chalk focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2 focus-visible:ring-offset-white motion-reduce:transition-none',
+                'font-extrabold tracking-[-0.02em] md-btn-gold inline-flex cursor-pointer items-center justify-center rounded-lg px-6 py-3 text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2 focus-visible:ring-offset-white motion-reduce:transition-none',
               )}
             >
               Capital Cup 2026
@@ -66,7 +66,7 @@ export default function FcUnitedCapitalCup2025Page() {
             </h2>
           </Shell>
           <div className="mx-auto w-full max-w-[1400px] px-2 sm:px-4 md:px-6">
-            <div className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-white shadow-sm">
+            <div className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card shadow-sm">
               <iframe
                 title="Capital Cup 2025 — Tournify live schedule and results"
                 src={TOURNIFY_SCHEDULE_URL}

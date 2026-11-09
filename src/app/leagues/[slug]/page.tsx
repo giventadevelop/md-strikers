@@ -101,7 +101,7 @@ export default async function LeaguePage({ params }: PageProps) {
       />
 
       {winner ? (
-        <section className="border-b border-pitch-lime/20 bg-pitch-charcoal py-10 text-pitch-chalk" aria-label="League champion">
+        <section className="md-sport-bg border-b border-pitch-lime/20 bg-pitch-charcoal py-10 text-pitch-chalk" aria-label="League champion">
           <PitchShell>
             <div className="flex flex-col gap-4 rounded-2xl border border-pitch-lime/35 bg-pitch-forest/70 px-6 py-8 md:flex-row md:items-center md:justify-between md:px-10">
               <div>
@@ -139,7 +139,7 @@ export default async function LeaguePage({ params }: PageProps) {
         </section>
       ) : null}
 
-      <section className="bg-pitch-forest py-16 text-pitch-chalk">
+      <section className="md-sport-bg bg-pitch-forest py-16 text-pitch-chalk">
         <PitchShell>
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -154,7 +154,7 @@ export default async function LeaguePage({ params }: PageProps) {
         </PitchShell>
       </section>
 
-      <section className="bg-pitch-chalk py-16">
+      <section className="md-sport-bg bg-pitch-chalk py-16">
         <PitchShell>
           <h2 className="mb-6 text-3xl font-extrabold tracking-[-0.02em] text-pitch-charcoal">Clubs</h2>
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -162,7 +162,7 @@ export default async function LeaguePage({ params }: PageProps) {
               <li
                 key={club.id}
                 className={cn(
-                  'rounded-xl border bg-white p-4',
+                  'rounded-xl border bg-pitch-card p-4',
                   winner && club.id === winner.leagueClubId
                     ? 'border-pitch-olive/40 shadow-sm'
                     : 'border-pitch-charcoal/10',
@@ -186,7 +186,7 @@ export default async function LeaguePage({ params }: PageProps) {
           {matches.length === 0 ? (
             <p>No fixtures yet.</p>
           ) : (
-            <ul className="divide-y divide-pitch-charcoal/10 rounded-xl border border-pitch-charcoal/10 bg-white">
+            <ul className="divide-y divide-pitch-charcoal/10 rounded-xl border border-pitch-charcoal/10 bg-pitch-card">
               {matches.map((match) => (
                 <li
                   key={match.id}

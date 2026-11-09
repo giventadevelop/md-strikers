@@ -64,7 +64,7 @@ export function FcMemorableMomentsSection() {
   );
 
   return (
-    <section className="overflow-x-hidden bg-white py-20 md:py-28">
+    <section className="md-sport-bg overflow-x-hidden bg-pitch-chalk py-20 md:py-28">
       <div className={cn(pitchPageInset, 'mb-8 md:mb-10')}>
         <h2
           className={cn(
@@ -83,7 +83,7 @@ export function FcMemorableMomentsSection() {
               key={tile.src}
               type="button"
               onClick={() => openAt(index)}
-              className="group w-full cursor-pointer border-b border-pitch-charcoal/10 bg-white text-left last:border-b-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pitch-olive motion-reduce:transition-none"
+              className="group w-full cursor-pointer border-b border-pitch-charcoal/10 bg-pitch-card text-left last:border-b-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pitch-olive motion-reduce:transition-none"
             >
               <div className="relative h-[min(58vh,640px)] min-h-[300px] w-full overflow-hidden bg-pitch-charcoal sm:min-h-[380px] md:min-h-[440px]">
                 <Image
@@ -115,7 +115,7 @@ export function FcMemorableMomentsSection() {
 
       {lightboxIndex !== null && current && (
         <div
-          className="fixed inset-0 z-[200] flex cursor-pointer flex-col bg-black/92"
+          className="fixed inset-0 z-[200] flex cursor-pointer flex-col bg-pitch-charcoal/95"
           style={{
             paddingTop: 'max(1rem, env(safe-area-inset-top, 0px))',
             paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 0px))',

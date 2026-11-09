@@ -2,18 +2,30 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useRef, type ElementRef } from 'react';
+import { useCallback, useEffect, useRef, type ElementRef } from 'react';
 import { cn } from '@/lib/utils';
 import type { TeamMemberImageTitle } from './ApiServerActions';
 import { encodePublicPath } from './fcUnitedGalleryData';
 import { fcBrand } from './fcUnitedFonts';
-import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchSection } from './pitchUi';
+import { stepLoop } from './loopCarousel';
+import { PitchShell } from './pitchUi';
 
 type Props = { members: TeamMemberImageTitle[] };
 
-/** team_members profileImageUrl + title + designation; prev/next slider for full roster. */
+type StatCol = { label: string; career: number | null; season: number | null };
+
+function statColumns(m: TeamMemberImageTitle): StatCol[] {
+  return [
+    { label: 'Appearances', career: m.careerAppearances, season: m.seasonAppearances },
+    { label: 'Goals', career: m.careerGoals, season: m.seasonGoals },
+    { label: 'Assists', career: m.careerAssists, season: m.seasonAssists },
+  ].filter((col) => col.career != null || col.season != null);
+}
+
+/** team_members slider. Resting card shows the name; hover slides the detail panel up. */
 export function TeamMembersDbSection({ members }: Props) {
   const scrollerRef = useRef<ElementRef<'div'>>(null);
+  const pausedRef = useRef(false);
 
   const slides =
     members.length === 0
@@ -25,27 +37,43 @@ export function TeamMembersDbSection({ members }: Props) {
   const scrollStep = useCallback((dir: -1 | 1) => {
     const el = scrollerRef.current;
     if (!el) return;
-    const card = el.querySelector('[data-carousel-card]');
-    const gap = 32;
-    const step = card ? card.getBoundingClientRect().width + gap : 280;
-    el.scrollBy({ left: dir * step, behavior: 'smooth' });
-  }, []);
+    stepLoop(el, dir, members.length);
+  }, [members.length]);
+
+  useEffect(() => {
+    if (members.length < 2) return;
+    const timer = window.setInterval(() => {
+      if (pausedRef.current) return;
+      const el = scrollerRef.current;
+      if (!el) return;
+      stepLoop(el, 1, members.length);
+    }, 2000);
+    return () => window.clearInterval(timer);
+  }, [members.length]);
 
   if (members.length === 0) return null;
 
   return (
-    <section className={cn(fcBrand.className, pitchSection, 'md-sport-bg overflow-hidden bg-pitch-forest')}>
+    <section className={cn(fcBrand.className, 'md-band-players overflow-hidden py-14 md:py-20')}>
       <PitchShell>
-        <PitchHeading
-          eyebrow="Squad"
-          title="The First Team"
-          action={
-            <Link href="/team" className={cn(pitchButton.ghost, 'group')}>
-              View all players
-              <PitchArrow />
-            </Link>
-          }
-        />
+        <div className="md-players-head">
+          <Link href="/team" className="md-players-all">
+            View all players
+          </Link>
+          <h2 className="md-players-title">Players</h2>
+          <div className="md-players-nav">
+            <button type="button" aria-label="Previous" title="Previous" onClick={() => scrollStep(-1)}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button type="button" aria-label="Next" title="Next" onClick={() => scrollStep(1)}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
 
         <div
           className="relative"
@@ -53,61 +81,81 @@ export function TeamMembersDbSection({ members }: Props) {
           aria-roledescription="carousel"
           aria-label="Team members"
         >
-          <button
-            type="button"
-            className="absolute left-0 top-[40%] z-10 hidden h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-pitch-chalk/15 bg-pitch-charcoal/70 text-pitch-chalk backdrop-blur transition-colors duration-300 hover:border-pitch-lime hover:text-pitch-lime focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime motion-reduce:transition-none sm:flex md:left-2"
-            aria-label="Previous"
-            title="Previous"
-            onClick={() => scrollStep(-1)}
-          >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            className="absolute right-0 top-[40%] z-10 hidden h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-pitch-chalk/15 bg-pitch-charcoal/70 text-pitch-chalk backdrop-blur transition-colors duration-300 hover:border-pitch-lime hover:text-pitch-lime focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime motion-reduce:transition-none sm:flex md:right-2"
-            aria-label="Next"
-            title="Next"
-            onClick={() => scrollStep(1)}
-          >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-
           <div
             ref={scrollerRef}
-            className="-mx-4 flex snap-x snap-mandatory gap-8 overflow-x-auto scroll-smooth px-4 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] sm:mx-0 sm:px-16 [&::-webkit-scrollbar]:hidden"
+            className="md-players-track pointer-events-auto flex gap-4 overflow-x-auto pb-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            onPointerEnter={() => {
+              pausedRef.current = true;
+            }}
+            onPointerLeave={() => {
+              pausedRef.current = false;
+            }}
           >
-            {slides.map((m, i) => (
-              <div
-                key={`${m.id}-${i}`}
-                data-carousel-card
-                className="group w-[min(260px,72vw)] shrink-0 snap-start"
-              >
-                <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-pitch-charcoal">
-                  <Image
-                    src={encodePublicPath(m.profileImageUrl)}
-                    alt={m.title}
-                    fill
-                    className="origin-top scale-[1.22] object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.3] motion-reduce:transition-none"
-                    sizes="(max-width:768px) 72vw, 260px"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-pitch-charcoal/95 via-pitch-charcoal/50 to-transparent p-6 pt-16">
-                    <p className="text-lg font-bold leading-snug text-pitch-chalk">{m.title}</p>
-                    {m.designation ? (
-                      <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-pitch-lime/90">
-                        {m.designation}
-                      </p>
+            {slides.map((m, i) => {
+              const sourceIndex = i % members.length;
+              const tone = sourceIndex % 2 === 0 ? 'red' : 'navy';
+              const role = m.position || m.designation;
+              const cols = statColumns(m);
+              const hasDetails = Boolean(role) || cols.length > 0;
+              return (
+                <div
+                  key={`${m.id}-${i}`}
+                  data-carousel-card
+                  className="w-[78%] min-w-0 shrink-0 snap-start sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]"
+                >
+                  <Link
+                    href={`/team/${m.id}`}
+                    className={cn(
+                      'md-player-card',
+                      tone === 'red' ? 'md-player-card--red' : 'md-player-card--navy',
+                      !hasDetails && 'md-player-card--plain',
+                    )}
+                  >
+                    <Image
+                      src={encodePublicPath(m.profileImageUrl)}
+                      alt={m.title}
+                      fill
+                      className="md-player-card__photo object-cover object-top"
+                      sizes="(max-width:639px) 78vw, (max-width:1023px) 46vw, 32vw"
+                    />
+                    <span className="md-player-card__wash" aria-hidden />
+                    {m.jerseyNumber != null ? (
+                      <span className="md-player-card__number" aria-hidden>
+                        {m.jerseyNumber}
+                      </span>
                     ) : null}
-                  </div>
+                    <span className="md-player-card__info">
+                      <span className="md-player-card__name">{m.title}</span>
+                    </span>
+                    {hasDetails ? (
+                      <span className="md-player-card__stats">
+                        {role ? <span className="md-player-card__role">{role}</span> : null}
+                        {cols.length > 0 ? (
+                          <span className="md-player-card__stat-row">
+                            {cols.map((col) => (
+                              <span key={col.label} className="md-player-card__stat">
+                                <span className="md-player-card__stat-label">{col.label}</span>
+                                <span className="md-player-card__stat-value">
+                                  {col.career != null ? col.career : col.season}
+                                </span>
+                                {col.career != null && col.season != null ? (
+                                  <span className="md-player-card__stat-season">
+                                    {m.seasonLabel ? <span>{m.seasonLabel}</span> : null}
+                                    <strong>{col.season}</strong>
+                                  </span>
+                                ) : null}
+                              </span>
+                            ))}
+                          </span>
+                        ) : null}
+                      </span>
+                    ) : null}
+                  </Link>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
-
       </PitchShell>
     </section>
   );

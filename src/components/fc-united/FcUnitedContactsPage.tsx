@@ -33,7 +33,7 @@ export default function FcUnitedContactsPage() {
       <FcUnitedHeader active="contacts" />
       <FcUnitedInnerHero title="Contacts" />
 
-      <section className="bg-white">
+      <section className="md-sport-bg bg-pitch-chalk">
         <div className="relative h-[min(60vh,604px)] w-full overflow-hidden bg-pitch-charcoal/10">
           <iframe
             title="Maryland Strikers — location map"
@@ -65,7 +65,7 @@ export default function FcUnitedContactsPage() {
                   {detailContacts.map((c) => (
                     <div
                       key={c.name}
-                      className="flex flex-col gap-4 rounded-xl border border-pitch-charcoal/10/80 bg-white/90 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+                      className="flex flex-col gap-4 rounded-xl border border-pitch-charcoal/10/80 bg-pitch-card/90 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6"
                     >
                       <div className="flex items-center gap-3">
                         <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-pitch-forest/10">
@@ -116,7 +116,7 @@ export default function FcUnitedContactsPage() {
                 </div>
                 <a
                   href={`mailto:${DETAIL_CONTACT_EMAIL}`}
-                  className="relative mt-8 flex cursor-pointer flex-wrap items-center justify-center gap-3 rounded-xl border border-pitch-charcoal/10 bg-white px-4 py-4 text-center transition-colors duration-200 hover:bg-pitch-chalk/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2 focus-visible:ring-offset-pitch-chalk motion-reduce:transition-none sm:gap-4"
+                  className="relative mt-8 flex cursor-pointer flex-wrap items-center justify-center gap-3 rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-4 py-4 text-center transition-colors duration-200 hover:bg-pitch-chalk/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2 focus-visible:ring-offset-pitch-chalk motion-reduce:transition-none sm:gap-4"
                   title="Email Maryland Strikers"
                 >
                   <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-pitch-forest/10">
@@ -175,7 +175,7 @@ export default function FcUnitedContactsPage() {
         </Shell>
       </section>
 
-      <section className="border-t border-pitch-charcoal/10 bg-pitch-chalk py-10">
+      <section className="md-sport-bg border-t border-pitch-charcoal/10 bg-pitch-chalk py-10">
         <Shell>
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 lg:justify-between">
             {fcSponsors.map((src) => (

@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import type { ExecutiveCommitteeTeamMemberDTO } from '@/types';
 import { fcBrand } from './fcUnitedFonts';
 import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchSection } from './pitchUi';
+import { SportBackgroundIcons } from './SportBackgroundIcons';
 import { MdPagination } from './MdPagination';
 
 const EXECUTIVE_PAGE_SIZE = 20;
@@ -42,6 +43,7 @@ export function ExecutiveTeamSection({
 
   return (
     <section className={cn(fcBrand.className, pitchSection, 'bg-pitch-chalk')} aria-labelledby="executive-team-heading">
+      <SportBackgroundIcons />
       <PitchShell>
         <PitchHeading
           tone="light"
@@ -61,7 +63,7 @@ export function ExecutiveTeamSection({
             return (
               <article
                 key={m.id ?? name}
-                className="group"
+                className="md-live-card group rounded-2xl bg-pitch-card/60 p-3"
               >
                 <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-pitch-charcoal/[0.06]">
                   {m.profileImageUrl ? (

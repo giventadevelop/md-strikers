@@ -45,7 +45,7 @@ export function LeagueStandingsTable({
             <tr
               key={row.leagueClubId}
               className={cn(
-                'border-t border-pitch-chalk/10 tabular-nums text-pitch-chalk transition-colors duration-200 hover:bg-pitch-chalk/[0.03]',
+                'md-live-row border-t border-pitch-chalk/10 tabular-nums text-pitch-chalk',
                 highlightChampion && index === 0 && 'bg-pitch-lime/10',
               )}
             >

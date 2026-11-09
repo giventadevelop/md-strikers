@@ -43,7 +43,7 @@ export function GalleryTabs({
           aria-pressed={showEvents}
         >
           <span
-            className={`inline-flex h-8 w-8 transform items-center justify-center rounded-full bg-white shadow-md transition-transform duration-300 ${
+            className={`inline-flex h-8 w-8 transform items-center justify-center rounded-full bg-pitch-card shadow-md transition-transform duration-300 ${
               showEvents ? 'translate-x-7' : 'translate-x-1'
             }`}
           >

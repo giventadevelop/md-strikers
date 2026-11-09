@@ -62,7 +62,7 @@ export function OnSaleBand({ events }: { events: BandEvent[] }) {
   return (
     <aside
       aria-labelledby="on-sale-band-heading"
-      className="group/band mb-12 overflow-hidden rounded-3xl border border-pitch-chalk/10 bg-pitch-forest md:mb-16"
+      className="md-live-card md-live-card--soft group/band mb-12 overflow-hidden rounded-3xl border border-pitch-chalk/10 bg-pitch-forest md:mb-16"
     >
       <div className="flex flex-col md:flex-row md:items-stretch">
         <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-pitch-charcoal md:aspect-auto md:min-h-[200px] md:w-72 lg:w-96">

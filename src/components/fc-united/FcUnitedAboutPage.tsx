@@ -50,7 +50,7 @@ const ABOUT_SUBNAV_ITEMS = [
 function AboutPageSubnav() {
   return (
     <nav
-      className="border-b border-pitch-charcoal/10 bg-white"
+      className="border-b border-pitch-charcoal/10 bg-pitch-card"
       aria-label="Jump to section on this page"
     >
       <Shell className="py-3 md:py-4">
@@ -88,7 +88,7 @@ export default function FcUnitedAboutPage() {
 
         <AboutPageSubnav />
 
-        <section id="about-intro" className="scroll-mt-24 bg-white py-12 md:py-16">
+        <section id="about-intro" className="md-sport-bg scroll-mt-24 bg-pitch-chalk py-12 md:py-16">
           <Shell>
             <div className="mx-auto max-w-4xl rounded-xl border border-pitch-charcoal/10 bg-pitch-chalk p-6 md:p-10">
               <h2 className={cn('font-extrabold tracking-[-0.02em] text-2xl text-pitch-charcoal md:text-3xl')}>
@@ -115,7 +115,7 @@ export default function FcUnitedAboutPage() {
         </section>
 
         {/* Content from https://www.mdstrikers.com/index.html — integrated below existing about copy */}
-        <section className="border-t border-pitch-charcoal/10 bg-pitch-chalk py-12 md:py-16">
+        <section className="md-sport-bg border-t border-pitch-charcoal/10 bg-pitch-chalk py-12 md:py-16">
           <Shell>
             <div className="mx-auto max-w-4xl space-y-10">
               <div className="flex justify-center px-2">
@@ -146,7 +146,7 @@ export default function FcUnitedAboutPage() {
                   {mdStrikersLearnMoreHeading}
                 </h2>
 
-                <div className="space-y-10 rounded-xl border border-pitch-charcoal/10 bg-white p-6 md:p-10">
+                <div className="space-y-10 rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-6 md:p-10">
                   <div id="what-we-do" className="scroll-mt-28">
                     <h3 className={cn('font-extrabold tracking-[-0.02em] text-lg text-pitch-charcoal md:text-xl')}>
                       {mdStrikersWhatWeDoHeading}

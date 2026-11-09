@@ -31,7 +31,7 @@ function LeagueCard({ league }: { league: LeagueDTO }) {
     <li>
       <Link
         href={`/leagues/${league.slug}`}
-        className="flex h-full flex-col rounded-xl border border-pitch-charcoal/10 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime"
+        className="flex h-full flex-col rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-6 shadow-sm transition-shadow duration-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime"
       >
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-pitch-olive">
           {statusLabel(league.status)}
@@ -59,10 +59,10 @@ export default async function LeaguesPage() {
     <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader active="leagues" />
       <FcUnitedInnerHero title="Leagues" subtitle="Tables, clubs, and results for each published league." />
-      <section className="bg-pitch-chalk pb-20 pt-10">
+      <section className="md-sport-bg bg-pitch-chalk pb-20 pt-10">
         <PitchShell className="space-y-14">
           {leagues.length === 0 ? (
-            <p className="rounded-xl border border-pitch-charcoal/10 bg-white p-10 text-center text-pitch-charcoal/70">
+            <p className="rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-10 text-center text-pitch-charcoal/70">
               No published leagues yet.
             </p>
           ) : (

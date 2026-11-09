@@ -40,7 +40,7 @@ function MatchCrest({ logo, name }: { logo: string; name: string }) {
 }
 
 const controlClass =
-  'flex h-11 w-11 items-center justify-center rounded-full border border-pitch-chalk/20 bg-pitch-charcoal/60 text-pitch-chalk backdrop-blur transition-colors duration-300 hover:border-pitch-lime hover:text-pitch-lime focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-lime motion-reduce:transition-none';
+  'md-hero-control flex h-11 w-11 items-center justify-center rounded-full border border-pitch-chalk/20 text-pitch-chalk backdrop-blur transition-colors duration-300 hover:border-pitch-lime hover:text-pitch-lime focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-lime motion-reduce:transition-none';
 
 export function HeroSlider({ slides: upcomingSlides }: { slides: HeroSlide[] }) {
   const slides = upcomingSlides.length > 0 ? upcomingSlides : [FALLBACK_SLIDE];
@@ -58,7 +58,7 @@ export function HeroSlider({ slides: upcomingSlides }: { slides: HeroSlide[] }) 
 
   return (
     <div
-      className="relative min-h-0 flex-1 overflow-hidden bg-pitch-charcoal"
+      className="relative min-h-0 flex-1 overflow-hidden"
       role="region"
       aria-roledescription="carousel"
       aria-label="Upcoming events and matches"
@@ -96,20 +96,17 @@ export function HeroSlider({ slides: upcomingSlides }: { slides: HeroSlide[] }) 
               />
             </>
           ) : (
-            <div className="flex h-full w-full flex-col items-center justify-center bg-[radial-gradient(ellipse_at_center,rgba(239,48,34,0.32)_0%,rgba(36,36,36,1)_70%)] px-14 py-4 text-center sm:px-16 sm:py-8">
+            <div className="md-hero-match flex h-full w-full flex-col items-center justify-center px-14 pb-14 pt-4 text-center sm:px-16 sm:pb-16 sm:pt-8">
               <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.24em] text-pitch-lime">
-                <span className="relative flex h-2 w-2" aria-hidden>
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-pitch-lime opacity-60 [animation-duration:2s] motion-reduce:animate-none" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-pitch-lime" />
-                </span>
+                <span className="md-hero-kicker-mark" aria-hidden />
                 Upcoming match
               </p>
-              <div className="mt-3 grid w-full max-w-xl grid-cols-[1fr_auto_1fr] items-center gap-3 sm:mt-8 sm:gap-8">
+              <div className="mt-3 grid w-full max-w-xl grid-cols-[1fr_auto_1fr] items-center gap-3 sm:mt-6 sm:gap-6">
                 <MatchCrest logo={slide.home} name={slide.homeName} />
-                <span className="text-xl font-extrabold tracking-[-0.02em] text-pitch-chalk/40 sm:text-4xl">VS</span>
+                <span className="md-hero-vs text-xl font-extrabold tracking-[-0.02em] text-pitch-chalk sm:text-3xl">VS</span>
                 <MatchCrest logo={slide.away} name={slide.awayName} />
               </div>
-              <p className="mt-3 text-xs font-medium text-pitch-stone sm:mt-8 sm:text-base">
+              <p className="md-hero-kickoff mt-3 text-xs font-medium text-pitch-stone sm:mt-6 sm:text-sm">
                 <span className="font-semibold text-pitch-chalk">{slide.date}</span>
                 {slide.league ? ` · ${slide.league}` : ''}
               </p>
@@ -145,7 +142,7 @@ export function HeroSlider({ slides: upcomingSlides }: { slides: HeroSlide[] }) 
 
           <div className="absolute inset-x-0 bottom-4 z-10 flex justify-center px-16">
             {count <= MAX_DOTS ? (
-              <div className="flex items-center gap-2 rounded-full bg-pitch-charcoal/50 px-3 py-2 backdrop-blur">
+              <div className="md-hero-dots flex items-center gap-2">
                 {slides.map((slide, i) => (
                   <button
                     key={slide.key}
@@ -162,7 +159,7 @@ export function HeroSlider({ slides: upcomingSlides }: { slides: HeroSlide[] }) 
               </div>
             ) : (
               <p
-                className="rounded-full bg-pitch-charcoal/60 px-4 py-1.5 text-xs font-semibold tabular-nums tracking-[0.12em] text-pitch-chalk backdrop-blur"
+                className="md-hero-control rounded-full px-4 py-1.5 text-xs font-semibold tabular-nums tracking-[0.12em] text-pitch-chalk backdrop-blur"
               >
                 <span className="text-pitch-lime">{index + 1}</span> / {count}
               </p>

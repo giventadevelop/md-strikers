@@ -37,7 +37,7 @@ export default function FcUnitedTournamentPage({
       <FcUnitedHeader active="tournaments" />
       <FcUnitedInnerHero title={label} />
 
-      <section className="bg-white">
+      <section className="md-sport-bg bg-pitch-chalk">
         {filled(tournament.heroImageUrl) && (
           <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 overflow-hidden bg-pitch-charcoal">
             {/* Container takes the image's own aspect ratio: full width, no side gaps, no cropping */}
@@ -170,7 +170,7 @@ export default function FcUnitedTournamentPage({
               </h2>
             </Shell>
             <div className="mx-auto w-full max-w-[1400px] px-2 sm:px-4 md:px-6">
-              <div className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-white shadow-sm">
+              <div className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card shadow-sm">
                 <iframe
                   title={`${label} — live schedule and results`}
                   src={resultsUrl}

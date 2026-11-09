@@ -1,4 +1,4 @@
-import { Barlow_Condensed, Bebas_Neue, Inter, Poppins, Roboto } from 'next/font/google';
+import { Barlow_Condensed, Bebas_Neue, Caprasimo, Figtree, Inter, Manrope, Poppins, Roboto } from 'next/font/google';
 
 export const fcBebas = Bebas_Neue({ weight: '400', subsets: ['latin'] });
 export const fcPoppins = Poppins({ weight: ['400', '500', '600', '700'], subsets: ['latin'] });
@@ -11,10 +11,33 @@ const fcBarlowCondensed = Barlow_Condensed({
   variable: '--font-md-display',
 });
 
+const fcCaprasimo = Caprasimo({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-organic-display',
+});
+
+const fcFigtree = Figtree({
+  weight: ['400', '600', '700'],
+  subsets: ['latin'],
+  variable: '--font-organic-body',
+});
+
 /**
  * MD Strikers brand typography: Inter for body text, Barlow Condensed for headings
  * (headings pick it up through the `.md-brand` rules in globals.css).
  */
 export const fcBrand = {
   className: `${fcInter.className} ${fcInter.variable} ${fcBarlowCondensed.variable} md-brand`,
+};
+
+const fcManrope = Manrope({
+  weight: ['600', '700', '800'],
+  subsets: ['latin'],
+  variable: '--font-elite-display',
+});
+
+/** Manrope headings on the homepage. Body stays Inter from fcBrand. */
+export const fcOrganic = {
+  className: `${fcCaprasimo.variable} ${fcFigtree.variable} ${fcManrope.variable}`,
 };

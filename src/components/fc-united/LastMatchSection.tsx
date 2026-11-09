@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type PointerEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { LastMatchCard } from './ApiServerActions';
 import { fcBrand } from './fcUnitedFonts';
 import { PitchArrow, PitchShell, pitchButton, pitchSection } from './pitchUi';
+import { SportBackgroundIcons } from './SportBackgroundIcons';
 import { MdPagination } from './MdPagination';
 
 export const HOMEPAGE_MATCHES_LIMIT = 6;
@@ -24,13 +25,36 @@ type Props = {
   toggleAlign?: 'end' | 'center';
 };
 
-function TeamSide({ logo, name }: { logo: string; name: string }) {
+function TeamSide({ logo, name, side }: { logo: string; name: string; side: 'home' | 'away' }) {
   return (
     <div className="flex min-w-0 flex-col items-center gap-3 text-center">
-      <Image src={logo} alt={name ? `${name} logo` : ''} width={64} height={64} className="h-16 w-16 object-contain" />
+      <Image
+        src={logo}
+        alt={name ? `${name} logo` : ''}
+        width={64}
+        height={64}
+        className={cn('md-match-crest h-16 w-16 object-contain', `md-match-crest--${side}`)}
+      />
       {name && <p className="text-sm font-bold leading-snug text-pitch-charcoal">{name}</p>}
     </div>
   );
+}
+
+/** Tilt the card toward the mouse and move its spotlight (CSS vars read by .md-match-card). */
+function tiltCard(event: PointerEvent<HTMLElement>) {
+  if (event.pointerType !== 'mouse') return;
+  const el = event.currentTarget;
+  const r = el.getBoundingClientRect();
+  const x = (event.clientX - r.left) / r.width;
+  const y = (event.clientY - r.top) / r.height;
+  el.style.setProperty('--rx', `${((0.5 - y) * 16).toFixed(2)}deg`);
+  el.style.setProperty('--ry', `${((x - 0.5) * 22).toFixed(2)}deg`);
+  el.style.setProperty('--mx', `${(x * 100).toFixed(1)}%`);
+  el.style.setProperty('--my', `${(y * 100).toFixed(1)}%`);
+}
+
+function resetCard(event: PointerEvent<HTMLElement>) {
+  for (const name of ['--rx', '--ry', '--mx', '--my']) event.currentTarget.style.removeProperty(name);
 }
 
 function initialMatchView(matches: LastMatchCard[]): MatchView {
@@ -70,7 +94,8 @@ export function LastMatchSection({
   };
 
   return (
-    <section className={cn(fcBrand.className, pitchSection, 'bg-pitch-chalk')}>
+    <section className={cn(fcBrand.className, pitchSection, 'md-band-scoreboard bg-pitch-charcoal')}>
+      <SportBackgroundIcons />
       <PitchShell>
         <div
           className={cn(
@@ -110,7 +135,7 @@ export function LastMatchSection({
                 'rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive',
                 view === 'UPCOMING'
                   ? 'border-transparent md-btn-primary text-white'
-                  : 'border-pitch-charcoal/15 text-pitch-charcoal/70 hover:border-pitch-charcoal/40 hover:text-pitch-charcoal',
+                  : 'md-btn-gold',
               )}
               aria-pressed={view === 'UPCOMING'}
             >
@@ -123,7 +148,7 @@ export function LastMatchSection({
                 'rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive',
                 view === 'PAST'
                   ? 'border-transparent md-btn-primary text-white'
-                  : 'border-pitch-charcoal/15 text-pitch-charcoal/70 hover:border-pitch-charcoal/40 hover:text-pitch-charcoal',
+                  : 'md-btn-gold',
               )}
               aria-pressed={view === 'PAST'}
             >
@@ -148,7 +173,9 @@ export function LastMatchSection({
               return (
                 <article
                   key={m.id}
-                  className="rounded-2xl border border-pitch-charcoal/10 bg-white/70 p-6 shadow-pitch-soft transition-[border-color,transform] duration-300 hover:-translate-y-0.5 hover:border-pitch-charcoal/20 motion-reduce:transition-none md:p-8"
+                  className="md-match-card rounded-2xl border border-pitch-charcoal/10 bg-pitch-card/80 p-6 md:p-8"
+                  onPointerMove={tiltCard}
+                  onPointerLeave={resetCard}
                 >
                   {m.league && (
                     <p className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/60">
@@ -163,20 +190,20 @@ export function LastMatchSection({
                   )}
 
                   <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-                    <TeamSide logo={m.home} name={m.homeName} />
+                    <TeamSide logo={m.home} name={m.homeName} side="home" />
                     {isUpcoming ? (
-                      <p className="text-xl font-extrabold text-pitch-charcoal/30">VS</p>
+                      <p className="md-match-vs text-lg">VS</p>
                     ) : (
-                      <p className="whitespace-nowrap text-3xl font-extrabold tabular-nums">
+                      <p className="md-match-score whitespace-nowrap text-3xl font-extrabold tabular-nums">
                         <span className={scoreClass(home, away)}>{m.score[0]}</span>
                         <span className="px-1.5 text-pitch-charcoal/30">–</span>
                         <span className={scoreClass(away, home)}>{m.score[1]}</span>
                       </p>
                     )}
-                    <TeamSide logo={m.away} name={m.awayName} />
+                    <TeamSide logo={m.away} name={m.awayName} side="away" />
                   </div>
 
-                  <p className="mt-6 border-t border-pitch-charcoal/10 pt-4 text-center text-sm text-pitch-charcoal/70">{m.date}</p>
+                  <p className="md-match-date mt-6 border-t border-pitch-charcoal/10 pt-4 text-center text-sm text-pitch-charcoal/70">{m.date}</p>
 
                   {!isUpcoming && (
                     <p

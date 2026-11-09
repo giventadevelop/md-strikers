@@ -30,7 +30,7 @@ const pillCta =
   'inline-flex items-center justify-center gap-2 rounded-lg md-btn-primary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-50 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0';
 
 const secondaryCta =
-  'inline-flex items-center justify-center gap-2 rounded-lg border border-brand-orange/55 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-orange hover:bg-brand-orange/[0.06] hover:text-pitch-olive motion-reduce:hover:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-40';
+  'inline-flex items-center justify-center gap-2 rounded-lg md-btn-gold px-6 py-2.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-40';
 
 export function FcUnitedSponsorsCatalogClient() {
   const [sponsors, setSponsors] = useState<HomepageSponsor[]>([]);
@@ -84,7 +84,7 @@ export function FcUnitedSponsorsCatalogClient() {
   };
 
   return (
-    <section className="bg-pitch-chalk pb-16 pt-2 md:pb-20 md:pt-4">
+    <section className="md-sport-bg bg-pitch-chalk pb-16 pt-2 md:pb-20 md:pt-4">
       <Shell>
         <div className="mb-8 text-center md:mb-10 md:text-left">
           <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">
@@ -98,7 +98,7 @@ export function FcUnitedSponsorsCatalogClient() {
           </p>
         </div>
 
-        <div className="mb-8 rounded-xl border border-pitch-charcoal/10 bg-white p-5 md:p-6">
+        <div className="mb-8 rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-5 md:p-6">
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">
             Search sponsors
           </p>
@@ -119,7 +119,7 @@ export function FcUnitedSponsorsCatalogClient() {
                   }
                 }}
                 placeholder="Search by sponsor name…"
-                className="w-full rounded-xl border border-pitch-charcoal/10 bg-white px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
+                className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
               />
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -143,11 +143,11 @@ export function FcUnitedSponsorsCatalogClient() {
             <div className="h-10 w-10 animate-spin rounded-full border-2 border-pitch-charcoal/10 border-t-pitch-olive" aria-label="Loading sponsors" />
           </div>
         ) : fetchError ? (
-          <p className="rounded-xl border border-pitch-olive/30 bg-white px-5 py-8 text-center text-sm font-medium text-pitch-olive">
+          <p className="rounded-xl border border-pitch-olive/30 bg-pitch-card px-5 py-8 text-center text-sm font-medium text-pitch-olive">
             Could not load sponsors. Please try again later.
           </p>
         ) : sponsors.length === 0 ? (
-          <div className="rounded-xl border border-pitch-charcoal/10 bg-white px-5 py-8 text-center">
+          <div className="rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-5 py-8 text-center">
             <p className="text-sm font-medium text-pitch-charcoal">
               {appliedName ? 'No sponsors found' : 'No sponsors are published yet.'}
             </p>
@@ -167,7 +167,7 @@ export function FcUnitedSponsorsCatalogClient() {
             {sponsors.map((sponsor) => (
               <article
                 key={sponsor.id ?? sponsor.name}
-                className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-white transition-colors duration-300 ease-in-out hover:border-pitch-charcoal/25"
+                className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card transition-colors duration-300 ease-in-out hover:border-pitch-charcoal/25"
               >
                 <div className="relative w-full border-b border-pitch-charcoal/10">
                   <Image

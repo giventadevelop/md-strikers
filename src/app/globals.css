@@ -2183,15 +2183,21 @@ To use a consistent, modern checkbox style with a custom tick mark, use:
 }
 
 /* ========================================
-   MD STRIKERS BRAND DESIGN SYSTEM
-   Colours from the club crest: red, orange, gold, black, white.
-   Tailwind exposes these as `brand-*` and as the role names `pitch-*` (tailwind.config).
+   MD STRIKERS BRAND DESIGN SYSTEM — "Matchday" theme
+   Colours from the club crest. No black or white page backgrounds:
+   strong sections are crimson / burnt orange, content sections are warm apricot.
+   Tailwind: bg-pitch-* = surfaces, text-pitch-* = text, brand-* = raw crest colours.
    ======================================== */
 :root {
   --color-primary: #ef3022;
-  --color-primary-deep: #c62b1c; /* accessible red for small text on light surfaces */
+  --color-primary-deep: #b0261c; /* accessible red for small text on light surfaces */
   --color-secondary: #f47b20;
   --color-accent: #ffad1f;
+  --color-accent-bright: #ffd166;
+  --color-surface-strong: #c0281c;
+  --color-surface-warm: #b9441a;
+  --color-surface-light: #ffd8a6;
+  --color-surface-card: #ffe7c6;
   --color-dark: #171717;
   --color-dark-secondary: #242424;
   --color-light: #fff8ef;
@@ -2202,9 +2208,15 @@ To use a consistent, modern checkbox style with a custom tick mark, use:
 
   /* Space-separated RGB channels so Tailwind opacity modifiers work (bg-pitch-charcoal/60). */
   --md-rgb-primary: 239 48 34;
-  --md-rgb-primary-deep: 198 43 28;
+  --md-rgb-primary-deep: 176 38 28;
   --md-rgb-secondary: 244 123 32;
   --md-rgb-accent: 255 173 31;
+  --md-rgb-accent-bright: 255 209 102;
+  --md-rgb-surface-strong: 192 40 28;
+  --md-rgb-surface-warm: 185 68 26;
+  --md-rgb-surface-light: 255 216 166;
+  --md-rgb-surface-card: 255 231 198;
+  --md-rgb-on-strong-muted: 255 225 196;
   --md-rgb-dark: 23 23 23;
   --md-rgb-dark-secondary: 36 36 36;
   --md-rgb-light: 255 248 239;
@@ -2212,10 +2224,88 @@ To use a consistent, modern checkbox style with a custom tick mark, use:
   --md-rgb-muted: 166 166 166;
 
   --gradient-brand: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  --gradient-gold: linear-gradient(135deg, #ffe08a 0%, #ffc247 55%, #ffad1f 100%);
   --radius-button: 0.5rem;
   --shadow-button: 0 10px 24px -12px rgba(239, 48, 34, 0.65);
   --shadow-button-hover: 0 16px 32px -14px rgba(244, 123, 32, 0.75);
-  --transition-smooth: all 0.3s ease;
+
+  /* Motion tokens: one easing family and duration scale for the whole public site. */
+  --md-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --md-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --md-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --md-dur-fast: 160ms;
+  --md-dur: 320ms;
+  --md-dur-slow: 640ms;
+  --transition-smooth: all var(--md-dur) var(--md-ease-out);
+
+  /* Elevation: warm, crest-tinted shadows (never grey) plus a hairline top highlight. */
+  --md-shadow-rest:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 1px 2px rgba(80, 12, 6, 0.18),
+    0 14px 34px -22px rgba(80, 12, 6, 0.55);
+  --md-shadow-float:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 56px 100px -20px rgba(80, 12, 6, 0.78),
+    0 32px 56px -14px rgba(244, 123, 32, 0.85),
+    0 0 0 1px rgb(var(--md-rgb-accent-bright) / 0.65);
+}
+
+/*
+ * Homepage hero. The stage is the lighter orange-red field; the logo and
+ * slider panels are the dark brown from the hero reference. Other sections
+ * and the shared button styles stay on the existing brand tokens.
+ */
+.md-hero-stage {
+  background:
+    radial-gradient(72rem 34rem at 0% 0%, #ffe3d4 0%, transparent 62%),
+    radial-gradient(64rem 32rem at 100% 100%, #ffd5c4 0%, transparent 58%),
+    #fff6f1;
+}
+.md-hero-stage .md-sport-icon {
+  color: rgb(138 42 24 / 0.28);
+}
+.md-hero-stage .md-sport-icon:hover {
+  color: rgb(138 42 24 / 0.85);
+  filter: drop-shadow(0 10px 8px rgba(138, 29, 19, 0.2));
+}
+.md-hero-logo {
+  background: linear-gradient(180deg, #96301b 0%, #7a170f 48%, #7e2616 100%);
+  border: 1px solid rgba(255, 196, 120, 0.08);
+}
+.md-hero-slider {
+  background: #74170f;
+  border: 1px solid rgba(255, 196, 120, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 24px 48px -24px rgba(40, 8, 4, 0.55);
+}
+.md-hero-match {
+  background: radial-gradient(ellipse at center, #8f3d20 0%, #6d2011 42%, #5b1009 74%);
+}
+.md-hero-control {
+  background-color: rgba(91, 16, 9, 0.72);
+}
+.md-hero-cta {
+  background: linear-gradient(105deg, #5c140c 0%, #9a3014 46%, #6e1c0e 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 180, 0.28),
+    0 12px 24px -12px rgba(60, 12, 6, 0.7);
+  transition:
+    background 0.35s ease,
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.35s ease;
+}
+.md-hero-cta:hover {
+  background: linear-gradient(105deg, #7a1e10 0%, #c44a1a 42%, #8a2812 100%);
+  transform: translateY(-3px) scale(1.015);
+  filter: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 236, 210, 0.45),
+    0 0 0 1px rgba(255, 196, 120, 0.4),
+    0 20px 36px -12px rgba(160, 42, 12, 0.75);
+}
+.md-hero-cta:active {
+  transform: translateY(-1px) scale(0.99);
 }
 
 /* Typography: Inter body (set by the fcBrand font class), Barlow Condensed headings. */
@@ -2223,9 +2313,17 @@ To use a consistent, modern checkbox style with a custom tick mark, use:
   font-family: var(--font-md-display), 'Arial Narrow', sans-serif;
   letter-spacing: 0.01em;
   line-height: 1.08;
+  text-wrap: balance;
 }
 .md-brand :is(h1, h2) {
   text-transform: uppercase;
+}
+/* Paragraphs avoid orphans; numbers line up in fixtures, scores and tables. */
+.md-brand p {
+  text-wrap: pretty;
+}
+.md-brand :is(table, time, .tabular-nums) {
+  font-variant-numeric: tabular-nums;
 }
 
 @layer components {
@@ -2247,8 +2345,13 @@ To use a consistent, modern checkbox style with a custom tick mark, use:
   .md-btn:hover {
     transform: translateY(-2px);
   }
+  /* Press: snaps down quickly so clicks feel physical. */
+  .md-btn:active {
+    transform: translateY(0) scale(0.98);
+    transition-duration: var(--md-dur-fast);
+  }
   .md-btn:focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-accent-bright);
     outline-offset: 2px;
   }
   .md-btn:disabled {
@@ -2256,36 +2359,94 @@ To use a consistent, modern checkbox style with a custom tick mark, use:
     opacity: 0.5;
     transform: none;
   }
+  /* Primary: red→orange with a glass highlight and a light sweep on hover. */
   .md-btn-primary {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
     background: var(--gradient-brand);
     color: var(--color-white);
-    box-shadow: var(--shadow-button);
+    box-shadow:
+      var(--shadow-button),
+      inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  }
+  .md-btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%);
+    transform: translateX(-130%);
+    transition: transform 0.7s var(--md-ease-out);
   }
   .md-btn-primary:hover {
-    box-shadow: var(--shadow-button-hover);
+    box-shadow:
+      var(--shadow-button-hover),
+      inset 0 1px 0 rgba(255, 255, 255, 0.34);
     filter: saturate(1.15) brightness(1.04);
   }
-  /* Secondary on dark surfaces: transparent with a gold edge. */
-  .md-btn-secondary {
-    border: 1px solid rgb(var(--md-rgb-accent) / 0.6);
-    background: transparent;
-    color: var(--color-white);
+  .md-btn-primary:hover::after {
+    transform: translateX(130%);
   }
-  .md-btn-secondary:hover {
-    border-color: var(--color-accent);
-    background: rgb(var(--md-rgb-accent) / 0.1);
-    color: var(--color-accent);
-  }
-  /* Secondary on light surfaces: dark text, orange edge. */
+
+  /*
+   * Gold "trophy" button — replaces every white / light / outline button.
+   * Crest gold gradient with deep-red text sits next to the orange primary as a pair,
+   * with a light sweep across it on hover.
+   */
+  .md-btn-gold,
+  .md-btn-secondary,
   .md-btn-secondary-light {
-    border: 1px solid rgb(var(--md-rgb-secondary) / 0.55);
-    background: transparent;
-    color: var(--color-text);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    border: 1px solid rgb(var(--md-rgb-primary-deep) / 0.28);
+    background: var(--gradient-gold);
+    color: #8a1c12;
+    font-weight: 700;
+    box-shadow:
+      0 8px 20px -12px rgba(176, 38, 28, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    transition: var(--transition-smooth);
   }
+  .md-btn-gold::after,
+  .md-btn-secondary::after,
+  .md-btn-secondary-light::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.6) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 0.7s ease;
+  }
+  .md-btn-gold:hover,
+  .md-btn-secondary:hover,
   .md-btn-secondary-light:hover {
+    transform: translateY(-2px);
     border-color: var(--color-secondary);
-    background: rgb(var(--md-rgb-secondary) / 0.08);
-    color: var(--color-primary-deep);
+    color: #6e140c;
+    box-shadow:
+      0 14px 28px -14px rgba(244, 123, 32, 0.8),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  }
+  .md-btn-gold:hover::after,
+  .md-btn-secondary:hover::after,
+  .md-btn-secondary-light:hover::after {
+    transform: translateX(120%);
+  }
+  .md-btn-gold:focus-visible {
+    outline: 2px solid var(--color-primary-deep);
+    outline-offset: 2px;
+  }
+  /* Selected state for gold chips/toggles (e.g. match filters, sport tabs). */
+  .md-btn-gold[aria-pressed='true'],
+  .md-btn-gold[aria-current='true'] {
+    background: var(--gradient-brand);
+    color: var(--color-white);
+    border-color: transparent;
   }
 
   /* Thin red→orange→gold rule used under section eyebrows and card tops. */
@@ -2294,78 +2455,1763 @@ To use a consistent, modern checkbox style with a custom tick mark, use:
   }
 
   /*
-   * Sports background: faint pitch lines + a football watermark (::before)
-   * and a slow-drifting red/orange stadium glow (::after). Decorative only.
+   * Live sports background: floating football, trophy, whistle, goal, boot, star and medal
+   * outlines (::before) that drift gently and lean toward the pointer, over stadium glows and
+   * pitch lines (::after). Decorative only: no pointer events, reduced-motion aware.
    */
   .md-sport-bg {
     position: relative;
     isolation: isolate;
+    overflow: clip;
   }
   .md-sport-bg::before,
   .md-sport-bg::after {
     content: '';
     position: absolute;
-    inset: 0;
     z-index: -1;
     pointer-events: none;
   }
   .md-sport-bg::before {
-    background-image:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120' fill='none' stroke='%23ffffff' stroke-opacity='0.07' stroke-width='2'%3E%3Ccircle cx='60' cy='60' r='56'/%3E%3Cpath d='M60 34l18 13-7 21H49l-7-21z'/%3E%3Cpath d='M60 34V6M78 47l26-9M71 68l17 22M49 68L32 90M42 47l-26-9'/%3E%3C/svg%3E"),
-      radial-gradient(circle at 50% 50%, transparent 0 119px, rgba(255, 255, 255, 0.05) 120px 121px, transparent 122px),
-      linear-gradient(90deg, transparent calc(50% - 0.5px), rgba(255, 255, 255, 0.05) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
-      repeating-linear-gradient(115deg, transparent 0 46px, rgba(255, 255, 255, 0.018) 46px 47px);
-    background-repeat: no-repeat, no-repeat, no-repeat, repeat;
-    background-size: 220px 220px, 100% 100%, 100% 100%, auto;
-    background-position: right -40px top -40px, center, center, 0 0;
-    opacity: 0.9;
-    animation: md-ball-drift 28s ease-in-out infinite alternate;
+    inset: -32px;
+    background-color: rgb(255 236 214 / 0.16);
+    -webkit-mask-image:
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%20fill='none'%20stroke='black'%20stroke-width='2.4'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Ccircle%20cx='32'%20cy='32'%20r='29'/%3E%3Cpath%20d='M32%2018l11%208-4%2013H25l-4-13z'/%3E%3Cpath%20d='M32%2018V4M43%2026l14-5M39%2039l9%2012M25%2039l-9%2012M21%2026L7%2021'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%20fill='none'%20stroke='black'%20stroke-width='2.4'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M20%2010h24v10a12%2012%200%2001-24%200z'/%3E%3Cpath%20d='M20%2014h-8v4a9%209%200%20009%209M44%2014h8v4a9%209%200%2001-9%209M32%2032v10M22%2054h20M25%2042h14v12H25z'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%20fill='none'%20stroke='black'%20stroke-width='2.4'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Ccircle%20cx='22'%20cy='38'%20r='14'/%3E%3Cpath%20d='M30%2027l26-9v12l-22%206'/%3E%3Ccircle%20cx='22'%20cy='38'%20r='4'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%20fill='none'%20stroke='black'%20stroke-width='2.4'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M6%2050V14h52v36'/%3E%3Cpath%20d='M6%2014l8%208h36l8-8M14%2022v28M50%2022v28M24%2022v28M32%2022v28M40%2022v28M14%2032h36M14%2041h36'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%20fill='none'%20stroke='black'%20stroke-width='2.4'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M12%2010h14v16l20%209a8%208%200%20016%208v3H12z'/%3E%3Cpath%20d='M12%2046h40M18%2052v-6M28%2052v-6M38%2052v-6M48%2052v-6'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%20fill='none'%20stroke='black'%20stroke-width='2.4'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M32%206l7.6%2016%2017.4%202.2-12.8%2012%203.4%2017.3L32%2045l-15.6%208.5%203.4-17.3L7%2024.2%2024.4%2022z'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%20fill='none'%20stroke='black'%20stroke-width='2.4'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Ccircle%20cx='32'%20cy='40'%20r='14'/%3E%3Cpath%20d='M22%206l10%2020%2010-20M26%2040l4%204%208-8'/%3E%3C/svg%3E");
+    mask-image:
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%20fill='none'%20stroke='black'%20stroke-width='2.4'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Ccircle%20cx='32'%20cy='32'%20r='29'/%3E%3Cpath%20d='M32%2018l11%208-4%2013H25l-4-13z'/%3E%3Cpath%20d='M32%2018V4M43%2026l14-5M39%2039l9%2012M25%2039l-9%2012M21%2026L7%2021'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%20fill='none'%20stroke='black'%20stroke-width='2.4'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M20%2010h24v10a12%2012%200%2001-24%200z'/%3E%3Cpath%20d='M20%2014h-8v4a9%209%200%20009%209M44%2014h8v4a9%209%200%2001-9%209M32%2032v10M22%2054h20M25%2042h14v12H25z'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%20fill='none'%20stroke='black'%20stroke-width='2.4'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Ccircle%20cx='22'%20cy='38'%20r='14'/%3E%3Cpath%20d='M30%2027l26-9v12l-22%206'/%3E%3Ccircle%20cx='22'%20cy='38'%20r='4'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%20fill='none'%20stroke='black'%20stroke-width='2.4'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M6%2050V14h52v36'/%3E%3Cpath%20d='M6%2014l8%208h36l8-8M14%2022v28M50%2022v28M24%2022v28M32%2022v28M40%2022v28M14%2032h36M14%2041h36'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%20fill='none'%20stroke='black'%20stroke-width='2.4'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M12%2010h14v16l20%209a8%208%200%20016%208v3H12z'/%3E%3Cpath%20d='M12%2046h40M18%2052v-6M28%2052v-6M38%2052v-6M48%2052v-6'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%20fill='none'%20stroke='black'%20stroke-width='2.4'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M32%206l7.6%2016%2017.4%202.2-12.8%2012%203.4%2017.3L32%2045l-15.6%208.5%203.4-17.3L7%2024.2%2024.4%2022z'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%20fill='none'%20stroke='black'%20stroke-width='2.4'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Ccircle%20cx='32'%20cy='40'%20r='14'/%3E%3Cpath%20d='M22%206l10%2020%2010-20M26%2040l4%204%208-8'/%3E%3C/svg%3E");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 120px, 72px, 60px, 112px, 68px, 34px, 54px;
+    mask-size: 120px, 72px, 60px, 112px, 68px, 34px, 54px;
+    -webkit-mask-position: 92% 10%, 6% 20%, 80% 86%, 16% 90%, 50% 6%, 34% 42%, 66% 52%;
+    mask-position: 92% 10%, 6% 20%, 80% 86%, 16% 90%, 50% 6%, 34% 42%, 66% 52%;
+    transform: translate3d(calc(var(--md-px, 0) * -18px), calc(var(--md-py, 0) * -14px), 0);
+    transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+    animation: md-icons-float 9s ease-in-out infinite alternate;
   }
   .md-sport-bg::after {
+    inset: 0;
     background:
-      radial-gradient(40rem 22rem at 12% 0%, rgba(239, 48, 34, 0.16), transparent 70%),
-      radial-gradient(34rem 20rem at 92% 100%, rgba(244, 123, 32, 0.12), transparent 70%);
-    animation: md-glow-pulse 12s ease-in-out infinite alternate;
+      radial-gradient(38rem 22rem at 10% 0%, rgba(255, 209, 102, 0.26), transparent 70%),
+      radial-gradient(34rem 22rem at 95% 100%, rgba(244, 123, 32, 0.38), transparent 70%),
+      radial-gradient(circle at 50% 50%, transparent 0 139px, rgba(255, 255, 255, 0.07) 140px 141px, transparent 142px),
+      linear-gradient(90deg, transparent calc(50% - 0.5px), rgba(255, 255, 255, 0.07) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+      repeating-linear-gradient(115deg, transparent 0 46px, rgba(255, 255, 255, 0.03) 46px 47px);
+    animation: md-glow-pulse 7s ease-in-out infinite alternate;
   }
-  /* Light surfaces: same idea, toned for warm white. */
+  /* Apricot / card surfaces: red-toned icons and softer glows. */
+  .md-sport-bg:is(.bg-pitch-chalk, .bg-pitch-card)::before,
   .md-sport-bg-light::before {
-    background-image:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120' fill='none' stroke='%23202020' stroke-width='2'%3E%3Ccircle cx='60' cy='60' r='56'/%3E%3Cpath d='M60 34l18 13-7 21H49l-7-21z'/%3E%3Cpath d='M60 34V6M78 47l26-9M71 68l17 22M49 68L32 90M42 47l-26-9'/%3E%3C/svg%3E"),
-      repeating-linear-gradient(115deg, transparent 0 46px, rgba(32, 32, 32, 0.022) 46px 47px);
-    background-repeat: no-repeat, repeat;
-    background-size: 200px 200px, auto;
-    background-position: right -48px top -48px, 0 0;
-    opacity: 0.06;
+    background-color: rgb(var(--md-rgb-primary-deep) / 0.09);
   }
+  .md-sport-bg:is(.bg-pitch-chalk, .bg-pitch-card)::after,
   .md-sport-bg-light::after {
-    background: radial-gradient(36rem 18rem at 0% 0%, rgba(244, 123, 32, 0.08), transparent 70%);
+    background:
+      radial-gradient(36rem 20rem at 0% 0%, rgba(255, 209, 102, 0.55), transparent 70%),
+      radial-gradient(30rem 20rem at 100% 100%, rgba(244, 123, 32, 0.22), transparent 70%),
+      repeating-linear-gradient(115deg, transparent 0 46px, rgba(176, 38, 28, 0.035) 46px 47px);
+  }
+
+  /*
+   * Homepage icon field. Real elements replace the ::before mask so each
+   * outline can drift on its own and bounce under the pointer. Content stays
+   * above the icons; empty padding still lets the pointer reach an icon.
+   */
+  .md-sport-bg:has(.md-sport-icons)::before {
+    content: none;
+  }
+  .md-sport-icons {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    translate: calc(var(--md-px, 0) * -14px) calc(var(--md-py, 0) * -10px);
+    transition: translate 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .md-sport-icon {
+    position: absolute;
+    left: var(--md-icon-x);
+    top: var(--md-icon-y);
+    width: var(--md-icon-size);
+    height: var(--md-icon-size);
+    translate: calc(var(--md-icon-x) * -1) calc(var(--md-icon-y) * -1);
+    color: rgb(255 236 214 / 0.42);
+    pointer-events: auto;
+    cursor: pointer;
+    transition: color 0.25s ease, filter 0.25s ease;
+  }
+  .md-sport-icon-motion,
+  .md-sport-icon-dodge {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .md-sport-icon-motion {
+    transform-origin: center;
+    animation: md-sport-icon-circle-a 9s linear infinite;
+  }
+  .md-sport-icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .md-sport-icon:hover {
+    z-index: 2;
+    color: rgb(255 236 214 / 0.98);
+    filter: drop-shadow(0 14px 12px rgba(60, 8, 4, 0.4));
+  }
+  .md-sport-bg:is(.bg-pitch-chalk, .bg-pitch-card) .md-sport-icon,
+  .md-sport-bg-light .md-sport-icon {
+    color: rgb(var(--md-rgb-primary-deep) / 0.28);
+  }
+  .md-sport-bg:is(.bg-pitch-chalk, .bg-pitch-card) .md-sport-icon:hover,
+  .md-sport-bg-light .md-sport-icon:hover {
+    color: rgb(var(--md-rgb-primary-deep) / 0.9);
+    filter: drop-shadow(0 10px 8px rgba(138, 29, 19, 0.25));
+  }
+  .md-sport-bg:has(.md-sport-icons) > :not(.md-sport-icons) {
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
+  }
+  /* Layout wrappers stay click-through so an icon in a gap can dodge the pointer.
+     Text, cards, and controls take the pointer back. */
+  .md-sport-bg:has(.md-sport-icons) > :not(.md-sport-icons) :is(
+    a, button, input, select, textarea, label, summary,
+    p, h1, h2, h3, h4, li, td, th, time, figcaption,
+    article, table, ul,
+    .md-live-card, .md-live-row, .md-hero-slider, .md-hero-logo
+  ) {
+    pointer-events: auto;
   }
 }
 
-@keyframes md-ball-drift {
+@keyframes md-icons-float {
   from {
-    background-position: right -40px top -40px, center, center, 0 0;
+    translate: 0 0;
+    rotate: -1.5deg;
   }
   to {
-    background-position: right -10px top -20px, center, center, 47px 0;
+    translate: 0 -16px;
+    rotate: 1.5deg;
   }
 }
 @keyframes md-glow-pulse {
   from {
-    opacity: 0.7;
+    opacity: 0.75;
   }
   to {
     opacity: 1;
   }
 }
+/* Counter-rotate so the outline stays upright while its center walks a circle. */
+@keyframes md-sport-icon-circle-a {
+  from { transform: rotate(0deg) translateX(22px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(22px) rotate(-360deg); }
+}
+@keyframes md-sport-icon-circle-b {
+  from { transform: rotate(0deg) translateX(34px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(34px) rotate(-360deg); }
+}
+@keyframes md-sport-icon-circle-c {
+  from { transform: rotate(0deg) translateX(16px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(16px) rotate(-360deg); }
+}
 @media (prefers-reduced-motion: reduce) {
   .md-sport-bg::before,
   .md-sport-bg::after {
     animation: none;
-  }
-  .md-btn,
-  .md-btn:hover {
     transition: none;
     transform: none;
   }
+  .md-btn,
+  .md-btn:hover,
+  .md-btn:active,
+  .md-btn-primary::after,
+  .md-btn-gold,
+  .md-btn-gold:hover,
+  .md-btn-gold::after,
+  .md-btn-secondary,
+  .md-btn-secondary:hover,
+  .md-btn-secondary::after,
+  .md-btn-secondary-light,
+  .md-btn-secondary-light:hover,
+  .md-btn-secondary-light::after {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ========================================
+   Match cards (LastMatchSection): 3D tilt toward the pointer, lift + glow on hover,
+   crests swing in, VS badge lights up and pulses. Pointer vars set in LastMatchSection.
+   ======================================== */
+@layer components {
+  .md-match-card {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(0) scale(1);
+    box-shadow: 0 10px 24px -16px rgba(176, 38, 28, 0.35);
+    transition:
+      transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 0.45s ease,
+      border-color 0.3s ease;
+    will-change: transform;
+  }
+  .md-match-card:hover,
+  .md-match-card:focus-within {
+    transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-20px) scale(1.05);
+    border-color: rgb(var(--md-rgb-secondary) / 0.6);
+    box-shadow:
+      0 58px 100px -22px rgba(176, 38, 28, 0.72),
+      0 28px 48px -14px rgba(244, 123, 32, 0.85),
+      0 0 0 1px rgb(var(--md-rgb-secondary) / 0.5);
+  }
+  /* Brand bar slides in across the top. */
+  .md-match-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary), var(--color-accent));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .md-match-card:hover::before,
+  .md-match-card:focus-within::before {
+    transform: scaleX(1);
+  }
+  /* Spotlight that follows the pointer, plus faint pitch lines. */
+  .md-match-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(16rem circle at var(--mx, 50%) var(--my, 0%), rgba(255, 209, 102, 0.55), transparent 65%),
+      radial-gradient(circle at 50% 62%, transparent 0 46px, rgba(176, 38, 28, 0.12) 47px 48px, transparent 49px),
+      linear-gradient(90deg, transparent calc(50% - 0.5px), rgba(176, 38, 28, 0.1) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .md-match-card:hover::after,
+  .md-match-card:focus-within::after {
+    opacity: 1;
+  }
+
+  .md-match-crest {
+    transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s ease;
+  }
+  .md-match-card:hover .md-match-crest--home {
+    transform: translateX(-4px) rotate(-8deg) scale(1.18);
+    filter: drop-shadow(0 10px 14px rgba(176, 38, 28, 0.35));
+  }
+  .md-match-card:hover .md-match-crest--away {
+    transform: translateX(4px) rotate(8deg) scale(1.18);
+    filter: drop-shadow(0 10px 14px rgba(176, 38, 28, 0.35));
+  }
+
+  .md-match-vs {
+    position: relative;
+    display: inline-flex;
+    height: 3.25rem;
+    width: 3.25rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: rgb(var(--md-rgb-primary-deep) / 0.08);
+    color: rgb(var(--md-rgb-text) / 0.45);
+    font-weight: 800;
+    transition: var(--transition-smooth);
+  }
+  /* Idle "live" pulse ring. */
+  .md-match-vs::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    border: 2px solid rgb(var(--md-rgb-secondary) / 0.45);
+    animation: md-vs-pulse 2.4s ease-out infinite;
+  }
+  .md-match-card:hover .md-match-vs {
+    background: var(--gradient-brand);
+    color: var(--color-white);
+    transform: scale(1.2) rotate(-6deg);
+    box-shadow: 0 10px 24px -8px rgba(239, 48, 34, 0.7);
+  }
+  .md-match-score {
+    display: inline-block;
+    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .md-match-card:hover .md-match-score {
+    transform: scale(1.15);
+  }
+  .md-match-date {
+    transition: color 0.3s ease, letter-spacing 0.3s ease;
+  }
+  .md-match-card:hover .md-match-date {
+    color: var(--color-primary-deep);
+    letter-spacing: 0.04em;
+  }
+}
+
+@keyframes md-vs-pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .md-match-vs::after {
+    animation: none;
+  }
+}
+
+/* ========================================
+   Live cards & rows (home page and anywhere else that opts in).
+   .md-live-card: lifts, tilts toward the pointer (vars set by useLiveCards), deep glow shadow,
+   brand bar across the top, gold spotlight under the cursor, images zoom.
+   .md-live-card--soft: same, gentler (big panels).
+   .md-live-row: list/table rows slide forward with a gold edge and warm highlight.
+   ======================================== */
+.md-live-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(0) scale(1);
+  box-shadow: var(--md-shadow-rest);
+  transition:
+    transform 0.45s var(--md-ease-out),
+    box-shadow 0.45s var(--md-ease-out),
+    border-color var(--md-dur) ease,
+    background-color var(--md-dur) ease;
+  will-change: transform;
+}
+.md-live-card:hover,
+.md-live-card:focus-within {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-18px) scale(1.045);
+  box-shadow: var(--md-shadow-float);
+}
+.md-live-card--soft:hover,
+.md-live-card--soft:focus-within {
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-14px) scale(1.028);
+  box-shadow: var(--md-shadow-float);
+}
+.md-live-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 3;
+  height: 4px;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary), var(--color-accent-bright));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.md-live-card:hover::before,
+.md-live-card:focus-within::before {
+  transform: scaleX(1);
+}
+.md-live-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(18rem circle at var(--mx, 50%) var(--my, 0%), rgba(255, 209, 102, 0.32), transparent 65%);
+  mix-blend-mode: soft-light;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.md-live-card:hover::after,
+.md-live-card:focus-within::after {
+  opacity: 1;
+}
+.md-live-card img {
+  transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.5s ease;
+}
+.md-live-card:hover img:not([aria-hidden='true']) {
+  transform: scale(1.06);
+  filter: saturate(1.12);
+}
+
+.md-live-row {
+  position: relative;
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 0.3s ease,
+    box-shadow 0.35s ease;
+}
+.md-live-row:hover,
+.md-live-row:focus-within {
+  transform: translateX(6px);
+  background-color: rgb(var(--md-rgb-accent-bright) / 0.1);
+  box-shadow:
+    inset 4px 0 0 var(--color-accent-bright),
+    0 12px 26px -18px rgba(110, 20, 10, 0.6);
+}
+.md-live-row img {
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.md-live-row:hover img {
+  transform: scale(1.12) rotate(-4deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .md-live-row,
+  .md-live-row:hover,
+  .md-live-row:focus-within,
+  .md-live-row img {
+    transition: none;
+    transform: none !important;
+  }
+}
+
+/* ========================================
+   MD STRIKERS — MOTION & POLISH LAYER
+   Scoped to the public sports shell (body.md-public). Pure CSS: scroll-driven header state,
+   scroll reveals, Ken Burns on the active hero slide, menu entrance, warm scrollbar/selection.
+   Everything here is progressive enhancement — unsupported browsers render the plain page,
+   and prefers-reduced-motion switches the motion off.
+   ======================================== */
+
+/* --- Page-level finish ----------------------------------------------------------------- */
+html:has(body.md-public) {
+  scroll-padding-top: 6rem; /* anchors land below the sticky header */
+  scrollbar-color: rgb(var(--md-rgb-accent) / 0.7) rgb(var(--md-rgb-surface-strong) / 0.9);
+  /* clip does not create a scroll container, so the header can stick. hidden on html/body cannot. */
+  overflow-x: clip;
+  overflow-y: visible;
+}
+body.md-public {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+/* Warm, crest-coloured scrollbars instead of the grey admin ones. */
+body.md-public * {
+  scrollbar-color: rgb(var(--md-rgb-accent) / 0.7) rgb(var(--md-rgb-surface-strong) / 0.35);
+}
+html:has(body.md-public)::-webkit-scrollbar,
+body.md-public *::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+html:has(body.md-public)::-webkit-scrollbar-track,
+body.md-public *::-webkit-scrollbar-track {
+  background: #7a1810;
+  border-radius: 0;
+}
+html:has(body.md-public)::-webkit-scrollbar-thumb,
+body.md-public *::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ffd166, #ffad1f);
+  border: 3px solid #7a1810;
+  border-radius: 999px;
+  min-height: 30px;
+}
+html:has(body.md-public)::-webkit-scrollbar-thumb:hover,
+body.md-public *::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ffe08a, #f47b20);
+  border-color: #7a1810;
+}
+html:has(body.md-public)::-webkit-scrollbar-corner,
+body.md-public *::-webkit-scrollbar-corner {
+  background: #7a1810;
+}
+
+/* Selection in crest gold. */
+body.md-public ::selection {
+  background: rgb(var(--md-rgb-accent-bright) / 0.9);
+  color: #3a0a05;
+}
+
+/* A consistent keyboard focus ring for anything that didn't bring its own (zero specificity,
+   so any component's own focus-visible utilities win). */
+:where(body.md-public) :focus-visible {
+  outline: 2px solid var(--color-accent-bright);
+  outline-offset: 3px;
+  border-radius: 0.25rem;
+}
+
+/* Every interactive element eases its colour, border and shadow; nothing snaps. Written with
+   :where() so it is only a default — a component's own transition utilities always override it. */
+:where(body.md-public) :where(a, button, summary, [role='button']) {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform, filter;
+  transition-duration: var(--md-dur);
+  transition-timing-function: var(--md-ease-out);
+}
+:where(body.md-public) :where(input, select, textarea) {
+  transition: border-color var(--md-dur-fast) ease, box-shadow var(--md-dur-fast) ease, background-color var(--md-dur-fast) ease;
+}
+:where(body.md-public) :where(input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-accent-bright);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgb(var(--md-rgb-accent-bright) / 0.22);
+}
+
+/* Section seams: a hairline light along the top edge of every band reads as stadium lighting. */
+body.md-public .md-sport-bg {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+/* Images inside live cards/rows never flash white while decoding. */
+body.md-public :is(.md-live-card, .md-live-row, .md-match-card) img {
+  background-color: rgb(var(--md-rgb-surface-warm) / 0.25);
+}
+/* Crest is transparent; the oxblood logo panel is the background. */
+body.md-public .md-hero-logo img {
+  background-color: transparent;
+}
+
+/* Footer links: an underline that draws itself in from the left. */
+:where(body.md-public footer nav) a {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0 1px;
+  transition: background-size var(--md-dur) var(--md-ease-out), color var(--md-dur) var(--md-ease-out);
+}
+:where(body.md-public footer nav) a:hover,
+:where(body.md-public footer nav) a:focus-visible {
+  background-size: 100% 1px;
+}
+
+/* --- Header ----------------------------------------------------------------------------- */
+.md-strikers-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  isolation: isolate;
+  background-color: transparent;
+  box-shadow:
+    0 1px 0 rgba(255, 209, 102, 0.5),
+    0 36px 56px -14px rgba(40, 8, 4, 0.72);
+}
+.md-strikers-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 248, 239, 0.42) 0%,
+    rgba(116, 23, 15, 0.9) 42%,
+    rgba(116, 23, 15, 0.9) 58%,
+    rgba(116, 23, 15, 0.2) 100%
+  );
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  animation: md-header-glass-in 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes md-header-glass-in {
+  from {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.md-strikers-header :is(a, button) {
+  color: #fff8ef;
+  text-shadow: 0 1px 2px rgba(40, 8, 4, 0.72);
+}
+.md-strikers-header :is(a, button).text-brand-gold-bright {
+  color: #ffd166;
+}
+/* Dropdown panels: the gold top rule and a soft rise. */
+.md-strikers-header nav .group > div > div {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 24px 48px -24px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgb(var(--md-rgb-accent) / 0.12);
+}
+.md-strikers-header nav .group > div > div a {
+  position: relative;
+}
+.md-strikers-header nav .group > div > div a:hover {
+  transform: translateX(3px);
+}
+
+/* Mobile menu: slides down from under the header each time it opens. */
+#fc-united-mobile-menu {
+  transform-origin: top center;
+  animation: md-menu-in 0.32s var(--md-ease-out) both;
+}
+#fc-united-mobile-menu li {
+  animation: md-rise 0.45s var(--md-ease-out) both;
+}
+#fc-united-mobile-menu li:nth-child(1) { animation-delay: 40ms; }
+#fc-united-mobile-menu li:nth-child(2) { animation-delay: 70ms; }
+#fc-united-mobile-menu li:nth-child(3) { animation-delay: 100ms; }
+#fc-united-mobile-menu li:nth-child(4) { animation-delay: 130ms; }
+#fc-united-mobile-menu li:nth-child(5) { animation-delay: 160ms; }
+#fc-united-mobile-menu li:nth-child(6) { animation-delay: 190ms; }
+#fc-united-mobile-menu li:nth-child(7) { animation-delay: 220ms; }
+#fc-united-mobile-menu li:nth-child(n + 8) { animation-delay: 250ms; }
+
+/* --- Hero slider ------------------------------------------------------------------------ */
+/* The active slide's flyer drifts in slowly (Ken Burns); the blurred backdrop breathes. */
+body.md-public [aria-roledescription='slide'][aria-hidden='false'] img.object-contain {
+  animation: md-kenburns 9s var(--md-ease-out) both;
+}
+body.md-public [aria-roledescription='slide'][aria-hidden='false'] img.blur-2xl {
+  animation: md-breathe 9s ease-in-out infinite alternate;
+}
+/* Slide controls: gold-lit on hover. */
+body.md-public [aria-roledescription='carousel'] button[aria-label$='slide'] {
+  transition-property: background-color, border-color, color, box-shadow, transform;
+  transition-duration: var(--md-dur);
+  transition-timing-function: var(--md-ease-spring);
+}
+body.md-public [aria-roledescription='carousel'] button[aria-label$='slide']:hover {
+  --tw-scale-x: 1.08;
+  --tw-scale-y: 1.08;
+  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgb(var(--md-rgb-accent-bright) / 0.5);
+}
+body.md-public [aria-roledescription='carousel'] button[aria-label$='slide']:active {
+  --tw-scale-x: 0.96;
+  --tw-scale-y: 0.96;
+}
+
+/* --- Live cards, rows & tables ----------------------------------------------------------- */
+/* Rows: the arrow nudges forward with the row. */
+body.md-public .md-live-row:hover a svg,
+body.md-public .md-live-row:hover button svg {
+  transform: translateX(3px);
+}
+body.md-public .md-live-row :is(a, button) svg {
+  transition: transform var(--md-dur) var(--md-ease-out);
+}
+/* Eyebrow rule draws itself in as its heading arrives. */
+.md-reveal .md-brand-rule {
+  transform-origin: left center;
+}
+
+/* --- Entrances (load) ------------------------------------------------------------------- */
+/* Page titles and the hero copy rise in on first paint. */
+body.md-public h1 {
+  animation: md-rise var(--md-dur-slow) var(--md-ease-out) both;
+}
+body.md-public h1 + p,
+body.md-public nav[aria-label='Breadcrumb'] {
+  animation: md-rise var(--md-dur-slow) var(--md-ease-out) both;
+  animation-delay: 90ms;
+}
+/* Inner-page hero wash drifts slowly so the banner never feels static. */
+.md-inner-hero-wash {
+  background-size: 160% 100%;
+  background-position: 0% 50%;
+  animation: md-wash 16s ease-in-out infinite alternate;
+}
+
+/* --- Scroll reveals (scroll-driven, no observers) ---------------------------------------- */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Cards, match tiles, headings and sponsor marks rise into place as they enter the viewport.
+       `translate` is animated instead of `transform` so the pointer tilt on cards keeps working. */
+    body.md-public :is(.md-live-card, .md-match-card, .md-reveal) {
+      animation: md-reveal-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 38%;
+    }
+    .md-reveal .md-brand-rule {
+      animation: md-grow-x linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 60%;
+    }
+  }
+}
+
+/* --- Keyframes --------------------------------------------------------------------------- */
+@keyframes md-rise {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes md-reveal-up {
+  from {
+    opacity: 0;
+    translate: 0 26px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes md-grow-x {
+  from {
+    scale: 0 1;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+@keyframes md-menu-in {
+  from {
+    opacity: 0;
+    translate: 0 -10px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes md-kenburns {
+  from {
+    scale: 1;
+    translate: 0 6px;
+  }
+  to {
+    scale: 1.05;
+    translate: 0 0;
+  }
+}
+@keyframes md-breathe {
+  from {
+    opacity: 0.32;
+    scale: 1.1;
+  }
+  to {
+    opacity: 0.48;
+    scale: 1.18;
+  }
+}
+@keyframes md-wash {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 100% 50%;
+  }
+}
+
+/* --- Reduced motion: everything above becomes static -------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html:has(body.md-public) {
+    scroll-behavior: auto;
+  }
+  body.md-public h1,
+  body.md-public h1 + p,
+  body.md-public nav[aria-label='Breadcrumb'],
+  #fc-united-mobile-menu,
+  #fc-united-mobile-menu li,
+  .md-inner-hero-wash,
+  body.md-public [aria-roledescription='slide'][aria-hidden='false'] img.object-contain,
+  body.md-public [aria-roledescription='slide'][aria-hidden='false'] img.blur-2xl {
+    animation: none;
+  }
+  body.md-public .md-live-row :is(a, button) svg,
+  .md-strikers-header nav .group > div > div a {
+    transition: none;
+    transform: none;
+  }
+:where(body.md-public) :where(a, button, summary, [role='button']) {
+    transition-duration: 1ms;
+  }
+}
+
+/* Homepage: white editorial pages, navy header, match centre, and footer. */
+.md-organic {
+  --md-navy: #071b38;
+  --md-royal: #104a91;
+  --md-electric: #329bff;
+  --md-gold: #ffc857;
+  --md-cloud: #f4f7fb;
+  --md-ink: #10233f;
+  --md-muted: #60738c;
+  background: var(--md-cloud);
+  color: var(--md-ink);
+  font-family: var(--font-md-body), Inter, sans-serif;
+}
+.md-organic.md-brand,
+.md-organic .md-brand {
+  font-family: var(--font-md-body), Inter, sans-serif;
+}
+.md-organic.md-brand :is(h1, h2, h3, h4, h5, h6),
+.md-organic .md-brand :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-elite-display), Manrope, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+  text-transform: none;
+}
+.md-organic .md-btn {
+  font-family: var(--font-md-body), Inter, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  border-radius: 999px;
+}
+.md-organic .md-btn-primary {
+  background: var(--md-royal);
+  color: #ffffff;
+  filter: none;
+  box-shadow: none;
+}
+.md-organic .md-btn-primary:hover {
+  background: #1677d2;
+  color: #ffffff;
+  filter: none;
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 4px #eaf3fc, 0 10px 24px rgba(16, 74, 145, 0.28);
+}
+.md-organic .md-btn-secondary,
+.md-organic .md-btn-secondary-light {
+  background: transparent;
+  color: var(--md-ink);
+  border: 1px solid color-mix(in srgb, var(--md-ink) 16%, transparent);
+  box-shadow: none;
+}
+.md-organic .md-btn-secondary:hover,
+.md-organic .md-btn-secondary-light:hover {
+  background: var(--md-royal);
+  color: #ffffff;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 4px #eaf3fc;
+}
+.md-organic .md-strikers-header {
+  background: color-mix(in srgb, var(--md-navy) 62%, transparent);
+  border-bottom: 1px solid rgba(98, 181, 255, 0.22);
+  box-shadow: none;
+  transition: background 0.35s ease, box-shadow 0.35s ease;
+}
+.md-organic .md-strikers-header[data-scrolled='true'] {
+  background: var(--md-navy);
+  box-shadow: 0 12px 28px rgba(2, 10, 28, 0.35);
+}
+.md-organic .md-strikers-header::before {
+  inset: 0;
+  background: color-mix(in srgb, var(--md-navy) 55%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.md-organic .md-strikers-header[data-scrolled='true']::before {
+  background: var(--md-navy);
+}
+.md-organic .md-strikers-header :is(a, button) {
+  color: #ffffff;
+  text-shadow: none;
+}
+.md-organic .md-strikers-header :is(a, button).text-brand-gold-bright {
+  color: var(--md-gold);
+}
+.md-organic .md-strikers-header nav > :is(a, .group > button) {
+  border-radius: 999px;
+  padding-inline: 14px;
+}
+.md-organic .md-strikers-header nav > a:hover,
+.md-organic .md-strikers-header nav > .group > button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.md-organic .md-strikers-header .bg-pitch-charcoal {
+  background: #152b49;
+}
+.md-organic .md-strikers-header .bg-pitch-charcoal :is(a, button) {
+  color: #c3d3e8;
+}
+.md-organic .md-strikers-header .bg-pitch-charcoal :is(a, button).text-brand-gold-bright {
+  color: var(--md-gold);
+}
+.md-organic #fc-united-mobile-menu {
+  background: var(--md-navy);
+  color: #ffffff;
+  border-color: rgba(98, 181, 255, 0.22);
+}
+.md-organic #fc-united-mobile-menu :is(a, button) {
+  color: #ffffff;
+  text-shadow: none;
+}
+.md-organic .md-hero-stage {
+  color: #f5f8ff;
+  background:
+    radial-gradient(ellipse 420px 220px at 8% 0%, rgba(230, 242, 255, 0.16), transparent 70%),
+    radial-gradient(ellipse 420px 220px at 92% 0%, rgba(230, 242, 255, 0.14), transparent 70%),
+    radial-gradient(1100px 520px at 50% 115%, rgba(16, 74, 145, 0.55), transparent 65%),
+    radial-gradient(900px 480px at 50% -15%, rgba(22, 119, 210, 0.32), transparent 60%),
+    linear-gradient(180deg, #071b38 0%, #0b2d59 52%, #071b38 100%);
+}
+.md-organic .md-hero-stage.md-sport-bg > .md-hero-lights {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 280px 140px at 14% 0%, rgba(236, 246, 255, 0.42), transparent 72%),
+    radial-gradient(ellipse 280px 140px at 86% 0%, rgba(236, 246, 255, 0.36), transparent 72%),
+    radial-gradient(ellipse 520px 260px at 20% 10%, rgba(22, 119, 210, 0.28), transparent 70%),
+    radial-gradient(ellipse 520px 260px at 80% 8%, rgba(16, 74, 145, 0.34), transparent 68%);
+}
+.md-organic .md-hero-lights::before,
+.md-organic .md-hero-lights::after {
+  content: '';
+  position: absolute;
+  top: -8%;
+  width: 340px;
+  height: 78%;
+  filter: blur(16px);
+  pointer-events: none;
+}
+.md-organic .md-hero-lights::before {
+  left: 7%;
+  background: linear-gradient(180deg, rgba(230, 242, 255, 0.34), rgba(50, 155, 255, 0.1) 42%, transparent 78%);
+  clip-path: polygon(46% 0, 58% 0, 100% 100%, 8% 100%);
+  animation: mdBeamL 16s ease-in-out infinite;
+}
+.md-organic .md-hero-lights::after {
+  right: 5%;
+  background: linear-gradient(180deg, rgba(230, 242, 255, 0.3), rgba(22, 119, 210, 0.1) 40%, transparent 78%);
+  clip-path: polygon(42% 0, 54% 0, 92% 100%, 0 100%);
+  animation: mdBeamR 16s ease-in-out -8s infinite;
+}
+@keyframes mdBeamL {
+  0%, 100% { opacity: 0.55; transform: translateX(0) rotate(-6deg); }
+  50% { opacity: 0.9; transform: translateX(14px) rotate(-2deg); }
+}
+@keyframes mdBeamR {
+  0%, 100% { opacity: 0.5; transform: translateX(0) rotate(6deg); }
+  50% { opacity: 0.85; transform: translateX(-14px) rotate(2deg); }
+}
+@keyframes mdSweep {
+  0% { transform: translateX(-30%); }
+  100% { transform: translateX(380%); }
+}
+.md-organic .md-hero-stage .md-sport-icon {
+  color: rgb(98 181 255 / 0.42);
+}
+.md-organic .md-hero-stage .md-sport-icon:hover {
+  color: rgb(195 225 255 / 0.95);
+  filter: drop-shadow(0 10px 8px rgb(2 10 28 / 0.45));
+}
+.md-organic .md-hero-logo {
+  background: linear-gradient(160deg, #ffffff 0%, #f0f6ff 50%, #d8e7fa 100%);
+  border: 1px solid rgba(75, 165, 255, 0.55);
+  border-radius: 22px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 24px 48px rgba(2, 10, 28, 0.55),
+    0 0 36px rgba(50, 155, 255, 0.26);
+}
+.md-organic .md-hero-slider {
+  position: relative;
+  background: linear-gradient(180deg, #10294d 0%, #061a36 100%);
+  border: 1px solid rgba(75, 165, 255, 0.45);
+  border-radius: 22px;
+  box-shadow:
+    inset 0 1px 0 rgba(200, 226, 255, 0.35),
+    inset 0 -24px 40px rgba(8, 80, 48, 0.18),
+    0 30px 60px rgba(2, 8, 24, 0.6),
+    0 0 60px rgba(22, 119, 210, 0.25);
+}
+.md-organic .md-hero-slider::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  width: 28%;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(210, 232, 255, 0.95), transparent);
+  animation: mdSweep 9s ease-in-out infinite;
+}
+.md-organic .md-hero-slider > .border-t {
+  background: linear-gradient(180deg, rgba(4, 16, 36, 0.15), rgba(4, 16, 36, 0.72));
+  border-top-color: rgba(75, 165, 255, 0.22);
+}
+.md-organic .md-hero-logo .text-pitch-chalk {
+  color: #0b2d59;
+}
+.md-organic .md-hero-logo .text-pitch-stone {
+  color: #4a6385;
+}
+.md-organic .md-hero-logo .text-pitch-lime {
+  color: #104a91;
+}
+.md-organic .md-hero-logo .bg-pitch-chalk\/15 {
+  background-color: rgba(16, 74, 145, 0.28);
+}
+.md-organic .md-hero-logo.md-live-card::before,
+.md-organic .md-hero-logo.md-live-card:hover::before,
+.md-organic .md-hero-logo.md-live-card::after,
+.md-organic .md-hero-logo.md-live-card:hover::after {
+  content: none;
+}
+.md-organic .md-hero-logo.md-live-card:hover,
+.md-organic .md-hero-logo.md-live-card:focus-within {
+  border-color: rgba(98, 181, 255, 0.9);
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-6px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 28px 56px rgba(2, 10, 28, 0.5),
+    0 0 42px rgba(50, 155, 255, 0.42);
+}
+.md-organic .md-hero-logo.md-live-card:hover img {
+  transform: none;
+}
+.md-organic .md-hero-slider .text-pitch-chalk {
+  color: #f5f8ff;
+}
+.md-organic .md-hero-slider .text-pitch-stone {
+  color: #91a9c5;
+}
+.md-organic .md-hero-match {
+  position: relative;
+  overflow: hidden;
+  color: #f5f8ff;
+  background:
+    radial-gradient(ellipse 34% 20% at 16% 0%, rgba(236, 246, 255, 0.5), transparent 70%),
+    radial-gradient(ellipse 34% 20% at 84% 0%, rgba(236, 246, 255, 0.38), transparent 70%),
+    radial-gradient(ellipse 90% 42% at 50% 108%, rgba(40, 160, 90, 0.28), transparent 62%),
+    linear-gradient(180deg, #071833 0%, #0c3268 30%, #123a62 50%, #0d4a3a 70%, #0a663c 84%, #08462c 100%);
+}
+.md-organic .md-hero-match::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  height: 46%;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0 20px,
+    rgba(0, 24, 10, 0.14) 20px 40px
+  );
+  mask-image: linear-gradient(180deg, transparent, #000 40%);
+}
+.md-organic .md-hero-match::after {
+  content: '';
+  position: absolute;
+  right: 10%;
+  bottom: 7%;
+  left: 10%;
+  z-index: 0;
+  height: 34%;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)) center 46% / 46% 1px no-repeat,
+    radial-gradient(circle at 50% 46%, transparent 16%, rgba(255, 255, 255, 0.2) 17%, rgba(255, 255, 255, 0.2) 18.5%, transparent 19.5%);
+  mask-image: linear-gradient(180deg, transparent, #000 28%);
+}
+.md-organic .md-hero-match > * {
+  position: relative;
+  z-index: 1;
+}
+.md-organic .md-hero-match .relative {
+  width: 4.5rem;
+  height: 4.5rem;
+}
+@media (min-width: 640px) {
+  .md-organic .md-hero-match .relative {
+    width: 5.25rem;
+    height: 5.25rem;
+  }
+}
+.md-organic .md-hero-kicker-mark {
+  width: 1rem;
+  height: 2px;
+  border-radius: 999px;
+  background: #ffc857;
+  box-shadow: 0 0 8px rgba(255, 200, 87, 0.75);
+}
+.md-organic .md-hero-vs {
+  color: #f5f8ff;
+  text-shadow: 0 0 18px rgba(50, 155, 255, 0.45);
+}
+.md-organic .md-hero-kickoff::before {
+  content: '';
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-right: 0.4rem;
+  vertical-align: -0.12rem;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='M8 3v3M16 3v3M4 9h16M5 5h14a1 1 0 011 1v13a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='M8 3v3M16 3v3M4 9h16M5 5h14a1 1 0 011 1v13a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.md-organic .md-hero-match .text-pitch-chalk {
+  color: #f5f8ff;
+}
+.md-organic .md-hero-match .text-pitch-stone {
+  color: #c3d3e8;
+}
+.md-organic .md-hero-match .text-pitch-lime {
+  color: #ffc857;
+}
+.md-organic a.md-hero-cta {
+  color: #f5f8ff;
+  background: linear-gradient(180deg, #1e87e6 0%, #104a91 100%);
+  border: 1px solid rgba(98, 181, 255, 0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 10px 24px rgba(2, 10, 28, 0.45);
+}
+.md-organic a.md-hero-cta:hover {
+  color: #ffffff;
+  background: linear-gradient(180deg, #329bff 0%, #1460b5 100%);
+  filter: none;
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 0 4px rgba(50, 155, 255, 0.22),
+    0 12px 28px rgba(22, 119, 210, 0.45);
+}
+.md-organic section.bg-pitch-charcoal:not(.md-band-scoreboard) {
+  background: #ffffff;
+  color: var(--md-ink);
+}
+.md-organic section.bg-pitch-charcoal:not(.md-band-scoreboard) .text-pitch-chalk {
+  color: var(--md-ink);
+}
+.md-organic section.bg-pitch-charcoal:not(.md-band-scoreboard) .text-pitch-stone {
+  color: var(--md-muted);
+}
+.md-organic section.bg-pitch-charcoal:not(.md-band-scoreboard) .text-pitch-lime {
+  color: #1677d2;
+}
+.md-organic section.bg-pitch-chalk,
+.md-organic section.md-band-paper,
+.md-organic section.md-band-light {
+  background: var(--md-cloud);
+  color: var(--md-ink);
+}
+.md-organic section.md-band-olive {
+  background: #ffffff;
+  color: var(--md-ink);
+}
+.md-organic .md-band-olive .text-pitch-chalk {
+  color: var(--md-ink);
+}
+.md-organic .md-band-olive .text-pitch-stone {
+  color: var(--md-muted);
+}
+.md-organic .md-band-olive .text-pitch-lime {
+  color: #1677d2;
+}
+.md-organic .md-band-olive .overflow-x-auto {
+  background: var(--md-cloud);
+  color: var(--md-ink);
+  border-color: #e8eef6;
+  border-radius: 20px;
+}
+.md-organic .md-band-olive .overflow-x-auto :is(.text-pitch-chalk, .text-pitch-stone) {
+  color: var(--md-ink);
+}
+.md-organic .md-band-olive .overflow-x-auto .text-pitch-lime {
+  color: #1677d2;
+}
+.md-organic section.md-band-scoreboard {
+  color: #ffffff;
+  background:
+    radial-gradient(900px 420px at 50% 0%, rgba(22, 119, 210, 0.28), transparent 70%),
+    linear-gradient(180deg, #071b38 0%, #0b2d59 52%, #071b38 100%);
+}
+.md-organic section.md-band-scoreboard :is(h2, .text-pitch-charcoal, .text-pitch-olive) {
+  color: #ffffff;
+}
+.md-organic section.md-band-scoreboard .text-pitch-stone,
+.md-organic section.md-band-scoreboard .text-pitch-charcoal\/70,
+.md-organic section.md-band-scoreboard .text-pitch-charcoal\/60 {
+  color: #c3d3e8;
+}
+.md-organic section.md-band-scoreboard .md-match-card {
+  background: linear-gradient(180deg, #10294d 0%, #0a2344 100%);
+  border-color: rgba(75, 165, 255, 0.35);
+  color: #f5f8ff;
+  box-shadow: 0 16px 36px rgba(2, 10, 28, 0.28);
+}
+.md-organic section.md-band-scoreboard .md-match-card :is(.text-pitch-charcoal, .text-pitch-olive, .font-bold, .font-extrabold) {
+  color: #f5f8ff;
+}
+.md-organic section.md-band-scoreboard .md-match-card .text-pitch-olive {
+  color: var(--md-gold);
+}
+.md-organic section.md-band-scoreboard .md-btn-gold {
+  background: transparent;
+  color: #c3d3e8;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.md-organic .md-band-olive select.text-pitch-chalk,
+.md-organic .md-band-olive select.text-pitch-chalk :is(option, optgroup) {
+  background-color: #f5ead8;
+  color: #201e1d;
+  color-scheme: light;
+}
+.md-organic .md-hero-slider button.md-hero-control,
+.md-organic .md-hero-slider button.md-hero-control.text-pitch-chalk {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: #ffffff;
+  background: linear-gradient(180deg, rgba(36, 117, 204, 0.94), rgba(14, 58, 117, 0.94));
+  border-color: rgba(98, 181, 255, 0.55);
+  transform: translateY(-50%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 6px 16px rgba(2, 8, 24, 0.5);
+}
+.md-organic .md-hero-slider button.md-hero-control:hover {
+  color: #ffffff;
+  background: linear-gradient(180deg, #329bff 0%, #1460b5 100%);
+  transform: translateY(-50%) scale(1.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 0 0 4px rgba(50, 155, 255, 0.18),
+    0 0 22px rgba(50, 155, 255, 0.55);
+}
+.md-organic .md-hero-slider p.md-hero-control {
+  color: #f5f8ff;
+  background: rgba(8, 28, 58, 0.72);
+  border-color: rgba(98, 181, 255, 0.35);
+}
+.md-organic .md-hero-dots button {
+  background-color: rgba(145, 169, 197, 0.45);
+}
+.md-organic .md-hero-dots button[aria-current='true'] {
+  width: 1.5rem;
+  background-color: #329bff;
+  box-shadow: 0 0 10px rgba(50, 155, 255, 0.75);
+}
+.md-organic .md-hero-slider .md-hero-control .text-pitch-lime {
+  color: #ffc857;
+}
+.md-organic section.md-band-paper {
+  background: #ffffff;
+}
+.md-organic .md-honours {
+  font-family: var(--font-md-display), 'Barlow Condensed', sans-serif;
+}
+.md-organic section.md-band-navy {
+  color: #ffffff;
+  background:
+    radial-gradient(900px 420px at 50% 0%, rgba(22, 80, 170, 0.45), transparent 70%),
+    linear-gradient(180deg, #0b1f4d 0%, #0a1638 100%);
+}
+.md-organic section.md-band-navy :is(.text-pitch-chalk, .text-pitch-charcoal, h2) {
+  color: #ffffff;
+}
+.md-organic section.md-band-navy .text-pitch-lime {
+  color: #c3d3e8;
+}
+.md-organic section.md-band-navy .text-pitch-stone {
+  color: #91a9c5;
+}
+.md-organic section.md-band-navy :is(.md-btn-secondary, .md-btn-secondary-light) {
+  color: #c3d3e8;
+  border-color: rgba(255, 255, 255, 0.28);
+  background: transparent;
+}
+.md-organic section.md-band-navy :is(.md-btn-secondary, .md-btn-secondary-light):hover {
+  color: #ffc72c;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #ffffff;
+}
+.md-organic section.md-sport-bg:not(.md-hero-stage):not(.md-band-olive):not(.md-band-navy) .md-sport-icon {
+  color: rgb(122 138 94 / 0.42);
+}
+.md-organic section.md-band-navy .md-sport-icon {
+  color: rgb(98 181 255 / 0.34);
+}
+.md-organic section.md-sport-bg:not(.md-hero-stage):not(.md-band-olive):not(.md-band-navy) .md-sport-icon:hover {
+  color: rgb(61 71 43 / 0.95);
+  filter: drop-shadow(0 8px 6px rgb(39 46 27 / 0.22));
+}
+.md-organic .md-band-olive .md-sport-icon {
+  color: rgb(16 74 145 / 0.28);
+}
+.md-organic .md-live-card.bg-pitch-forest {
+  background:
+    linear-gradient(105deg, rgba(7, 27, 56, 0.88), rgba(16, 74, 145, 0.55)),
+    #071b38;
+  color: #ffffff;
+  border-color: rgba(75, 165, 255, 0.35);
+}
+.md-organic .md-live-card.bg-pitch-forest :is(.text-pitch-chalk, .text-pitch-stone) {
+  color: #f5f8ff;
+}
+.md-organic .md-live-card.bg-pitch-forest .text-pitch-lime {
+  color: var(--md-gold);
+}
+.md-organic .md-live-card.bg-pitch-forest .md-btn-primary {
+  background: linear-gradient(180deg, #ffc857 0%, #e0a83a 100%);
+  color: #10233f;
+}
+.md-organic .md-live-card.bg-pitch-forest .md-btn-primary:hover {
+  background: #ffd56a;
+  color: #10233f;
+  box-shadow: 0 0 0 4px rgba(255, 200, 87, 0.28);
+}
+.md-organic article.md-live-card {
+  background: #ffffff;
+  border: 1px solid #e8eef6;
+  border-radius: 20px;
+}
+.md-organic .md-live-card:hover,
+.md-organic .md-live-card:focus-within,
+.md-organic .md-live-card--soft:hover,
+.md-organic .md-live-card--soft:focus-within {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-6px);
+  box-shadow: 0 16px 36px rgba(16, 35, 63, 0.12), 0 0 0 2px #329bff;
+}
+.md-organic .md-match-card:hover {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-6px);
+  box-shadow: 0 18px 40px rgba(2, 10, 28, 0.35), 0 0 0 2px #329bff;
+}
+.md-organic section.bg-pitch-charcoal .md-live-row:hover {
+  background: #fff2eb;
+  transform: translateX(6px);
+}
+.md-organic #about > .absolute.inset-0 {
+  background: color-mix(in srgb, #071b38 82%, transparent);
+}
+.md-organic section:has(#next-match-heading) .md-live-card {
+  background: #ffffff;
+  border: 1px solid #e8eef6;
+  color: var(--md-ink);
+}
+.md-organic section.border-t.bg-pitch-charcoal img {
+  filter: none;
+  opacity: 0.9;
+  transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
+}
+.md-organic section.border-t.bg-pitch-charcoal img:hover {
+  opacity: 1;
+  transform: scale(1.04);
+}
+.md-organic main > section.md-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+}
+.md-organic main > section.md-reveal.md-reveal-on {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .md-organic .md-hero-lights::before,
+  .md-organic .md-hero-lights::after,
+  .md-organic .md-hero-slider::before {
+    animation: none;
+  }
+  .md-organic main > section.md-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+.md-organic footer {
+  background:
+    radial-gradient(700px 240px at 50% 0%, rgba(22, 119, 210, 0.22), transparent 70%),
+    #071b38;
+  color: #c3d3e8;
+  border-top: 3px solid #104a91;
+}
+.md-organic footer :is(h6) {
+  font-family: var(--font-elite-display), Manrope, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+.md-organic footer .text-pitch-chalk {
+  color: #ffffff;
+}
+.md-organic footer .text-pitch-stone,
+.md-organic footer p,
+.md-organic footer a {
+  color: #c3d3e8;
+}
+.md-organic footer a:hover {
+  color: #ffffff;
+}
+
+.md-organic section.md-band-players {
+  position: relative;
+  color: #ffffff;
+  background:
+    radial-gradient(900px 280px at 50% 0%, rgba(21, 66, 132, 0.45), transparent 70%),
+    linear-gradient(247deg, #154284 0%, #181733 78%);
+}
+.md-organic section.md-band-players::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.22;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M14 1 L27 14 L14 27 L1 14 Z' fill='none' stroke='%23ffffff' stroke-width='0.6'/%3E%3C/svg%3E");
+}
+.md-organic section.md-band-players > * {
+  position: relative;
+  z-index: 1;
+}
+.md-organic .md-players-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3.5rem;
+  margin-bottom: 1.75rem;
+}
+.md-organic.md-brand h2.md-players-title {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-md-display), 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.75rem, 3vw, 2.4rem);
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+.md-organic .md-players-all {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #c3d3e8;
+}
+.md-organic .md-players-all:hover {
+  color: #ffffff;
+}
+.md-organic .md-players-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+.md-organic .md-players-nav button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.3s ease-out, color 0.3s ease-out;
+}
+.md-organic .md-players-nav button:hover {
+  background: #ffffff;
+  color: #181733;
+}
+.md-organic .md-players-nav svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+.md-organic .md-player-card {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  cursor: pointer;
+  color: #ffffff;
+  background: #181733;
+}
+.md-organic .md-player-card--red {
+  background: linear-gradient(160deg, #e31c24 0%, #a30d18 46%, #3a0a14 100%);
+}
+.md-organic .md-player-card--navy {
+  background: linear-gradient(160deg, #1b3f78 0%, #0d1b36 48%, #070e1c 100%);
+}
+.md-organic .md-player-card__photo {
+  z-index: 0;
+}
+.md-organic .md-player-card__wash {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(8, 14, 31, 0) 42%, rgba(8, 14, 31, 0.45) 68%, rgba(8, 14, 31, 0.92) 100%);
+}
+.md-organic .md-player-card--red .md-player-card__wash {
+  background:
+    linear-gradient(90deg, rgba(180, 12, 24, 0.55) 0%, rgba(180, 12, 24, 0.08) 24%, rgba(180, 12, 24, 0.08) 76%, rgba(90, 8, 16, 0.62) 100%),
+    linear-gradient(180deg, rgba(8, 14, 31, 0) 40%, rgba(8, 14, 31, 0.5) 70%, rgba(8, 14, 31, 0.92) 100%);
+}
+.md-organic .md-player-card--navy .md-player-card__wash {
+  background:
+    linear-gradient(90deg, rgba(10, 24, 52, 0.62) 0%, rgba(10, 24, 52, 0.12) 26%, rgba(10, 24, 52, 0.12) 74%, rgba(6, 12, 28, 0.7) 100%),
+    linear-gradient(180deg, rgba(8, 14, 31, 0) 40%, rgba(8, 14, 31, 0.5) 70%, rgba(8, 14, 31, 0.92) 100%);
+}
+.md-organic .md-player-card__number {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: 32%;
+  width: 116%;
+  transform: translateX(-52%);
+  font-family: var(--font-md-display), 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: clamp(5.5rem, 9vw, 8rem);
+  line-height: 0.8;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.16);
+  pointer-events: none;
+  transition: bottom 1s ease;
+}
+.md-organic .md-player-card__info {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  right: 0;
+  bottom: 1.4rem;
+  text-align: center;
+  transform: translateY(0);
+  transition: transform 1s ease;
+}
+.md-organic .md-player-card__name {
+  display: block;
+  padding: 0 0.75rem;
+  font-family: var(--font-md-display), 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.7rem, 2.4vw, 2.35rem);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+}
+.md-organic .md-player-card__stats {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 0.6rem 1rem;
+  text-align: center;
+  opacity: 1;
+  transform: translateY(115%);
+  transition: transform 1s ease;
+}
+.md-organic .md-player-card__role {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+}
+.md-organic .md-player-card__stat-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.md-organic .md-player-card__stat {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0 0.25rem;
+}
+.md-organic .md-player-card__stat-label {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-md-display), 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+.md-organic .md-player-card__stat-value {
+  display: block;
+  font-family: var(--font-md-display), 'Barlow Condensed', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #ffffff;
+}
+.md-organic .md-player-card__stat-season {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.68rem;
+  line-height: 1.1;
+  color: rgba(255, 255, 255, 0.6);
+}
+.md-organic .md-player-card__stat-season strong {
+  display: block;
+  font-family: var(--font-md-display), 'Barlow Condensed', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fdc52c;
+}
+.md-organic .md-player-card:hover .md-player-card__info,
+.md-organic .md-player-card:focus-visible .md-player-card__info {
+  transform: translateY(-7.5rem);
+}
+.md-organic .md-player-card:hover .md-player-card__stats,
+.md-organic .md-player-card:focus-visible .md-player-card__stats {
+  transform: translateY(0);
+}
+.md-organic .md-player-card:hover .md-player-card__number,
+.md-organic .md-player-card:focus-visible .md-player-card__number {
+  bottom: 0.25rem;
+}
+.md-organic .md-player-card--plain:hover .md-player-card__info,
+.md-organic .md-player-card--plain:focus-visible .md-player-card__info {
+  transform: translateY(0);
+}
+.md-organic .md-player-card:focus-visible {
+  outline: 2px solid #329bff;
+  outline-offset: 3px;
+}
+.md-organic .md-event-news-wrap {
+  margin-top: 1.5rem;
+}
+.md-organic .md-event-news-nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+.md-organic .md-event-news-nav button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  border: 1px solid #104a91;
+  background: #ffffff;
+  color: #104a91;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.md-organic .md-event-news-nav button:hover {
+  background: #104a91;
+  color: #ffffff;
+}
+.md-organic .md-event-news-nav svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+.md-organic .md-event-news {
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+  padding: 0 0 1rem;
+  list-style: none;
+  overflow-x: auto;
+  scroll-behavior: auto;
+  scrollbar-width: none;
+}
+.md-organic .md-event-news::-webkit-scrollbar {
+  display: none;
+}
+.md-organic .md-event-news > li {
+  flex: 0 0 82%;
+  min-width: 0;
+}
+@media (min-width: 640px) {
+  .md-organic .md-event-news > li {
+    flex-basis: calc((100% - 1rem) / 2);
+  }
+}
+@media (min-width: 1024px) {
+  .md-organic .md-event-news > li {
+    flex-basis: calc((100% - 3rem) / 4);
+  }
+}
+.md-organic .md-players-track {
+  scroll-behavior: auto;
+}
+.md-organic .md-event-news-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #ffffff;
+  color: #10233f;
+  overflow: hidden;
+  transition: transform 1s ease, box-shadow 1s ease;
+}
+.md-organic .md-event-news-card__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #071b38;
+}
+.md-organic .md-event-news-card__media img {
+  transition: transform 1s ease;
+}
+.md-organic .md-event-news-card__copy {
+  display: block;
+  height: 4.6rem;
+  overflow: hidden;
+  padding: 0.85rem 0.15rem 0;
+  background: #ffffff;
+}
+.md-organic .md-event-news-card__shift {
+  display: block;
+  transform: translateY(0);
+  transition: transform 1s ease;
+}
+.md-organic .md-event-news-card h3.md-event-news-card__title {
+  margin: 0;
+  font-family: var(--font-md-body), Inter, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #10233f;
+}
+.md-organic .md-event-news-card__details {
+  margin: 0.45rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: #60738c;
+}
+.md-organic .md-event-news-card:hover,
+.md-organic .md-event-news-card:focus-visible {
+  transform: translateY(-12px);
+  box-shadow: 0 16px 32px rgba(16, 35, 63, 0.12);
+}
+.md-organic .md-event-news-card:hover .md-event-news-card__media img,
+.md-organic .md-event-news-card:focus-visible .md-event-news-card__media img {
+  transform: scale(1.04);
+}
+.md-organic .md-event-news-card:hover .md-event-news-card__shift,
+.md-organic .md-event-news-card:focus-visible .md-event-news-card__shift {
+  transform: translateY(-2.8rem);
 }

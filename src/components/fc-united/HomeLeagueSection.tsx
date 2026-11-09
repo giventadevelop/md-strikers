@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { PublicLeagueBundle } from './ApiServerActions';
 import { LeagueStandingsTable } from './LeagueStandingsTable';
 import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchFocus, pitchSection } from './pitchUi';
+import { SportBackgroundIcons } from './SportBackgroundIcons';
 import { cn } from '@/lib/utils';
 
 const GROUPS = [
@@ -52,7 +53,8 @@ export function HomeLeagueSection({ leagues }: { leagues: PublicLeagueBundle[] }
   })).filter((group) => group.entries.length > 0);
 
   return (
-    <section className={cn(pitchSection, 'bg-pitch-forest')} aria-labelledby="home-league-heading">
+    <section className={cn(pitchSection, 'md-band-olive bg-pitch-forest')} aria-labelledby="home-league-heading">
+      <SportBackgroundIcons />
       <PitchShell>
         <PitchHeading
           id="home-league-heading"

@@ -11,7 +11,7 @@ function Crest({ logo, name }: { logo: string; name: string }) {
         <Image src={logo} alt={name ? `${name} crest` : ''} fill className="object-contain" sizes="112px" />
       </div>
       {name && (
-        <p className="text-sm font-bold leading-snug text-pitch-chalk sm:text-base md:text-lg">{name}</p>
+        <p className="text-sm font-bold leading-snug text-pitch-charcoal sm:text-base md:text-lg">{name}</p>
       )}
     </div>
   );
@@ -30,9 +30,9 @@ export function NextMatchPanel({ matches }: { matches: LastMatchCard[] }) {
   return (
     <section aria-labelledby="next-match-heading" className="relative z-10 -mt-20 md:-mt-28">
       <PitchShell wide>
-        <div className="rounded-3xl border border-pitch-chalk/10 bg-pitch-forest/95 px-6 py-8 shadow-pitch backdrop-blur sm:px-10 md:px-16 md:py-12">
-          <div className="flex flex-col gap-4 border-b border-pitch-chalk/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
-            <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.24em] text-pitch-lime">
+        <div className="md-live-card md-live-card--soft rounded-3xl border border-pitch-charcoal/10 bg-pitch-card/70 px-6 py-8 shadow-pitch backdrop-blur sm:px-10 md:px-16 md:py-12">
+          <div className="flex flex-col gap-4 border-b border-pitch-charcoal/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.24em] text-pitch-olive">
               <span className="relative flex h-2 w-2" aria-hidden>
                 {isUpcoming && (
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-pitch-lime opacity-60 [animation-duration:2s] motion-reduce:animate-none" />
@@ -41,32 +41,32 @@ export function NextMatchPanel({ matches }: { matches: LastMatchCard[] }) {
               </span>
               <span id="next-match-heading">{isUpcoming ? 'Next fixture' : 'Latest result · Full time'}</span>
             </p>
-            {match.league && <p className="text-sm font-medium text-pitch-stone">{match.league}</p>}
+            {match.league && <p className="text-sm font-medium text-pitch-charcoal/70">{match.league}</p>}
           </div>
 
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 py-8 sm:gap-8 md:py-10">
             <Crest logo={match.home} name={match.homeName} />
             {isUpcoming ? (
               <div className="text-center">
-                <p className="text-2xl font-extrabold tracking-[-0.02em] text-pitch-chalk/40 sm:text-4xl">VS</p>
+                <p className="text-2xl font-extrabold tracking-[-0.02em] text-pitch-charcoal/40 sm:text-4xl">VS</p>
               </div>
             ) : (
               <p
-                className="text-center text-4xl font-extrabold tabular-nums tracking-[-0.02em] text-pitch-chalk sm:text-6xl"
+                className="text-center text-4xl font-extrabold tabular-nums tracking-[-0.02em] text-pitch-charcoal sm:text-6xl"
                 aria-label={`Final score ${match.score[0]} to ${match.score[1]}`}
               >
                 {match.score[0]}
-                <span className="mx-2 text-pitch-chalk/30 sm:mx-4">–</span>
+                <span className="mx-2 text-pitch-charcoal/30 sm:mx-4">–</span>
                 {match.score[1]}
               </p>
             )}
             <Crest logo={match.away} name={match.awayName} />
           </div>
 
-          <div className="flex flex-col items-center justify-between gap-4 border-t border-pitch-chalk/10 pt-6 text-center sm:flex-row sm:text-left">
-            <p className="text-sm text-pitch-stone">
-              <span className="font-semibold text-pitch-chalk">{isUpcoming ? 'Kick-off' : 'Played'}</span>
-              <span className="mx-2 text-pitch-chalk/20" aria-hidden>
+          <div className="flex flex-col items-center justify-between gap-4 border-t border-pitch-charcoal/10 pt-6 text-center sm:flex-row sm:text-left">
+            <p className="text-sm text-pitch-charcoal/70">
+              <span className="font-semibold text-pitch-charcoal">{isUpcoming ? 'Kick-off' : 'Played'}</span>
+              <span className="mx-2 text-pitch-charcoal/20" aria-hidden>
                 /
               </span>
               {match.date}
@@ -74,7 +74,7 @@ export function NextMatchPanel({ matches }: { matches: LastMatchCard[] }) {
             <Link
               href="/matches"
               className={cn(
-                'group inline-flex items-center gap-2 rounded-sm text-sm font-semibold text-pitch-chalk transition-colors duration-300 hover:text-pitch-lime',
+                'group inline-flex items-center gap-2 rounded-sm text-sm font-semibold text-pitch-charcoal transition-colors duration-300 hover:text-pitch-olive',
                 pitchFocus,
               )}
             >

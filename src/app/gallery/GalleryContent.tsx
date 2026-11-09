@@ -192,11 +192,11 @@ export function GalleryContent() {
           <div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
-                <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
-                  <div className="h-48 bg-gray-200"></div>
+                <div key={i} className="bg-pitch-card rounded-lg shadow-md overflow-hidden animate-pulse">
+                  <div className="h-48 bg-pitch-card"></div>
                   <div className="p-4">
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                    <div className="h-4 bg-pitch-card rounded mb-2"></div>
+                    <div className="h-3 bg-pitch-card rounded w-2/3"></div>
                   </div>
                 </div>
               ))}
@@ -292,11 +292,11 @@ export function GalleryContent() {
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
-                  <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
-                    <div className="h-48 bg-gray-200"></div>
+                  <div key={i} className="bg-pitch-card rounded-lg shadow-md overflow-hidden animate-pulse">
+                    <div className="h-48 bg-pitch-card"></div>
                     <div className="p-4">
-                      <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                      <div className="h-4 bg-pitch-card rounded mb-2"></div>
+                      <div className="h-3 bg-pitch-card rounded w-2/3"></div>
                     </div>
                   </div>
                 ))}
@@ -404,11 +404,11 @@ export function GalleryContent() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
-                <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
-                  <div className="h-48 bg-gray-200"></div>
+                <div key={i} className="bg-pitch-card rounded-lg shadow-md overflow-hidden animate-pulse">
+                  <div className="h-48 bg-pitch-card"></div>
                   <div className="p-4">
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                    <div className="h-4 bg-pitch-card rounded mb-2"></div>
+                    <div className="h-3 bg-pitch-card rounded w-2/3"></div>
                   </div>
                 </div>
               ))}

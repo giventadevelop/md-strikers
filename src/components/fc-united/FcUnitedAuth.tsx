@@ -163,7 +163,7 @@ function AvatarButton({
         )}
       </button>
       {isOpen && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-64 rounded-xl border border-[#e3e3e3] bg-white py-2 text-[#262f3e] shadow-xl">
+        <div className="absolute right-0 top-full z-50 mt-2 w-64 rounded-xl border border-[#e3e3e3] bg-pitch-card py-2 text-[#262f3e] shadow-xl">
           <div className="border-b border-[#e3e3e3] px-4 py-3">
             <p className="truncate text-sm font-semibold">{name}</p>
             {email ? <p className="mt-0.5 truncate text-xs text-[#797e87]">{email}</p> : null}
@@ -172,7 +172,7 @@ function AvatarButton({
             href="/profile"
             onClick={() => setIsOpen(false)}
             className={cn(
-              'block px-4 py-2.5 text-sm font-semibold hover:bg-[#f4f4f4]',
+              'block px-4 py-2.5 text-sm font-semibold hover:bg-pitch-chalk',
               pathname === '/profile' && 'text-pitch-olive'
             )}
           >

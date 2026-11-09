@@ -34,8 +34,8 @@ export function PitchShell({
   );
 }
 
-/** Vertical padding shared by every homepage section. */
-export const pitchSection = 'py-20 md:py-28';
+/** Vertical padding shared by every homepage section, plus the live sports-icon background. */
+export const pitchSection = 'md-sport-bg py-20 md:py-28';
 
 export const pitchFocus =
   'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-lime';
@@ -92,7 +92,7 @@ export function PitchHeading({
 }) {
   const dark = tone === 'dark';
   return (
-    <div className={cn('mb-12 flex flex-col gap-6 md:mb-16 md:flex-row md:items-end md:justify-between', className)}>
+    <div className={cn('md-reveal mb-12 flex flex-col gap-6 md:mb-16 md:flex-row md:items-end md:justify-between', className)}>
       <div className="max-w-2xl">
         <p
           className={cn(

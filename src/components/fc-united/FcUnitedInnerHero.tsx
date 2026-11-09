@@ -24,7 +24,7 @@ export function FcUnitedInnerHero({
     <section className={cn(fcBrand.className, 'md-sport-bg relative isolate overflow-hidden bg-pitch-charcoal')} aria-label={title}>
       <Image src={INNER_HERO_IMAGE} alt="" fill priority className="-z-20 object-cover object-[center_40%]" sizes="100vw" />
       <div
-        className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(23,23,23,0.95)_0%,rgba(36,36,36,0.86)_55%,rgba(36,36,36,0.55)_100%)]"
+        className="md-inner-hero-wash absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(192,40,28,0.94)_0%,rgba(185,68,26,0.82)_55%,rgba(244,123,32,0.45)_100%)]"
         aria-hidden
       />
       <PitchShell className="py-20 md:py-28">

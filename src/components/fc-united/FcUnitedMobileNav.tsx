@@ -9,7 +9,7 @@ import { FC_UNITED_NAV_LINKS, isFcNavItemActive, isFcNavLinkActive, type FcNavIt
 
 const navHoverActive =
   'cursor-pointer text-base font-semibold text-pitch-stone transition-colors duration-200 hover:bg-pitch-chalk/5 hover:text-pitch-chalk focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime';
-const navActive = 'bg-pitch-chalk/5 text-brand-orange shadow-[inset_3px_0_0_var(--color-primary)]';
+const navActive = 'bg-pitch-chalk/10 text-brand-gold-bright shadow-[inset_3px_0_0_var(--color-accent-bright)]';
 
 export function FcUnitedMobileNav({ active, links = FC_UNITED_NAV_LINKS }: { active?: FcNavKey; links?: FcNavItem[] }) {
   const [open, setOpen] = useState(false);

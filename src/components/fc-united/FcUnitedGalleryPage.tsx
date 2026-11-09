@@ -17,7 +17,7 @@ export default function FcUnitedGalleryPage() {
         title="Gallery"
         subtitle="Albums and event photos from Maryland Strikers."
       />
-      <main className="bg-pitch-chalk py-20 md:py-28">
+      <main className="md-sport-bg bg-pitch-chalk py-20 md:py-28">
         <div className={pitchPageInset}>
           <Suspense fallback={<p className="text-sm text-pitch-charcoal/70">Loading gallery…</p>}>
             <GalleryContent />

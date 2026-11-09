@@ -28,14 +28,15 @@ module.exports = {
           charcoal: "rgb(var(--md-rgb-dark) / <alpha-value>)",
           olive: "rgb(var(--md-rgb-primary-deep) / <alpha-value>)",
           chalk: "rgb(var(--md-rgb-light) / <alpha-value>)",
-          stone: "rgb(var(--md-rgb-muted) / <alpha-value>)",
-          lime: "rgb(var(--md-rgb-accent) / <alpha-value>)",
+          stone: "rgb(var(--md-rgb-on-strong-muted) / <alpha-value>)",
+          lime: "rgb(var(--md-rgb-accent-bright) / <alpha-value>)",
         },
         brand: {
           red: "rgb(var(--md-rgb-primary) / <alpha-value>)",
           "red-deep": "rgb(var(--md-rgb-primary-deep) / <alpha-value>)",
           orange: "rgb(var(--md-rgb-secondary) / <alpha-value>)",
           gold: "rgb(var(--md-rgb-accent) / <alpha-value>)",
+          "gold-bright": "rgb(var(--md-rgb-accent-bright) / <alpha-value>)",
           dark: "rgb(var(--md-rgb-dark) / <alpha-value>)",
           "dark-2": "rgb(var(--md-rgb-dark-secondary) / <alpha-value>)",
           light: "rgb(var(--md-rgb-light) / <alpha-value>)",
@@ -74,6 +75,37 @@ module.exports = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+      },
+      /*
+       * Surfaces: the site has no black or white backgrounds. bg-pitch-* resolves to colourful
+       * crest-based surfaces while text-pitch-* keeps readable text colours (see colors.pitch).
+       */
+      backgroundColor: {
+        pitch: {
+          charcoal: "rgb(var(--md-rgb-surface-strong) / <alpha-value>)",
+          forest: "rgb(var(--md-rgb-surface-warm) / <alpha-value>)",
+          chalk: "rgb(var(--md-rgb-surface-light) / <alpha-value>)",
+          card: "rgb(var(--md-rgb-surface-card) / <alpha-value>)",
+          olive: "rgb(var(--md-rgb-primary-deep) / <alpha-value>)",
+          lime: "rgb(var(--md-rgb-accent-bright) / <alpha-value>)",
+          stone: "rgb(var(--md-rgb-on-strong-muted) / <alpha-value>)",
+        },
+      },
+      gradientColorStops: {
+        pitch: {
+          charcoal: "rgb(var(--md-rgb-surface-strong) / <alpha-value>)",
+          forest: "rgb(var(--md-rgb-surface-warm) / <alpha-value>)",
+          chalk: "rgb(var(--md-rgb-surface-light) / <alpha-value>)",
+          card: "rgb(var(--md-rgb-surface-card) / <alpha-value>)",
+          olive: "rgb(var(--md-rgb-secondary) / <alpha-value>)",
+          lime: "rgb(var(--md-rgb-accent-bright) / <alpha-value>)",
+        },
+      },
+      ringOffsetColor: {
+        pitch: {
+          charcoal: "rgb(var(--md-rgb-surface-strong) / <alpha-value>)",
+          chalk: "rgb(var(--md-rgb-surface-light) / <alpha-value>)",
         },
       },
       boxShadow: {

@@ -67,7 +67,7 @@ const pillCta =
   'inline-flex items-center justify-center gap-2 rounded-lg md-btn-primary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive hover:-translate-y-0.5 motion-reduce:hover:translate-y-0';
 
 const secondaryCta =
-  'inline-flex items-center justify-center gap-2 rounded-lg border border-brand-orange/55 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-orange hover:bg-brand-orange/[0.06] hover:text-pitch-olive motion-reduce:hover:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
+  'inline-flex items-center justify-center gap-2 rounded-lg md-btn-gold px-6 py-2.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
 
 export function FcUnitedTournamentsCatalogClient() {
   const [tournaments, setTournaments] = useState<PublicTournament[]>([]);
@@ -153,7 +153,7 @@ export function FcUnitedTournamentsCatalogClient() {
   };
 
   return (
-    <section className="bg-pitch-chalk pb-16 pt-2 md:pb-20 md:pt-4">
+    <section className="md-sport-bg bg-pitch-chalk pb-16 pt-2 md:pb-20 md:pt-4">
       <Shell>
         <div className="mb-8 text-center md:mb-10 md:text-left">
           <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">
@@ -193,7 +193,7 @@ export function FcUnitedTournamentsCatalogClient() {
           >
             <span
               className={cn(
-                'inline-flex h-16 w-16 translate-x-2 items-center justify-center rounded-full bg-white shadow-sm transition-transform duration-300',
+                'inline-flex h-16 w-16 translate-x-2 items-center justify-center rounded-full bg-pitch-card shadow-sm transition-transform duration-300',
                 showPast && 'translate-x-14',
               )}
             >
@@ -218,7 +218,7 @@ export function FcUnitedTournamentsCatalogClient() {
           </span>
         </div>
 
-        <div className="mb-8 rounded-xl border border-pitch-charcoal/10 bg-white p-5 md:p-6">
+        <div className="mb-8 rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-5 md:p-6">
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">
             Search tournaments
           </p>
@@ -236,7 +236,7 @@ export function FcUnitedTournamentsCatalogClient() {
                   if (e.key === 'Enter') handleSearch();
                 }}
                 placeholder="Search by title…"
-                className="w-full rounded-xl border border-pitch-charcoal/10 bg-white px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
+                className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
               />
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
@@ -254,12 +254,12 @@ export function FcUnitedTournamentsCatalogClient() {
         </div>
 
         {!loading && !fetchError && tournaments.length === 0 && (
-          <p className="mb-6 rounded-xl border border-pitch-charcoal/10 bg-white px-5 py-8 text-center text-sm text-pitch-charcoal/70">
+          <p className="mb-6 rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-5 py-8 text-center text-sm text-pitch-charcoal/70">
             No tournaments listed yet. Check back soon.
           </p>
         )}
         {!loading && !fetchError && showPast && futureCount === 0 && pastCount > 0 && (
-          <p className="mb-6 rounded-xl border border-pitch-charcoal/10 bg-white px-5 py-4 text-sm text-pitch-charcoal/70">
+          <p className="mb-6 rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-5 py-4 text-sm text-pitch-charcoal/70">
             Showing recent tournaments. New upcoming tournaments will appear here when published.
           </p>
         )}
@@ -269,11 +269,11 @@ export function FcUnitedTournamentsCatalogClient() {
             <div className="h-10 w-10 animate-spin rounded-full border-2 border-pitch-charcoal/10 border-t-pitch-olive" aria-label="Loading" />
           </div>
         ) : fetchError ? (
-          <p className="rounded-xl border border-pitch-olive/30 bg-white px-5 py-8 text-center text-sm font-medium text-pitch-olive">
+          <p className="rounded-xl border border-pitch-olive/30 bg-pitch-card px-5 py-8 text-center text-sm font-medium text-pitch-olive">
             Could not load tournaments. Please try again later.
           </p>
         ) : pageRows.length === 0 ? (
-          <p className="rounded-xl border border-pitch-charcoal/10 bg-white px-5 py-8 text-center text-sm text-pitch-charcoal/70">
+          <p className="rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-5 py-8 text-center text-sm text-pitch-charcoal/70">
             No tournaments found.
           </p>
         ) : (
@@ -287,7 +287,7 @@ export function FcUnitedTournamentsCatalogClient() {
               return (
                 <article
                   key={tournament.id ?? tournament.slug}
-                  className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-white transition-colors duration-300 ease-in-out hover:border-pitch-charcoal/25"
+                  className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card transition-colors duration-300 ease-in-out hover:border-pitch-charcoal/25"
                 >
                   {/* Container takes the image's own aspect ratio: full width, no side gaps, no cropping */}
                   <div className="relative w-full border-b border-pitch-charcoal/10 bg-pitch-chalk">

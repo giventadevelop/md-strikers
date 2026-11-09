@@ -15,7 +15,7 @@ import { MdPagination } from './MdPagination';
 const MAIN_NEWS_PAGE_SIZE = 20;
 
 const secondaryCta =
-  'inline-flex items-center justify-center gap-2 rounded-lg border border-brand-orange/55 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-orange hover:bg-brand-orange/[0.06] hover:text-pitch-olive motion-reduce:hover:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
+  'inline-flex items-center justify-center gap-2 rounded-lg md-btn-gold px-6 py-2.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
 
 const sectionLinks = [
   { id: 'main-news', label: 'Main News' },
@@ -33,7 +33,7 @@ function formatNewsDate(value: string | null): string {
 
 export function NewsCard({ article }: { article: ClubNewsArticle }) {
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-white transition-colors duration-300 hover:border-pitch-charcoal/25">
+    <article className="flex h-full flex-col overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card transition-colors duration-300 hover:border-pitch-charcoal/25">
       <Link href={newsHref(article)} className="flex h-full flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive">
         {article.coverUrl ? (
           <div className="relative w-full bg-pitch-charcoal/[0.06]">
@@ -90,7 +90,7 @@ function AdSlots({ slots, emptyLabel }: { slots: ClubAdSlot[]; emptyLabel?: stri
   if (slots.length === 0) {
     if (!emptyLabel) return null;
     return (
-      <div className="rounded-xl border border-pitch-charcoal/10 bg-white p-6">
+      <div className="rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-6">
         <h3 className={cn('font-extrabold tracking-[-0.02em] text-xl text-pitch-charcoal')}>Advertisement</h3>
         <p className="mt-2 text-sm text-pitch-charcoal/70">{emptyLabel}</p>
       </div>
@@ -99,7 +99,7 @@ function AdSlots({ slots, emptyLabel }: { slots: ClubAdSlot[]; emptyLabel?: stri
   return (
     <div className="space-y-4">
       {slots.map((slot) => (
-        <div key={`${slot.position}-${slot.id}`} className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-white p-4">
+        <div key={`${slot.position}-${slot.id}`} className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-4">
           <AdCreative slot={slot} />
         </div>
       ))}
@@ -117,7 +117,7 @@ function ArticleSection({
   articles: ClubNewsArticle[];
 }) {
   return (
-    <section id={id} className="scroll-mt-24 overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-white">
+    <section id={id} className="scroll-mt-24 overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card">
       <h2 className={cn('font-extrabold tracking-[-0.02em] border-b border-l-[7px] border-pitch-charcoal/10 border-l-pitch-olive px-5 py-4 text-2xl text-pitch-charcoal')}>
         {title}
       </h2>
@@ -144,7 +144,7 @@ export default function FcUnitedNewsPage({ data }: { data: ClubNewsPageData }) {
     <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader active="news" />
       <FcUnitedInnerHero title="News" subtitle="Latest news from Maryland Strikers." />
-      <main className="bg-pitch-chalk py-12 md:py-16">
+      <main className="md-sport-bg bg-pitch-chalk py-12 md:py-16">
         <div className={pitchPageInset}>
           <nav className="mb-8 flex flex-wrap gap-2" aria-label="News sections">
             {sectionLinks.map((link) => (

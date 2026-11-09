@@ -25,15 +25,15 @@ export default function FcUnitedNewsArticlePage({ article }: { article: ClubNews
     <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
       <FcUnitedHeader active="news" />
       <FcUnitedInnerHero title="News" subtitle={article.title} />
-      <main className="bg-pitch-chalk py-12 md:py-16">
+      <main className="md-sport-bg bg-pitch-chalk py-12 md:py-16">
         <article className={pitchPageInset}>
           <Link
             href="/news"
-            className="mb-6 inline-flex text-sm font-semibold text-pitch-olive hover:bg-pitch-olive"
+            className="md-btn-gold mb-6 inline-flex rounded-lg px-5 py-2 text-sm"
           >
             All news
           </Link>
-          <div className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-white">
+          <div className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card">
             {article.coverUrl && (
               <div className="relative w-full bg-pitch-charcoal/[0.06]">
                 <Image

@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { fcBrand } from './fcUnitedFonts';
+import { SportBackgroundIcons } from './SportBackgroundIcons';
 
 const focusRing =
   'focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-2 focus-visible:ring-offset-pitch-charcoal';
@@ -75,17 +76,18 @@ function FooterHeading({ children }: { children: ReactNode }) {
 
 export function FcUnitedFooter() {
   return (
-    <footer className={cn(fcBrand.className, 'md-sport-bg border-t-2 border-t-brand-orange bg-pitch-charcoal text-pitch-stone')}>
+    <footer className={cn(fcBrand.className, 'md-sport-bg border-t-2 border-t-brand-gold bg-pitch-charcoal text-pitch-stone')}>
+      <SportBackgroundIcons />
       <Shell className="pb-16 pt-20 md:pb-20 md:pt-24">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1.3fr_0.9fr] lg:gap-16">
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-center text-center">
             <Link href="/" className={cn('mb-6 inline-block', focusRing)} aria-label="MD Strikers Home">
               <Image
                 src="/images/md_strikers_media/md_media/md_strikers_logo-withoutBackground.png"
                 alt="MD Strikers"
                 width={1003}
                 height={858}
-                className="h-20 w-auto md:h-24"
+                className="h-28 w-auto md:h-32"
               />
             </Link>
             <p className="mb-6 max-w-xs text-sm leading-relaxed">

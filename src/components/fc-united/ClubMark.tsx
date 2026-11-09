@@ -18,13 +18,13 @@ export function ClubMark({
   const box = SIZES[size];
   if (logoUrl) {
     return (
-      <span className={cn('flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-white p-0.5', box)}>
+      <span className={cn('flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-pitch-card p-0.5', box)}>
         <img src={logoUrl} alt="" className="h-full w-full object-contain" />
       </span>
     );
   }
   return (
-    <span className={cn('flex shrink-0 items-center justify-center rounded-full bg-white font-bold text-pitch-charcoal', box)}>
+    <span className={cn('flex shrink-0 items-center justify-center rounded-full bg-pitch-card font-bold text-pitch-charcoal', box)}>
       {name.trim().slice(0, 1).toUpperCase() || '?'}
     </span>
   );

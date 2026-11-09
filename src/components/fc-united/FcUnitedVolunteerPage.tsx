@@ -18,7 +18,7 @@ export default function FcUnitedVolunteerPage() {
       <FcUnitedHeader />
       <FcUnitedInnerHero title="Volunteer With MD Strikers" />
 
-      <section className="bg-white py-20 md:py-28">
+      <section className="md-sport-bg bg-pitch-chalk py-20 md:py-28">
         <Shell>
           <div className="mx-auto max-w-4xl rounded-xl border border-pitch-charcoal/10 bg-pitch-chalk p-6 md:p-10">
             <h2 className={cn('font-extrabold tracking-[-0.02em] text-2xl text-pitch-charcoal md:text-3xl')}>

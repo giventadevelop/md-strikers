@@ -18,23 +18,26 @@ import {
   fetchTeamMembersImageTitleServer,
 } from './ApiServerActions';
 import { HOMEPAGE_SPONSOR_LIMIT } from './homepageLimits';
-import { fcBebas, fcBrand, fcPoppins, fcRoboto } from './fcUnitedFonts';
+import { fcBebas, fcBrand, fcOrganic, fcPoppins, fcRoboto } from './fcUnitedFonts';
 import { FcSquadCarousel, type FcSquadPlayer } from './FcSquadCarousel';
 import { TeamMembersDbSection } from './TeamMembersDbSection';
 import { ExecutiveTeamSection } from './ExecutiveTeamSection';
 import { HOMEPAGE_MATCHES_LIMIT, LastMatchSection } from './LastMatchSection';
 import { LiveEventsSection, liveItemsDemo } from './LiveEventsSection';
 import { FeaturedEventsSection, featuredBandEvents, featuredEventsShown } from './FeaturedEventsSection';
+import { EventNewsCarousel } from './EventNewsCarousel';
 import { OnSaleBand, pickOnSaleEvent, type BandEvent } from './OnSaleBand';
 import { eventToBandEvent, eventToSpotlightItem } from './homeEventDisplay';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { ViewAllSponsorsButton } from './ViewAllSponsorsButton';
 import { HeroSlider, type HeroSlide } from './HeroSlider';
+import { HomeMotion } from './HomeMotion';
 import { NextMatchPanel } from './NextMatchPanel';
 import { buildStandings } from './homeStandings';
 import { HomeLeagueSection } from './HomeLeagueSection';
 import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchFocus, pitchPageInset, pitchSection } from './pitchUi';
+import { SportBackgroundIcons } from './SportBackgroundIcons';
 
 const STORY_IMAGE = '/images/md_strikers_media/gallery/mdstrikers_com/gal03.jpg';
 
@@ -199,7 +202,11 @@ export default async function FcUnitedHomePage() {
         ),
         ...listEvents,
       ];
-  const hasOnSaleBand = pickOnSaleEvent(bandEvents) !== null;
+  const onSaleEvent = pickOnSaleEvent(bandEvents);
+  const hasOnSaleBand = onSaleEvent !== null;
+  const eventsAfterFirst = hasOnSaleBand
+    ? listEvents.filter((event) => event.key !== onSaleEvent.key)
+    : listEvents.slice(1);
 
   const sponsorCards: SponsorCard[] =
     sponsorsFromDb.length > 0
@@ -249,20 +256,23 @@ export default async function FcUnitedHomePage() {
   const hasMatchPanel = lastMatches.length > 0;
 
   return (
-    <div className={cn(fcBrand.className, 'flex min-h-screen flex-col bg-pitch-charcoal text-pitch-stone antialiased')}>
+    <div className={cn(fcBrand.className, fcOrganic.className, 'md-organic flex min-h-screen flex-col bg-pitch-charcoal text-pitch-stone antialiased')}>
+      <HomeMotion>
       <FcUnitedHeader active="home" />
 
       <main className="flex min-w-0 flex-1 flex-col">
         {/* Hero — club panel (logo, name, CTA) beside an auto-playing slider of upcoming event images */}
         <section
-          className={cn('md-sport-bg bg-pitch-charcoal pt-8 md:pt-12', hasMatchPanel ? 'pb-28 md:pb-36' : 'pb-12 md:pb-16')}
+          className={cn('md-sport-bg md-hero-stage pt-8 md:pt-12', hasMatchPanel ? 'pb-28 md:pb-36' : 'pb-12 md:pb-16')}
           aria-labelledby="home-hero-heading"
         >
+          <div className="md-hero-lights" aria-hidden="true" />
+          <SportBackgroundIcons />
           <PitchShell wide>
             <div className="grid gap-6 md:grid-cols-[300px_minmax(0,1fr)] lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-8">
               {/* Left: logo panel + primary CTA */}
               <div className="flex flex-col gap-4">
-                <div className="flex flex-1 flex-col items-center justify-center rounded-3xl border border-pitch-chalk/10 bg-pitch-forest px-6 py-10 text-center">
+                <div className="md-live-card md-live-card--soft md-hero-logo flex flex-1 flex-col items-center justify-center rounded-3xl px-6 py-10 text-center">
                   <div className="relative aspect-square w-[min(200px,60%)] md:w-[min(220px,80%)]">
                     <Image
                       src="/images/md_strikers_media/md_media/md_strikers_logo-withoutBackground.png"
@@ -289,14 +299,14 @@ export default async function FcUnitedHomePage() {
                   </p>
                 </div>
 
-                <Link href="/events" className={cn(pitchButton.primary, 'group w-full py-4')}>
+                <Link href="/events" className={cn(pitchButton.primary, 'md-hero-cta group w-full py-4')}>
                   Browse all upcoming events
                   <PitchArrow />
                 </Link>
               </div>
 
               {/* Right: upcoming event slider + caption band */}
-              <div className="flex min-h-0 flex-col overflow-hidden rounded-3xl border border-pitch-chalk/10 bg-pitch-forest">
+              <div className="md-hero-slider flex min-h-0 flex-col overflow-hidden rounded-3xl">
                 <div className="relative flex aspect-[4/3] flex-col sm:aspect-[16/10]">
                   <HeroSlider slides={heroSlides} />
                 </div>
@@ -319,14 +329,16 @@ export default async function FcUnitedHomePage() {
         {/* Events from event_details: always show title; upcoming → past fallback → empty message */}
         {(showEventsSection || hasOnSaleBand) && (
           <section className={cn(pitchSection, 'bg-pitch-charcoal')}>
+            <SportBackgroundIcons />
             <PitchShell>
               {showEventsSection && (
                 <PitchHeading
+                  tone="light"
                   eyebrow="Calendar"
                   title={listEvents.length === 0 || listIsUpcoming ? 'Upcoming Events' : 'Past Events'}
                   lead="Match days, tournaments, and club nights on the Maryland Strikers calendar."
                   action={
-                    <Link href="/events" className={cn(pitchButton.ghost, 'group')}>
+                    <Link href="/events" className={cn(pitchButton.ghostOnLight, 'group')}>
                       Full calendar
                       <PitchArrow />
                     </Link>
@@ -342,53 +354,23 @@ export default async function FcUnitedHomePage() {
                     No events listed.
                   </p>
                 ) : (
-                  <ul className="border-t border-pitch-chalk/10">
-                    {listEvents.map((event) => (
-                      <li key={event.key} className="border-b border-pitch-chalk/10">
-                        <Link
-                          href={event.href}
-                          className={cn(
-                            'group grid grid-cols-[96px_1fr] items-center gap-6 py-6 sm:grid-cols-[160px_1fr_auto] md:gap-8 md:py-8',
-                            pitchFocus,
-                          )}
-                        >
-                          <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-pitch-forest">
-                            <Image
-                              src={event.src}
-                              alt=""
-                              fill
-                              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none"
-                              sizes="160px"
-                            />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-pitch-lime/80">
-                              {listIsUpcoming ? 'Upcoming' : 'Past event'}
-                            </p>
-                            <h3 className="mt-2 text-lg font-bold leading-snug text-pitch-chalk transition-colors duration-300 group-hover:text-pitch-lime md:text-2xl">
-                              {event.title}
-                            </h3>
-                            <p className="mt-2 text-sm text-pitch-stone">
-                              {[event.dateTime, event.venue].filter(Boolean).join(' · ')}
-                            </p>
-                          </div>
-                          <span
-                            className="hidden h-12 w-12 items-center justify-center rounded-full border border-pitch-chalk/15 text-pitch-chalk transition-colors duration-300 group-hover:border-pitch-lime group-hover:text-pitch-lime sm:flex"
-                            aria-hidden
-                          >
-                            <PitchArrow />
-                          </span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+                  <EventNewsCarousel
+                    events={eventsAfterFirst.map((event) => ({
+                      key: event.key,
+                      title: event.title,
+                      src: event.src,
+                      details: [event.dateTime, event.venue].filter(Boolean).join(' · '),
+                      href: event.href,
+                    }))}
+                  />
                 ))}
             </PitchShell>
           </section>
         )}
 
         {latestNews.length > 0 && (
-          <section className={cn(pitchSection, 'md-sport-bg md-sport-bg-light bg-pitch-chalk')} aria-labelledby="home-news-heading">
+          <section className={cn(pitchSection, 'md-band-paper md-sport-bg md-sport-bg-light bg-pitch-chalk')} aria-labelledby="home-news-heading">
+            <SportBackgroundIcons />
             <PitchShell>
               <PitchHeading
                 tone="light"
@@ -405,7 +387,7 @@ export default async function FcUnitedHomePage() {
               <div className={cn('grid gap-8 md:grid-cols-2', latestNews.length > 2 && 'lg:grid-cols-3')}>
                 {latestNews.map((article: ClubNewsArticle) => (
                   <article key={article.documentId || article.slug}>
-                    <Link href={newsHref(article)} className={cn('group block rounded-2xl', pitchFocus)}>
+                    <Link href={newsHref(article)} className={cn('md-live-card group block h-full rounded-2xl bg-pitch-card/60 p-3', pitchFocus)}>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-pitch-forest">
                         {article.coverUrl && (
                           <Image
@@ -444,7 +426,8 @@ export default async function FcUnitedHomePage() {
         {showLeagueStandings && homepageLeagues.length > 0 ? (
           <HomeLeagueSection leagues={homepageLeagues} />
         ) : standings.length > 1 && (
-          <section className={cn(pitchSection, 'md-sport-bg bg-pitch-forest')} aria-labelledby="home-standings-heading">
+          <section className={cn(pitchSection, 'md-band-olive md-sport-bg bg-pitch-forest')} aria-labelledby="home-standings-heading">
+            <SportBackgroundIcons />
             <PitchShell>
               <PitchHeading
                 id="home-standings-heading"
@@ -483,7 +466,7 @@ export default async function FcUnitedHomePage() {
                     {standings.map((row, i) => (
                       <tr
                         key={row.team}
-                        className="border-t border-pitch-chalk/10 tabular-nums text-pitch-chalk transition-colors duration-200 hover:bg-pitch-chalk/[0.03]"
+                        className="md-live-row border-t border-pitch-chalk/10 tabular-nums text-pitch-chalk"
                       >
                         <td className={cn('px-4 py-4 font-semibold md:px-6', i === 0 ? 'text-pitch-lime' : 'text-pitch-stone')}>
                           {i + 1}
@@ -578,8 +561,10 @@ export default async function FcUnitedHomePage() {
         {/* Sponsors — one card per row, six on the homepage */}
         {showSponsorsSection && (
           <section className={cn(pitchSection, 'bg-pitch-charcoal')} aria-labelledby="home-sponsors-heading">
+            <SportBackgroundIcons />
             <PitchShell>
               <PitchHeading
+                tone="light"
                 id="home-sponsors-heading"
                 eyebrow="Partners"
                 title="Our Sponsors"
@@ -590,7 +575,7 @@ export default async function FcUnitedHomePage() {
                 {sponsorCards.map((sponsor) => (
                   <article
                     key={sponsor.key}
-                    className="group overflow-hidden rounded-2xl border border-pitch-chalk/10 bg-pitch-forest/40 transition-colors duration-300 hover:border-pitch-chalk/20"
+                    className="md-live-card group overflow-hidden rounded-2xl border border-pitch-chalk/10 bg-pitch-forest/40"
                   >
                     <div className="w-full overflow-hidden">
                       <Image
@@ -633,7 +618,7 @@ export default async function FcUnitedHomePage() {
         )}
 
         {/* Shop — hidden (see layout / section index) */}
-        <section className="hidden bg-white py-14 md:py-20" aria-hidden>
+        <section className="hidden bg-pitch-card py-14 md:py-20" aria-hidden>
           <Shell>
             <div className="mb-10 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
               <div>
@@ -648,10 +633,10 @@ export default async function FcUnitedHomePage() {
                   key={`${p.title}-${i}`}
                   className="rounded-[3px] border border-[#e3e3e3] bg-[#f4f4f4] transition-colors hover:border-[#c8c8c8]"
                 >
-                  <div className="relative aspect-[393/426] w-full bg-white">
+                  <div className="relative aspect-[393/426] w-full bg-pitch-card">
                     <Image src={p.img} alt={p.title} fill className="object-contain p-4" sizes="(max-width:1024px) 50vw, 25vw" />
                   </div>
-                  <div className="border-t border-[#e3e3e3] bg-white p-4">
+                  <div className="border-t border-[#e3e3e3] bg-pitch-card p-4">
                     <span className="inline-block rounded-[3px] bg-[#f4f4f4] px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#262f3e]">
                       {p.tag}
                     </span>
@@ -692,6 +677,7 @@ export default async function FcUnitedHomePage() {
       </main>
 
       <FcUnitedFooter />
+      </HomeMotion>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { fcBrand } from './fcUnitedFonts';
 import { PitchHeading, PitchShell, pitchButton, pitchSection } from './pitchUi';
+import { SportBackgroundIcons } from './SportBackgroundIcons';
 
 export type SpotlightItem = {
   key: string;
@@ -34,7 +35,7 @@ const toneStyles = {
   light: {
     section: 'bg-pitch-chalk',
     muted: 'text-pitch-charcoal/70',
-    card: 'border-pitch-charcoal/10 bg-white/60 hover:border-pitch-charcoal/20',
+    card: 'border-pitch-charcoal/10 bg-pitch-card/70 hover:border-pitch-charcoal/20',
     media: 'bg-pitch-charcoal/[0.04]',
     title: 'text-pitch-charcoal',
     value: 'text-pitch-charcoal',
@@ -61,6 +62,7 @@ export function EventSpotlightSection({ tone, id, eyebrow, heading, lead, badge,
 
   return (
     <section id={id} className={cn(fcBrand.className, pitchSection, t.section)} aria-labelledby={headingId}>
+      <SportBackgroundIcons />
       <PitchShell>
         <PitchHeading tone={tone} id={headingId} eyebrow={eyebrow} title={heading} lead={lead} />
 
@@ -69,7 +71,7 @@ export function EventSpotlightSection({ tone, id, eyebrow, heading, lead, badge,
             <article
               key={item.key}
               className={cn(
-                'grid overflow-hidden rounded-3xl border transition-colors duration-300 ease-in-out lg:grid-cols-[1.15fr_1fr]',
+                'md-live-card md-live-card--soft grid overflow-hidden rounded-3xl border lg:grid-cols-[1.15fr_1fr]',
                 t.card,
               )}
             >

@@ -51,7 +51,7 @@ export function GalleryAlbumCard({ albumWithMedia, cardIndex = -1 }: GalleryAlbu
 
   // One neutral card surface (pitch design system)
   const getCardBackground = (albumId: number) => {
-    const colors = ['bg-white'];
+    const colors = ['bg-pitch-card'];
     return colors[albumId % colors.length];
   };
 
@@ -100,7 +100,7 @@ export function GalleryAlbumCard({ albumWithMedia, cardIndex = -1 }: GalleryAlbu
 
           {/* Media count badge */}
           {totalMediaCount > 0 && (
-            <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded-full text-xs font-medium">
+            <div className="absolute top-2 right-2 bg-pitch-charcoal/85 text-white px-2 py-1 rounded-full text-xs font-medium">
               {totalMediaCount} {totalMediaCount === 1 ? 'item' : 'items'}
             </div>
           )}

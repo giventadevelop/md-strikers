@@ -22,7 +22,7 @@ const pillCta =
   'inline-flex items-center justify-center gap-2 rounded-lg md-btn-primary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-50 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0';
 
 const secondaryCta =
-  'inline-flex items-center justify-center gap-2 rounded-lg border border-brand-orange/55 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-orange hover:bg-brand-orange/[0.06] hover:text-pitch-olive motion-reduce:hover:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-40';
+  'inline-flex items-center justify-center gap-2 rounded-lg md-btn-gold px-6 py-2.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-40';
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
   return <div className={cn(pitchPageInset, className)}>{children}</div>;
@@ -126,9 +126,9 @@ export default function FcUnitedTeamPage({
       <FcUnitedHeader active="team" />
       <FcUnitedInnerHero title={title} />
 
-      <section className="bg-pitch-chalk pb-16 pt-8 md:pb-20">
+      <section className="md-sport-bg bg-pitch-chalk pb-16 pt-8 md:pb-20">
         <Shell>
-          <div className="mb-8 rounded-xl border border-pitch-charcoal/10 bg-white p-5 md:p-6">
+          <div className="mb-8 rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-5 md:p-6">
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">Search players</p>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_16rem_auto] md:items-end">
               <div>
@@ -147,7 +147,7 @@ export default function FcUnitedTeamPage({
                     }
                   }}
                   placeholder="Search by player name…"
-                  className="w-full rounded-xl border border-pitch-charcoal/10 bg-white px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
+                  className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
                 />
               </div>
               <div>
@@ -158,7 +158,7 @@ export default function FcUnitedTeamPage({
                   id="md-team-squad"
                   value={squadId}
                   onChange={(e) => chooseSquad(e.target.value)}
-                  className="w-full rounded-xl border border-pitch-charcoal/10 bg-white px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
+                  className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
                 >
                   <option value="">All teams</option>
                   {squads.map((squad) => (
@@ -183,7 +183,7 @@ export default function FcUnitedTeamPage({
           </div>
 
           {pageItems.length === 0 ? (
-            <div className="rounded-xl border border-pitch-charcoal/10 bg-white p-10 text-center text-pitch-charcoal/70 shadow-sm">
+            <div className="rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-10 text-center text-pitch-charcoal/70 shadow-sm">
               <p className={cn('font-extrabold tracking-[-0.02em] text-xl text-pitch-charcoal')}>
                 {appliedName || squadId ? 'No players found' : 'No squad players yet'}
               </p>
@@ -199,7 +199,7 @@ export default function FcUnitedTeamPage({
                 <Link
                   key={player.id}
                   href={`/team/${player.id}`}
-                  className="group flex flex-col overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-white text-left shadow-sm transition-shadow duration-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-2"
+                  className="group flex flex-col overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card text-left shadow-sm transition-shadow duration-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-2"
                 >
                   {/* Same 4:5 frame for every card; photos fill it from the top (portraits are 0.67–0.79 wide, so trimming is minimal) */}
                   <div className="relative aspect-[4/5] w-full overflow-hidden bg-pitch-charcoal">
@@ -245,7 +245,7 @@ export default function FcUnitedTeamPage({
         </Shell>
       </section>
 
-      <section className="border-t border-pitch-charcoal/10 bg-pitch-chalk py-10">
+      <section className="md-sport-bg border-t border-pitch-charcoal/10 bg-pitch-chalk py-10">
         <Shell>
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 lg:justify-between">
             {fcSponsors.map((src) => (

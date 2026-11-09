@@ -52,7 +52,7 @@ export function GalleryEventCard({ eventWithMedia, cardIndex = -1 }: GalleryEven
 
   // Generate a colorful background based on event ID for consistency
   const getCardBackground = (eventId: number) => {
-    const colors = ['bg-white'];
+    const colors = ['bg-pitch-card'];
     return colors[eventId % colors.length];
   };
 
@@ -103,7 +103,7 @@ export function GalleryEventCard({ eventWithMedia, cardIndex = -1 }: GalleryEven
 
           {/* Media count badge */}
           {totalMediaCount > 0 && (
-            <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded-full text-xs font-medium">
+            <div className="absolute top-2 right-2 bg-pitch-charcoal/85 text-white px-2 py-1 rounded-full text-xs font-medium">
               {totalMediaCount} {totalMediaCount === 1 ? 'item' : 'items'}
             </div>
           )}
@@ -200,7 +200,7 @@ export function GalleryEventCard({ eventWithMedia, cardIndex = -1 }: GalleryEven
             {/* Event Details Button - Standard admin action button pattern */}
             <Link
               href={`/events/${event.id}`}
-              className="flex-1 flex-shrink-0 h-14 rounded-xl bg-pitch-olive/15 hover:bg-pitch-olive/25 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105"
+              className="md-btn-gold flex-1 flex-shrink-0 h-14 rounded-xl flex items-center justify-center gap-3"
               title="Event Details"
               aria-label="Event Details"
             >

@@ -41,7 +41,7 @@ export function LiveEventsSection({ items }: { items: SpotlightItem[] }) {
   if (items.length === 0) return null;
   return (
     <EventSpotlightSection
-      tone="dark"
+      tone="light"
       id="live-now"
       eyebrow="Happening now"
       heading="Live Events & Matches"

@@ -117,7 +117,7 @@ export function EventMediaSlideshow({ event, media, onClose, initialIndex = 0 }:
   console.log('Rendering slideshow modal for media:', currentMedia);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center pt-16 pb-8">
+    <div className="fixed inset-0 z-50 bg-pitch-charcoal/95 flex items-center justify-center pt-16 pb-8">
       {/* Close button */}
       <button
         onClick={onClose}
@@ -168,7 +168,7 @@ export function EventMediaSlideshow({ event, media, onClose, initialIndex = 0 }:
         </div>
 
         {/* Media info */}
-        <div className="max-w-4xl w-full bg-black bg-opacity-50 rounded-lg p-4 text-white">
+        <div className="max-w-4xl w-full bg-pitch-charcoal/70 rounded-lg p-4 text-white">
           <div className="flex items-start justify-between mb-2">
             <h3 className="text-xl font-semibold">{currentMedia.title}</h3>
             <button
@@ -274,7 +274,7 @@ export function EventMediaSlideshow({ event, media, onClose, initialIndex = 0 }:
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-xs">
+                    <div className="w-full h-full bg-pitch-forest flex items-center justify-center text-white text-xs">
                       {mediaItem.eventMediaType.startsWith('video/') ? '🎥' : '📷'}
                     </div>
                   )}

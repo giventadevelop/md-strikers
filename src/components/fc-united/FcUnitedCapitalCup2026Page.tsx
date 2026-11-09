@@ -22,7 +22,7 @@ export default function FcUnitedCapitalCup2026Page() {
       <FcUnitedHeader />
       <FcUnitedInnerHero title="Capital Cup 2026" />
 
-      <section className="bg-white">
+      <section className="md-sport-bg bg-pitch-chalk">
         <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 overflow-hidden bg-pitch-charcoal">
           <div className="relative aspect-[16/9] w-full sm:aspect-[16/8] md:aspect-[16/7] lg:aspect-[16/6]">
             <Image

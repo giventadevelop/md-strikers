@@ -23,7 +23,7 @@ export default function FcUnitedExecutiveTeamPage({
       {members.length > 0 ? (
         <ExecutiveTeamSection members={members} paginate />
       ) : (
-        <section className="bg-white py-16">
+        <section className="md-sport-bg bg-pitch-chalk py-16">
           <p className={cn(pitchPageInset, 'text-center text-sm text-pitch-charcoal/70')}>
             The executive team will be listed here once members are published.
           </p>

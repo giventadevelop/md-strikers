@@ -112,7 +112,7 @@ const pillCta =
   'inline-flex items-center justify-center gap-2 rounded-lg md-btn-primary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive hover:-translate-y-0.5 motion-reduce:hover:translate-y-0';
 
 const secondaryCta =
-  'inline-flex items-center justify-center gap-2 rounded-lg border border-brand-orange/55 bg-white px-6 py-2.5 text-sm font-semibold text-pitch-charcoal transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-orange hover:bg-brand-orange/[0.06] hover:text-pitch-olive motion-reduce:hover:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
+  'inline-flex items-center justify-center gap-2 rounded-lg md-btn-gold px-6 py-2.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
 
 export function FcUnitedEventsCatalogClient() {
   const [events, setEvents] = useState<CatalogEvent[]>([]);
@@ -253,7 +253,7 @@ export function FcUnitedEventsCatalogClient() {
   };
 
   return (
-    <section className="bg-pitch-chalk pb-16 pt-2 md:pb-20 md:pt-4">
+    <section className="md-sport-bg bg-pitch-chalk pb-16 pt-2 md:pb-20 md:pt-4">
       <Shell>
         {/* Section header — label → headline → detail */}
         <div className="mb-8 text-center md:mb-10 md:text-left">
@@ -295,7 +295,7 @@ export function FcUnitedEventsCatalogClient() {
           >
             <span
               className={cn(
-                'inline-flex h-16 w-16 translate-x-2 items-center justify-center rounded-full bg-white shadow-sm transition-transform duration-300',
+                'inline-flex h-16 w-16 translate-x-2 items-center justify-center rounded-full bg-pitch-card shadow-sm transition-transform duration-300',
                 showPastEvents && 'translate-x-14',
               )}
             >
@@ -321,7 +321,7 @@ export function FcUnitedEventsCatalogClient() {
         </div>
 
         {/* Search — flat bordered panel */}
-        <div className="mb-8 rounded-xl border border-pitch-charcoal/10 bg-white p-5 md:p-6">
+        <div className="mb-8 rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-5 md:p-6">
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">
             Search events
           </p>
@@ -336,7 +336,7 @@ export function FcUnitedEventsCatalogClient() {
                 value={searchTitle}
                 onChange={(e) => setSearchTitle(e.target.value)}
                 placeholder="Search by title…"
-                className="w-full rounded-xl border border-pitch-charcoal/10 bg-white px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
+                className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
               />
             </div>
             <div>
@@ -347,14 +347,14 @@ export function FcUnitedEventsCatalogClient() {
                   value={searchDateFrom}
                   onChange={(e) => setSearchDateFrom(e.target.value)}
                   aria-label="From date"
-                  className="w-full rounded-xl border border-pitch-charcoal/10 bg-white px-2 py-2.5 text-sm text-pitch-charcoal outline-none focus:border-pitch-olive"
+                  className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-2 py-2.5 text-sm text-pitch-charcoal outline-none focus:border-pitch-olive"
                 />
                 <input
                   type="date"
                   value={searchDateTo}
                   onChange={(e) => setSearchDateTo(e.target.value)}
                   aria-label="To date"
-                  className="w-full rounded-xl border border-pitch-charcoal/10 bg-white px-2 py-2.5 text-sm text-pitch-charcoal outline-none focus:border-pitch-olive"
+                  className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-2 py-2.5 text-sm text-pitch-charcoal outline-none focus:border-pitch-olive"
                 />
               </div>
             </div>
@@ -386,12 +386,12 @@ export function FcUnitedEventsCatalogClient() {
 
         {/* Status messages */}
         {!loading && checkedInitial && futureCount === 0 && pastCount === 0 && events.length === 0 && !fetchError && (
-          <p className="mb-6 rounded-xl border border-pitch-charcoal/10 bg-white px-5 py-8 text-center text-sm text-pitch-charcoal/70">
+          <p className="mb-6 rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-5 py-8 text-center text-sm text-pitch-charcoal/70">
             No events listed yet. Check back soon.
           </p>
         )}
         {!loading && checkedInitial && showPastEvents && futureCount === 0 && (pastCount ?? 0) > 0 && !fetchError && (
-          <p className="mb-6 rounded-xl border border-pitch-charcoal/10 bg-white px-5 py-4 text-sm text-pitch-charcoal/70">
+          <p className="mb-6 rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-5 py-4 text-sm text-pitch-charcoal/70">
             Showing recent events. New upcoming events will appear here when scheduled.
           </p>
         )}
@@ -401,11 +401,11 @@ export function FcUnitedEventsCatalogClient() {
             <div className="h-10 w-10 animate-spin rounded-full border-2 border-pitch-charcoal/10 border-t-pitch-olive" aria-label="Loading" />
           </div>
         ) : fetchError ? (
-          <p className="rounded-xl border border-pitch-olive/30 bg-white px-5 py-8 text-center text-sm font-medium text-pitch-olive">
+          <p className="rounded-xl border border-pitch-olive/30 bg-pitch-card px-5 py-8 text-center text-sm font-medium text-pitch-olive">
             Could not load events. Please try again later.
           </p>
         ) : events.length === 0 ? (
-          <p className="rounded-xl border border-pitch-charcoal/10 bg-white px-5 py-8 text-center text-sm text-pitch-charcoal/70">
+          <p className="rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-5 py-8 text-center text-sm text-pitch-charcoal/70">
             No events found.
           </p>
         ) : (
@@ -444,7 +444,7 @@ export function FcUnitedEventsCatalogClient() {
               return (
                 <article
                   key={event.id ?? event.title}
-                  className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-white transition-colors duration-300 ease-in-out hover:border-pitch-charcoal/25"
+                  className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card transition-colors duration-300 ease-in-out hover:border-pitch-charcoal/25"
                 >
                   {/* Container takes the image's own aspect ratio: full width, no side gaps, no cropping */}
                   <div className="relative w-full border-b border-pitch-charcoal/10 bg-pitch-chalk">

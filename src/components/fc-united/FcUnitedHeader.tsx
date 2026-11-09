@@ -10,11 +10,12 @@ import type { FcHeaderMenuVisibility, FcNavItem, FcNavKey, FeaturedTournamentLin
 import { buildFcUnitedNavLinks, isFcNavItemActive, isFcNavLinkActive } from './fcUnitedNavLinks';
 import { FcUnitedAuthDesktop } from './FcUnitedAuth';
 import { FcUnitedMobileNav } from './FcUnitedMobileNav';
+import { useLiveCards, useSportsParallax } from './useSportsParallax';
 
 /** Muted by default, white on hover with a gold underline; the active section is orange with a red→orange underline. */
 const navHoverActive =
-  'relative cursor-pointer py-2 text-sm font-semibold text-pitch-stone transition-colors duration-300 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-gradient-to-r after:from-brand-orange after:to-brand-gold after:transition-transform after:duration-300 hover:text-pitch-chalk hover:after:scale-x-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-4 focus-visible:ring-offset-pitch-charcoal motion-reduce:after:transition-none';
-const navActive = 'text-brand-orange after:scale-x-100 after:from-brand-red after:to-brand-orange';
+  'relative cursor-pointer py-2 text-sm font-semibold text-pitch-stone transition-colors duration-300 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-gradient-to-r after:from-brand-gold after:to-brand-light after:transition-transform after:duration-300 hover:text-pitch-chalk hover:after:scale-x-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-4 focus-visible:ring-offset-pitch-charcoal motion-reduce:after:transition-none';
+const navActive = 'text-brand-gold-bright after:scale-x-100 after:from-brand-gold after:to-brand-gold-bright';
 
 export type { FcNavKey };
 
@@ -41,9 +42,22 @@ function asTournamentRows(data: unknown) {
 export function FcUnitedHeader({ active }: { active?: FcNavKey }) {
   const pathname = usePathname();
   const search = useSearchParams().toString();
+  useSportsParallax();
+  useLiveCards();
   // The home hero shows the club logo, so the header drops it there.
   const showLogo = pathname !== '/';
   const [links, setLinks] = useState<FcNavItem[]>(() => buildFcUnitedNavLinks([], { news: false }));
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+      setScrolled(y > 12);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -131,9 +145,10 @@ export function FcUnitedHeader({ active }: { active?: FcNavKey }) {
   }, []);
   return (
     <header
+      data-scrolled={scrolled ? 'true' : 'false'}
       className={cn(
         fcBrand.className,
-        'md-strikers-header sticky top-0 z-50 shrink-0 border-b border-pitch-chalk/10 bg-pitch-charcoal/95 text-pitch-stone',
+        'md-strikers-header sticky top-0 z-50 shrink-0 border-b-2 border-brand-gold/60 text-pitch-chalk',
         // Header height as a variable so the mobile menu opens right below it; taller where the logo shows.
         showLogo ? '[--md-header-h:112px] md:[--md-header-h:128px]' : '[--md-header-h:72px] md:[--md-header-h:80px]',
       )}
@@ -153,7 +168,7 @@ export function FcUnitedHeader({ active }: { active?: FcNavKey }) {
           </Link>
         )}
         <nav
-          className="hidden min-w-0 flex-1 items-center justify-center gap-4 xl:flex 2xl:gap-5"
+          className="hidden h-full min-w-0 flex-1 items-center justify-center gap-4 self-stretch xl:flex 2xl:gap-5"
           aria-label="Primary"
         >
           {links.map((item) =>
@@ -163,7 +178,7 @@ export function FcUnitedHeader({ active }: { active?: FcNavKey }) {
                   type="button"
                   className={cn(
                     navHoverActive,
-                    'inline-flex items-center gap-1 whitespace-nowrap',
+                    'inline-flex h-full items-center gap-1 whitespace-nowrap leading-none',
                     isFcNavItemActive(item, pathname, active, search) && navActive
                   )}
                   aria-haspopup="true"
@@ -174,14 +189,14 @@ export function FcUnitedHeader({ active }: { active?: FcNavKey }) {
                   </svg>
                 </button>
                 <div className="invisible absolute left-1/2 top-full z-50 min-w-[13rem] -translate-x-1/2 translate-y-1 pt-4 opacity-0 transition-[opacity,transform] duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
-                  <div className="rounded-xl border border-pitch-chalk/10 border-t-2 border-t-brand-orange bg-pitch-charcoal p-2 shadow-pitch">
+                  <div className="rounded-xl border border-pitch-chalk/10 border-t-2 border-t-brand-gold bg-pitch-charcoal p-2 shadow-pitch">
                     {item.children.map((child) => (
                       <Link
                         key={child.key}
                         href={child.href}
                         className={cn(
                           'block whitespace-nowrap rounded-xl px-4 py-3 text-sm font-semibold text-pitch-stone transition-colors duration-200 hover:bg-pitch-chalk/5 hover:text-pitch-chalk focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime',
-                          isFcNavLinkActive(child, pathname, active, search) && 'text-brand-orange'
+                          isFcNavLinkActive(child, pathname, active, search) && 'text-brand-gold-bright'
                         )}
                       >
                         {child.label}
@@ -196,7 +211,7 @@ export function FcUnitedHeader({ active }: { active?: FcNavKey }) {
                 href={item.href || '/'}
                 className={cn(
                   navHoverActive,
-                  'whitespace-nowrap',
+                  'inline-flex items-center whitespace-nowrap leading-none',
                   isFcNavItemActive(item, pathname, active, search) && navActive
                 )}
               >
