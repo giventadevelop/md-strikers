@@ -1,0 +1,23 @@
+@import url("https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@700;800&display=swap");
+.mr-btn{font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;padding:var(--space-3) var(--space-6);border-radius:var(--radius-sm);border:2px solid transparent;cursor:pointer;line-height:1}
+.mr-btn:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.mr-btn--primary{background:var(--red-500);color:var(--on-red)}
+.mr-btn--primary:hover{background:var(--red-700)}
+.mr-btn--secondary{background:transparent;color:var(--ink);border-color:var(--ink)}
+.mr-btn--secondary:hover{background:var(--surface-300)}
+.mr-btn--gold{background:var(--gold-400);color:#000}
+.mr-card{background:var(--surface-100);color:var(--ink);border-radius:var(--radius-none);overflow:hidden;width:280px;font-family:var(--font-sans)}
+.mr-card__img{aspect-ratio:16/9;background:var(--surface-300);display:block;width:100%}
+.mr-card__body{padding:var(--space-4) 0}
+.mr-card__cat{font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--red-text)}
+.mr-card__time{font-size:13px;color:var(--ink-muted);margin-left:var(--space-2)}
+.mr-card__title{font-size:18px;line-height:24px;font-weight:700;margin:var(--space-2) 0 0}
+.mr-match{width:340px;font-family:var(--font-sans);background:var(--surface-200);color:var(--ink)}
+.mr-match__head{background:var(--black);color:var(--on-red);font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:var(--space-2) var(--space-4);display:flex;justify-content:space-between}
+.mr-match__row{display:flex;align-items:center;justify-content:space-between;padding:var(--space-4)}
+.mr-match__team{font-weight:700;font-size:16px;width:110px}
+.mr-match__team--r{text-align:right}
+.mr-match__score{font-family:var(--font-display);font-weight:800;font-size:40px;line-height:1}
+.mr-match__ft{font-size:13px;color:var(--ink-muted);text-align:center}
+.mr-match__actions{display:flex;gap:var(--space-2);padding:0 var(--space-4) var(--space-4)}
+.mr-match__actions .mr-btn{flex:1;font-size:13px;padding:var(--space-2) var(--space-3)}

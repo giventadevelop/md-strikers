@@ -1,0 +1,14 @@
+<!-- @dsCard group="Layout" height=120 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>SectionHeader — preview</title>
+<style>body{margin:0;background:var(--surface-dim);}</style></head>
+<body>
+<div id="root"></div>
+<script>
+  var B = window.Blaugrana, h = React.createElement;
+  ReactDOM.createRoot(document.getElementById('root')).render(h('div', { className: 'bg-stack' },
+    h(B.SectionHeader, { kicker: 'First team', title: 'Latest news', linkLabel: 'See all', href: '#' })));
+</script>
+</body>
+</html>

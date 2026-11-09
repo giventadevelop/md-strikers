@@ -47,7 +47,7 @@ export function TeamMembersDbSection({ members }: Props) {
       const el = scrollerRef.current;
       if (!el) return;
       stepLoop(el, 1, members.length);
-    }, 2000);
+    }, 3000);
     return () => window.clearInterval(timer);
   }, [members.length]);
 
@@ -83,7 +83,7 @@ export function TeamMembersDbSection({ members }: Props) {
         >
           <div
             ref={scrollerRef}
-            className="md-players-track pointer-events-auto flex gap-4 overflow-x-auto pb-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="md-players-track pointer-events-auto flex gap-4 overflow-x-hidden pb-6"
             onPointerEnter={() => {
               pausedRef.current = true;
             }}
@@ -101,7 +101,7 @@ export function TeamMembersDbSection({ members }: Props) {
                 <div
                   key={`${m.id}-${i}`}
                   data-carousel-card
-                  className="w-[78%] min-w-0 shrink-0 snap-start sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]"
+                  className="w-[calc((100%-2rem)/3)] min-w-0 shrink-0"
                 >
                   <Link
                     href={`/team/${m.id}`}

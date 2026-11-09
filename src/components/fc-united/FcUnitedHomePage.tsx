@@ -37,8 +37,6 @@ import { NextMatchPanel } from './NextMatchPanel';
 import { buildStandings } from './homeStandings';
 import { HomeLeagueSection } from './HomeLeagueSection';
 import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchFocus, pitchPageInset, pitchSection } from './pitchUi';
-import { SportBackgroundIcons } from './SportBackgroundIcons';
-
 const STORY_IMAGE = '/images/md_strikers_media/gallery/mdstrikers_com/gal03.jpg';
 
 const formatNewsDate = (iso: string) =>
@@ -266,8 +264,15 @@ export default async function FcUnitedHomePage() {
           className={cn('md-sport-bg md-hero-stage pt-8 md:pt-12', hasMatchPanel ? 'pb-28 md:pb-36' : 'pb-12 md:pb-16')}
           aria-labelledby="home-hero-heading"
         >
-          <div className="md-hero-lights" aria-hidden="true" />
-          <SportBackgroundIcons />
+          <div className="md-hero-lights" aria-hidden="true">
+            <div className="md-hero-bowl" />
+            <div className="md-hero-atmosphere" />
+            <span className="md-hero-mote" />
+            <span className="md-hero-mote" />
+            <span className="md-hero-mote" />
+            <span className="md-hero-mote" />
+            <span className="md-hero-mote" />
+          </div>
           <PitchShell wide>
             <div className="grid gap-6 md:grid-cols-[300px_minmax(0,1fr)] lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-8">
               {/* Left: logo panel + primary CTA */}
@@ -329,7 +334,6 @@ export default async function FcUnitedHomePage() {
         {/* Events from event_details: always show title; upcoming → past fallback → empty message */}
         {(showEventsSection || hasOnSaleBand) && (
           <section className={cn(pitchSection, 'bg-pitch-charcoal')}>
-            <SportBackgroundIcons />
             <PitchShell>
               {showEventsSection && (
                 <PitchHeading
@@ -359,8 +363,10 @@ export default async function FcUnitedHomePage() {
                       key: event.key,
                       title: event.title,
                       src: event.src,
-                      details: [event.dateTime, event.venue].filter(Boolean).join(' · '),
+                      dateTime: event.dateTime,
+                      venue: event.venue,
                       href: event.href,
+                      isTicketed: event.isTicketed,
                     }))}
                   />
                 ))}
@@ -370,7 +376,6 @@ export default async function FcUnitedHomePage() {
 
         {latestNews.length > 0 && (
           <section className={cn(pitchSection, 'md-band-paper md-sport-bg md-sport-bg-light bg-pitch-chalk')} aria-labelledby="home-news-heading">
-            <SportBackgroundIcons />
             <PitchShell>
               <PitchHeading
                 tone="light"
@@ -427,7 +432,6 @@ export default async function FcUnitedHomePage() {
           <HomeLeagueSection leagues={homepageLeagues} />
         ) : standings.length > 1 && (
           <section className={cn(pitchSection, 'md-band-olive md-sport-bg bg-pitch-forest')} aria-labelledby="home-standings-heading">
-            <SportBackgroundIcons />
             <PitchShell>
               <PitchHeading
                 id="home-standings-heading"
@@ -558,61 +562,58 @@ export default async function FcUnitedHomePage() {
 
         {showExecutiveTeamSection && <ExecutiveTeamSection members={executiveTeam} showSeeAll />}
 
-        {/* Sponsors — one card per row, six on the homepage */}
         {showSponsorsSection && (
-          <section className={cn(pitchSection, 'bg-pitch-charcoal')} aria-labelledby="home-sponsors-heading">
-            <SportBackgroundIcons />
+          <section className="md-sponsor-strip" aria-labelledby="home-sponsors-heading">
             <PitchShell>
-              <PitchHeading
-                tone="light"
-                id="home-sponsors-heading"
-                eyebrow="Partners"
-                title="Our Sponsors"
-                lead="Local businesses that fuel Capital Cup, training, and community programs — keeping our players competing at a high level and opening the door for families who want serious soccer."
-              />
-
-              <div className="grid grid-cols-1 gap-8">
-                {sponsorCards.map((sponsor) => (
-                  <article
-                    key={sponsor.key}
-                    className="md-live-card group overflow-hidden rounded-2xl border border-pitch-chalk/10 bg-pitch-forest/40"
-                  >
-                    <div className="w-full overflow-hidden">
-                      <Image
-                        src={sponsor.src}
-                        alt={sponsor.name}
-                        width={1600}
-                        height={700}
-                        className="block h-auto w-full transition-transform duration-700 ease-out group-hover:scale-[1.03] motion-reduce:transition-none"
-                        sizes="(max-width: 1240px) 100vw, 1240px"
-                      />
-                    </div>
-                    <div className="p-6 md:p-8">
-                      {sponsor.label && (
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-pitch-lime/80">{sponsor.label}</p>
-                      )}
-                      <h3 className="mt-2 text-xl font-bold text-pitch-chalk md:text-2xl">{sponsor.name}</h3>
-                      {sponsor.tagline && <p className="mt-3 text-sm leading-relaxed">{sponsor.tagline}</p>}
-                      {(sponsor.detailsHref || sponsor.websiteHref) && (
-                        <div className="mt-6 flex flex-wrap gap-4">
-                          {sponsor.detailsHref && (
-                            <Link href={sponsor.detailsHref} className={pitchButton.primary}>
-                              Sponsor details
-                            </Link>
-                          )}
-                          {sponsor.websiteHref && (
-                            <a href={sponsor.websiteHref} target="_blank" rel="noopener noreferrer" className={pitchButton.ghost}>
-                              Visit website
-                              <span className="sr-only"> (opens in a new tab)</span>
-                            </a>
-                          )}
+              <div className="md-sponsor-strip__head">
+                <h2 id="home-sponsors-heading">Our Sponsors</h2>
+                <ViewAllSponsorsButton className="md-sponsor-strip__all" />
+              </div>
+              <ul className="md-sponsor-strip__grid">
+                {sponsorCards.map((sponsor) => {
+                  const href = sponsor.websiteHref || sponsor.detailsHref;
+                  const mark = (
+                    <>
+                      <span className="md-sponsor-tile__logo">
+                        <Image
+                          src={sponsor.src}
+                          alt=""
+                          width={240}
+                          height={96}
+                          className="md-sponsor-tile__img"
+                          sizes="240px"
+                        />
+                      </span>
+                      <span className="md-sponsor-tile__name">{sponsor.name}</span>
+                    </>
+                  );
+                  return (
+                    <li key={sponsor.key}>
+                      {href ? (
+                        sponsor.websiteHref ? (
+                          <a
+                            className="md-sponsor-tile"
+                            href={sponsor.websiteHref}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={sponsor.name}
+                          >
+                            {mark}
+                          </a>
+                        ) : (
+                          <Link className="md-sponsor-tile" href={href} aria-label={sponsor.name}>
+                            {mark}
+                          </Link>
+                        )
+                      ) : (
+                        <div className="md-sponsor-tile" aria-label={sponsor.name}>
+                          {mark}
                         </div>
                       )}
-                    </div>
-                  </article>
-                ))}
-              </div>
-              <ViewAllSponsorsButton />
+                    </li>
+                  );
+                })}
+              </ul>
             </PitchShell>
           </section>
         )}

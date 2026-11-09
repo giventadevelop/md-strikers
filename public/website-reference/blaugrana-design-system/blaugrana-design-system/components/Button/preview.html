@@ -1,0 +1,19 @@
+<!-- @dsCard group="Actions" height=96 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Button — preview</title>
+<style>body{margin:0;background:var(--surface-dim);}</style></head>
+<body>
+<div id="root"></div>
+<script>
+  var B = window.Blaugrana, h = React.createElement;
+  ReactDOM.createRoot(document.getElementById('root')).render(h('div', { className: 'bg-row' },
+    h(B.Button, { variant: 'primary' }, 'Become a member'),
+    h(B.Button, { variant: 'secondary' }, 'Buy tickets'),
+    h(B.Button, { variant: 'tertiary' }, 'Watch highlights'),
+    h(B.Button, { variant: 'outline' }, 'See all'),
+    h(B.Button, { variant: 'grana', size: 's' }, 'Matchday'),
+    h(B.Button, { disabled: true }, 'Sold out')));
+</script>
+</body>
+</html>

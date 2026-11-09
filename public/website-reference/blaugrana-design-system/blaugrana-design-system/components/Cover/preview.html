@@ -1,0 +1,37 @@
+<!-- @dsCard height=300 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Cover</title>
+<style>
+  html,body{margin:0;background:var(--surface);}
+  .cv{position:relative;width:960px;height:300px;overflow:hidden;background:var(--surface);}
+  .cv svg{position:absolute;inset:0;}
+  .blau{fill:var(--brand-blue)} .grana{fill:var(--brand-grana)} .gold{fill:var(--brand-yellow)} .heritage{fill:var(--classic-blue)}
+  .txt{position:absolute;left:var(--space-2xl);bottom:var(--space-2xl);max-width:440px;}
+  .name{margin:0;font-family:var(--font-display);font-weight:800;font-size:80px;line-height:.92;letter-spacing:-0.8px;color:var(--on-surface);}
+  .tag{margin:var(--space-s) 0 0;font-family:var(--font-sans);font-size:14px;line-height:1.4;color:var(--on-surface-variant);}
+</style></head>
+<body>
+<div class="cv">
+<svg width="960" height="300" viewBox="0 0 960 300" aria-hidden="true">
+  <!-- blocks: blau+grana stripe slab 288x300 (12 x space-xl), gold 160x128, heritage blue 160x172, gold pill 112x32 -->
+  <!-- arrangement: one tall slab bleeding top and bottom, satellites stacked flush to the right edge -->
+  <!-- pattern: stripes at space-xl pitch — the shirt's vertical blau-grana stripes are the brand's one motif; "loud, bold" row -->
+  <!-- scales: pitch space-xl 24, gaps space-2xl 32, pill radius-full, blocks radius-none -->
+  <rect class="blau"  x="512" y="0" width="24" height="300"/><rect class="grana" x="536" y="0" width="24" height="300"/>
+  <rect class="blau"  x="560" y="0" width="24" height="300"/><rect class="grana" x="584" y="0" width="24" height="300"/>
+  <rect class="blau"  x="608" y="0" width="24" height="300"/><rect class="grana" x="632" y="0" width="24" height="300"/>
+  <rect class="blau"  x="656" y="0" width="24" height="300"/><rect class="grana" x="680" y="0" width="24" height="300"/>
+  <rect class="blau"  x="704" y="0" width="24" height="300"/><rect class="grana" x="728" y="0" width="24" height="300"/>
+  <rect class="blau"  x="752" y="0" width="24" height="300"/><rect class="grana" x="776" y="0" width="24" height="300"/>
+  <rect class="gold"  x="800" y="0" width="160" height="128"/>
+  <rect class="heritage" x="800" y="128" width="160" height="172"/>
+  <rect class="gold pill" x="824" y="236" width="112" height="32" rx="16"/>
+</svg>
+<div class="txt">
+  <h1 class="name">Blaugrana</h1>
+  <p class="tag">A matchday design system in blau, grana and gold — inspired by fcbarcelona.com.</p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!-- @dsCard height=300 -->
+<style>
+body{margin:0}
+.cv{position:relative;width:960px;height:300px;background:var(--surface-100);overflow:hidden}
+.cv svg{position:absolute;left:0;top:0}
+.red{fill:var(--red-500)}.blk{fill:var(--black)}.gold{fill:var(--gold-400)}.tint{fill:var(--surface-200)}
+.stripe{stroke:var(--on-red);stroke-width:8px}
+.cv h1{position:absolute;left:48px;bottom:72px;margin:0;font-family:var(--font-display);font-weight:800;font-size:88px;line-height:.95;color:var(--ink);text-transform:none;max-width:440px}
+.cv p{position:absolute;left:48px;bottom:40px;margin:0;font-family:var(--font-sans);font-size:14px;color:var(--ink-muted);max-width:440px}
+</style>
+<div class="cv">
+<svg width="960" height="300" viewBox="0 0 960 300" aria-hidden="true">
+<!-- blocks: red-500 slab 256x300, black 160x192, gold-400 64x64, surface-200 160x108 (multiples of space-16/space-8)
+     arrangement: one tall red slab bleeding off top and bottom with satellites stacked flush to its left and right
+     pattern: diagonal scarf stripes at a space-6 pitch cut across the red slab — "loud, bold, poster type" row; this brand reads as terrace-scarf bands
+     scales: space-8, space-16, space-6 pitch; radius-none (square system) -->
+<defs><clipPath id="slab"><rect x="640" y="0" width="256" height="300"/></clipPath></defs>
+<rect class="tint" x="480" y="192" width="160" height="108"/>
+<rect class="blk" x="480" y="0" width="160" height="192"/>
+<rect class="red" x="640" y="0" width="256" height="300"/>
+<g clip-path="url(#slab)">
+<line class="stripe" x1="640" y1="232" x2="708" y2="300"/><line class="stripe" x1="640" y1="184" x2="756" y2="300"/><line class="stripe" x1="640" y1="136" x2="804" y2="300"/><line class="stripe" x1="640" y1="88" x2="852" y2="300"/><line class="stripe" x1="640" y1="40" x2="900" y2="300"/>
+</g>
+<rect class="gold" x="896" y="0" width="64" height="64"/>
+<rect class="blk" x="896" y="64" width="64" height="236"/>
+</svg>
+<h1>Matchday<br>Red</h1>
+<p>Bold red, deep black, a flash of gold — built for matchday.</p>
+</div>

@@ -1,0 +1,19 @@
+<!-- @dsCard group="Matchday" height=300 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>MatchCard — preview</title>
+<style>body{margin:0;background:var(--surface-dim);}</style></head>
+<body>
+<div id="root"></div>
+<script>
+  var B = window.Blaugrana, h = React.createElement;
+  ReactDOM.createRoot(document.getElementById('root')).render(h('div', { className: 'bg-row', style: { alignItems: 'stretch' } },
+    h(B.MatchCard, { competition: 'LaLiga · Matchday 12', status: 'upcoming', date: 'Sun 9 Nov', time: '21:00',
+      home: { name: 'Blaugrana FC', short: 'BLG' }, away: { name: 'Rival CF', short: 'RIV' },
+      venue: 'Home stadium', ctaLabel: 'Buy tickets', ctaHref: '#' }),
+    h(B.MatchCard, { competition: 'Champions League', status: 'live', minute: "67'", homeScore: 2, awayScore: 1,
+      home: { name: 'Blaugrana FC', short: 'BLG' }, away: { name: 'Visitors AC', short: 'VIS' },
+      venue: 'Away', ctaLabel: 'Follow live', ctaHref: '#' })));
+</script>
+</body>
+</html>

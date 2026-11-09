@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ElementRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { ExecutiveCommitteeTeamMemberDTO } from '@/types';
 import { fcBrand } from './fcUnitedFonts';
+import { stepLoop } from './loopCarousel';
 import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchSection } from './pitchUi';
 import { SportBackgroundIcons } from './SportBackgroundIcons';
 import { MdPagination } from './MdPagination';
@@ -24,6 +25,17 @@ function parseExpertise(expertise?: string): string[] {
   return expertise.split(',').map((item) => item.trim()).filter(Boolean);
 }
 
+function memberName(member: ExecutiveCommitteeTeamMemberDTO) {
+  return [member.firstName, member.lastName].filter(Boolean).join(' ').trim() || member.title;
+}
+
+function memberCopy(member: ExecutiveCommitteeTeamMemberDTO) {
+  const role = member.designation?.trim() || member.title?.trim() || '';
+  const expertise = parseExpertise(member.expertise);
+  const blurb = expertise.length > 0 ? expertise.join(' · ') : (member.bio || '').replace(/<[^>]+>/g, '').trim();
+  return { role, blurb };
+}
+
 export function ExecutiveTeamSection({
   members,
   showSeeAll = false,
@@ -34,6 +46,32 @@ export function ExecutiveTeamSection({
   paginate?: boolean;
 }) {
   const [page, setPage] = useState(0);
+  const scrollerRef = useRef<ElementRef<'div'>>(null);
+  const pausedRef = useRef(false);
+  const slides =
+    members.length === 0
+      ? []
+      : members.length > 6
+        ? [...members, ...members]
+        : [...members, ...members, ...members];
+
+  const scrollStep = useCallback((dir: -1 | 1) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    stepLoop(el, dir, members.length);
+  }, [members.length]);
+
+  useEffect(() => {
+    if (paginate || members.length < 2) return;
+    const timer = window.setInterval(() => {
+      if (pausedRef.current) return;
+      const el = scrollerRef.current;
+      if (!el) return;
+      stepLoop(el, 1, members.length);
+    }, 3000);
+    return () => window.clearInterval(timer);
+  }, [members.length, paginate]);
+
   if (members.length === 0) return null;
 
   const pageSize = paginate ? EXECUTIVE_PAGE_SIZE : members.length;
@@ -53,13 +91,11 @@ export function ExecutiveTeamSection({
           lead="The volunteers who run Maryland Strikers Sports Club — tournaments, training, and community programs."
         />
 
+        {paginate ? (
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((m) => {
-            const name = [m.firstName, m.lastName].filter(Boolean).join(' ').trim() || m.title;
-            const role = m.designation?.trim() || m.title?.trim() || '';
-            const expertise = parseExpertise(m.expertise);
-            const blurb =
-              expertise.length > 0 ? expertise.join(' · ') : (m.bio || '').replace(/<[^>]+>/g, '').trim();
+            const name = memberName(m);
+            const { role, blurb } = memberCopy(m);
             return (
               <article
                 key={m.id ?? name}
@@ -96,6 +132,78 @@ export function ExecutiveTeamSection({
             );
           })}
         </div>
+        ) : (
+          <div
+            className="relative"
+            role="region"
+            aria-roledescription="carousel"
+            aria-label="Executive team"
+          >
+            {members.length > 1 ? (
+              <div className="md-event-news-nav">
+                <button type="button" aria-label="Previous members" title="Previous" onClick={() => scrollStep(-1)}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button type="button" aria-label="Next members" title="Next" onClick={() => scrollStep(1)}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            ) : null}
+            <div
+              ref={scrollerRef}
+              className="flex gap-4 overflow-x-hidden"
+              onPointerEnter={() => {
+                pausedRef.current = true;
+              }}
+              onPointerLeave={() => {
+                pausedRef.current = false;
+              }}
+            >
+              {slides.map((m, i) => {
+                const name = memberName(m);
+                const { role, blurb } = memberCopy(m);
+                const hasDetails = Boolean(role || blurb);
+                return (
+                  <div
+                    key={`${m.id ?? name}-${i}`}
+                    data-carousel-card
+                    className="w-[calc((100%-2rem)/3)] min-w-0 shrink-0"
+                  >
+                    <article className={cn('md-player-card md-player-card--navy', !hasDetails && 'md-player-card--plain')}>
+                      {m.profileImageUrl ? (
+                        <Image
+                          src={m.profileImageUrl}
+                          alt={name}
+                          fill
+                          className="md-player-card__photo object-cover object-top"
+                          sizes="33vw"
+                        />
+                      ) : (
+                        <span className="absolute inset-0 flex items-center justify-center text-6xl font-extrabold text-white/30" aria-hidden>
+                          {name.charAt(0)}
+                        </span>
+                      )}
+                      <span className="md-player-card__wash" aria-hidden />
+                      <span className="md-player-card__info">
+                        <span className="md-player-card__name">{name}</span>
+                      </span>
+                      {hasDetails ? (
+                        <span className="md-player-card__stats">
+                          {role ? <span className="md-player-card__role">{role}</span> : null}
+                          {blurb ? <span className="md-exec-card__blurb">{blurb}</span> : null}
+                        </span>
+                      ) : null}
+                    </article>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {paginate && (
           <MdPagination

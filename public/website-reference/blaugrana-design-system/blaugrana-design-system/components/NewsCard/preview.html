@@ -1,0 +1,15 @@
+<!-- @dsCard group="Content" height=340 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>NewsCard — preview</title>
+<style>body{margin:0;background:var(--surface-dim);}</style></head>
+<body>
+<div id="root"></div>
+<script>
+  var B = window.Blaugrana, h = React.createElement;
+  ReactDOM.createRoot(document.getElementById('root')).render(h('div', { className: 'bg-row', style: { alignItems: 'stretch' } },
+    h(B.NewsCard, { title: 'Squad list confirmed for the weekend derby', category: 'First team', meta: '2 hours ago' }),
+    h(B.NewsCard, { title: 'Academy side lift the youth cup in extra time', category: 'Academy', categoryTone: 'gold', meta: 'Yesterday' })));
+</script>
+</body>
+</html>

@@ -13,7 +13,7 @@ export function LeagueStandingsTable({
     return <p className="text-sm text-pitch-stone">No clubs in this table yet.</p>;
   }
   return (
-    <div className="overflow-x-auto rounded-2xl border border-pitch-chalk/10">
+    <div className="md-standings-table overflow-x-auto rounded-2xl border border-pitch-chalk/10">
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-pitch-stone">
@@ -54,7 +54,7 @@ export function LeagueStandingsTable({
               </td>
               <td className="px-2 py-4 sm:px-4">
                 <span className="flex items-center gap-3 font-semibold">
-                  <ClubMark name={row.clubName} logoUrl={row.logoUrl} size="sm" />
+                  <ClubMark name={row.clubName} logoUrl={row.logoUrl} size="table" plain />
                   <span className="max-w-[10rem] truncate sm:max-w-none">
                     {row.clubName}
                     {highlightChampion && index === 0 ? (

@@ -1,4 +1,4 @@
-import { Barlow_Condensed, Bebas_Neue, Caprasimo, Figtree, Inter, Manrope, Poppins, Roboto } from 'next/font/google';
+import { Barlow, Barlow_Condensed, Bebas_Neue, Caprasimo, Figtree, Inter, Manrope, Poppins, Roboto } from 'next/font/google';
 
 export const fcBebas = Bebas_Neue({ weight: '400', subsets: ['latin'] });
 export const fcPoppins = Poppins({ weight: ['400', '500', '600', '700'], subsets: ['latin'] });
@@ -37,7 +37,14 @@ const fcManrope = Manrope({
   variable: '--font-elite-display',
 });
 
-/** Manrope headings on the homepage. Body stays Inter from fcBrand. */
+/** Barlow pairs with Barlow Condensed: the closest open stand-in for the club's proprietary faces. */
+const fcBarlow = Barlow({
+  weight: ['300', '400', '500', '600', '700', '800'],
+  subsets: ['latin'],
+  variable: '--font-md-club',
+});
+
+/** Homepage type. Headings use Barlow Condensed; body, nav, and footer use Barlow. */
 export const fcOrganic = {
-  className: `${fcCaprasimo.variable} ${fcFigtree.variable} ${fcManrope.variable}`,
+  className: `${fcCaprasimo.variable} ${fcFigtree.variable} ${fcManrope.variable} ${fcBarlow.variable}`,
 };

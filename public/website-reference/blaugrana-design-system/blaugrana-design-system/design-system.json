@@ -1,0 +1,33 @@
+{
+ "v": 3,
+ "layout": "files",
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-06T03:58:44Z"
+ },
+ "title": "Blaugrana",
+ "namespace": "Blaugrana",
+ "libraries": [
+  {
+   "name": "react",
+   "version": "18"
+  },
+  {
+   "name": "react-dom",
+   "version": "18"
+  }
+ ],
+ "sections": {},
+ "groups": [],
+ "assetGroups": {},
+ "blobs": {},
+ "docs": {
+  "sections": []
+ },
+ "lastChange": {
+  "by": "Binu Pankajakshan",
+  "at": "2026-11-06T04:05:00Z",
+  "via": "Cowork",
+  "note": "Initial system derived from fcbarcelona.com/en public stylesheet"
+ }
+}
