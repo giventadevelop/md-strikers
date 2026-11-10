@@ -1,0 +1,575 @@
+/*
+ * Blaugrana skin for the FC United homepage only.
+ * Scoped to `.blg-home` so shared header, footer, and section components
+ * keep their existing look on every other route.
+ * Tokens from public/website-reference/blaugrana-design-system.
+ */
+
+.blg-home.md-organic {
+  --blg-blau: #1241fd;
+  --blg-blau-hover: #022dd9;
+  --blg-blau-pressed: #0123a7;
+  --blg-grana: #bb073d;
+  --blg-gold: #ffc000;
+  --blg-gold-hover: #e5ad00;
+  --blg-gold-classic: #fdc52c;
+  --blg-navy: #181733;
+  --blg-navy-deep: #0a0927;
+  --blg-ink: #121212;
+  --blg-muted: #6c7283;
+  --blg-on-navy: #b2b7c4;
+  --blg-line: #ccced6;
+  --blg-surface: #f5f5f6;
+  --blg-white: #ffffff;
+  --blg-shadow-s: 0 2px 6px rgba(0, 0, 0, 0.08);
+  --blg-shadow-m: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --blg-stripe: repeating-linear-gradient(90deg, #1241fd 0 24px, #bb073d 24px 48px);
+  --blg-gradient: linear-gradient(90deg, #0034c8, #aa0037);
+
+  --md-rgb-primary: 18 65 253;
+  --md-rgb-primary-deep: 187 7 61;
+  --md-rgb-secondary: 255 192 0;
+  --md-rgb-accent: 187 7 61;
+  --md-rgb-accent-bright: 18 65 253;
+  --md-rgb-surface-strong: 24 23 51;
+  --md-rgb-surface-warm: 10 9 39;
+  --md-rgb-surface-light: 255 255 255;
+  --md-rgb-surface-card: 255 255 255;
+  --md-rgb-dark: 18 18 18;
+  --md-rgb-dark-secondary: 18 18 18;
+  --md-rgb-light: 255 255 255;
+  --md-rgb-text: 18 18 18;
+  --md-rgb-muted: 108 114 131;
+  --md-rgb-on-strong-muted: 108 114 131;
+  --color-primary: #1241fd;
+  --color-primary-deep: #bb073d;
+  --color-secondary: #ffc000;
+  --color-accent: #bb073d;
+  --color-accent-bright: #1241fd;
+  --gradient-brand: #1241fd;
+  --radius-button: 256px;
+
+  background: var(--blg-surface);
+  color: var(--blg-ink);
+  font-family: var(--font-md-club), Barlow, Arial, Helvetica, sans-serif;
+}
+
+/* Sentence-case Barlow headlines. Condensed stays on kickers and tags only. */
+.blg-home.md-organic.md-brand :is(h1, h2, h3, h4, h5, h6),
+.blg-home.md-organic .md-brand :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-md-club), Barlow, Arial, Helvetica, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  line-height: 1.05;
+  text-transform: none;
+  color: inherit;
+}
+.blg-home.md-organic :is(h3, h4, h5, h6) {
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+.blg-home.md-organic .uppercase {
+  font-family: var(--font-md-display), 'Barlow Condensed', Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.blg-home.md-organic main > section:not(.md-hero-stage),
+.blg-home.md-organic footer {
+  margin-left: 0;
+  margin-right: 0;
+}
+.blg-home.md-organic main > section:not(.md-hero-stage):not(#about):not(.md-sponsor-strip):not(.md-band-players) {
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+@media (min-width: 768px) {
+  .blg-home.md-organic main > section:not(.md-hero-stage):not(#about):not(.md-sponsor-strip):not(.md-band-players) {
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+}
+.blg-home.md-organic #about {
+  padding-top: 64px;
+  padding-bottom: 64px;
+}
+
+/* Light content bands */
+.blg-home.md-organic section.bg-pitch-charcoal:not(.md-band-scoreboard),
+.blg-home.md-organic section.bg-pitch-chalk,
+.blg-home.md-organic section.md-band-paper,
+.blg-home.md-organic section.md-band-light,
+.blg-home.md-organic section.border-t.bg-pitch-charcoal {
+  background: var(--blg-surface);
+  color: var(--blg-ink);
+}
+.blg-home.md-organic section.bg-pitch-charcoal:not(.md-band-scoreboard) :is(.text-pitch-chalk, h1, h2),
+.blg-home.md-organic section.md-band-paper :is(.text-pitch-chalk, h1, h2),
+.blg-home.md-organic section.bg-pitch-chalk :is(.text-pitch-chalk, h1, h2) {
+  color: var(--blg-ink);
+}
+.blg-home.md-organic section.bg-pitch-charcoal:not(.md-band-scoreboard) .text-pitch-stone,
+.blg-home.md-organic section.md-band-paper .text-pitch-stone,
+.blg-home.md-organic section.bg-pitch-chalk .text-pitch-stone {
+  color: var(--blg-muted);
+}
+.blg-home.md-organic section.bg-pitch-charcoal:not(.md-band-scoreboard) .text-pitch-lime,
+.blg-home.md-organic section.md-band-paper .uppercase,
+.blg-home.md-organic section.bg-pitch-chalk .uppercase,
+.blg-home.md-organic section.bg-pitch-charcoal:not(.md-band-scoreboard) .uppercase {
+  color: var(--blg-grana);
+}
+
+.blg-home.md-organic .md-sport-icons,
+.blg-home.md-organic .md-sport-icon {
+  display: none;
+}
+/* The shared sport-band pseudos paint icons and a full-bleed wash. Kill them
+   here so the hero stripe (re-enabled below) is the only motif. */
+.blg-home.md-organic .md-sport-bg::before,
+.blg-home.md-organic .md-sport-bg::after {
+  content: none;
+  animation: none;
+  mask-image: none;
+}
+
+/* Buttons: pill, sentence case, flat blau. Secondary is a text link. */
+.blg-home.md-organic .md-btn {
+  font-family: var(--font-md-club), Barlow, Arial, Helvetica, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: -0.16px;
+  line-height: 1.2;
+  text-transform: none;
+  border-radius: 256px;
+  min-height: 40px;
+  padding: 12px 20px;
+  box-shadow: none;
+  filter: none;
+}
+.blg-home.md-organic .md-btn::after {
+  content: none;
+}
+.blg-home.md-organic .md-btn:hover,
+.blg-home.md-organic .md-btn:active {
+  transform: none;
+  filter: none;
+}
+.blg-home.md-organic .md-btn-primary,
+.blg-home.md-organic .md-hero-cta {
+  background: var(--blg-blau);
+  color: var(--blg-white);
+  border: 0;
+}
+.blg-home.md-organic .md-btn-primary:hover,
+.blg-home.md-organic .md-hero-cta:hover {
+  background: var(--blg-blau-hover);
+  color: var(--blg-white);
+  box-shadow: none;
+}
+.blg-home.md-organic .md-btn-primary:active,
+.blg-home.md-organic .md-hero-cta:active {
+  background: var(--blg-blau-pressed);
+}
+.blg-home.md-organic .md-btn-secondary,
+.blg-home.md-organic .md-btn-secondary-light {
+  background: transparent;
+  color: var(--blg-blau);
+  border: 0;
+  box-shadow: none;
+  padding-inline: 0;
+}
+.blg-home.md-organic .md-btn-secondary:hover,
+.blg-home.md-organic .md-btn-secondary-light:hover {
+  background: transparent;
+  color: var(--blg-blau-hover);
+  text-decoration: underline;
+  box-shadow: none;
+}
+.blg-home.md-organic .md-btn:focus-visible,
+.blg-home.md-organic .md-hero-cta:focus-visible {
+  outline: 2px solid var(--blg-blau);
+  outline-offset: 2px;
+}
+
+/* Cards: 12px radius, quiet shadow, 4px grana bar. No tilt. */
+.blg-home.md-organic :is(.rounded-2xl, .rounded-3xl, .md-match-card) {
+  border-radius: 12px;
+}
+.blg-home.md-organic .md-live-card {
+  border-radius: 12px;
+  box-shadow: var(--blg-shadow-s);
+  transform: none;
+}
+.blg-home.md-organic .md-live-card:hover,
+.blg-home.md-organic .md-live-card:focus-within,
+.blg-home.md-organic .md-live-card--soft:hover,
+.blg-home.md-organic .md-live-card--soft:focus-within {
+  transform: translateY(-2px);
+  box-shadow: var(--blg-shadow-m);
+}
+.blg-home.md-organic .md-live-card::before {
+  height: 4px;
+  background: var(--blg-grana);
+}
+.blg-home.md-organic .md-live-card::after,
+.blg-home.md-organic .md-live-card:hover::after {
+  content: none;
+}
+.blg-home.md-organic .md-live-card:hover img,
+.blg-home.md-organic .md-live-card:focus-within img {
+  transform: none;
+}
+.blg-home.md-organic span.uppercase.rounded-full {
+  border-radius: 4px;
+  background: var(--blg-grana);
+  color: var(--blg-white);
+}
+
+/* Header: white bar, ink nav, Senyera stripe. Homepage only. */
+.blg-home.md-organic .md-strikers-header,
+.blg-home.md-organic .md-strikers-header[data-scrolled='true'] {
+  background: var(--blg-white);
+  color: var(--blg-ink);
+  border-bottom: 0;
+  box-shadow: var(--blg-shadow-s);
+}
+.blg-home.md-organic .md-strikers-header::before,
+.blg-home.md-organic .md-strikers-header[data-scrolled='true']::before {
+  background: var(--blg-white);
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.blg-home.md-organic .md-strikers-header::after {
+  content: '';
+  position: absolute;
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  height: 3px;
+  pointer-events: none;
+  background: var(--blg-stripe);
+}
+.blg-home.md-organic .md-hero-logo img {
+  filter: none;
+}
+.blg-home.md-organic .md-strikers-header :is(a, button) {
+  color: var(--blg-ink);
+  font-family: var(--font-md-club), Barlow, Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.16px;
+  text-transform: none;
+  text-shadow: none;
+}
+.blg-home.md-organic .md-strikers-header :is(a, button):hover,
+.blg-home.md-organic .md-strikers-header :is(a, button).text-brand-gold-bright {
+  color: var(--blg-blau);
+}
+.blg-home.md-organic .md-strikers-header nav > a:hover,
+.blg-home.md-organic .md-strikers-header nav > .group > button:hover {
+  background: var(--blg-surface);
+}
+.blg-home.md-organic .md-strikers-header .md-btn-primary,
+.blg-home.md-organic .md-strikers-header .md-btn-primary:hover {
+  color: var(--blg-white);
+}
+.blg-home.md-organic .md-strikers-header .bg-pitch-olive {
+  background: var(--blg-blau);
+  color: var(--blg-white);
+}
+.blg-home.md-organic .md-strikers-header button[aria-controls='fc-united-mobile-menu'] {
+  color: var(--blg-ink);
+  border-color: var(--blg-line);
+}
+.blg-home.md-organic .md-strikers-header .bg-pitch-charcoal {
+  background: var(--blg-white);
+  border: 1px solid var(--blg-line);
+  box-shadow: var(--blg-shadow-m);
+}
+.blg-home.md-organic .md-strikers-header .bg-pitch-charcoal :is(a, button),
+.blg-home.md-organic .md-strikers-header .bg-pitch-charcoal :is(a, button).text-brand-gold-bright {
+  color: var(--blg-ink);
+}
+.blg-home.md-organic .md-strikers-header .bg-pitch-charcoal :is(a, button):hover {
+  color: var(--blg-blau);
+  background: var(--blg-surface);
+}
+.blg-home.md-organic #fc-united-mobile-menu {
+  background: var(--blg-white);
+  color: var(--blg-ink);
+  border-color: var(--blg-line);
+}
+.blg-home.md-organic #fc-united-mobile-menu :is(a, button),
+.blg-home.md-organic #fc-united-mobile-menu :is(a, button).text-brand-gold-bright {
+  color: var(--blg-ink);
+}
+.blg-home.md-organic #fc-united-mobile-menu :is(a, button):hover {
+  color: var(--blg-blau);
+}
+
+/* Hero: navy matchday, white identity card, photography unframed, stripe at the base. */
+.blg-home.md-organic .md-hero-stage {
+  background: var(--blg-navy);
+  color: var(--blg-white);
+}
+.blg-home.md-organic .md-hero-lights,
+.blg-home.md-organic .md-hero-bowl,
+.blg-home.md-organic .md-hero-atmosphere {
+  display: none;
+}
+/* The fixture card overlaps the hero, so a bottom stripe would show as a broken fragment.
+   The header and footer carry the full-bleed Senyera stripe instead. */
+.blg-home.md-organic .md-hero-stage::after {
+  content: none;
+}
+.blg-home.md-organic .md-hero-logo {
+  background: var(--blg-white);
+  color: var(--blg-ink);
+  border: 1px solid var(--blg-line);
+  border-radius: 12px;
+  box-shadow: var(--blg-shadow-s);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.blg-home.md-organic .md-hero-logo :is(h1, h2),
+.blg-home.md-organic .md-hero-logo .text-pitch-chalk {
+  color: var(--blg-ink);
+}
+.blg-home.md-organic .md-hero-logo .text-pitch-stone {
+  color: var(--blg-muted);
+}
+.blg-home.md-organic .md-hero-logo .text-pitch-lime,
+.blg-home.md-organic .md-hero-logo .uppercase {
+  color: var(--blg-grana);
+}
+.blg-home.md-organic .md-hero-logo.md-live-card,
+.blg-home.md-organic .md-hero-logo.md-live-card:hover,
+.blg-home.md-organic .md-hero-logo.md-live-card:focus-within {
+  transform: none;
+  box-shadow: var(--blg-shadow-s);
+  border-color: var(--blg-line);
+}
+.blg-home.md-organic .md-hero-logo.md-live-card::before,
+.blg-home.md-organic .md-hero-logo.md-live-card::after {
+  content: none;
+}
+.blg-home.md-organic .md-hero-slider {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.blg-home.md-organic .md-hero-slider::before {
+  content: none;
+}
+.blg-home.md-organic .md-hero-slider .text-pitch-chalk {
+  color: var(--blg-white);
+}
+.blg-home.md-organic .md-hero-slider .text-pitch-stone {
+  color: var(--blg-on-navy);
+}
+.blg-home.md-organic .md-hero-dots button[aria-current='true'] {
+  background-color: var(--blg-blau);
+  box-shadow: none;
+}
+.blg-home.md-organic .md-hero-kicker-mark {
+  background: var(--blg-gold-classic);
+  box-shadow: none;
+}
+
+.blg-home.md-organic section:has(#next-match-heading) .md-live-card {
+  background: var(--blg-white);
+  border: 1px solid var(--blg-line);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.blg-home.md-organic section:has(#next-match-heading) .text-pitch-olive,
+.blg-home.md-organic section:has(#next-match-heading) .uppercase {
+  color: var(--blg-grana);
+}
+.blg-home.md-organic section:has(#next-match-heading) .bg-pitch-lime {
+  background-color: var(--blg-grana);
+}
+.blg-home.md-organic section:has(#next-match-heading) .text-pitch-charcoal {
+  color: var(--blg-ink);
+}
+
+/* Featured / on-sale band: blau to grana, gold ticket button, ink on gold. */
+.blg-home.md-organic .md-live-card.bg-pitch-forest {
+  background: var(--blg-gradient);
+  border-color: transparent;
+  color: var(--blg-white);
+}
+.blg-home.md-organic .md-live-card.bg-pitch-forest .md-btn-primary,
+.blg-home.md-organic .md-live-card.bg-pitch-forest .md-btn-primary:hover {
+  background: var(--blg-gold);
+  color: var(--blg-ink);
+  box-shadow: none;
+}
+.blg-home.md-organic .md-live-card.bg-pitch-forest .md-btn-primary:hover {
+  background: var(--blg-gold-hover);
+}
+.blg-home.md-organic .md-live-card.bg-pitch-forest .text-pitch-lime {
+  color: var(--blg-gold);
+}
+
+/* League / standings: navy field, white table. */
+.blg-home.md-organic section.md-band-olive,
+.blg-home.md-organic section.md-band-scoreboard {
+  background: var(--blg-navy);
+  color: var(--blg-white);
+}
+.blg-home.md-organic section.md-band-olive :is(h1, h2, h3),
+.blg-home.md-organic section.md-band-olive :is(h1, h2, h3).text-pitch-chalk,
+.blg-home.md-organic section.md-band-scoreboard :is(h1, h2, h3),
+.blg-home.md-organic section.md-band-scoreboard :is(h1, h2, h3).text-pitch-chalk {
+  color: var(--blg-white);
+}
+.blg-home.md-organic .md-band-olive :is(.text-pitch-chalk, .text-pitch-stone),
+.blg-home.md-organic section.md-band-scoreboard :is(.text-pitch-stone, .text-pitch-charcoal\/70, .text-pitch-charcoal\/60) {
+  color: var(--blg-on-navy);
+}
+.blg-home.md-organic .md-band-olive .uppercase,
+.blg-home.md-organic section.md-band-scoreboard .uppercase,
+.blg-home.md-organic .md-band-olive .text-pitch-lime {
+  color: var(--blg-gold-classic);
+}
+.blg-home.md-organic .md-band-olive .overflow-x-auto,
+.blg-home.md-organic section.md-band-scoreboard .md-match-card {
+  background: var(--blg-white);
+  color: var(--blg-ink);
+  border-color: var(--blg-line);
+  border-radius: 12px;
+  box-shadow: var(--blg-shadow-s);
+}
+.blg-home.md-organic .md-band-olive .overflow-x-auto :is(.text-pitch-chalk, .text-pitch-stone, .text-pitch-charcoal),
+.blg-home.md-organic section.md-band-scoreboard .md-match-card :is(.text-pitch-charcoal, .font-bold, .font-extrabold) {
+  color: var(--blg-ink);
+}
+.blg-home.md-organic .md-band-olive .overflow-x-auto .text-pitch-lime,
+.blg-home.md-organic section.md-band-scoreboard .md-match-card .text-pitch-olive {
+  color: var(--blg-blau);
+}
+.blg-home.md-organic section.md-band-scoreboard .md-match-card :is(.text-pitch-charcoal\/70, .text-pitch-charcoal\/60) {
+  color: var(--blg-muted);
+}
+.blg-home.md-organic section.md-band-scoreboard .md-match-vs {
+  background: #e8eeff;
+  color: var(--blg-blau);
+}
+.blg-home.md-organic .md-band-olive select,
+.blg-home.md-organic .md-band-olive select :is(option, optgroup) {
+  background: var(--blg-navy-deep);
+  color: var(--blg-white);
+  border-color: rgb(255 255 255 / 0.2);
+  border-radius: 8px;
+}
+
+/* Story: navy veil over the existing photograph. */
+.blg-home.md-organic #about .text-pitch-chalk,
+.blg-home.md-organic #about h2 {
+  color: var(--blg-white);
+}
+.blg-home.md-organic #about .text-pitch-lime,
+.blg-home.md-organic #about .uppercase {
+  color: var(--blg-gold-classic);
+}
+.blg-home.md-organic #about .md-btn-primary,
+.blg-home.md-organic #about .md-btn-primary:hover {
+  color: var(--blg-white);
+}
+
+/* Players band stays matchday navy; title is sentence case. */
+.blg-home.md-organic section.md-band-players {
+  background: var(--blg-navy);
+  color: var(--blg-white);
+}
+.blg-home.md-organic section.md-band-players::before {
+  opacity: 0.08;
+}
+.blg-home.md-organic.md-brand h2.md-players-title {
+  font-family: var(--font-md-club), Barlow, Arial, Helvetica, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  text-transform: none;
+  color: var(--blg-white);
+}
+.blg-home.md-organic .md-players-all {
+  font-family: var(--font-md-club), Barlow, Arial, Helvetica, sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.16px;
+  text-transform: none;
+  color: #8fa6ff;
+}
+.blg-home.md-organic .md-players-all:hover {
+  color: var(--blg-white);
+}
+.blg-home.md-organic .md-players-nav button {
+  border-color: rgb(255 255 255 / 0.4);
+}
+.blg-home.md-organic .md-players-nav button:hover {
+  background: var(--blg-white);
+  color: var(--blg-navy);
+}
+
+/* Sponsors: navy strip, gold pill with ink text, white logo tiles. */
+.blg-home.md-organic section.md-sponsor-strip {
+  background: var(--blg-navy);
+  color: var(--blg-white);
+}
+.blg-home.md-organic section.md-sponsor-strip h2 {
+  color: var(--blg-white);
+}
+.blg-home.md-organic .md-sponsor-strip__all,
+.blg-home.md-organic .md-sponsor-strip__all:hover {
+  background: var(--blg-gold);
+  color: var(--blg-ink);
+  border-radius: 256px;
+  font-family: var(--font-md-club), Barlow, Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.16px;
+  text-transform: none;
+  padding: 12px 20px;
+}
+.blg-home.md-organic .md-sponsor-strip__all:hover {
+  background: var(--blg-gold-hover);
+}
+.blg-home.md-organic .md-sponsor-strip__grid {
+  border-left-color: var(--blg-grana);
+}
+.blg-home.md-organic .md-sponsor-tile__logo {
+  background: var(--blg-white);
+  border-radius: 8px;
+  padding: 8px;
+}
+.blg-home.md-organic .md-sponsor-tile__name {
+  color: var(--blg-white);
+}
+
+/* Footer: navy, muted links, stripe instead of a gold rule. */
+.blg-home.md-organic footer {
+  background: var(--blg-navy);
+  color: var(--blg-white);
+  border-top: 8px solid transparent;
+  border-image: var(--blg-stripe) 1;
+}
+.blg-home.md-organic footer :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--blg-white);
+}
+.blg-home.md-organic footer :is(a, .text-pitch-stone, .text-pitch-chalk) {
+  color: var(--blg-on-navy);
+}
+.blg-home.md-organic footer a:hover {
+  color: var(--blg-white);
+}
+.blg-home.md-organic footer .uppercase {
+  color: var(--blg-gold-classic);
+}

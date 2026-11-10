@@ -1,8 +1,9 @@
 import FcUnitedHomePage from '@/components/fc-united/FcUnitedHomePage';
 
 /**
- * Home route: static FC United mirror (wget index) styled per
- * `design_systems/mdStrikers_site_general_design_final.json`.
+ * Home route: FC United homepage. Visual system is Blaugrana
+ * (`public/website-reference/blaugrana-design-system`), applied in
+ * `src/components/fc-united/blaugrana-home.css`. Content and data flow are unchanged.
  *
  * Previous implementation (dynamic featured events + HomePageClient) is kept in:
  * - `src/app/HomePageClient.tsx`

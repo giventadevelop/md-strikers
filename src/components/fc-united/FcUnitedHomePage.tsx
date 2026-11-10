@@ -37,6 +37,7 @@ import { NextMatchPanel } from './NextMatchPanel';
 import { buildStandings } from './homeStandings';
 import { HomeLeagueSection } from './HomeLeagueSection';
 import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchFocus, pitchPageInset, pitchSection } from './pitchUi';
+import './blaugrana-home.css';
 const STORY_IMAGE = '/images/md_strikers_media/gallery/mdstrikers_com/gal03.jpg';
 
 const formatNewsDate = (iso: string) =>
@@ -254,7 +255,7 @@ export default async function FcUnitedHomePage() {
   const hasMatchPanel = lastMatches.length > 0;
 
   return (
-    <div className={cn(fcBrand.className, fcOrganic.className, 'md-organic flex min-h-screen flex-col bg-pitch-charcoal text-pitch-stone antialiased')}>
+    <div className={cn(fcBrand.className, fcOrganic.className, 'blg-home md-organic flex min-h-screen flex-col antialiased')}>
       <HomeMotion>
       <FcUnitedHeader active="home" />
 
