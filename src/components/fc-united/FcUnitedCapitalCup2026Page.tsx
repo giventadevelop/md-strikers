@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { fcBrand } from './fcUnitedFonts';
+import { fcPublicShell } from './fcUnitedFonts';
 import { pitchPageInset } from './pitchUi';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
@@ -18,7 +18,7 @@ function Shell({ children, className }: { children: ReactNode; className?: strin
 /** Content aligned with https://www.mdstrikers.com/capitalcup2026.html */
 export default function FcUnitedCapitalCup2026Page() {
   return (
-    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={fcPublicShell}>
       <FcUnitedHeader />
       <FcUnitedInnerHero title="Capital Cup 2026" />
 

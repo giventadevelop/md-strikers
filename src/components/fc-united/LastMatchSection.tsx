@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type PointerEvent } from 'react';
+import { useEffect, useState, type PointerEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -13,7 +13,7 @@ import { MdPagination } from './MdPagination';
 export const HOMEPAGE_MATCHES_LIMIT = 6;
 const MATCHES_PAGE_SIZE = 20;
 
-type MatchView = 'PAST' | 'UPCOMING';
+type MatchView = 'PAST' | 'UPCOMING' | 'ALL';
 
 type Props = {
   matches: LastMatchCard[];
@@ -23,9 +23,21 @@ type Props = {
   showSeeAll?: boolean;
   /** Toggle alignment: homepage end / matches page center. */
   toggleAlign?: 'end' | 'center';
+  /** Match-centre presentation for /matches. Homepage keeps the default layout. */
+  centre?: boolean;
 };
 
-function TeamSide({ logo, name, side }: { logo: string; name: string; side: 'home' | 'away' }) {
+function TeamSide({
+  logo,
+  name,
+  side,
+  tone = 'ink',
+}: {
+  logo: string;
+  name: string;
+  side: 'home' | 'away';
+  tone?: 'ink' | 'light';
+}) {
   return (
     <div className="flex min-w-0 flex-col items-center gap-3 text-center">
       <Image
@@ -35,7 +47,11 @@ function TeamSide({ logo, name, side }: { logo: string; name: string; side: 'hom
         height={64}
         className={cn('md-match-crest h-16 w-16 object-contain', `md-match-crest--${side}`)}
       />
-      {name && <p className="text-sm font-bold leading-snug text-pitch-charcoal">{name}</p>}
+      {name && (
+        <p className={tone === 'light' ? 'md-centre-name' : 'text-sm font-bold leading-snug text-pitch-charcoal'}>
+          {name}
+        </p>
+      )}
     </div>
   );
 }
@@ -57,6 +73,72 @@ function resetCard(event: PointerEvent<HTMLElement>) {
   for (const name of ['--rx', '--ry', '--mx', '--my']) event.currentTarget.style.removeProperty(name);
 }
 
+function KickoffCountdown({ label }: { label: string }) {
+  const target = Date.parse(label);
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!Number.isFinite(target) || target <= Date.now()) return;
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [target]);
+
+  if (!Number.isFinite(target) || target <= now) return null;
+  const diff = target - now;
+  const parts = [
+    Math.floor(diff / 86400000),
+    Math.floor((diff % 86400000) / 3600000),
+    Math.floor((diff % 3600000) / 60000),
+    Math.floor((diff % 60000) / 1000),
+  ];
+  const units = ['d', 'h', 'm', 's'];
+  return (
+    <p className="md-centre-count">
+      {parts.map((value, index) => (
+        <span key={units[index]}>
+          {String(value).padStart(2, '0')}
+          <small>{units[index]}</small>
+        </span>
+      ))}
+    </p>
+  );
+}
+
+function CentreCard({ match }: { match: LastMatchCard }) {
+  const upcoming = match.matchKind === 'UPCOMING';
+  const home = Number(match.score[0]);
+  const away = Number(match.score[1]);
+  const scored = Number.isFinite(home) && Number.isFinite(away);
+  const winner = upcoming || !scored || home === away ? '' : home > away ? match.homeName : match.awayName;
+
+  return (
+    <article className="md-centre-card" onPointerMove={tiltCard} onPointerLeave={resetCard}>
+      <header>
+        {match.league ? <span className="md-centre-badge">{match.league}</span> : null}
+        <span className={upcoming ? 'md-centre-status is-next' : 'md-centre-status'}>
+          {upcoming ? 'Upcoming' : 'Completed'}
+        </span>
+      </header>
+      <div className="md-centre-board">
+        <TeamSide logo={match.home} name={match.homeName} side="home" tone="light" />
+        {upcoming ? (
+          <p className="md-centre-vs">VS</p>
+        ) : (
+          <p className="md-centre-score" aria-label={`Final score ${match.score[0]} to ${match.score[1]}`}>
+            <span className={scored && home > away ? 'is-win' : undefined}>{match.score[0]}</span>
+            <span aria-hidden>–</span>
+            <span className={scored && away > home ? 'is-win' : undefined}>{match.score[1]}</span>
+          </p>
+        )}
+        <TeamSide logo={match.away} name={match.awayName} side="away" tone="light" />
+      </div>
+      <p className="md-centre-date">{match.date}</p>
+      {!upcoming && scored ? (
+        <p className="md-centre-result">{winner ? `${winner} won` : 'Draw'}</p>
+      ) : null}
+    </article>
+  );
+}
 function initialMatchView(matches: LastMatchCard[]): MatchView {
   if (matches.some((m) => m.matchKind === 'UPCOMING')) return 'UPCOMING';
   if (matches.some((m) => m.matchKind === 'PAST')) return 'PAST';
@@ -73,11 +155,12 @@ export function LastMatchSection({
   limitPerView,
   showSeeAll = false,
   toggleAlign = 'end',
+  centre = false,
 }: Props) {
   const [view, setView] = useState<MatchView>(() => initialMatchView(matches));
   const [page, setPage] = useState(0);
 
-  const filtered = matches.filter((m) => m.matchKind === view);
+  const filtered = view === 'ALL' ? matches : matches.filter((m) => m.matchKind === view);
   const paginate = !(typeof limitPerView === 'number' && limitPerView > 0);
   const totalCount = filtered.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / MATCHES_PAGE_SIZE));
@@ -93,10 +176,102 @@ export function LastMatchSection({
     setPage(0);
   };
 
+  if (centre) {
+    const featured = matches.find((match) => match.matchKind === 'UPCOMING');
+    const heading = view === 'ALL' ? 'All Matches' : isUpcoming ? 'Upcoming Matches' : 'Past Matches';
+    const kicker = view === 'PAST' ? 'Results' : 'Fixtures';
+    const empty =
+      view === 'ALL'
+        ? 'No matches available.'
+        : isUpcoming
+          ? 'No upcoming matches scheduled.'
+          : 'No past matches available.';
+
+    return (
+      <section className={cn(fcBrand.className, 'md-match-centre')} aria-label="Match list">
+        <div className="md-match-centre__inner">
+          {featured ? (
+            <article className="md-centre-feature">
+              <header>
+                <p>Featured fixture</p>
+                {featured.league ? <span className="md-centre-badge">{featured.league}</span> : null}
+                <span className="md-centre-status is-next">Upcoming</span>
+              </header>
+              <div className="md-centre-board">
+                <TeamSide logo={featured.home} name={featured.homeName} side="home" tone="light" />
+                <div>
+                  <p className="md-centre-vs">VS</p>
+                  <KickoffCountdown label={featured.date} />
+                </div>
+                <TeamSide logo={featured.away} name={featured.awayName} side="away" tone="light" />
+              </div>
+              <p className="md-centre-date">{featured.date}</p>
+            </article>
+          ) : null}
+
+          <div className="md-match-centre__head">
+            <div>
+              <p className="md-match-kicker">{kicker}</p>
+              <h2>{heading}</h2>
+            </div>
+            <div className="md-match-filters" role="group" aria-label="Match list filter">
+              {(
+                [
+                  ['UPCOMING', 'Upcoming Matches'],
+                  ['PAST', 'Past Matches'],
+                  ['ALL', 'All Matches'],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => selectView(value)}
+                  className={view === value ? 'is-on' : undefined}
+                  aria-pressed={view === value}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {visible.length === 0 ? (
+            <p className="md-centre-empty">{empty}</p>
+          ) : (
+            <div className="md-centre-grid">
+              {visible.map((match) => (
+                <CentreCard key={match.id} match={match} />
+              ))}
+            </div>
+          )}
+
+          {paginate && (
+            <MdPagination
+              page={safePage}
+              pageSize={MATCHES_PAGE_SIZE}
+              totalCount={totalCount}
+              onPageChange={setPage}
+              itemLabel="matches"
+              itemLabelSingular="match"
+            />
+          )}
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className={cn(fcBrand.className, pitchSection, 'md-band-scoreboard bg-pitch-charcoal')}>
       <SportBackgroundIcons />
       <PitchShell>
+        {showSeeAll && (
+          <div className="mb-8 flex justify-end">
+            <Link href="/matches" className={cn(pitchButton.primaryOnLight, 'group')}>
+              See All Matches
+              <PitchArrow />
+            </Link>
+          </div>
+        )}
         <div
           className={cn(
             'mb-12 flex flex-col gap-6 md:mb-16',

@@ -1,13 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
 import type { LeagueDTO } from '@/types';
 import { fetchPublishedLeaguesServer } from '@/components/fc-united/ApiServerActions';
 import { FcUnitedFooter } from '@/components/fc-united/FcUnitedFooter';
 import { FcUnitedHeader } from '@/components/fc-united/FcUnitedHeader';
 import { FcUnitedInnerHero } from '@/components/fc-united/FcUnitedInnerHero';
-import { fcBrand } from '@/components/fc-united/fcUnitedFonts';
-import { PitchShell } from '@/components/fc-united/pitchUi';
+import { fcPublicShell } from '@/components/fc-united/fcUnitedFonts';
+import { PitchArrow, PitchShell } from '@/components/fc-united/pitchUi';
 
 export const metadata: Metadata = {
   title: 'Leagues',
@@ -31,17 +30,24 @@ function LeagueCard({ league }: { league: LeagueDTO }) {
     <li>
       <Link
         href={`/leagues/${league.slug}`}
-        className="flex h-full flex-col rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-6 shadow-sm transition-shadow duration-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime"
+        className="md-league-card group flex h-full flex-col p-6 sm:p-7 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#104a91]"
       >
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-pitch-olive">
-          {statusLabel(league.status)}
-          {league.seasonLabel ? ` · ${league.seasonLabel}` : ''}
-        </p>
-        <h2 className="mt-3 text-2xl font-extrabold tracking-[-0.02em] text-pitch-charcoal">{league.name}</h2>
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="md-league-card__status" data-status={league.status || 'LEAGUE'}>
+            {statusLabel(league.status)}
+          </p>
+          {league.seasonLabel ? <p className="md-league-card__season">{league.seasonLabel}</p> : null}
+        </div>
+        <h2 className="mt-4 text-2xl font-extrabold tracking-[-0.02em] text-pitch-charcoal">{league.name}</h2>
         {league.description ? (
-          <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-pitch-charcoal/70">{league.description}</p>
-        ) : null}
-        <span className="mt-6 text-sm font-semibold text-pitch-olive">View table →</span>
+          <p className="mt-3 flex-1 line-clamp-3 text-sm leading-relaxed text-pitch-charcoal/70">{league.description}</p>
+        ) : (
+          <span className="flex-1" />
+        )}
+        <span className="md-btn md-btn-primary mt-6 self-start">
+          View table
+          <PitchArrow />
+        </span>
       </Link>
     </li>
   );
@@ -56,7 +62,7 @@ export default async function LeaguesPage() {
   const other = leagues.filter((league) => !GROUPS.some((group) => group.status === league.status));
 
   return (
-    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={fcPublicShell}>
       <FcUnitedHeader active="leagues" />
       <FcUnitedInnerHero title="Leagues" subtitle="Tables, clubs, and results for each published league." />
       <section className="md-sport-bg bg-pitch-chalk pb-20 pt-10">
@@ -70,13 +76,13 @@ export default async function LeaguesPage() {
               {grouped.map((group) => (
                 <div key={group.status}>
                   <div className="mb-6">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-pitch-olive">{group.label}</p>
+                    <p className="md-league-kicker">{group.label}</p>
                     <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.02em] text-pitch-charcoal md:text-3xl">
                       {group.label} leagues
                     </h2>
                     <p className="mt-2 text-sm text-pitch-charcoal/70">{group.lead}</p>
                   </div>
-                  <ul className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <ul className="md-league-grid grid grid-cols-1 gap-6 md:grid-cols-2">
                     {group.entries.map((league) => (
                       <LeagueCard key={league.id} league={league} />
                     ))}
@@ -86,7 +92,7 @@ export default async function LeaguesPage() {
               {other.length > 0 ? (
                 <div>
                   <h2 className="mb-6 text-2xl font-extrabold tracking-[-0.02em] text-pitch-charcoal">Other leagues</h2>
-                  <ul className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <ul className="md-league-grid grid grid-cols-1 gap-6 md:grid-cols-2">
                     {other.map((league) => (
                       <LeagueCard key={league.id} league={league} />
                     ))}

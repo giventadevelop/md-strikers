@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { fcBrand } from './fcUnitedFonts';
+import { fcPublicShell } from './fcUnitedFonts';
 import { FcUnitedEventsCatalogClient } from './FcUnitedEventsCatalogClient';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
@@ -11,9 +11,10 @@ import { FcUnitedInnerHero } from './FcUnitedInnerHero';
  */
 export default function FcUnitedEventsPage() {
   return (
-    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={cn(fcPublicShell, 'md-events-page')}>
       <FcUnitedHeader active="events" />
       <FcUnitedInnerHero
+        tone="club"
         title="All Events"
         subtitle="Tickets, registration and the whole schedule in one place."
       />

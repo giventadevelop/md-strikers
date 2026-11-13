@@ -8,7 +8,7 @@ import type { TeamMemberImageTitle } from './ApiServerActions';
 import { encodePublicPath } from './fcUnitedGalleryData';
 import { fcBrand } from './fcUnitedFonts';
 import { stepLoop } from './loopCarousel';
-import { PitchShell } from './pitchUi';
+import { PitchArrow, PitchShell, pitchButton } from './pitchUi';
 
 type Props = { members: TeamMemberImageTitle[] };
 
@@ -56,12 +56,15 @@ export function TeamMembersDbSection({ members }: Props) {
   return (
     <section className={cn(fcBrand.className, 'md-band-players overflow-hidden py-14 md:py-20')}>
       <PitchShell>
-        <div className="md-players-head">
-          <Link href="/team" className="md-players-all">
-            View all players
+        <div className="mb-6 flex justify-end">
+          <Link href="/team" className={cn(pitchButton.primaryOnLight, 'group')}>
+            See All Players
+            <PitchArrow />
           </Link>
+        </div>
+        <div className="md-players-head">
           <h2 className="md-players-title">Players</h2>
-          <div className="md-players-nav">
+          <div className="md-players-nav ml-auto">
             <button type="button" aria-label="Previous" title="Previous" onClick={() => scrollStep(-1)}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -155,6 +158,12 @@ export function TeamMembersDbSection({ members }: Props) {
               );
             })}
           </div>
+        </div>
+        <div className="mt-12 flex justify-center">
+          <Link href="/team" className={cn(pitchButton.primaryOnLight, 'group')}>
+            See All Players
+            <PitchArrow />
+          </Link>
         </div>
       </PitchShell>
     </section>

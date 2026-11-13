@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { newsHref, type ClubAdSlot, type ClubNewsArticle, type ClubNewsPageData } from '@/lib/news/clubNews';
-import { fcBrand } from './fcUnitedFonts';
+import { fcPublicShell } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
@@ -141,7 +141,7 @@ export default function FcUnitedNewsPage({ data }: { data: ClubNewsPageData }) {
   const safePage = Math.min(page, totalPages - 1);
   const visibleMain = data.mainNews.slice(safePage * MAIN_NEWS_PAGE_SIZE, (safePage + 1) * MAIN_NEWS_PAGE_SIZE);
   return (
-    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={fcPublicShell}>
       <FcUnitedHeader active="news" />
       <FcUnitedInnerHero title="News" subtitle="Latest news from Maryland Strikers." />
       <main className="md-sport-bg bg-pitch-chalk py-12 md:py-16">

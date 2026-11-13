@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import {
@@ -28,6 +28,7 @@ export function AlbumMediaSlideshow({ album, media, onClose, initialIndex = 0 }:
   const [showDetails, setShowDetails] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(3000); // 3 seconds per slide
   const capitalCupCustomThumbnail = '/images/md_strikers_media/gallery_Thumbnail/Capital-Cup-2026.jpg';
+  const touchX = useRef<number | null>(null);
 
   console.log('AlbumMediaSlideshow rendered with:', {
     albumTitle: album.title,
@@ -121,7 +122,7 @@ export function AlbumMediaSlideshow({ album, media, onClose, initialIndex = 0 }:
   console.log('Rendering slideshow modal for media:', currentMedia);
 
   return (
-    <div className="fixed inset-0 z-50 bg-pitch-charcoal/95 flex items-center justify-center pt-16 pb-8">
+    <div className="md-gallery-viewer fixed inset-0 z-[80] flex items-center justify-center">
       {/* Close button */}
       <button
         onClick={onClose}
@@ -151,7 +152,17 @@ export function AlbumMediaSlideshow({ album, media, onClose, initialIndex = 0 }:
       {/* Main content */}
       <div className="flex flex-col items-center justify-center w-full h-full px-4">
         {/* Media display */}
-        <div className="relative max-w-4xl max-h-[70vh] w-full mb-4">
+        <div
+          className="md-gallery-viewer__stage"
+          onTouchStart={(e) => { touchX.current = e.changedTouches[0].clientX; }}
+          onTouchEnd={(e) => {
+            if (touchX.current == null || media.length < 2) return;
+            const dx = e.changedTouches[0].clientX - touchX.current;
+            if (dx > 48) goToPrevious();
+            else if (dx < -48) goToNext();
+            touchX.current = null;
+          }}
+        >
           {isYoutube && youtubeId ? (
             <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
               <iframe
@@ -268,7 +279,7 @@ export function AlbumMediaSlideshow({ album, media, onClose, initialIndex = 0 }:
         {/* Thumbnail strip */}
         {media.length > 1 && (
           <div className="max-w-4xl w-full mt-4">
-            <div className="flex space-x-2 overflow-x-auto pb-2">
+            <div className="md-gallery-film">
               {media.map((mediaItem, index) => (
                 <button
                   key={mediaItem.id}

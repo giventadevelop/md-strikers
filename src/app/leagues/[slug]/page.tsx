@@ -12,7 +12,7 @@ import {
 import { FcUnitedFooter } from '@/components/fc-united/FcUnitedFooter';
 import { FcUnitedHeader } from '@/components/fc-united/FcUnitedHeader';
 import { FcUnitedInnerHero } from '@/components/fc-united/FcUnitedInnerHero';
-import { fcBrand } from '@/components/fc-united/fcUnitedFonts';
+import { fcPublicShell } from '@/components/fc-united/fcUnitedFonts';
 import { ClubMark } from '@/components/fc-united/ClubMark';
 import { LeagueStandingsTable } from '@/components/fc-united/LeagueStandingsTable';
 import { PitchShell, pitchButton } from '@/components/fc-united/pitchUi';
@@ -91,7 +91,7 @@ export default async function LeaguePage({ params }: PageProps) {
     .join(' · ');
 
   return (
-    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={fcPublicShell}>
       <FcUnitedHeader active="leagues" />
       <FcUnitedInnerHero
         title={league.name}

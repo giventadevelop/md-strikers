@@ -7,14 +7,13 @@ import type { EventSponsorsDTO, EventMediaDTO } from "@/types";
 import { Camera, Video, Eye } from 'lucide-react';
 import styles from '../../events/[id]/GalleryThumbnails.module.css';
 import { EventMediaSlideshow } from '@/app/gallery/components/EventMediaSlideshow';
-import { cn } from '@/lib/utils';
 import { FcUnitedFooter } from '@/components/fc-united/FcUnitedFooter';
 import { FcUnitedHeader } from '@/components/fc-united/FcUnitedHeader';
-import { fcPoppins } from '@/components/fc-united/fcUnitedFonts';
+import { fcPublicShell } from '@/components/fc-united/fcUnitedFonts';
 
 function SponsorDetailChrome({ children }: { children: ReactNode }) {
   return (
-    <div className={cn(fcPoppins.className, 'min-h-screen bg-[#f4f4f4] text-[#797e87] antialiased')}>
+    <div className={fcPublicShell}>
       <FcUnitedHeader active="sponsors" />
       {children}
       <FcUnitedFooter />

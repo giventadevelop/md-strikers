@@ -18,7 +18,7 @@ import { isDonationBasedEvent, isTicketedFundraiserEvent } from '@/lib/donation/
 import { resolveBuyTicketsTarget, resolveRegisterTarget } from '@/lib/eventcube/utils';
 import { resolveEventImageUrlsServer } from './ApiServerActions';
 import { DEFAULT_EVENT_IMAGE, formatEventDate, eventHref } from './homeEventDisplay';
-import { pitchPageInset } from './pitchUi';
+import { pitchButton, pitchPageInset } from './pitchUi';
 
 
 const PAGE_SIZE = 20;
@@ -108,11 +108,8 @@ function collapseRecurring(list: EventDetailsDTO[], keepFinished: boolean): Even
   return [...single, ...series.values()];
 }
 
-const pillCta =
-  'inline-flex items-center justify-center gap-2 rounded-lg md-btn-primary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive hover:-translate-y-0.5 motion-reduce:hover:translate-y-0';
-
-const secondaryCta =
-  'inline-flex items-center justify-center gap-2 rounded-lg md-btn-gold px-6 py-2.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
+const pillCta = cn(pitchButton.primaryOnLight, 'px-6 py-2.5 text-sm');
+const secondaryCta = cn(pitchButton.ghostOnLight, 'px-6 py-2.5 text-sm');
 
 export function FcUnitedEventsCatalogClient() {
   const [events, setEvents] = useState<CatalogEvent[]>([]);
@@ -253,14 +250,14 @@ export function FcUnitedEventsCatalogClient() {
   };
 
   return (
-    <section className="md-sport-bg bg-pitch-chalk pb-16 pt-2 md:pb-20 md:pt-4">
+    <section className="md-events-catalog pb-16 pt-8 md:pb-20 md:pt-12">
       <Shell>
         {/* Section header — label → headline → detail */}
         <div className="mb-8 text-center md:mb-10 md:text-left">
-          <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">
+          <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-[#104a91]">
             calendar
           </span>
-          <h2 className={cn('font-extrabold tracking-[-0.02em] text-3xl text-pitch-charcoal md:text-4xl')}>
+          <h2 className={cn('font-extrabold tracking-[-0.02em] text-3xl text-[#10233f] md:text-4xl')}>
             {showPastEvents ? 'Past Events' : 'Upcoming Events'}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-pitch-charcoal/70 md:text-[15px]">
@@ -275,7 +272,7 @@ export function FcUnitedEventsCatalogClient() {
           <span
             className={cn(
               'text-2xl font-semibold uppercase tracking-[0.14em] transition-colors duration-300',
-              !showPastEvents ? 'text-pitch-olive' : 'text-pitch-charcoal/70',
+              !showPastEvents ? 'text-[#104a91]' : 'text-[#60738c]',
             )}
           >
             Future
@@ -287,8 +284,8 @@ export function FcUnitedEventsCatalogClient() {
               setPage(0);
             }}
             className={cn(
-              'relative inline-flex h-20 w-32 items-center rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2',
-              'bg-gradient-to-r from-brand-red to-brand-orange',
+              'relative inline-flex h-20 w-32 items-center rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#104a91] focus-visible:ring-offset-2',
+              showPastEvents ? 'bg-[#0b2d59]' : 'bg-[#104a91]',
             )}
             title={showPastEvents ? 'Show Future Events' : 'Show Past Events'}
             aria-label={showPastEvents ? 'Show Future Events' : 'Show Past Events'}
@@ -304,7 +301,7 @@ export function FcUnitedEventsCatalogClient() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               ) : (
-                <svg className="h-8 w-8 text-pitch-olive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-8 w-8 text-[#104a91]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               )}
@@ -313,7 +310,7 @@ export function FcUnitedEventsCatalogClient() {
           <span
             className={cn(
               'text-2xl font-semibold uppercase tracking-[0.14em] transition-colors duration-300',
-              showPastEvents ? 'text-pitch-charcoal' : 'text-pitch-charcoal/70',
+              showPastEvents ? 'text-[#10233f]' : 'text-[#60738c]',
             )}
           >
             Past
@@ -321,7 +318,7 @@ export function FcUnitedEventsCatalogClient() {
         </div>
 
         {/* Search — flat bordered panel */}
-        <div className="mb-8 rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-5 md:p-6">
+        <div className="mb-8 rounded-2xl border border-[#e8eef6] bg-white p-5 shadow-[0_12px_28px_rgba(16,35,63,0.08)] md:p-6">
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">
             Search events
           </p>
@@ -336,7 +333,7 @@ export function FcUnitedEventsCatalogClient() {
                 value={searchTitle}
                 onChange={(e) => setSearchTitle(e.target.value)}
                 placeholder="Search by title…"
-                className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
+                className="w-full rounded-xl border border-[#e8eef6] bg-white px-3 py-2.5 text-sm text-[#10233f] outline-none transition-colors duration-300 focus:border-[#104a91]"
               />
             </div>
             <div>
@@ -347,14 +344,14 @@ export function FcUnitedEventsCatalogClient() {
                   value={searchDateFrom}
                   onChange={(e) => setSearchDateFrom(e.target.value)}
                   aria-label="From date"
-                  className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-2 py-2.5 text-sm text-pitch-charcoal outline-none focus:border-pitch-olive"
+                  className="w-full rounded-xl border border-[#e8eef6] bg-white px-2 py-2.5 text-sm text-[#10233f] outline-none focus:border-[#104a91]"
                 />
                 <input
                   type="date"
                   value={searchDateTo}
                   onChange={(e) => setSearchDateTo(e.target.value)}
                   aria-label="To date"
-                  className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-2 py-2.5 text-sm text-pitch-charcoal outline-none focus:border-pitch-olive"
+                  className="w-full rounded-xl border border-[#e8eef6] bg-white px-2 py-2.5 text-sm text-[#10233f] outline-none focus:border-[#104a91]"
                 />
               </div>
             </div>
@@ -398,7 +395,7 @@ export function FcUnitedEventsCatalogClient() {
 
         {loading ? (
           <div className="flex min-h-[240px] items-center justify-center">
-            <div className="h-10 w-10 animate-spin rounded-full border-2 border-pitch-charcoal/10 border-t-pitch-olive" aria-label="Loading" />
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#e8eef6] border-t-[#104a91]" aria-label="Loading" />
           </div>
         ) : fetchError ? (
           <p className="rounded-xl border border-pitch-olive/30 bg-pitch-card px-5 py-8 text-center text-sm font-medium text-pitch-olive">
@@ -444,7 +441,7 @@ export function FcUnitedEventsCatalogClient() {
               return (
                 <article
                   key={event.id ?? event.title}
-                  className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card transition-colors duration-300 ease-in-out hover:border-pitch-charcoal/25"
+                  className="overflow-hidden rounded-2xl border border-[#e8eef6] bg-white shadow-[0_12px_28px_rgba(16,35,63,0.08)] transition-shadow duration-300 ease-in-out hover:shadow-[0_18px_40px_rgba(16,35,63,0.14)]"
                 >
                   {/* Container takes the image's own aspect ratio: full width, no side gaps, no cropping */}
                   <div className="relative w-full border-b border-pitch-charcoal/10 bg-pitch-chalk">
@@ -457,13 +454,13 @@ export function FcUnitedEventsCatalogClient() {
                       sizes="(max-width: 1240px) 100vw, 1240px"
                     />
                     {showPastEvents && (
-                      <span className="absolute left-3 top-3 rounded-md bg-pitch-lime px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-pitch-charcoal">
+                      <span className="absolute left-3 top-3 rounded-full bg-[#ffc857] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-[#071b38]">
                         Past Event
                       </span>
                     )}
                   </div>
                   <div className="px-5 py-5 md:px-6 md:py-6">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-pitch-olive">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#104a91]">
                       {showPastEvents ? 'Past Event' : 'Upcoming Event'}
                     </p>
                     <h3
@@ -473,7 +470,7 @@ export function FcUnitedEventsCatalogClient() {
                     >
                       <Link
                         href={href}
-                        className="transition-colors duration-300 hover:text-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive"
+                        className="transition-colors duration-300 hover:text-[#104a91] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#104a91]"
                       >
                         {event.title}
                       </Link>
@@ -488,7 +485,7 @@ export function FcUnitedEventsCatalogClient() {
                           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location.trim())}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-semibold text-pitch-olive transition-colors hover:underline"
+                          className="font-semibold text-[#104a91] transition-colors hover:underline"
                           title="Open in Google Maps"
                           aria-label="Open location in Google Maps"
                         >

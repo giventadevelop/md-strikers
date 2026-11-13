@@ -165,67 +165,81 @@ export function FcUnitedContactForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto mt-10 max-w-2xl space-y-4 text-left" autoComplete="off">
-      <div className="grid gap-4 md:grid-cols-2">
-        <input
-          type="text"
-          name="full_name"
-          placeholder="name *"
-          value={formData.full_name}
-          onChange={(e) => setFormData((p) => ({ ...p, full_name: e.target.value }))}
-          className="rounded-xl border border-pitch-charcoal/10 bg-pitch-chalk/60 px-4 py-3 text-sm text-pitch-charcoal placeholder:text-pitch-charcoal/70 focus-visible:border-pitch-olive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive/30"
-        />
-        <input
-          type="email"
-          name="email_address"
-          placeholder="email *"
-          value={formData.email_address}
-          onChange={(e) => setFormData((p) => ({ ...p, email_address: e.target.value }))}
-          className="rounded-xl border border-pitch-charcoal/10 bg-pitch-chalk/60 px-4 py-3 text-sm text-pitch-charcoal placeholder:text-pitch-charcoal/70 focus-visible:border-pitch-olive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive/30"
-        />
+    <form onSubmit={handleSubmit} className="md-contact-form" autoComplete="off">
+      <div className="md-contact-form__row">
+        <label>
+          <span>Name *</span>
+          <input
+            type="text"
+            name="full_name"
+            placeholder="name *"
+            value={formData.full_name}
+            onChange={(e) => setFormData((p) => ({ ...p, full_name: e.target.value }))}
+          />
+        </label>
+        <label>
+          <span>Email *</span>
+          <input
+            type="email"
+            name="email_address"
+            placeholder="email *"
+            value={formData.email_address}
+            onChange={(e) => setFormData((p) => ({ ...p, email_address: e.target.value }))}
+          />
+        </label>
       </div>
-      <input
-        type="tel"
-        name="phone_number"
-        placeholder="phone (optional)"
-        value={formData.phone_number}
-        onChange={(e) => setFormData((p) => ({ ...p, phone_number: e.target.value }))}
-        className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-chalk/60 px-4 py-3 text-sm text-pitch-charcoal placeholder:text-pitch-charcoal/70 focus-visible:border-pitch-olive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive/30"
-      />
-      <textarea
-        name="feedback"
-        placeholder="message *"
-        rows={6}
-        value={formData.feedback}
-        onChange={(e) => setFormData((p) => ({ ...p, feedback: e.target.value }))}
-        className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-chalk/60 px-4 py-3 text-sm text-pitch-charcoal placeholder:text-pitch-charcoal/70 focus-visible:border-pitch-olive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive/30"
-      />
-      <label className="flex items-start gap-2 text-sm text-pitch-charcoal/70">
+      <label>
+        <span>Phone</span>
+        <input
+          type="tel"
+          name="phone_number"
+          placeholder="phone (optional)"
+          value={formData.phone_number}
+          onChange={(e) => setFormData((p) => ({ ...p, phone_number: e.target.value }))}
+        />
+      </label>
+      <label>
+        <span>Message *</span>
+        <textarea
+          name="feedback"
+          placeholder="message *"
+          rows={6}
+          value={formData.feedback}
+          onChange={(e) => setFormData((p) => ({ ...p, feedback: e.target.value }))}
+        />
+      </label>
+      <label className="md-contact-form__consent">
         <input
           type="checkbox"
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
-          className="mt-1"
         />
         <span>I agree that my submitted data is being collected and stored (required).</span>
       </label>
-      {submitMessage && (
-        <p
-          className={`text-sm break-words ${submitStatus === 'success' ? 'text-green-700' : 'text-red-600'}`}
-          role="status"
-        >
-          {submitMessage}
+      {submitMessage ? (
+        <p className={submitStatus === 'success' ? 'md-contact-note is-ok' : 'md-contact-note is-err'} role="status">
+          {submitStatus === 'success' ? (
+            <svg viewBox="0 0 24 24" aria-hidden>
+              <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.8" />
+              <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M8 12.5l2.5 2.5L16 9" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" aria-hidden>
+              <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.8" />
+              <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M12 8v5M12 16.5h.01" />
+            </svg>
+          )}
+          <span>{submitMessage}</span>
         </p>
-      )}
-      <div className="text-center">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="cursor-pointer rounded-lg md-btn-primary px-8 py-3 text-sm font-semibold text-white transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none motion-reduce:hover:brightness-100 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0"
-        >
-          {isSubmitting ? 'Sending...' : 'Send Your Message'}
-        </button>
-      </div>
+      ) : null}
+      <button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? <span className="md-contact-spin" aria-hidden /> : (
+          <svg viewBox="0 0 24 24" aria-hidden>
+            <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M4 12l16-7-7 16-2-7z" />
+          </svg>
+        )}
+        {isSubmitting ? 'Sending...' : 'Send Your Message'}
+      </button>
     </form>
   );
 }

@@ -64,50 +64,31 @@ export function FcMemorableMomentsSection() {
   );
 
   return (
-    <section className="md-sport-bg overflow-x-hidden bg-pitch-chalk py-20 md:py-28">
-      <div className={cn(pitchPageInset, 'mb-8 md:mb-10')}>
-        <h2
-          className={cn(
-            'font-extrabold tracking-[-0.02em] text-center text-2xl text-pitch-charcoal md:text-3xl',
-          )}
-        >
-          {mdStrikersMemorableMomentsHeading}
-        </h2>
-      </div>
-
-      {/* Full-bleed edge-to-edge thumbnails (single column) */}
-      <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2">
-        <div className="flex flex-col">
+    <section id="gallery" className="md-club-about-band md-sport-bg md-about-gallery">
+      <div className={cn(pitchPageInset)}>
+        <h2 className="md-about-display">{mdStrikersMemorableMomentsHeading}</h2>
+        <div className="md-moment-grid">
           {items.map((tile, index) => (
             <button
               key={tile.src}
               type="button"
               onClick={() => openAt(index)}
-              className="group w-full cursor-pointer border-b border-pitch-charcoal/10 bg-pitch-card text-left last:border-b-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pitch-olive motion-reduce:transition-none"
+              className="md-moment-card md-about-reveal group"
             >
-              <div className="relative h-[min(58vh,640px)] min-h-[300px] w-full overflow-hidden bg-pitch-charcoal sm:min-h-[380px] md:min-h-[440px]">
+              <span className="md-moment-card__frame">
                 <Image
                   src={encodePublicPath(tile.src)}
                   alt={tile.caption}
                   fill
-                  className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-                  sizes="100vw"
+                  className="object-cover object-center"
+                  sizes="(max-width: 760px) 100vw, 40vw"
                   priority={index < 2}
                 />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-80" />
-              </div>
-              <div
-                className={cn(
-                  fcBrand.className,
-                  pitchPageInset,
-                  'py-5 md:py-6',
-                )}
-              >
-                <p className="text-xs uppercase tracking-wide text-pitch-charcoal/70">Memorable moment</p>
-                <p className={cn('font-extrabold tracking-[-0.02em] mt-1 text-lg leading-snug text-pitch-charcoal md:text-xl')}>
-                  {tile.caption}
-                </p>
-              </div>
+              </span>
+              <span className={cn(fcBrand.className, 'md-moment-card__caption')}>
+                <span>Memorable moment</span>
+                <strong>{tile.caption}</strong>
+              </span>
             </button>
           ))}
         </div>
@@ -115,7 +96,7 @@ export function FcMemorableMomentsSection() {
 
       {lightboxIndex !== null && current && (
         <div
-          className="fixed inset-0 z-[200] flex cursor-pointer flex-col bg-pitch-charcoal/95"
+          className="md-about-lightbox fixed inset-0 z-[200] flex cursor-pointer flex-col"
           style={{
             paddingTop: 'max(1rem, env(safe-area-inset-top, 0px))',
             paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 0px))',

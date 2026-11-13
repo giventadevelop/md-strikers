@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface GallerySearchProps {
   onSearch: (filters: {
@@ -10,22 +10,42 @@ interface GallerySearchProps {
   }) => void;
   loading?: boolean;
   placeholder?: string;
+  resetToken?: number;
 }
 
-const fieldClass =
-  'mt-1 block w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-3 py-2.5 text-sm text-pitch-charcoal placeholder:text-pitch-charcoal/70 focus:border-pitch-olive focus:outline-none focus:ring-1 focus:ring-pitch-olive disabled:opacity-60';
+const SearchIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden>
+    <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
+    <path d="M16 16l4 4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+  </svg>
+);
 
 export function GallerySearch({
   onSearch,
   loading = false,
-  placeholder = 'Search by title…',
+  placeholder = 'Search albums...',
+  resetToken = 0,
 }: GallerySearchProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [dateError, setDateError] = useState('');
+
+  useEffect(() => {
+    if (!resetToken) return;
+    setSearchTerm('');
+    setStartDate('');
+    setEndDate('');
+    setDateError('');
+  }, [resetToken]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (startDate && endDate && startDate > endDate) {
+      setDateError('From date must be on or before the To date.');
+      return;
+    }
+    setDateError('');
     onSearch({
       searchTerm: searchTerm.trim(),
       startDate: startDate || undefined,
@@ -37,6 +57,7 @@ export function GallerySearch({
     setSearchTerm('');
     setStartDate('');
     setEndDate('');
+    setDateError('');
     onSearch({
       searchTerm: '',
       startDate: undefined,
@@ -45,69 +66,76 @@ export function GallerySearch({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-8 rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-4 shadow-sm md:p-6">
-      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-pitch-charcoal/70">Search gallery</p>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 lg:items-end">
-        <div className="lg:col-span-2">
-          <label htmlFor="gallerySearchTitle" className="text-sm font-semibold text-pitch-charcoal">
-            Title
-          </label>
-          <input
-            type="text"
-            id="gallerySearchTitle"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={placeholder}
-            disabled={loading}
-            className={fieldClass}
-          />
+    <form onSubmit={handleSubmit} className="md-gallery-search">
+      <p className="md-gallery-search__label">Search gallery</p>
+      <div className="md-gallery-search__row">
+        <div className="md-gallery-field">
+          <label htmlFor="gallerySearchTitle">Album title</label>
+          <div className="md-gallery-field__control">
+            <SearchIcon />
+            <input
+              type="text"
+              id="gallerySearchTitle"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={placeholder}
+              disabled={loading}
+            />
+          </div>
         </div>
-        <div>
-          <label htmlFor="gallerySearchDateFrom" className="text-sm font-semibold text-pitch-charcoal">
-            From
-          </label>
-          <input
-            type="date"
-            id="gallerySearchDateFrom"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            disabled={loading}
-            className={fieldClass}
-          />
+        <div className="md-gallery-dates">
+          <div className="md-gallery-field">
+            <label htmlFor="gallerySearchDateFrom">From date</label>
+            <div className="md-gallery-field__control">
+              <svg viewBox="0 0 24 24" aria-hidden>
+                <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M8 7V3m8 4V3M5 11h14M5 21h14a2 2 0 002-2V7H3v12a2 2 0 002 2z" />
+              </svg>
+              <input
+                type="date"
+                id="gallerySearchDateFrom"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+          </div>
+          <div className="md-gallery-field">
+            <label htmlFor="gallerySearchDateTo">To date</label>
+            <div className="md-gallery-field__control">
+              <svg viewBox="0 0 24 24" aria-hidden>
+                <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M8 7V3m8 4V3M5 11h14M5 21h14a2 2 0 002-2V7H3v12a2 2 0 002 2z" />
+              </svg>
+              <input
+                type="date"
+                id="gallerySearchDateTo"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+          </div>
         </div>
-        <div>
-          <label htmlFor="gallerySearchDateTo" className="text-sm font-semibold text-pitch-charcoal">
-            To
-          </label>
-          <input
-            type="date"
-            id="gallerySearchDateTo"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
+        <div className="md-gallery-search__actions">
+          <button type="submit" disabled={loading} className="md-gallery-search__go">
+            {loading ? <span className="md-gallery-spin" aria-hidden /> : <SearchIcon />}
+            {loading ? 'Searching' : 'Search'}
+          </button>
+          <button
+            type="button"
+            onClick={handleClear}
             disabled={loading}
-            className={fieldClass}
-          />
+            className="md-gallery-search__clear"
+            title="Clear search"
+            aria-label="Clear search"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden>
+              <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M4 7h16M9 7V5h6v2m-7 0l1 12h6l1-12" />
+            </svg>
+            Clear
+          </button>
         </div>
       </div>
-      <div className="mt-4 flex flex-wrap gap-3">
-        <button
-          type="submit"
-          disabled={loading}
-          className="inline-flex items-center justify-center rounded-lg md-btn-primary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0"
-        >
-          Search
-        </button>
-        <button
-          type="button"
-          onClick={handleClear}
-          disabled={loading}
-          className="inline-flex items-center justify-center rounded-lg md-btn-gold px-6 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-50"
-          title="Clear search"
-          aria-label="Clear search"
-        >
-          Clear
-        </button>
-      </div>
+      {dateError ? <p className="md-gallery-search__error">{dateError}</p> : null}
     </form>
   );
 }

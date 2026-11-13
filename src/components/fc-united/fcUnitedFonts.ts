@@ -48,3 +48,6 @@ const fcBarlow = Barlow({
 export const fcOrganic = {
   className: `${fcCaprasimo.variable} ${fcFigtree.variable} ${fcManrope.variable} ${fcBarlow.variable}`,
 };
+
+/** Public inner pages: same navy / royal / cloud theme and type as the homepage. */
+export const fcPublicShell = `${fcBrand.className} ${fcOrganic.className} md-organic md-public-page flex min-h-screen flex-col antialiased`;

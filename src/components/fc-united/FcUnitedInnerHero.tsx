@@ -14,17 +14,33 @@ export function FcUnitedInnerHero({
   subtitle,
   parentHref,
   parentLabel,
+  tone = 'classic',
 }: {
   title: string;
   subtitle?: string;
   parentHref?: string;
   parentLabel?: string;
+  /** Club matches the homepage navy theme. Classic keeps the original wash. */
+  tone?: 'classic' | 'club';
 }) {
+  const club = tone === 'club';
   return (
-    <section className={cn(fcBrand.className, 'md-sport-bg relative isolate overflow-hidden bg-pitch-charcoal')} aria-label={title}>
+    <section
+      className={cn(
+        fcBrand.className,
+        'md-sport-bg relative isolate overflow-hidden bg-pitch-charcoal',
+        club && 'md-inner-hero--club',
+      )}
+      aria-label={title}
+    >
       <Image src={INNER_HERO_IMAGE} alt="" fill priority className="-z-20 object-cover object-[center_40%]" sizes="100vw" />
       <div
-        className="md-inner-hero-wash absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(192,40,28,0.94)_0%,rgba(185,68,26,0.82)_55%,rgba(244,123,32,0.45)_100%)]"
+        className={cn(
+          'absolute inset-0 -z-10',
+          club
+            ? 'bg-[linear-gradient(100deg,rgba(7,27,56,0.94)_0%,rgba(11,45,89,0.82)_58%,rgba(7,27,56,0.62)_100%)]'
+            : 'md-inner-hero-wash bg-[linear-gradient(90deg,rgba(192,40,28,0.94)_0%,rgba(185,68,26,0.82)_55%,rgba(244,123,32,0.45)_100%)]',
+        )}
         aria-hidden
       />
       <PitchShell className="py-20 md:py-28">
@@ -45,13 +61,15 @@ export function FcUnitedInnerHero({
           <span className="mx-3 text-pitch-chalk/25" aria-hidden>
             /
           </span>
-          <span className="text-pitch-lime">{title}</span>
+          <span className={cn(club ? 'md-inner-crumb-current' : 'text-pitch-lime')}>{title}</span>
         </nav>
         <h1 className="text-4xl font-extrabold leading-[1.05] tracking-[-0.03em] text-pitch-chalk md:text-5xl lg:text-6xl">
           {title}
         </h1>
         {subtitle ? (
-          <p className="mt-6 max-w-2xl text-base leading-relaxed text-pitch-chalk/75 md:text-lg">{subtitle}</p>
+          <p className={cn('mt-6 max-w-2xl text-base leading-relaxed md:text-lg', club ? 'md-inner-hero-sub' : 'text-pitch-chalk/75')}>
+            {subtitle}
+          </p>
         ) : null}
       </PitchShell>
     </section>

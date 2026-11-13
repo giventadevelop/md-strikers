@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { ClubNewsArticle } from '@/lib/news/clubNews';
-import { fcBrand } from './fcUnitedFonts';
+import { fcPublicShell } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
@@ -22,7 +22,7 @@ export default function FcUnitedNewsArticlePage({ article }: { article: ClubNews
     .filter(Boolean);
 
   return (
-    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={fcPublicShell}>
       <FcUnitedHeader active="news" />
       <FcUnitedInnerHero title="News" subtitle={article.title} />
       <main className="md-sport-bg bg-pitch-chalk py-12 md:py-16">

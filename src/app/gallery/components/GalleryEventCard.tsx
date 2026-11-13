@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
@@ -58,10 +59,10 @@ export function GalleryEventCard({ eventWithMedia, cardIndex = -1 }: GalleryEven
 
   return (
     <>
-      <div className={`${getCardBackground(event.id!)} rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-white/50 flex flex-col`}>
+      <div className={`md-gallery-card ${getCardBackground(event.id!)}`}>
         {/* Hero Image - Clickable to open slideshow */}
         <div 
-          className={`relative bg-pitch-charcoal/10 ${media.length > 0 ? 'cursor-pointer hover:opacity-90 transition-opacity duration-200' : ''}`}
+          className={`md-gallery-card__media ${media.length > 0 ? 'is-openable' : ''}`}
           onClick={() => {
             if (media.length > 0) {
               console.log('Banner image clicked for event:', event.title, 'Media count:', media.length);
@@ -86,7 +87,7 @@ export function GalleryEventCard({ eventWithMedia, cardIndex = -1 }: GalleryEven
               alt={heroImage.altText || event.title}
               width={800}
               height={600}
-              className="block h-auto w-full"
+              className="md-gallery-card__img"
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
             />
           ) : (
@@ -101,16 +102,16 @@ export function GalleryEventCard({ eventWithMedia, cardIndex = -1 }: GalleryEven
             </div>
           )}
 
-          {/* Media count badge */}
+          <span className="md-gallery-card__badge">Event</span>
           {totalMediaCount > 0 && (
-            <div className="absolute top-2 right-2 bg-pitch-charcoal/85 text-white px-2 py-1 rounded-full text-xs font-medium">
+            <div className="md-gallery-card__count">
               {totalMediaCount} {totalMediaCount === 1 ? 'item' : 'items'}
             </div>
           )}
         </div>
 
         {/* Event Info */}
-        <div className="p-6 flex-grow flex flex-col">
+        <div className="md-gallery-card__body">
           <h3 className="font-semibold text-pitch-charcoal text-lg mb-2 overflow-hidden" style={{
             display: '-webkit-box',
             WebkitLineClamp: 2,
@@ -184,7 +185,7 @@ export function GalleryEventCard({ eventWithMedia, cardIndex = -1 }: GalleryEven
                 console.log('View Gallery clicked for event:', event.title, 'Media count:', media.length);
                 setShowSlideshow(true);
               }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg md-btn-primary px-7 py-3 text-sm font-semibold text-white transition-all duration-300 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:brightness-100 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0"
+              className="md-gallery-card__open"
               title="View Gallery"
               aria-label="View Gallery"
               disabled={media.length === 0}
@@ -216,13 +217,16 @@ export function GalleryEventCard({ eventWithMedia, cardIndex = -1 }: GalleryEven
       </div>
 
       {/* Slideshow Modal */}
-      {showSlideshow && (
-        <EventMediaSlideshow
-          event={event}
-          media={media}
-          onClose={() => setShowSlideshow(false)}
-        />
-      )}
+      {showSlideshow && typeof document !== 'undefined'
+        ? createPortal(
+            <EventMediaSlideshow
+              event={event}
+              media={media}
+              onClose={() => setShowSlideshow(false)}
+            />,
+            document.body
+          )
+        : null}
     </>
   );
 }

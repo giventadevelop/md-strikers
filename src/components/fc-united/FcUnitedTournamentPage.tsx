@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { fcBrand } from './fcUnitedFonts';
+import { fcPublicShell } from './fcUnitedFonts';
 import { pitchPageInset } from './pitchUi';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
@@ -33,7 +33,7 @@ export default function FcUnitedTournamentPage({
   const resultsLabel = tournament.externalResultsLabel?.trim() || 'Open schedule in new tab';
 
   return (
-    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={fcPublicShell}>
       <FcUnitedHeader active="tournaments" />
       <FcUnitedInnerHero title={label} />
 

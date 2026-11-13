@@ -1,7 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { pitchButton } from './pitchUi';
+import { cn } from '@/lib/utils';
+import { PitchArrow, pitchButton } from './pitchUi';
 
 /** Homepage control. A button, so it is not a navigation link. */
 export function ViewAllSponsorsButton({ className }: { className?: string }) {
@@ -11,11 +12,12 @@ export function ViewAllSponsorsButton({ className }: { className?: string }) {
     <button
       type="button"
       onClick={() => router.push('/sponsors')}
-      className={className ?? pitchButton.ghost}
-      title="View All Sponsors"
-      aria-label="View All Sponsors"
+      className={cn(pitchButton.primaryOnLight, 'group', className)}
+      title="See All Sponsors"
+      aria-label="See All Sponsors"
     >
-      View All Sponsors
+      See All Sponsors
+      <PitchArrow />
     </button>
   );
 }

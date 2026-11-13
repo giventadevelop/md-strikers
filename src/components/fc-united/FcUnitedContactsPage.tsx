@@ -1,18 +1,16 @@
 import type { ReactNode } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { fcSponsors } from './fcUnitedConstants';
-import { fcBrand } from './fcUnitedFonts';
+import { fcPublicShell } from './fcUnitedFonts';
 import { pitchPageInset } from './pitchUi';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
-import { FcUnitedInnerHero } from './FcUnitedInnerHero';
 import { FcUnitedContactForm } from './FcUnitedContactForm';
-import Image from 'next/image';
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <div className={cn(pitchPageInset, className)}>{children}</div>
-  );
+  return <div className={cn(pitchPageInset, className)}>{children}</div>;
 }
 
 /** Map pin + primary venue (embed uses same query for one marker). */
@@ -20,171 +18,168 @@ const CONTACT_MAP_QUERY = '13881 Hopkins Rd, Germantown, MD 20874';
 
 const CONTACT_MAP_EMBED_SRC = `https://maps.google.com/maps?t=m&output=embed&iwloc=near&z=16&q=${encodeURIComponent(CONTACT_MAP_QUERY)}`;
 
+const CONTACT_MAP_LINK = `https://maps.google.com/maps?q=${encodeURIComponent(CONTACT_MAP_QUERY)}`;
+
 const DETAIL_CONTACT_EMAIL = 'mdstrikersinc@gmail.com';
+
+const HERO_IMAGE = '/images/hero_section/stadium-night.jpg';
 
 const detailContacts = [
   { name: 'Noble Joseph', tel: '+13013468631', displayPhone: '301 346 8631' },
   { name: 'Reji Thomas', tel: '+12405938510', displayPhone: '240 593 8510' },
 ] as const;
 
+const communityLinks = [
+  { href: '/team', label: 'Sports Team' },
+  { href: '/sponsors', label: 'Sponsors' },
+  { href: '/membership', label: 'Membership' },
+  { href: '/volunteer', label: 'Volunteer' },
+] as const;
+
 export default function FcUnitedContactsPage() {
   return (
-    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={fcPublicShell}>
       <FcUnitedHeader active="contacts" />
-      <FcUnitedInnerHero title="Contacts" />
-
-      <section className="md-sport-bg bg-pitch-chalk">
-        <div className="relative h-[min(60vh,604px)] w-full overflow-hidden bg-pitch-charcoal/10">
-          <iframe
-            title="Maryland Strikers — location map"
-            className="h-full w-full border-0"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            src={CONTACT_MAP_EMBED_SRC}
-          />
+      <section className="md-contact-hero md-sport-bg" aria-label="Contacts">
+        <div className="md-contact-hero__media" aria-hidden>
+          <Image src={HERO_IMAGE} alt="" fill priority className="object-cover object-[center_40%]" sizes="100vw" />
         </div>
+        <div className="md-contact-hero__shade" aria-hidden />
+        <div className={`${pitchPageInset} md-contact-hero__content`}>
+          <nav className="md-contact-crumb" aria-label="Breadcrumb">
+            <Link href="/">Home</Link>
+            <span aria-hidden>/</span>
+            <span>Contacts</span>
+          </nav>
+          <p className="md-contact-kicker">Get in touch with MD Strikers</p>
+          <h1>Let&apos;s Connect.</h1>
+          <span className="md-contact-rule" aria-hidden />
+          <p>Have a question, want to collaborate, or interested in becoming part of our journey? We&apos;d love to hear from you.</p>
+        </div>
+      </section>
 
-        <Shell className="py-20 md:py-28">
-          <div className="mx-auto max-w-3xl">
-            <div className="relative overflow-hidden rounded-2xl border border-pitch-charcoal/10 bg-gradient-to-br from-pitch-chalk via-white to-pitch-chalk p-6 shadow-sm md:p-10">
-              <div
-                className="pointer-events-none absolute inset-0 opacity-[0.35]"
-                style={{
-                  backgroundImage: 'radial-gradient(circle at top left, rgba(244, 123, 32, 0.12), transparent 55%)',
-                }}
-              />
-              <div className="relative">
-                <p
-                  className={cn(
-                    'font-extrabold tracking-[-0.02em] text-center text-xl text-pitch-charcoal md:text-2xl',
-                  )}
-                >
-                  For details contact
-                </p>
-                <div className="mt-8 grid gap-6 sm:gap-8">
-                  {detailContacts.map((c) => (
-                    <div
-                      key={c.name}
-                      className="flex flex-col gap-4 rounded-xl border border-pitch-charcoal/10/80 bg-pitch-card/90 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-pitch-forest/10">
-                          <svg
-                            className="h-6 w-6 text-pitch-olive"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            aria-hidden
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                            />
-                          </svg>
-                        </span>
-                        <span className={cn('font-extrabold tracking-[-0.02em] text-lg text-pitch-charcoal md:text-lg')}>
-                          {c.name}
-                        </span>
-                      </div>
-                      <a
-                        href={`tel:${c.tel}`}
-                        className="inline-flex cursor-pointer items-center gap-2 self-start rounded-lg bg-pitch-olive/10 px-4 py-2.5 text-pitch-charcoal transition-colors duration-200 hover:bg-pitch-olive/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2 focus-visible:ring-offset-white motion-reduce:transition-none sm:self-center"
-                        title={`Call ${c.name}`}
-                      >
-                        <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-pitch-olive/15">
-                          <svg
-                            className="h-5 w-5 text-pitch-olive"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            aria-hidden
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                            />
-                          </svg>
-                        </span>
-                        <span className="text-base font-semibold tabular-nums tracking-wide">{c.displayPhone}</span>
-                      </a>
-                    </div>
-                  ))}
-                </div>
-                <a
-                  href={`mailto:${DETAIL_CONTACT_EMAIL}`}
-                  className="relative mt-8 flex cursor-pointer flex-wrap items-center justify-center gap-3 rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-4 py-4 text-center transition-colors duration-200 hover:bg-pitch-chalk/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2 focus-visible:ring-offset-pitch-chalk motion-reduce:transition-none sm:gap-4"
-                  title="Email Maryland Strikers"
-                >
-                  <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-pitch-forest/10">
-                    <svg
-                      className="h-6 w-6 text-pitch-olive"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      aria-hidden
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      />
-                    </svg>
-                  </span>
-                  <span className="text-left text-sm md:text-base">
-                    <span className="block text-xs font-semibold uppercase tracking-[0.15em] text-pitch-charcoal/70">Email</span>
-                    <span className="mt-0.5 block font-medium text-pitch-olive hover:underline">{DETAIL_CONTACT_EMAIL}</span>
-                  </span>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-14 md:mt-16">
-            <div className="mx-auto max-w-md text-center">
-              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-pitch-forest/10">
-                <svg className="h-6 w-6 text-pitch-olive" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      <main className="md-contact-main">
+        <section className={pitchPageInset}>
+          <p className="md-contact-kicker md-contact-kicker--ink">For details contact</p>
+          <h2>Club contact</h2>
+          <span className="md-contact-rule" aria-hidden />
+          <div className="md-contact-cards">
+            <a className="md-contact-card" href={`mailto:${DETAIL_CONTACT_EMAIL}`} title="Email Maryland Strikers">
+              <span className="md-contact-card__icon" aria-hidden>
+                <svg viewBox="0 0 24 24">
+                  <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M4 7h16v10H4zM4 7l8 6 8-6" />
                 </svg>
-              </div>
-              <h3 className={cn('font-extrabold tracking-[-0.02em] text-lg text-pitch-charcoal')}>Address</h3>
-              <p className="mt-3 text-sm leading-relaxed">
+              </span>
+              <span>
+                <strong>Email</strong>
+                <span>{DETAIL_CONTACT_EMAIL}</span>
+              </span>
+            </a>
+            <article className="md-contact-card">
+              <span className="md-contact-card__icon" aria-hidden>
+                <svg viewBox="0 0 24 24">
+                  <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M7 4h3l1.5 3.5-2 1.2a12 12 0 006.8 6.8l1.2-2L20 15v3a2 2 0 01-2 2A15 15 0 015 6a2 2 0 012-2z" />
+                </svg>
+              </span>
+              <span>
+                <strong>Phone</strong>
+                {detailContacts.map((contact) => (
+                  <a key={contact.tel} href={`tel:${contact.tel}`} title={`Call ${contact.name}`}>
+                    {contact.name} · {contact.displayPhone}
+                  </a>
+                ))}
+              </span>
+            </article>
+            <a className="md-contact-card" href="#find-us" title="Club address">
+              <span className="md-contact-card__icon" aria-hidden>
+                <svg viewBox="0 0 24 24">
+                  <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M12 21s7-6.1 7-11a7 7 0 10-14 0c0 4.9 7 11 7 11z" />
+                  <circle cx="12" cy="10" r="2.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+                </svg>
+              </span>
+              <span>
+                <strong>Address</strong>
+                <span>13881 Hopkins Rd<br />Germantown, MD 20874</span>
+              </span>
+            </a>
+          </div>
+        </section>
+
+        <section className={`${pitchPageInset} md-contact-formband`}>
+          <div className="md-contact-formband__copy">
+            <p className="md-contact-kicker md-contact-kicker--ink">have a question?</p>
+            <h2>Send Us a Message</h2>
+            <span className="md-contact-rule" aria-hidden />
+            <p className="md-contact-formband__line">drop a line</p>
+            <p>For details contact {detailContacts.map((contact) => contact.name).join(' or ')}.</p>
+            <a href={`mailto:${DETAIL_CONTACT_EMAIL}`}>{DETAIL_CONTACT_EMAIL}</a>
+            <figure>
+              <Image src={HERO_IMAGE} alt="Football stadium" width={720} height={420} />
+            </figure>
+          </div>
+          <FcUnitedContactForm />
+        </section>
+
+        <section id="find-us" className={`${pitchPageInset} md-contact-locate`}>
+          <div>
+            <p className="md-contact-kicker md-contact-kicker--ink">Location</p>
+            <h2>Find us</h2>
+            <span className="md-contact-rule" aria-hidden />
+            <p className="md-contact-locate__address">
+              <svg viewBox="0 0 24 24" aria-hidden>
+                <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M12 21s7-6.1 7-11a7 7 0 10-14 0c0 4.9 7 11 7 11z" />
+                <circle cx="12" cy="10" r="2.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+              </svg>
+              <span>
                 13881 Hopkins Rd
                 <br />
                 Germantown, MD 20874
-              </p>
+              </span>
+            </p>
+            <a href={CONTACT_MAP_LINK} target="_blank" rel="noopener noreferrer">
+              Directions
+            </a>
+          </div>
+          <div className="md-contact-map">
+            <iframe
+              title="Maryland Strikers — location map"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              src={CONTACT_MAP_EMBED_SRC}
+            />
+          </div>
+        </section>
+
+        <section className="md-contact-logos">
+          <Shell>
+            <div>
+              {fcSponsors.map((src) => (
+                <div key={src}>
+                  <Image src={src} alt="" fill className="object-contain" sizes="128px" />
+                </div>
+              ))}
             </div>
-          </div>
+          </Shell>
+        </section>
+      </main>
 
-          <div className="mt-16 border-t border-pitch-charcoal/10 pt-12 text-center">
-            <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">have a question?</span>
-            <h2 className={cn('font-extrabold tracking-[-0.02em] text-2xl text-pitch-charcoal md:text-3xl')}>drop a line</h2>
-
-            <FcUnitedContactForm />
-          </div>
-        </Shell>
-      </section>
-
-      <section className="md-sport-bg border-t border-pitch-charcoal/10 bg-pitch-chalk py-10">
-        <Shell>
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 lg:justify-between">
-            {fcSponsors.map((src) => (
-              <div key={src} className="relative h-12 w-28 md:h-14 md:w-32">
-                <Image src={src} alt="" fill className="object-contain opacity-90" sizes="128px" />
-              </div>
+      <section className="md-contact-cta">
+        <div className="md-contact-cta__media" aria-hidden>
+          <Image src={HERO_IMAGE} alt="" fill className="object-cover object-[center_45%]" sizes="100vw" />
+        </div>
+        <div className="md-contact-cta__shade" aria-hidden />
+        <div className={`${pitchPageInset} md-contact-cta__content`}>
+          <h2>More than football. One community.</h2>
+          <span className="md-contact-rule" aria-hidden />
+          <p>Whether you&apos;re a player, supporter, partner or football enthusiast, there&apos;s always a place for you in the MD Strikers community.</p>
+          <div className="md-contact-cta__links">
+            {communityLinks.map((item) => (
+              <Link key={item.href} href={item.href}>
+                {item.label}
+              </Link>
             ))}
           </div>
-        </Shell>
+        </div>
       </section>
 
       <FcUnitedFooter />

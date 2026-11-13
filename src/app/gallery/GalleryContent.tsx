@@ -32,6 +32,9 @@ export function GalleryContent() {
     startDate: undefined as string | undefined,
     endDate: undefined as string | undefined,
   });
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryNonce, setRetryNonce] = useState(0);
+  const [resetToken, setResetToken] = useState(0);
 
   // Initial load: Fetch counts to determine default tab and load initial data
   useEffect(() => {
@@ -46,6 +49,7 @@ export function GalleryContent() {
         const eventsResult = await fetchEventsForGallery(0, 1, '', undefined, undefined);
         const eventsTotal = eventsResult.totalEvents;
 
+        setLoadError(null);
         setAlbumsCount(albumsTotal);
         setEventsCount(eventsTotal);
 
@@ -84,6 +88,7 @@ export function GalleryContent() {
         }
       } catch (error) {
         console.error('Failed to determine default tab and load data:', error);
+        setLoadError('The gallery could not be loaded.');
         setInitialLoad(false);
       } finally {
         setLoading(false);
@@ -108,16 +113,18 @@ export function GalleryContent() {
           );
           setAlbumsData(data);
           setAlbumsCount(data.totalAlbums);
+          setLoadError(null);
         } catch (error) {
           console.error('Failed to fetch albums data:', error);
           setAlbumsData(null);
+          setLoadError('The gallery could not be loaded.');
         } finally {
           setLoading(false);
         }
       };
       loadAlbumsData();
     }
-  }, [activeTab, currentPage, searchFilters.searchTerm, searchFilters.startDate, searchFilters.endDate, initialLoad]);
+  }, [activeTab, currentPage, searchFilters.searchTerm, searchFilters.startDate, searchFilters.endDate, initialLoad, retryNonce]);
 
   // Load events data when tab changes or filters change
   useEffect(() => {
@@ -134,16 +141,18 @@ export function GalleryContent() {
           );
           setGalleryData(data);
           setEventsCount(data.totalEvents);
+          setLoadError(null);
         } catch (error) {
           console.error('Failed to fetch events data:', error);
           setGalleryData(null);
+          setLoadError('The gallery could not be loaded.');
         } finally {
           setLoading(false);
         }
       };
       loadEventsData();
     }
-  }, [activeTab, currentPage, searchFilters.searchTerm, searchFilters.startDate, searchFilters.endDate, initialLoad]);
+  }, [activeTab, currentPage, searchFilters.searchTerm, searchFilters.startDate, searchFilters.endDate, initialLoad, retryNonce]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -184,21 +193,16 @@ export function GalleryContent() {
         <GallerySearch
         onSearch={handleSearch}
         loading={loading}
-        placeholder={activeTab === 'albums' ? 'Enter album title…' : 'Enter event title…'}
+        placeholder={activeTab === 'albums' ? 'Search albums...' : 'Search events...'}
+        resetToken={resetToken}
       />
 
         {/* Grid Container with Bold Dark Gradient Background - Matching events page style */}
         <div className="mb-8">
           <div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
-                <div key={i} className="bg-pitch-card rounded-lg shadow-md overflow-hidden animate-pulse">
-                  <div className="h-48 bg-pitch-card"></div>
-                  <div className="p-4">
-                    <div className="h-4 bg-pitch-card rounded mb-2"></div>
-                    <div className="h-3 bg-pitch-card rounded w-2/3"></div>
-                  </div>
-                </div>
+            <div className="md-gallery-grid">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="md-gallery-skeleton" />
               ))}
             </div>
           </div>
@@ -212,6 +216,7 @@ export function GalleryContent() {
           pageSize={ITEMS_PER_PAGE}
           onPageChange={handlePageChange}
           loading={loading}
+          itemType={activeTab === 'albums' ? 'albums' : 'events'}
         />
       </div>
     );
@@ -235,27 +240,37 @@ export function GalleryContent() {
           <GallerySearch
             onSearch={handleSearch}
             loading={loading}
-            placeholder={activeTab === 'albums' ? 'Enter album title…' : 'Enter event title…'}
+            placeholder={activeTab === 'albums' ? 'Search albums...' : 'Search events...'}
+        resetToken={resetToken}
           />
-          <div className="text-center py-12">
-            <div className="text-gray-400 text-6xl mb-4">📸</div>
-            <h3 className="text-xl font-semibold text-pitch-charcoal mb-2">
-              {hasFilters ? 'No albums found' : 'No albums available'}
-            </h3>
-            <p className="text-gray-600">
-              {hasFilters
-                ? 'No albums match your search criteria. Try adjusting your filters.'
-                : 'Check back later for album photos and videos'
-              }
+          <div className="md-gallery-empty">
+            <svg viewBox="0 0 24 24" aria-hidden>
+              <path fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" d="M4 8h3l1.5-2h7L17 8h3a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1V9a1 1 0 011-1z" />
+              <circle cx="12" cy="13" r="3" fill="none" stroke="currentColor" strokeWidth="1.6" />
+            </svg>
+            <h3>{loadError ? 'Gallery unavailable' : hasFilters ? 'No albums found' : 'No albums available'}</h3>
+            <p>
+              {loadError
+                ? loadError
+                : hasFilters
+                  ? 'No albums match your search criteria. Try adjusting your filters.'
+                  : 'Check back later for album photos and videos'}
             </p>
-            {hasFilters && (
+            {loadError ? (
+              <button type="button" onClick={() => { setLoadError(null); setRetryNonce((n) => n + 1); }}>
+                Try again
+              </button>
+            ) : hasFilters ? (
               <button
-                onClick={() => handleSearch({ searchTerm: '', startDate: undefined, endDate: undefined })}
-                className="mt-4 text-pitch-olive hover:text-pitch-forest font-medium"
+                type="button"
+                onClick={() => {
+                  setResetToken((n) => n + 1);
+                  handleSearch({ searchTerm: '', startDate: undefined, endDate: undefined });
+                }}
               >
                 Clear all filters
               </button>
-            )}
+            ) : null}
           </div>
 
           {/* Always show pagination controls, even when no results */}
@@ -283,26 +298,21 @@ export function GalleryContent() {
         <GallerySearch
         onSearch={handleSearch}
         loading={loading}
-        placeholder={activeTab === 'albums' ? 'Enter album title…' : 'Enter event title…'}
+        placeholder={activeTab === 'albums' ? 'Search albums...' : 'Search events...'}
+        resetToken={resetToken}
       />
 
         {/* Grid Container with Bold Dark Gradient Background - Matching events page style */}
         <div className="mb-8">
           <div>
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
-                  <div key={i} className="bg-pitch-card rounded-lg shadow-md overflow-hidden animate-pulse">
-                    <div className="h-48 bg-pitch-card"></div>
-                    <div className="p-4">
-                      <div className="h-4 bg-pitch-card rounded mb-2"></div>
-                      <div className="h-3 bg-pitch-card rounded w-2/3"></div>
-                    </div>
-                  </div>
+              <div className="md-gallery-grid">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="md-gallery-skeleton" />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="md-gallery-grid">
                 {albumsData?.albumsWithMedia?.map((albumWithMedia, index) => (
                   <GalleryAlbumCard
                     key={albumWithMedia.album.id}
@@ -345,27 +355,37 @@ export function GalleryContent() {
         <GallerySearch
         onSearch={handleSearch}
         loading={loading}
-        placeholder={activeTab === 'albums' ? 'Enter album title…' : 'Enter event title…'}
+        placeholder={activeTab === 'albums' ? 'Search albums...' : 'Search events...'}
+        resetToken={resetToken}
       />
-        <div className="text-center py-12">
-          <div className="text-gray-400 text-6xl mb-4">📸</div>
-          <h3 className="text-xl font-semibold text-pitch-charcoal mb-2">
-            {hasFilters ? 'No events found' : 'No events available'}
-          </h3>
-          <p className="text-gray-600">
-            {hasFilters
-              ? 'No events match your search criteria. Try adjusting your filters.'
-              : 'Check back later for event photos and videos'
-            }
+        <div className="md-gallery-empty">
+          <svg viewBox="0 0 24 24" aria-hidden>
+            <path fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" d="M4 8h3l1.5-2h7L17 8h3a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1V9a1 1 0 011-1z" />
+            <circle cx="12" cy="13" r="3" fill="none" stroke="currentColor" strokeWidth="1.6" />
+          </svg>
+          <h3>{loadError ? 'Gallery unavailable' : hasFilters ? 'No events found' : 'No events available'}</h3>
+          <p>
+            {loadError
+              ? loadError
+              : hasFilters
+                ? 'No events match your search criteria. Try adjusting your filters.'
+                : 'Check back later for event photos and videos'}
           </p>
-          {hasFilters && (
+          {loadError ? (
+            <button type="button" onClick={() => { setLoadError(null); setRetryNonce((n) => n + 1); }}>
+              Try again
+            </button>
+          ) : hasFilters ? (
             <button
-              onClick={() => handleSearch({ searchTerm: '', startDate: undefined, endDate: undefined })}
-              className="mt-4 text-pitch-olive hover:text-pitch-forest font-medium"
+              type="button"
+              onClick={() => {
+                setResetToken((n) => n + 1);
+                handleSearch({ searchTerm: '', startDate: undefined, endDate: undefined });
+              }}
             >
               Clear all filters
             </button>
-          )}
+          ) : null}
         </div>
 
         {/* Always show pagination controls, even when no results */}
@@ -395,26 +415,21 @@ export function GalleryContent() {
       <GallerySearch
         onSearch={handleSearch}
         loading={loading}
-        placeholder={activeTab === 'albums' ? 'Enter album title…' : 'Enter event title…'}
+        placeholder={activeTab === 'albums' ? 'Search albums...' : 'Search events...'}
+        resetToken={resetToken}
       />
 
       {/* Grid Container with Bold Dark Gradient Background - Matching events page style */}
       <div className="mb-8">
         <div>
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
-                <div key={i} className="bg-pitch-card rounded-lg shadow-md overflow-hidden animate-pulse">
-                  <div className="h-48 bg-pitch-card"></div>
-                  <div className="p-4">
-                    <div className="h-4 bg-pitch-card rounded mb-2"></div>
-                    <div className="h-3 bg-pitch-card rounded w-2/3"></div>
-                  </div>
-                </div>
+            <div className="md-gallery-grid">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="md-gallery-skeleton" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="md-gallery-grid">
               {eventsWithMedia?.map((eventWithMedia, index) => (
                 <GalleryEventCard
                   key={eventWithMedia.event.id}

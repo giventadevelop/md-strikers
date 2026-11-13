@@ -220,7 +220,7 @@ export function FcUnitedHeader({ active }: { active?: FcNavKey }) {
             )
           )}
         </nav>
-        <div className="ml-auto flex items-center gap-4 xl:ml-0">
+        <div className="ml-auto flex shrink-0 items-center gap-4 pl-10">
           <FcUnitedAuthDesktop />
           <FcUnitedMobileNav active={active} links={links} />
         </div>

@@ -1,12 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type ElementRef } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type TransitionEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { ExecutiveCommitteeTeamMemberDTO } from '@/types';
 import { fcBrand } from './fcUnitedFonts';
-import { stepLoop } from './loopCarousel';
 import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchSection } from './pitchUi';
 import { SportBackgroundIcons } from './SportBackgroundIcons';
 import { MdPagination } from './MdPagination';
@@ -29,6 +28,54 @@ function memberName(member: ExecutiveCommitteeTeamMemberDTO) {
   return [member.firstName, member.lastName].filter(Boolean).join(' ').trim() || member.title;
 }
 
+function mod(value: number, length: number) {
+  return ((value % length) + length) % length;
+}
+
+const SLIDE_MS = 1250;
+
+function SeeAllMembersLink() {
+  return (
+    <Link href="/executive-team" className={cn(pitchButton.primaryOnLight, 'group')}>
+      See All Members
+      <PitchArrow />
+    </Link>
+  );
+}
+
+function MemberPortrait({ member }: { member: ExecutiveCommitteeTeamMemberDTO }) {
+  const name = memberName(member);
+  const { role, blurb } = memberCopy(member);
+  const hasDetails = Boolean(role || blurb);
+  return (
+    <article className={cn('md-player-card md-player-card--navy', !hasDetails && 'md-player-card--plain')}>
+      {member.profileImageUrl ? (
+        <Image
+          src={member.profileImageUrl}
+          alt={name}
+          fill
+          className="md-player-card__photo object-cover object-top"
+          sizes="33vw"
+        />
+      ) : (
+        <span className="absolute inset-0 flex items-center justify-center text-6xl font-extrabold text-white/30" aria-hidden>
+          {name.charAt(0)}
+        </span>
+      )}
+      <span className="md-player-card__wash" aria-hidden />
+      <span className="md-player-card__info">
+        <span className="md-player-card__name">{name}</span>
+      </span>
+      {hasDetails ? (
+        <span className="md-player-card__stats">
+          {role ? <span className="md-player-card__role">{role}</span> : null}
+          {blurb ? <span className="md-exec-card__blurb">{blurb}</span> : null}
+        </span>
+      ) : null}
+    </article>
+  );
+}
+
 function memberCopy(member: ExecutiveCommitteeTeamMemberDTO) {
   const role = member.designation?.trim() || member.title?.trim() || '';
   const expertise = parseExpertise(member.expertise);
@@ -46,31 +93,53 @@ export function ExecutiveTeamSection({
   paginate?: boolean;
 }) {
   const [page, setPage] = useState(0);
-  const scrollerRef = useRef<ElementRef<'div'>>(null);
   const pausedRef = useRef(false);
-  const slides =
-    members.length === 0
-      ? []
-      : members.length > 6
-        ? [...members, ...members]
-        : [...members, ...members, ...members];
+  const busyRef = useRef(false);
+  const [active, setActive] = useState(() => (members.length > 2 ? 1 : 0));
+  const [phase, setPhase] = useState<'rest' | 'prep' | 'run'>('rest');
+  const [dir, setDir] = useState<-1 | 1>(1);
 
-  const scrollStep = useCallback((dir: -1 | 1) => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    stepLoop(el, dir, members.length);
-  }, [members.length]);
+  const go = useCallback((nextDir: -1 | 1) => {
+    if (paginate || members.length < 3 || busyRef.current) return;
+    busyRef.current = true;
+    setDir(nextDir);
+    setPhase('prep');
+  }, [members.length, paginate]);
 
   useEffect(() => {
-    if (paginate || members.length < 2) return;
+    if (paginate || phase !== 'prep') return;
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => setPhase('run'));
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
+  }, [phase, paginate]);
+
+  const finish = useCallback((event?: TransitionEvent<HTMLUListElement>) => {
+    if (event && (event.target !== event.currentTarget || event.propertyName !== 'transform')) return;
+    if (!busyRef.current) return;
+    busyRef.current = false;
+    setActive((current) => mod(current + dir, members.length));
+    setPhase('rest');
+  }, [dir, members.length]);
+
+  useEffect(() => {
+    if (paginate || phase !== 'run') return;
+    const timer = window.setTimeout(() => finish(), SLIDE_MS + 80);
+    return () => window.clearTimeout(timer);
+  }, [phase, finish, paginate]);
+
+  useEffect(() => {
+    if (paginate || members.length < 3) return;
     const timer = window.setInterval(() => {
       if (pausedRef.current) return;
-      const el = scrollerRef.current;
-      if (!el) return;
-      stepLoop(el, 1, members.length);
+      go(1);
     }, 3000);
     return () => window.clearInterval(timer);
-  }, [members.length, paginate]);
+  }, [members.length, paginate, go]);
 
   if (members.length === 0) return null;
 
@@ -78,11 +147,27 @@ export function ExecutiveTeamSection({
   const totalPages = Math.max(1, Math.ceil(members.length / pageSize));
   const safePage = Math.min(page, totalPages - 1);
   const visible = members.slice(safePage * pageSize, safePage * pageSize + pageSize);
+  const loop = !paginate && members.length >= 3;
+  const sliding = loop && phase !== 'rest';
+  const slots = sliding ? 4 : Math.min(3, members.length);
+  const first = !loop ? 0 : sliding && dir === -1 ? active - 2 : active - 1;
+  const cards = paginate
+    ? []
+    : Array.from({ length: loop ? slots : members.length }, (_, slot) => {
+        const index = loop ? mod(first + slot, members.length) : slot;
+        return { member: members[index], key: loop ? `${first + slot}` : `${members[index].id ?? index}` };
+      });
+  const shift = phase === 'run' ? (dir === 1 ? 1 : 0) : phase === 'prep' && dir === -1 ? 1 : 0;
 
   return (
     <section className={cn(fcBrand.className, pitchSection, 'bg-pitch-chalk')} aria-labelledby="executive-team-heading">
       <SportBackgroundIcons />
       <PitchShell>
+        {showSeeAll && (
+          <div className="mb-8 flex justify-end">
+            <SeeAllMembersLink />
+          </div>
+        )}
         <PitchHeading
           tone="light"
           id="executive-team-heading"
@@ -134,73 +219,46 @@ export function ExecutiveTeamSection({
         </div>
         ) : (
           <div
-            className="relative"
+            className="md-event-news-wrap"
             role="region"
             aria-roledescription="carousel"
             aria-label="Executive team"
+            onPointerEnter={() => {
+              pausedRef.current = true;
+            }}
+            onPointerLeave={() => {
+              pausedRef.current = false;
+            }}
           >
-            {members.length > 1 ? (
+            {loop ? (
               <div className="md-event-news-nav">
-                <button type="button" aria-label="Previous members" title="Previous" onClick={() => scrollStep(-1)}>
+                <button type="button" aria-label="Previous members" title="Previous" onClick={() => go(-1)}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
-                <button type="button" aria-label="Next members" title="Next" onClick={() => scrollStep(1)}>
+                <button type="button" aria-label="Next members" title="Next" onClick={() => go(1)}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
               </div>
             ) : null}
-            <div
-              ref={scrollerRef}
-              className="flex gap-4 overflow-x-hidden"
-              onPointerEnter={() => {
-                pausedRef.current = true;
-              }}
-              onPointerLeave={() => {
-                pausedRef.current = false;
-              }}
-            >
-              {slides.map((m, i) => {
-                const name = memberName(m);
-                const { role, blurb } = memberCopy(m);
-                const hasDetails = Boolean(role || blurb);
-                return (
-                  <div
-                    key={`${m.id ?? name}-${i}`}
-                    data-carousel-card
-                    className="w-[calc((100%-2rem)/3)] min-w-0 shrink-0"
-                  >
-                    <article className={cn('md-player-card md-player-card--navy', !hasDetails && 'md-player-card--plain')}>
-                      {m.profileImageUrl ? (
-                        <Image
-                          src={m.profileImageUrl}
-                          alt={name}
-                          fill
-                          className="md-player-card__photo object-cover object-top"
-                          sizes="33vw"
-                        />
-                      ) : (
-                        <span className="absolute inset-0 flex items-center justify-center text-6xl font-extrabold text-white/30" aria-hidden>
-                          {name.charAt(0)}
-                        </span>
-                      )}
-                      <span className="md-player-card__wash" aria-hidden />
-                      <span className="md-player-card__info">
-                        <span className="md-player-card__name">{name}</span>
-                      </span>
-                      {hasDetails ? (
-                        <span className="md-player-card__stats">
-                          {role ? <span className="md-player-card__role">{role}</span> : null}
-                          {blurb ? <span className="md-exec-card__blurb">{blurb}</span> : null}
-                        </span>
-                      ) : null}
-                    </article>
-                  </div>
-                );
-              })}
+            <div className="md-event-stage">
+              <ul
+                className={cn('md-event-news', phase === 'run' && 'is-running')}
+                style={{
+                  '--event-slots': slots,
+                  transform: loop && slots > 1 ? `translateX(calc(${-shift} * 100% / ${slots}))` : undefined,
+                } as CSSProperties}
+                onTransitionEnd={finish}
+              >
+                {cards.map((card) => (
+                  <li key={card.key}>
+                    <MemberPortrait member={card.member} />
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         )}
@@ -217,10 +275,7 @@ export function ExecutiveTeamSection({
 
         {showSeeAll && (
           <div className="mt-12 flex justify-center">
-            <Link href="/executive-team" className={cn(pitchButton.primaryOnLight, 'group')}>
-              See All Members
-              <PitchArrow />
-            </Link>
+            <SeeAllMembersLink />
           </div>
         )}
       </PitchShell>

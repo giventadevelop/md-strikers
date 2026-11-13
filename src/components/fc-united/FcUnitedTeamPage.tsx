@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { fcSponsors } from './fcUnitedConstants';
-import { fcBrand } from './fcUnitedFonts';
+import { fcPublicShell } from './fcUnitedFonts';
 import { pitchPageInset } from './pitchUi';
 import { encodePublicPath } from './fcUnitedGalleryData';
 import { FcUnitedFooter } from './FcUnitedFooter';
@@ -122,7 +122,7 @@ export default function FcUnitedTeamPage({
     : 'Sports Team';
 
   return (
-    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={fcPublicShell}>
       <FcUnitedHeader active="team" />
       <FcUnitedInnerHero title={title} />
 

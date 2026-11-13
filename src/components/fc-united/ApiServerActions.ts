@@ -1135,6 +1135,7 @@ export type HomepageSponsor = {
   tagline: string;
   imageUrl: string;
   websiteHref: string | null;
+  priorityRanking?: number | null;
 };
 
 function sponsorWebsiteHref(url?: string | null): string | null {
@@ -1229,6 +1230,7 @@ export async function fetchSponsorsCatalogServer(input: {
             usableImageUrl(sp.logoUrl) ||
             '/images/default_placeholder_hero_image.jpeg',
           websiteHref: sponsorWebsiteHref(sp.websiteUrl),
+          priorityRanking: typeof sp.priorityRanking === 'number' ? sp.priorityRanking : null,
         };
       }),
     );

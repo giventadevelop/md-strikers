@@ -342,8 +342,8 @@ export default async function FcUnitedHomePage() {
                   title={listEvents.length === 0 || listIsUpcoming ? 'Upcoming Events' : 'Past Events'}
                   lead="Match days, tournaments, and club nights on the Maryland Strikers calendar."
                   action={
-                    <Link href="/events" className={cn(pitchButton.ghostOnLight, 'group')}>
-                      Full calendar
+                    <Link href="/events" className={cn(pitchButton.primaryOnLight, 'group')}>
+                      See All Events
                       <PitchArrow />
                     </Link>
                   }
@@ -370,12 +370,20 @@ export default async function FcUnitedHomePage() {
                     }))}
                   />
                 ))}
+              {showEventsSection && (
+                <div className="mt-12 flex justify-center">
+                  <Link href="/events" className={cn(pitchButton.primaryOnLight, 'group')}>
+                    See All Events
+                    <PitchArrow />
+                  </Link>
+                </div>
+              )}
             </PitchShell>
           </section>
         )}
 
         {latestNews.length > 0 && (
-          <section className={cn(pitchSection, 'md-band-paper md-sport-bg md-sport-bg-light bg-pitch-chalk')} aria-labelledby="home-news-heading">
+          <section className={cn(pitchSection, 'md-news-band')} aria-labelledby="home-news-heading">
             <PitchShell>
               <PitchHeading
                 tone="light"
@@ -383,8 +391,8 @@ export default async function FcUnitedHomePage() {
                 eyebrow="News"
                 title="The Latest from the Club"
                 action={
-                  <Link href="/news" className={cn(pitchButton.ghostOnLight, 'group')}>
-                    All news
+                  <Link href="/news" className={cn(pitchButton.primaryOnLight, 'group')}>
+                    See All News
                     <PitchArrow />
                   </Link>
                 }
@@ -423,6 +431,12 @@ export default async function FcUnitedHomePage() {
                     </Link>
                   </article>
                 ))}
+              </div>
+              <div className="mt-12 flex justify-center">
+                <Link href="/news" className={cn(pitchButton.primaryOnLight, 'group')}>
+                  See All News
+                  <PitchArrow />
+                </Link>
               </div>
             </PitchShell>
           </section>
@@ -567,7 +581,7 @@ export default async function FcUnitedHomePage() {
             <PitchShell>
               <div className="md-sponsor-strip__head">
                 <h2 id="home-sponsors-heading">Our Sponsors</h2>
-                <ViewAllSponsorsButton className="md-sponsor-strip__all" />
+                <ViewAllSponsorsButton />
               </div>
               <ul className="md-sponsor-strip__grid">
                 {sponsorCards.map((sponsor) => {
@@ -578,10 +592,10 @@ export default async function FcUnitedHomePage() {
                         <Image
                           src={sponsor.src}
                           alt=""
-                          width={240}
-                          height={96}
+                          width={1376}
+                          height={768}
                           className="md-sponsor-tile__img"
-                          sizes="240px"
+                          sizes="100vw"
                         />
                       </span>
                       <span className="md-sponsor-tile__name">{sponsor.name}</span>
@@ -614,6 +628,9 @@ export default async function FcUnitedHomePage() {
                   );
                 })}
               </ul>
+              <div className="mt-10 flex justify-center">
+                <ViewAllSponsorsButton />
+              </div>
             </PitchShell>
           </section>
         )}

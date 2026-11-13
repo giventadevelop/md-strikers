@@ -29,7 +29,26 @@ export function HomeMotion({ children }: { children: ReactNode }) {
       io.observe(node);
     });
 
-    return () => io.disconnect();
+    const tiles = root.querySelectorAll<HTMLElement>('.md-sponsor-tile');
+    const tileIo = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add('is-shown');
+          tileIo.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.22, rootMargin: '0px 0px -8% 0px' },
+    );
+    tiles.forEach((tile) => {
+      tile.classList.add('md-sponsor-await');
+      tileIo.observe(tile);
+    });
+
+    return () => {
+      io.disconnect();
+      tileIo.disconnect();
+    };
   }, []);
 
   return (

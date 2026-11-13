@@ -1,5 +1,4 @@
-import { cn } from '@/lib/utils';
-import { fcBrand } from './fcUnitedFonts';
+import { fcPublicShell } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
@@ -10,7 +9,7 @@ import { FcUnitedTournamentsCatalogClient } from './FcUnitedTournamentsCatalogCl
  */
 export default function FcUnitedTournamentsPage() {
   return (
-    <div className={cn(fcBrand.className, 'min-h-screen bg-pitch-chalk text-pitch-charcoal/70 antialiased')}>
+    <div className={fcPublicShell}>
       <FcUnitedHeader active="tournaments" />
       <FcUnitedInnerHero
         title="All Tournaments"
