@@ -1157,6 +1157,7 @@ export async function fetchSponsorsCatalogServer(input: {
   page: number;
   size: number;
   name?: string;
+  type?: string;
 }): Promise<SponsorsCatalogResult> {
   const empty: SponsorsCatalogResult = { sponsors: [], totalCount: 0 };
   try {
@@ -1178,6 +1179,8 @@ export async function fetchSponsorsCatalogServer(input: {
     });
     const name = input.name?.trim();
     if (name) params.append('name.contains', name);
+    const type = input.type?.trim();
+    if (type) params.append('type.equals', type);
 
     const res = await fetchWithJwtRetry(
       `${apiBase}/api/event-sponsors?${params.toString()}`,
@@ -1241,6 +1244,122 @@ export async function fetchSponsorsCatalogServer(input: {
     };
   } catch (error) {
     console.error('[fetchSponsorsCatalogServer] Error:', error);
+    return empty;
+  }
+}
+
+export type SponsorTypeCount = { type: string; count: number };
+
+export type SponsorSuggestion = { id: number | null; name: string; type: string };
+
+export type SponsorSuggestionResult = {
+  suggestions: SponsorSuggestion[];
+  totalCount: number;
+};
+
+const SPONSOR_SUGGESTION_LIMIT = 20;
+
+/**
+ * Name suggestions for the sponsors search menu.
+ * Returns at most SPONSOR_SUGGESTION_LIMIT rows plus the full match count.
+ */
+export async function fetchSponsorSuggestionsServer(name: string): Promise<SponsorSuggestionResult> {
+  const empty: SponsorSuggestionResult = { suggestions: [], totalCount: 0 };
+  const trimmed = name.trim();
+  if (!trimmed) return empty;
+  try {
+    const apiBase = getApiBaseUrl();
+    if (!apiBase) return empty;
+    const params = new URLSearchParams({
+      'tenantId.equals': getTenantId(),
+      'isActive.equals': 'true',
+      sort: 'priorityRanking,asc',
+      page: '0',
+      size: String(SPONSOR_SUGGESTION_LIMIT),
+      'name.contains': trimmed,
+    });
+    const res = await fetchWithJwtRetry(
+      `${apiBase}/api/event-sponsors?${params.toString()}`,
+      { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+      'sponsor-suggestions',
+    );
+    if (!res.ok) return empty;
+    const suggestions = asList<EventSponsorsDTO>(await res.json())
+      .slice(0, SPONSOR_SUGGESTION_LIMIT)
+      .map((sponsor) => ({
+        id: sponsor.id ?? null,
+        name: (sponsor.companyName || sponsor.name || '').trim(),
+        type: (sponsor.type || '').trim(),
+      }))
+      .filter((sponsor) => sponsor.name.length > 0);
+    const totalHeader = parseInt(res.headers.get('x-total-count') || '', 10);
+    return {
+      suggestions,
+      totalCount: Number.isFinite(totalHeader) ? totalHeader : suggestions.length,
+    };
+  } catch (error) {
+    console.error('[fetchSponsorSuggestionsServer] Error:', error);
+    return empty;
+  }
+}
+
+/**
+ * Type totals for the sponsors filter. Skips banner lookups.
+ * Counts follow the same name search as the catalog.
+ */
+export async function fetchSponsorTypeCountsServer(name?: string): Promise<{
+  total: number;
+  types: SponsorTypeCount[];
+}> {
+  const empty = { total: 0, types: [] as SponsorTypeCount[] };
+  try {
+    const apiBase = getApiBaseUrl();
+    if (!apiBase) return empty;
+    const tenantId = getTenantId();
+    const counts = new Map<string, number>();
+    const order: string[] = [];
+    let page = 0;
+    let total = Number.POSITIVE_INFINITY;
+    let seen = 0;
+    const trimmed = name?.trim();
+
+    while (seen < total && page < 8) {
+      const params = new URLSearchParams({
+        'tenantId.equals': tenantId,
+        'isActive.equals': 'true',
+        sort: 'priorityRanking,asc',
+        page: String(page),
+        size: '100',
+      });
+      if (trimmed) params.append('name.contains', trimmed);
+      const res = await fetchWithJwtRetry(
+        `${apiBase}/api/event-sponsors?${params.toString()}`,
+        { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+        'sponsor-type-counts',
+      );
+      if (!res.ok) return empty;
+      const list = asList<EventSponsorsDTO>(await res.json());
+      if (page === 0) {
+        const header = parseInt(res.headers.get('x-total-count') || '', 10);
+        total = Number.isFinite(header) ? header : list.length;
+      }
+      for (const sponsor of list) {
+        const type = (sponsor.type || '').trim();
+        if (!type) continue;
+        if (!counts.has(type)) order.push(type);
+        counts.set(type, (counts.get(type) ?? 0) + 1);
+      }
+      seen += list.length;
+      if (list.length === 0) break;
+      page += 1;
+    }
+
+    return {
+      total: Number.isFinite(total) ? total : seen,
+      types: order.map((type) => ({ type, count: counts.get(type) ?? 0 })),
+    };
+  } catch (error) {
+    console.error('[fetchSponsorTypeCountsServer] Error:', error);
     return empty;
   }
 }

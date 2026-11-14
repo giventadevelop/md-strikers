@@ -10,42 +10,34 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import { MdPagination } from './MdPagination';
 import type { EventDetailsDTO } from '@/types';
 import { isRecurringEvent, getNextOccurrenceDate } from '@/lib/eventUtils';
 import { isDonationBasedEvent, isTicketedFundraiserEvent } from '@/lib/donation/utils';
 import { resolveBuyTicketsTarget, resolveRegisterTarget } from '@/lib/eventcube/utils';
 import { resolveEventImageUrlsServer } from './ApiServerActions';
-import { DEFAULT_EVENT_IMAGE, formatEventDate, eventHref } from './homeEventDisplay';
-import { pitchButton, pitchPageInset } from './pitchUi';
+import { DEFAULT_EVENT_IMAGE, eventHref } from './homeEventDisplay';
 
 
 const PAGE_SIZE = 20;
 
 type CatalogEvent = EventDetailsDTO & { thumbnailUrl?: string };
 
-function DescriptionDisplay({
-  description,
-  isExpanded,
-}: {
-  description: string;
-  isExpanded: boolean;
-}) {
-  const maxLength = 200;
-  if (description.length <= maxLength) {
-    return (
-      <p className="mt-3 text-sm leading-relaxed text-pitch-charcoal/70 whitespace-pre-wrap break-words md:text-[15px]">
-        {description}
-      </p>
-    );
-  }
-  const truncated = description.substring(0, maxLength).trim();
-  return (
-    <p className="mt-3 text-sm leading-relaxed text-pitch-charcoal/70 whitespace-pre-wrap break-words md:text-[15px]">
-      {isExpanded ? description : `${truncated}…`}
-    </p>
-  );
+const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const WEEKDAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function dateParts(iso?: string) {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return null;
+  const [year, month, day] = iso.slice(0, 10).split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  return {
+    wd: WEEKDAYS_SHORT[date.getDay()],
+    day: String(day).padStart(2, '0'),
+    mon: MONTHS_SHORT[month - 1],
+    year,
+    when: `${WEEKDAYS[date.getDay()]}, ${MONTHS[month - 1]} ${day}, ${year}`,
+  };
 }
 
 function toGoogleCalendarDate(date: string, time: string) {
@@ -62,14 +54,6 @@ function toGoogleCalendarDate(date: string, time: string) {
   if (ampm && ampm.toUpperCase() === 'AM' && h === 12) h = 0;
   const min = minute && !isNaN(parseInt(minute, 10)) ? minute : '00';
   return `${year}${month}${day}T${String(h).padStart(2, '0')}${min.padStart(2, '0')}00`;
-}
-
-function Shell({ children, className }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={cn(pitchPageInset, className)}>
-      {children}
-    </div>
-  );
 }
 
 function todayIso(): string {
@@ -107,9 +91,6 @@ function collapseRecurring(list: EventDetailsDTO[], keepFinished: boolean): Even
   }
   return [...single, ...series.values()];
 }
-
-const pillCta = cn(pitchButton.primaryOnLight, 'px-6 py-2.5 text-sm');
-const secondaryCta = cn(pitchButton.ghostOnLight, 'px-6 py-2.5 text-sm');
 
 export function FcUnitedEventsCatalogClient() {
   const [events, setEvents] = useState<CatalogEvent[]>([]);
@@ -231,10 +212,51 @@ export function FcUnitedEventsCatalogClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, showPastEvents, appliedTitle, appliedFrom, appliedTo]);
 
-  const handleSearch = () => {
-    setAppliedTitle(searchTitle);
-    setAppliedFrom(searchDateFrom);
-    setAppliedTo(searchDateTo);
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const next = searchTitle.trim();
+      setAppliedTitle((current) => {
+        if (current !== next) setPage(0);
+        return next;
+      });
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [searchTitle]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const title = appliedTitle.trim();
+    const today = todayIso();
+    async function count(past: boolean) {
+      const qs = new URLSearchParams({
+        sort: past ? 'startDate,desc' : 'startDate,asc',
+        page: '0',
+        size: '1',
+        'isActive.equals': 'true',
+      });
+      if (title) qs.append('title.contains', title);
+      qs.append(past ? 'endDate.lessThan' : 'startDate.greaterThanOrEqual', today);
+      const res = await fetch(`/api/proxy/event-details?${qs}`);
+      return res.ok ? parseInt(res.headers.get('x-total-count') || '0', 10) : 0;
+    }
+    Promise.all([count(false), count(true)]).then(([future, past]) => {
+      if (cancelled) return;
+      setFutureCount(future);
+      setPastCount(past);
+    }).catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [appliedTitle]);
+
+  const applyDate = (which: 'from' | 'to', value: string) => {
+    if (which === 'from') {
+      setSearchDateFrom(value);
+      setAppliedFrom(value);
+    } else {
+      setSearchDateTo(value);
+      setAppliedTo(value);
+    }
     setPage(0);
   };
 
@@ -249,332 +271,282 @@ export function FcUnitedEventsCatalogClient() {
     setShowPastEvents(false);
   };
 
+  const dateActive = !!(appliedFrom || appliedTo);
+  const hasFilters = !!searchTitle.trim() || dateActive;
+  const heading = dateActive ? 'Events by date' : showPastEvents ? 'Past Events' : 'Upcoming Events';
+  const blurb = dateActive
+    ? 'Events that start within the selected dates.'
+    : showPastEvents
+      ? 'Events that have already ended. Switch to Upcoming for what is coming up.'
+      : 'Match days, tournaments, and club nights on the Maryland Strikers calendar.';
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const startItem = totalCount > 0 ? page * PAGE_SIZE + 1 : 0;
+  const endItem = totalCount > 0 ? Math.min(totalCount, page * PAGE_SIZE + events.length) : 0;
+
   return (
-    <section className="md-events-catalog pb-16 pt-8 md:pb-20 md:pt-12">
-      <Shell>
-        {/* Section header — label → headline → detail */}
-        <div className="mb-8 text-center md:mb-10 md:text-left">
-          <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-[#104a91]">
-            calendar
-          </span>
-          <h2 className={cn('font-extrabold tracking-[-0.02em] text-3xl text-[#10233f] md:text-4xl')}>
-            {showPastEvents ? 'Past Events' : 'Upcoming Events'}
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-pitch-charcoal/70 md:text-[15px]">
-            {showPastEvents
-              ? 'Events that have already ended. Switch to Future Events for what is coming up.'
-              : 'Match days, tournaments, and club nights on the Maryland Strikers calendar.'}
-          </p>
-        </div>
-
-        {/* Future / Past toggle — design system accent (2× size) */}
-        <div className="mb-8 flex flex-wrap items-center justify-center gap-8">
-          <span
-            className={cn(
-              'text-2xl font-semibold uppercase tracking-[0.14em] transition-colors duration-300',
-              !showPastEvents ? 'text-[#104a91]' : 'text-[#60738c]',
-            )}
-          >
-            Future
-          </span>
-          <button
-            type="button"
-            onClick={() => {
-              setShowPastEvents(!showPastEvents);
-              setPage(0);
-            }}
-            className={cn(
-              'relative inline-flex h-20 w-32 items-center rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#104a91] focus-visible:ring-offset-2',
-              showPastEvents ? 'bg-[#0b2d59]' : 'bg-[#104a91]',
-            )}
-            title={showPastEvents ? 'Show Future Events' : 'Show Past Events'}
-            aria-label={showPastEvents ? 'Show Future Events' : 'Show Past Events'}
-          >
-            <span
-              className={cn(
-                'inline-flex h-16 w-16 translate-x-2 items-center justify-center rounded-full bg-pitch-card shadow-sm transition-transform duration-300',
-                showPastEvents && 'translate-x-14',
-              )}
-            >
-              {showPastEvents ? (
-                <svg className="h-8 w-8 text-pitch-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              ) : (
-                <svg className="h-8 w-8 text-[#104a91]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              )}
-            </span>
-          </button>
-          <span
-            className={cn(
-              'text-2xl font-semibold uppercase tracking-[0.14em] transition-colors duration-300',
-              showPastEvents ? 'text-[#10233f]' : 'text-[#60738c]',
-            )}
-          >
-            Past
-          </span>
-        </div>
-
-        {/* Search — flat bordered panel */}
-        <div className="mb-8 rounded-2xl border border-[#e8eef6] bg-white p-5 shadow-[0_12px_28px_rgba(16,35,63,0.08)] md:p-6">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">
-            Search events
-          </p>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <div>
-              <label htmlFor="md-events-title" className="mb-1.5 block text-sm font-medium text-pitch-charcoal">
-                Title
-              </label>
-              <input
-                id="md-events-title"
-                type="text"
-                value={searchTitle}
-                onChange={(e) => setSearchTitle(e.target.value)}
-                placeholder="Search by title…"
-                className="w-full rounded-xl border border-[#e8eef6] bg-white px-3 py-2.5 text-sm text-[#10233f] outline-none transition-colors duration-300 focus:border-[#104a91]"
-              />
+    <>
+      <div className="md-ev-filters">
+        <div className="md-ev-wrap md-ev-filtercard">
+          <div className="md-ev-filterrow">
+            <div role="tablist" aria-label="Event timing" className={dateActive ? 'is-dim' : undefined}>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={!showPastEvents}
+                className={!showPastEvents ? 'is-on' : undefined}
+                onClick={() => {
+                  setShowPastEvents(false);
+                  setPage(0);
+                }}
+              >
+                Upcoming
+                <span>{futureCount ?? '–'}</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={showPastEvents}
+                className={showPastEvents ? 'is-on' : undefined}
+                onClick={() => {
+                  setShowPastEvents(true);
+                  setPage(0);
+                }}
+              >
+                Past
+                <span>{pastCount ?? '–'}</span>
+              </button>
             </div>
-            <div>
-              <span className="mb-1.5 block text-sm font-medium text-pitch-charcoal">Date range</span>
-              <div className="grid grid-cols-2 gap-2">
+            <div className="md-ev-searchrow">
+              <label>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden>
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="M21 21l-4.3-4.3" />
+                </svg>
+                <input
+                  type="search"
+                  aria-label="Search events by title"
+                  placeholder="Search by title…"
+                  value={searchTitle}
+                  onChange={(event) => setSearchTitle(event.target.value)}
+                />
+              </label>
+              <label>
+                From
                 <input
                   type="date"
-                  value={searchDateFrom}
-                  onChange={(e) => setSearchDateFrom(e.target.value)}
                   aria-label="From date"
-                  className="w-full rounded-xl border border-[#e8eef6] bg-white px-2 py-2.5 text-sm text-[#10233f] outline-none focus:border-[#104a91]"
+                  value={searchDateFrom}
+                  onChange={(event) => applyDate('from', event.target.value)}
                 />
+              </label>
+              <label>
+                To
                 <input
                   type="date"
-                  value={searchDateTo}
-                  onChange={(e) => setSearchDateTo(e.target.value)}
                   aria-label="To date"
-                  className="w-full rounded-xl border border-[#e8eef6] bg-white px-2 py-2.5 text-sm text-[#10233f] outline-none focus:border-[#104a91]"
+                  value={searchDateTo}
+                  onChange={(event) => applyDate('to', event.target.value)}
                 />
+              </label>
+              {hasFilters ? (
+                <button type="button" onClick={clearSearch}>
+                  Clear
+                </button>
+              ) : null}
+            </div>
+          </div>
+          {dateActive ? (
+            <p>The date range searches all events and overrides the Upcoming / Past switch.</p>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="md-ev-list">
+        <div className="md-ev-wrap">
+          <div className="md-ev-head">
+            <div>
+              <h2>{heading}</h2>
+              <span>{loading ? '…' : totalCount}</span>
+            </div>
+            <p>{blurb}</p>
+          </div>
+
+          {loading ? (
+            <div className="md-ev-status" aria-label="Loading events">
+              <span className="md-ev-spin" />
+            </div>
+          ) : fetchError ? (
+            <div className="md-ev-empty">
+              <h3>Could not load events</h3>
+              <p>Please try again later.</p>
+            </div>
+          ) : events.length === 0 ? (
+            <div className="md-ev-empty">
+              <h3>No events found</h3>
+              <p>
+                {hasFilters
+                  ? 'Nothing matches the current search.'
+                  : showPastEvents
+                    ? 'No past events to show.'
+                    : 'No events listed yet. Check back soon.'}
+              </p>
+              {hasFilters ? (
+                <button type="button" onClick={clearSearch}>Clear search</button>
+              ) : null}
+            </div>
+          ) : (
+            <div className="md-ev-cards">
+              {events.map((event, index) => {
+                const imgSrc = event.thumbnailUrl || DEFAULT_EVENT_IMAGE;
+                const href = eventHref(event);
+                const parts = dateParts(event.startDate);
+                const timeLabel = [event.startTime, event.endTime].filter(Boolean).join(' — ');
+                const when = [parts?.when, timeLabel].filter(Boolean).join(' · ');
+                const isNext = !showPastEvents && !dateActive && page === 0 && index === 0;
+                const tone = showPastEvents ? 'is-past' : isNext ? 'is-next' : 'is-upcoming';
+                const badge = showPastEvents ? 'Past Event' : isNext ? 'Next up' : 'Upcoming Event';
+                const isUpcoming = !showPastEvents;
+                const buyTarget = isUpcoming ? resolveBuyTicketsTarget(event) : null;
+                const registerTarget = isUpcoming ? resolveRegisterTarget(event) : null;
+                const showDonation = isDonationBasedEvent(event) && isUpcoming && !isTicketedFundraiserEvent(event);
+                const isLongDescription = !!event.description && event.description.length > 200;
+                const descExpanded = !!(event.id && expandedDescriptions[event.id]);
+                const description = event.description
+                  ? descExpanded || event.description.length <= 200
+                    ? event.description
+                    : `${event.description.slice(0, 200).trim()}…`
+                  : '';
+                let calendarLink: string | null = null;
+                if (isUpcoming && event.startDate && event.startTime) {
+                  const start = toGoogleCalendarDate(event.startDate, event.startTime);
+                  const end = toGoogleCalendarDate(event.endDate || event.startDate, event.endTime || event.startTime);
+                  if (start && end) {
+                    calendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${start}/${end}&details=${encodeURIComponent(event.description || '')}&location=${encodeURIComponent(event.location || '')}`;
+                  }
+                }
+                return (
+                  <article key={event.id ?? event.title} className={`md-ev-card ${tone}`}>
+                    <Link href={href} className="md-ev-media" aria-label={`View ${event.title}`}>
+                      <Image src={imgSrc} alt="" fill sizes="(max-width: 1280px) 100vw, 1232px" />
+                      <span className="md-ev-badge">{badge}</span>
+                    </Link>
+                    <div className="md-ev-card__body">
+                      {parts ? (
+                        <div className="md-ev-tile" aria-hidden="true">
+                          <span>{parts.wd}</span>
+                          <strong>{parts.day}</strong>
+                          <span>{parts.mon}</span>
+                          <em>{parts.year}</em>
+                        </div>
+                      ) : null}
+                      <div className="md-ev-copy">
+                        <h3>
+                          <Link href={href}>{event.title}</Link>
+                        </h3>
+                        <div className="md-ev-facts">
+                          {when ? (
+                            <span>
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden>
+                                <circle cx="12" cy="12" r="9" />
+                                <path d="M12 7v5l3 2" />
+                              </svg>
+                              <b>{when}</b>
+                            </span>
+                          ) : null}
+                          {event.location?.trim() ? (
+                            <span>
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden>
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0116 0z" />
+                                <circle cx="12" cy="10" r="3" />
+                              </svg>
+                              <span>
+                                {event.location.trim()}
+                                <a
+                                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location.trim())}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  aria-label="Open location in Google Maps"
+                                >
+                                  Map
+                                </a>
+                              </span>
+                            </span>
+                          ) : null}
+                        </div>
+                        {description ? <p>{description}</p> : null}
+                        {isLongDescription && event.id != null ? (
+                          <button
+                            type="button"
+                            className="md-ev-more"
+                            onClick={() =>
+                              setExpandedDescriptions((prev) => ({
+                                ...prev,
+                                [event.id!]: !prev[event.id!],
+                              }))
+                            }
+                          >
+                            {descExpanded ? 'Show less' : 'Read more'}
+                          </button>
+                        ) : null}
+                      </div>
+                      <div className="md-ev-actions">
+                        <Link href={href} className="md-ev-view">
+                          View event
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden>
+                            <path d="M5 12h14M13 6l6 6-6 6" />
+                          </svg>
+                        </Link>
+                        {calendarLink ? (
+                          <a href={calendarLink} target="_blank" rel="noopener noreferrer">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden>
+                              <rect x="3" y="5" width="18" height="16" rx="2" />
+                              <path d="M8 3v4M16 3v4M3 10h18M12 13v5M9.5 15.5h5" />
+                            </svg>
+                            Add to Calendar
+                          </a>
+                        ) : null}
+                        {buyTarget ? (
+                          <Link
+                            href={buyTarget.href}
+                            {...(buyTarget.kind === 'external' ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                          >
+                            Buy tickets
+                          </Link>
+                        ) : null}
+                        {registerTarget ? (
+                          <Link
+                            href={registerTarget.href}
+                            {...(registerTarget.kind === 'external' ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                          >
+                            Register
+                          </Link>
+                        ) : null}
+                        {showDonation && event.id ? (
+                          <Link href={`/events/${event.id}/donation`}>Donate</Link>
+                        ) : null}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+
+          {!loading && totalCount > 0 ? (
+            <div className="md-ev-pager">
+              <p>{`Showing ${startItem}–${endItem} of ${totalCount} events`}</p>
+              <div>
+                <button type="button" disabled={page === 0} onClick={() => setPage((current) => Math.max(0, current - 1))}>
+                  Previous
+                </button>
+                <button type="button" disabled={page >= totalPages - 1} onClick={() => setPage((current) => current + 1)}>
+                  Next
+                </button>
               </div>
             </div>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end lg:flex-col">
-              <button type="button" onClick={handleSearch} disabled={loading} className={cn(pillCta, 'w-full disabled:opacity-50')}>
-                Search
-              </button>
-              <button type="button" onClick={clearSearch} className={cn(secondaryCta, 'w-full')}>
-                Clear
-              </button>
-            </div>
-          </div>
-          {(appliedTitle || appliedFrom || appliedTo) && (
-            <p className="mt-4 text-sm text-pitch-charcoal/70">
-              <strong className="font-semibold text-pitch-charcoal">Search active:</strong>
-              {appliedTitle ? ` title contains “${appliedTitle}”` : ''}
-              {appliedTitle && (appliedFrom || appliedTo) ? ' and' : ''}
-              {appliedFrom && appliedTo
-                ? ` date between “${appliedFrom}” and “${appliedTo}”`
-                : appliedFrom
-                  ? ` date from “${appliedFrom}” onwards`
-                  : appliedTo
-                    ? ` date until “${appliedTo}”`
-                    : ''}
-              {(appliedFrom || appliedTo) && ' (overrides the Future/Past toggle)'}
-            </p>
-          )}
+          ) : null}
         </div>
-
-        {/* Status messages */}
-        {!loading && checkedInitial && futureCount === 0 && pastCount === 0 && events.length === 0 && !fetchError && (
-          <p className="mb-6 rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-5 py-8 text-center text-sm text-pitch-charcoal/70">
-            No events listed yet. Check back soon.
-          </p>
-        )}
-        {!loading && checkedInitial && showPastEvents && futureCount === 0 && (pastCount ?? 0) > 0 && !fetchError && (
-          <p className="mb-6 rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-5 py-4 text-sm text-pitch-charcoal/70">
-            Showing recent events. New upcoming events will appear here when scheduled.
-          </p>
-        )}
-
-        {loading ? (
-          <div className="flex min-h-[240px] items-center justify-center">
-            <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#e8eef6] border-t-[#104a91]" aria-label="Loading" />
-          </div>
-        ) : fetchError ? (
-          <p className="rounded-xl border border-pitch-olive/30 bg-pitch-card px-5 py-8 text-center text-sm font-medium text-pitch-olive">
-            Could not load events. Please try again later.
-          </p>
-        ) : events.length === 0 ? (
-          <p className="rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-5 py-8 text-center text-sm text-pitch-charcoal/70">
-            No events found.
-          </p>
-        ) : (
-          <div className="flex flex-col gap-5">
-            {events.map((event) => {
-              const imgSrc = event.thumbnailUrl || DEFAULT_EVENT_IMAGE;
-              const href = eventHref(event);
-              const dateLabel = [
-                formatEventDate(event.startDate, event.timezone),
-                event.startTime && event.endTime
-                  ? `${event.startTime} — ${event.endTime}`
-                  : event.startTime || event.endTime || '',
-              ]
-                .filter(Boolean)
-                .join(' · ');
-              const isUpcoming = !showPastEvents;
-              const buyTarget = isUpcoming ? resolveBuyTicketsTarget(event) : null;
-              const registerTarget = isUpcoming ? resolveRegisterTarget(event) : null;
-              const showDonation =
-                isDonationBasedEvent(event) && isUpcoming && !isTicketedFundraiserEvent(event);
-              const isLongDescription = !!event.description && event.description.length > 200;
-              const descExpanded = !!(event.id && expandedDescriptions[event.id]);
-
-              let calendarLink: string | null = null;
-              if (isUpcoming && event.startDate && event.startTime) {
-                const start = toGoogleCalendarDate(event.startDate, event.startTime);
-                const end = toGoogleCalendarDate(
-                  event.endDate || event.startDate,
-                  event.endTime || event.startTime,
-                );
-                if (start && end) {
-                  calendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${start}/${end}&details=${encodeURIComponent(event.description || '')}&location=${encodeURIComponent(event.location || '')}`;
-                }
-              }
-
-              return (
-                <article
-                  key={event.id ?? event.title}
-                  className="overflow-hidden rounded-2xl border border-[#e8eef6] bg-white shadow-[0_12px_28px_rgba(16,35,63,0.08)] transition-shadow duration-300 ease-in-out hover:shadow-[0_18px_40px_rgba(16,35,63,0.14)]"
-                >
-                  {/* Container takes the image's own aspect ratio: full width, no side gaps, no cropping */}
-                  <div className="relative w-full border-b border-pitch-charcoal/10 bg-pitch-chalk">
-                    <Image
-                      src={imgSrc}
-                      alt={event.title}
-                      width={1600}
-                      height={900}
-                      className="block h-auto w-full"
-                      sizes="(max-width: 1240px) 100vw, 1240px"
-                    />
-                    {showPastEvents && (
-                      <span className="absolute left-3 top-3 rounded-full bg-[#ffc857] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-[#071b38]">
-                        Past Event
-                      </span>
-                    )}
-                  </div>
-                  <div className="px-5 py-5 md:px-6 md:py-6">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#104a91]">
-                      {showPastEvents ? 'Past Event' : 'Upcoming Event'}
-                    </p>
-                    <h3
-                      className={cn(
-                        'font-extrabold tracking-[-0.02em] mt-1.5 text-2xl text-pitch-charcoal md:text-3xl',
-                      )}
-                    >
-                      <Link
-                        href={href}
-                        className="transition-colors duration-300 hover:text-[#104a91] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#104a91]"
-                      >
-                        {event.title}
-                      </Link>
-                    </h3>
-                    {dateLabel && (
-                      <p className="mt-2 text-sm font-medium text-pitch-charcoal md:text-[15px]">{dateLabel}</p>
-                    )}
-                    {event.location?.trim() && (
-                      <p className="mt-1 flex flex-wrap items-center gap-2 text-sm leading-relaxed text-pitch-charcoal/70 md:text-[15px]">
-                        <span>{event.location.trim()}</span>
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location.trim())}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="font-semibold text-[#104a91] transition-colors hover:underline"
-                          title="Open in Google Maps"
-                          aria-label="Open location in Google Maps"
-                        >
-                          Map
-                        </a>
-                      </p>
-                    )}
-                    {event.description && (
-                      <DescriptionDisplay description={event.description} isExpanded={descExpanded} />
-                    )}
-
-                    <div className="mt-5 flex flex-wrap gap-3">
-                      {isLongDescription && event.id != null && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setExpandedDescriptions((prev) => ({
-                              ...prev,
-                              [event.id!]: !prev[event.id!],
-                            }))
-                          }
-                          className={secondaryCta}
-                          title={descExpanded ? 'Show Less' : 'Read More'}
-                          aria-label={descExpanded ? 'Show Less' : 'Read More'}
-                        >
-                          {descExpanded ? 'Show less' : 'Read more'}
-                        </button>
-                      )}
-                      {calendarLink && (
-                        <a
-                          href={calendarLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={secondaryCta}
-                          title="Add to Calendar"
-                          aria-label="Add to Calendar"
-                        >
-                          Add to Calendar
-                        </a>
-                      )}
-                      <Link href={href} className={secondaryCta}>
-                        View event
-                      </Link>
-                      {buyTarget && (
-                        <Link
-                          href={buyTarget.href}
-                          className={pillCta}
-                          {...(buyTarget.kind === 'external'
-                            ? { target: '_blank', rel: 'noopener noreferrer' }
-                            : {})}
-                        >
-                          Buy tickets
-                        </Link>
-                      )}
-                      {registerTarget && (
-                        <Link
-                          href={registerTarget.href}
-                          className={pillCta}
-                          {...(registerTarget.kind === 'external'
-                            ? { target: '_blank', rel: 'noopener noreferrer' }
-                            : {})}
-                        >
-                          Register
-                        </Link>
-                      )}
-                      {showDonation && event.id && (
-                        <Link href={`/events/${event.id}/donation`} className={pillCta}>
-                          Donate
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
-
-        {!loading && (
-          <MdPagination
-            page={page}
-            pageSize={PAGE_SIZE}
-            totalCount={totalCount}
-            onPageChange={setPage}
-            itemLabel="events"
-            loading={loading}
-          />
-        )}
-      </Shell>
-    </section>
+      </div>
+    </>
   );
 }

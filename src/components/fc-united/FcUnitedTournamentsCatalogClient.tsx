@@ -1,28 +1,15 @@
 'use client';
 
 /**
- * Sports-tenant tournament catalog — same card language as the events listing.
  * Published tournaments for the current tenant, then a link into /tournaments/[slug].
  */
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
 import type { PublicTournament } from '@/lib/tournaments/publicTournaments';
-import { DEFAULT_EVENT_IMAGE, formatEventDate } from './homeEventDisplay';
-
-import { MdPagination } from './MdPagination';
-import { pitchPageInset } from './pitchUi';
 
 const PAGE_SIZE = 12;
-
-function Shell({ children, className }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={cn(pitchPageInset, className)}>
-      {children}
-    </div>
-  );
-}
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 function todayIso(): string {
   const d = new Date();
@@ -44,17 +31,19 @@ function isPastTournament(tournament: PublicTournament, today: string): boolean 
   return Boolean(end && end < today);
 }
 
-function statusLabel(tournament: PublicTournament, past: boolean): string {
-  if (tournament.status === 'IN_PROGRESS') return 'In progress';
-  if (past || tournament.status === 'COMPLETED') return 'Past tournament';
-  return 'Upcoming tournament';
+function fmt(iso?: string | null): string {
+  if (!iso) return '';
+  const [year, month, day] = iso.slice(0, 10).split('-');
+  const monthIndex = Number(month) - 1;
+  if (!year || monthIndex < 0 || monthIndex > 11 || !day) return '';
+  return `${MONTHS[monthIndex]} ${Number(day)}, ${year}`;
 }
 
 function dateRange(tournament: PublicTournament): string {
-  const start = formatEventDate(tournament.startDate || undefined);
-  const end = formatEventDate(tournament.endDate || undefined);
+  const start = fmt(tournament.startDate);
+  const end = fmt(tournament.endDate);
   if (start && end && start !== end) return `${start} — ${end}`;
-  return start || end || '';
+  return start || end;
 }
 
 function plainText(value?: string | null, max = 180): string {
@@ -63,21 +52,15 @@ function plainText(value?: string | null, max = 180): string {
   return text.length > max ? `${text.slice(0, max)}…` : text;
 }
 
-const pillCta =
-  'inline-flex items-center justify-center gap-2 rounded-lg md-btn-primary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive hover:-translate-y-0.5 motion-reduce:hover:translate-y-0';
-
-const secondaryCta =
-  'inline-flex items-center justify-center gap-2 rounded-lg md-btn-gold px-6 py-2.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
-
 export function FcUnitedTournamentsCatalogClient() {
   const [tournaments, setTournaments] = useState<PublicTournament[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
   const [page, setPage] = useState(0);
   const [showPast, setShowPast] = useState(false);
-  const [searchTitle, setSearchTitle] = useState('');
-  const [appliedTitle, setAppliedTitle] = useState('');
+  const [query, setQuery] = useState('');
   const autoSwitched = useRef(false);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -119,233 +102,199 @@ export function FcUnitedTournamentsCatalogClient() {
   }, [loading, tournaments]);
 
   const today = todayIso();
+  const searched = query.trim().toLowerCase();
+  const base = useMemo(
+    () => tournaments.filter((row) => {
+      if (!searched) return true;
+      return `${row.title || ''} ${row.shortLabel || ''} ${row.ageGroupLabel || ''}`.toLowerCase().includes(searched);
+    }),
+    [tournaments, searched],
+  );
   const filtered = useMemo(() => {
-    const query = appliedTitle.trim().toLowerCase();
-    return tournaments
+    return base
       .filter((row) => isPastTournament(row, today) === showPast)
-      .filter((row) => {
-        if (!query) return true;
-        const haystack = `${row.title || ''} ${row.shortLabel || ''} ${row.ageGroupLabel || ''}`.toLowerCase();
-        return haystack.includes(query);
-      })
       .sort((a, b) => {
+        const aLive = a.status === 'IN_PROGRESS';
+        const bLive = b.status === 'IN_PROGRESS';
+        if (!showPast && aLive !== bLive) return aLive ? -1 : 1;
         const aDate = a.startDate || '';
         const bDate = b.startDate || '';
         return showPast ? bDate.localeCompare(aDate) : aDate.localeCompare(bDate);
       });
-  }, [tournaments, showPast, appliedTitle, today]);
+  }, [base, showPast, today]);
 
   const futureCount = tournaments.filter((row) => !isPastTournament(row, today)).length;
   const pastCount = tournaments.length - futureCount;
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const totalCount = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const safePage = Math.min(page, totalPages - 1);
   const pageRows = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+  const startItem = totalCount > 0 ? safePage * PAGE_SIZE + 1 : 0;
+  const endItem = totalCount > 0 ? safePage * PAGE_SIZE + pageRows.length : 0;
 
-  const handleSearch = () => {
-    setAppliedTitle(searchTitle);
-    setPage(0);
+  const changePage = (nextPage: number) => {
+    setPage(nextPage);
+    listRef.current?.scrollIntoView({ block: 'start' });
   };
 
-  const clearSearch = () => {
-    setSearchTitle('');
-    setAppliedTitle('');
-    setPage(0);
-  };
+  const emptyText = searched
+    ? 'Nothing matches the current search.'
+    : showPast
+      ? 'No past tournaments to show.'
+      : 'No tournaments listed yet. Check back soon.';
 
   return (
-    <section className="md-sport-bg bg-pitch-chalk pb-16 pt-2 md:pb-20 md:pt-4">
-      <Shell>
-        <div className="mb-8 text-center md:mb-10 md:text-left">
-          <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">
-            club calendar
-          </span>
-          <h2 className={cn('font-extrabold tracking-[-0.02em] text-3xl text-pitch-charcoal md:text-4xl')}>
-            {showPast ? 'Past Tournaments' : 'Upcoming Tournaments'}
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-pitch-charcoal/70 md:text-[15px]">
-            {showPast
-              ? 'Tournaments this club has already hosted. Switch to Future for what is coming up.'
-              : 'Every published tournament for this club. Open a card for fixtures, guests, and registration.'}
-          </p>
-        </div>
-
-        <div className="mb-8 flex flex-wrap items-center justify-center gap-8">
-          <span
-            className={cn(
-              'text-2xl font-semibold uppercase tracking-[0.14em] transition-colors duration-300',
-              !showPast ? 'text-pitch-olive' : 'text-pitch-charcoal/70',
-            )}
-          >
-            Future
-          </span>
-          <button
-            type="button"
-            onClick={() => {
-              setShowPast(!showPast);
-              setPage(0);
-            }}
-            className={cn(
-              'relative inline-flex h-20 w-32 items-center rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-pitch-olive focus-visible:ring-offset-2',
-              'bg-gradient-to-r from-brand-red to-brand-orange',
-            )}
-            title={showPast ? 'Show upcoming tournaments' : 'Show past tournaments'}
-            aria-label={showPast ? 'Show upcoming tournaments' : 'Show past tournaments'}
-          >
-            <span
-              className={cn(
-                'inline-flex h-16 w-16 translate-x-2 items-center justify-center rounded-full bg-pitch-card shadow-sm transition-transform duration-300',
-                showPast && 'translate-x-14',
-              )}
+    <>
+      <div className="md-tn-filters" aria-label="Tournament filters">
+        <div className="md-tn-filtercard">
+          <div role="tablist" aria-label="Tournament timing">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={!showPast}
+              className={showPast ? undefined : 'is-on'}
+              onClick={() => { setShowPast(false); setPage(0); }}
             >
-              {showPast ? (
-                <svg className="h-8 w-8 text-pitch-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              ) : (
-                <svg className="h-8 w-8 text-pitch-olive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              )}
-            </span>
-          </button>
-          <span
-            className={cn(
-              'text-2xl font-semibold uppercase tracking-[0.14em] transition-colors duration-300',
-              showPast ? 'text-pitch-charcoal' : 'text-pitch-charcoal/70',
-            )}
-          >
-            Past
-          </span>
+              Upcoming
+              <span>{loading ? '–' : futureCount}</span>
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={showPast}
+              className={showPast ? 'is-on' : undefined}
+              onClick={() => { setShowPast(true); setPage(0); }}
+            >
+              Past
+              <span>{loading ? '–' : pastCount}</span>
+            </button>
+          </div>
+          <label>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.3-4.3" />
+            </svg>
+            <input
+              type="search"
+              aria-label="Search tournaments by title"
+              placeholder="Search by title…"
+              value={query}
+              onChange={(event) => { setQuery(event.target.value); setPage(0); }}
+            />
+          </label>
         </div>
+      </div>
 
-        <div className="mb-8 rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-5 md:p-6">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">
-            Search tournaments
-          </p>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="md-tn-list" ref={listRef}>
+        <div className="md-tn-wrap">
+          <div className="md-tn-head">
             <div>
-              <label htmlFor="md-tournaments-title" className="mb-1.5 block text-sm font-medium text-pitch-charcoal">
-                Title
-              </label>
-              <input
-                id="md-tournaments-title"
-                type="text"
-                value={searchTitle}
-                onChange={(e) => setSearchTitle(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleSearch();
-                }}
-                placeholder="Search by title…"
-                className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
-              />
+              <h2>{showPast ? 'Past Tournaments' : 'Upcoming Tournaments'}</h2>
+              <span>{loading ? '–' : totalCount}</span>
             </div>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-              <button type="button" onClick={handleSearch} disabled={loading} className={cn(pillCta, 'w-full disabled:opacity-50 sm:w-auto')}>
-                Search
-              </button>
-              <button type="button" onClick={clearSearch} className={cn(secondaryCta, 'w-full sm:w-auto')}>
-                Clear
-              </button>
+            <p>
+              {showPast
+                ? 'Tournaments this club has already hosted. Switch to Upcoming for what is coming up.'
+                : 'Every published tournament for this club. Open a card for fixtures, guests, and registration.'}
+            </p>
+          </div>
+
+          {loading ? (
+            <div className="md-tn-status" aria-live="polite">
+              <div className="md-tn-spin" aria-label="Loading tournaments" />
             </div>
-          </div>
-          {appliedTitle && (
-            <p className="mt-4 text-sm text-pitch-charcoal/70">Active filters · title “{appliedTitle}”</p>
-          )}
-        </div>
-
-        {!loading && !fetchError && tournaments.length === 0 && (
-          <p className="mb-6 rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-5 py-8 text-center text-sm text-pitch-charcoal/70">
-            No tournaments listed yet. Check back soon.
-          </p>
-        )}
-        {!loading && !fetchError && showPast && futureCount === 0 && pastCount > 0 && (
-          <p className="mb-6 rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-5 py-4 text-sm text-pitch-charcoal/70">
-            Showing recent tournaments. New upcoming tournaments will appear here when published.
-          </p>
-        )}
-
-        {loading ? (
-          <div className="flex min-h-[240px] items-center justify-center">
-            <div className="h-10 w-10 animate-spin rounded-full border-2 border-pitch-charcoal/10 border-t-pitch-olive" aria-label="Loading" />
-          </div>
-        ) : fetchError ? (
-          <p className="rounded-xl border border-pitch-olive/30 bg-pitch-card px-5 py-8 text-center text-sm font-medium text-pitch-olive">
-            Could not load tournaments. Please try again later.
-          </p>
-        ) : pageRows.length === 0 ? (
-          <p className="rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-5 py-8 text-center text-sm text-pitch-charcoal/70">
-            No tournaments found.
-          </p>
-        ) : (
-          <div className="flex flex-col gap-5">
-            {pageRows.map((tournament) => {
-              const href = `/tournaments/${tournament.slug}`;
-              const imgSrc = tournament.heroImageUrl?.trim() || DEFAULT_EVENT_IMAGE;
-              const dates = dateRange(tournament);
-              const blurb = plainText(tournament.welcomeText || tournament.aboutText);
-              const past = isPastTournament(tournament, today);
-              return (
-                <article
-                  key={tournament.id ?? tournament.slug}
-                  className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card transition-colors duration-300 ease-in-out hover:border-pitch-charcoal/25"
-                >
-                  {/* Container takes the image's own aspect ratio: full width, no side gaps, no cropping */}
-                  <div className="relative w-full border-b border-pitch-charcoal/10 bg-pitch-chalk">
-                    <Image
-                      src={imgSrc}
-                      alt={tournament.title}
-                      width={1600}
-                      height={900}
-                      className="block h-auto w-full"
-                      sizes="(max-width: 1240px) 100vw, 1240px"
-                    />
-                    {past && (
-                      <span className="absolute left-3 top-3 rounded-md bg-pitch-lime px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-pitch-charcoal">
-                        Past tournament
-                      </span>
-                    )}
-                  </div>
-                  <div className="px-5 py-5 md:px-6 md:py-6">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-pitch-olive">
-                      {statusLabel(tournament, past)}
-                    </p>
-                    <h3 className={cn('font-extrabold tracking-[-0.02em] mt-1.5 text-2xl text-pitch-charcoal md:text-3xl')}>
-                      <Link
-                        href={href}
-                        className="transition-colors duration-300 hover:text-pitch-olive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive"
-                      >
-                        {tournament.title}
-                      </Link>
-                    </h3>
-                    {dates && <p className="mt-2 text-sm font-medium text-pitch-charcoal md:text-[15px]">{dates}</p>}
-                    {tournament.ageGroupLabel?.trim() && (
-                      <p className="mt-1 text-sm leading-relaxed text-pitch-charcoal/70 md:text-[15px]">
-                        {tournament.ageGroupLabel.trim()}
-                      </p>
-                    )}
-                    {blurb && <p className="mt-2 text-sm leading-relaxed text-pitch-charcoal/70 md:text-[15px]">{blurb}</p>}
-                    <div className="mt-5 flex flex-wrap gap-3">
-                      <Link href={href} className={pillCta}>
+          ) : fetchError ? (
+            <div className="md-tn-empty">
+              <h3>No tournaments found</h3>
+              <p>Could not load tournaments. Please try again later.</p>
+            </div>
+          ) : pageRows.length === 0 ? (
+            <div className="md-tn-empty">
+              <h3>No tournaments found</h3>
+              <p>{emptyText}</p>
+              {searched ? (
+                <button type="button" onClick={() => { setQuery(''); setPage(0); }}>Clear search</button>
+              ) : null}
+            </div>
+          ) : (
+            <div className="md-tn-cards">
+              {pageRows.map((tournament) => {
+                const href = `/tournaments/${tournament.slug}`;
+                const image = tournament.heroImageUrl?.trim() || '';
+                const dates = dateRange(tournament);
+                const age = tournament.ageGroupLabel?.trim() || '';
+                const blurb = plainText(tournament.welcomeText || tournament.aboutText);
+                const live = tournament.status === 'IN_PROGRESS';
+                const past = isPastTournament(tournament, today);
+                const tone = past ? 'is-past' : live ? 'is-live' : 'is-upcoming';
+                const status = live ? 'In progress' : past ? 'Past tournament' : 'Upcoming tournament';
+                return (
+                  <article key={tournament.id ?? tournament.slug} className={`md-tn-card ${tone}`}>
+                    <Link href={href} className="md-tn-card__media" aria-label={`View ${tournament.title}`}>
+                      {image ? (
+                        <Image src={image} alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" />
+                      ) : (
+                        <span>Tournament image</span>
+                      )}
+                    </Link>
+                    <div className="md-tn-card__panel">
+                      <div className="md-tn-card__copy">
+                        <div className="md-tn-card__status">
+                          <i className="md-tn-card__bar" />
+                          <span>
+                            {live ? <b /> : null}
+                            {status}
+                          </span>
+                        </div>
+                        <h3>
+                          <Link href={href}>{tournament.title}</Link>
+                        </h3>
+                        <div className="md-tn-card__facts">
+                          {dates ? (
+                            <span>
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden="true">
+                                <rect x="3" y="5" width="18" height="16" rx="2" />
+                                <path d="M8 3v4M16 3v4M3 10h18" />
+                              </svg>
+                              {dates}
+                            </span>
+                          ) : null}
+                          {age ? (
+                            <span>
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden="true">
+                                <circle cx="9" cy="8" r="3.5" />
+                                <path d="M2.5 20a6.5 6.5 0 0113 0M16 4.6a3.5 3.5 0 010 6.8M18 14.2a6.5 6.5 0 013.5 5.8" />
+                              </svg>
+                              {age}
+                            </span>
+                          ) : null}
+                        </div>
+                        {blurb ? <p>{blurb}</p> : null}
+                      </div>
+                      <Link href={href} className="md-tn-card__view">
                         View tournament
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M5 12h14M13 6l6 6-6 6" />
+                        </svg>
                       </Link>
                     </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
+                  </article>
+                );
+              })}
+            </div>
+          )}
 
-        {!loading && (
-          <MdPagination
-            page={safePage}
-            pageSize={PAGE_SIZE}
-            totalCount={filtered.length}
-            onPageChange={setPage}
-            itemLabel="tournaments"
-          />
-        )}
-      </Shell>
-    </section>
+          {!loading && !fetchError && totalCount > 0 ? (
+            <div className="md-tn-pager">
+              <p>{`Showing ${startItem}–${endItem} of ${totalCount} tournaments`}</p>
+              <div>
+                <button type="button" disabled={safePage === 0} onClick={() => changePage(safePage - 1)}>Previous</button>
+                <button type="button" disabled={safePage >= totalPages - 1} onClick={() => changePage(safePage + 1)}>Next</button>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </>
   );
 }

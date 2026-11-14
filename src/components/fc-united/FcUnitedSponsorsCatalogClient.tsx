@@ -1,58 +1,78 @@
 'use client';
 
 /**
- * /sponsors catalog — name search, page size 20, previous/next, and a result count.
- * Presentation only. The fetch contract is unchanged.
+ * /sponsors catalog. Name search and type chips filter the full active list.
+ * Page size stays 20. Homepage sponsor strip is a separate fetch.
  */
-import React, { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { MdPagination } from './MdPagination';
-import { pitchPageInset } from './pitchUi';
 import {
+  fetchSponsorSuggestionsServer,
   fetchSponsorsCatalogServer,
+  fetchSponsorTypeCountsServer,
   type HomepageSponsor,
+  type SponsorSuggestion,
+  type SponsorTypeCount,
 } from './ApiServerActions';
 
 const PAGE_SIZE = 20;
+const SUGGESTION_LIMIT = 20;
+const TYPE_COLORS = ['#FFC857', '#329BFF', '#7C3AED', '#0E9F6E', '#E11D48', '#06B6D4', '#F59E0B'];
 
-function SponsorMark({ sponsor }: { sponsor: HomepageSponsor }) {
-  return (
-    <div className="md-partners-card__logo">
+function colorFor(name: string): string {
+  let hash = 0;
+  for (const char of name) hash = (hash + char.charCodeAt(0)) % TYPE_COLORS.length;
+  return TYPE_COLORS[hash];
+}
+
+function SponsorRow({ sponsor }: { sponsor: HomepageSponsor }) {
+  const color = sponsor.type ? colorFor(sponsor.type) : '#329BFF';
+  const media = (
+    <>
       <Image
         src={sponsor.imageUrl}
         alt=""
         fill
-        className="object-contain"
-        sizes="(min-width: 1280px) 22vw, (min-width: 700px) 40vw, 90vw"
+        className="md-sp-card__img"
+        sizes="(min-width: 1280px) 1232px, 100vw"
       />
-    </div>
+      {sponsor.type ? (
+        <span className="md-sp-card__badge" style={{ background: color }}>{sponsor.type}</span>
+      ) : null}
+    </>
   );
-}
 
-function SponsorCard({ sponsor, lead }: { sponsor: HomepageSponsor; lead?: boolean }) {
   return (
-    <article className={lead ? 'md-partners-card is-lead' : 'md-partners-card'}>
-      <SponsorMark sponsor={sponsor} />
-      <div className="md-partners-card__body">
-        {sponsor.type ? <span className="md-partners-card__type">{sponsor.type}</span> : null}
-        <h3>{sponsor.name}</h3>
-        {sponsor.tagline ? <p>{sponsor.tagline}</p> : null}
-        <div className="md-partners-card__links">
+    <article className="md-sp-card">
+      {sponsor.id != null ? (
+        <Link href={`/sponsors/${sponsor.id}`} className="md-sp-card__media" aria-label={`${sponsor.name} details`}>
+          {media}
+        </Link>
+      ) : (
+        <div className="md-sp-card__media">{media}</div>
+      )}
+      <div className="md-sp-card__body">
+        <div className="md-sp-card__copy">
+          <span className="md-sp-card__bar" style={{ background: color }} aria-hidden />
+          <h3>{sponsor.name}</h3>
+          {sponsor.tagline ? <p>{sponsor.tagline}</p> : null}
+        </div>
+        <div className="md-sp-card__actions">
           {sponsor.id != null ? (
-            <Link href={`/sponsors/${sponsor.id}`}>
+            <Link href={`/sponsors/${sponsor.id}`} className="md-sp-card__details">
               Sponsor details
               <svg viewBox="0 0 24 24" aria-hidden>
-                <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M5 12h14M13 6l6 6-6 6" />
+                <path fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M13 6l6 6-6 6" />
               </svg>
             </Link>
           ) : null}
           {sponsor.websiteHref ? (
-            <a href={sponsor.websiteHref} target="_blank" rel="noopener noreferrer">
+            <a href={sponsor.websiteHref} target="_blank" rel="noopener noreferrer" className="md-sp-card__site">
               Visit website
               <svg viewBox="0 0 24 24" aria-hidden>
-                <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M7 17L17 7M9 7h8v8" />
+                <path fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M8 7h9v9" />
               </svg>
             </a>
           ) : null}
@@ -60,24 +80,6 @@ function SponsorCard({ sponsor, lead }: { sponsor: HomepageSponsor; lead?: boole
       </div>
     </article>
   );
-}
-
-function groupsFor(list: HomepageSponsor[]) {
-  const counts = new Map<string, number>();
-  for (const sponsor of list) {
-    if (!sponsor.type) continue;
-    counts.set(sponsor.type, (counts.get(sponsor.type) ?? 0) + 1);
-  }
-  const shared = [...counts.entries()].filter(([, count]) => count > 1).map(([type]) => type);
-  if (shared.length < 2) return null;
-  const distinct = [...new Set(list.map((sponsor) => sponsor.type).filter((type) => shared.includes(type)))];
-  return {
-    groups: distinct.map((type) => ({
-      type,
-      items: list.filter((sponsor) => sponsor.type === type),
-    })),
-    untyped: list.filter((sponsor) => !shared.includes(sponsor.type)),
-  };
 }
 
 export function FcUnitedSponsorsCatalogClient() {
@@ -88,11 +90,62 @@ export function FcUnitedSponsorsCatalogClient() {
   const [totalCount, setTotalCount] = useState(0);
   const [searchDraft, setSearchDraft] = useState('');
   const [appliedName, setAppliedName] = useState('');
+  const [type, setType] = useState('');
+  const [facets, setFacets] = useState<{ total: number; types: SponsorTypeCount[] }>({ total: 0, types: [] });
   const [retryNonce, setRetryNonce] = useState(0);
+  const [suggestions, setSuggestions] = useState<SponsorSuggestion[]>([]);
+  const [suggestionTotal, setSuggestionTotal] = useState(0);
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  const commitSearch = (value: string) => {
+    const next = value.trim();
+    setSearchDraft(next);
+    setAppliedName(next);
+    setPage(0);
+    setSuggestOpen(false);
+  };
+
+  useEffect(() => {
+    const query = searchDraft.trim();
+    if (!query) {
+      setSuggestions([]);
+      setSuggestionTotal(0);
+      setSuggestOpen(false);
+      return;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      fetchSponsorSuggestionsServer(query)
+        .then((result) => {
+          if (cancelled) return;
+          setSuggestions(result.suggestions.slice(0, SUGGESTION_LIMIT));
+          setSuggestionTotal(result.totalCount);
+          setSuggestOpen(true);
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setSuggestions([]);
+            setSuggestionTotal(0);
+          }
+        });
+    }, 200);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [searchDraft]);
+
+  useEffect(() => {
+    const close = (event: MouseEvent) => {
+      if (!searchRef.current?.contains(event.target as Node)) setSuggestOpen(false);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
-
     async function load() {
       setLoading(true);
       setFetchError(false);
@@ -101,6 +154,7 @@ export function FcUnitedSponsorsCatalogClient() {
           page,
           size: PAGE_SIZE,
           name: appliedName,
+          type,
         });
         if (cancelled) return;
         setSponsors(result.sponsors);
@@ -114,195 +168,187 @@ export function FcUnitedSponsorsCatalogClient() {
         if (!cancelled) setLoading(false);
       }
     }
-
     load();
     return () => {
       cancelled = true;
     };
-  }, [page, appliedName, retryNonce]);
+  }, [page, appliedName, type, retryNonce]);
 
-  const handleSearch = () => {
-    setAppliedName(searchDraft.trim());
-    setPage(0);
-  };
+  useEffect(() => {
+    let cancelled = false;
+    async function loadFacets() {
+      try {
+        const result = await fetchSponsorTypeCountsServer(appliedName);
+        if (!cancelled) setFacets(result);
+      } catch {
+        if (!cancelled) setFacets({ total: 0, types: [] });
+      }
+    }
+    loadFacets();
+    return () => {
+      cancelled = true;
+    };
+  }, [appliedName, retryNonce]);
 
-  const clearSearch = () => {
+  const clearFilters = () => {
     setSearchDraft('');
     setAppliedName('');
+    setType('');
     setPage(0);
   };
 
-  const lead =
-    page === 0 &&
-    !appliedName &&
-    sponsors.length > 1 &&
-    typeof sponsors[0]?.priorityRanking === 'number' &&
-    typeof sponsors[1]?.priorityRanking === 'number' &&
-    sponsors[0].priorityRanking < sponsors[1].priorityRanking
-      ? sponsors[0]
-      : null;
+  const pickType = (next: string) => {
+    setType(next);
+    setPage(0);
+  };
 
-  const grouped = groupsFor(sponsors);
-  const showMarquee = sponsors.length >= 6;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages - 1);
+  const startItem = totalCount > 0 ? safePage * PAGE_SIZE + 1 : 0;
+  const endItem = totalCount > 0 ? Math.min(totalCount, safePage * PAGE_SIZE + sponsors.length) : 0;
+  const filtered = Boolean(appliedName || type);
+  const showTypes = facets.types.length > 1;
 
   return (
-    <section className="md-partners-catalog">
-      <div className={pitchPageInset}>
-        <div className="md-partners-catalog__head">
-          <p className="md-partners-kicker md-partners-kicker--ink">partners</p>
-          <h2>Club Sponsors</h2>
-          <span className="md-partners-rule" aria-hidden />
+    <>
+      <div className="md-sp-filters" aria-label="Sponsor filters">
+        <div className="md-sp-filters__card">
+          <div className="md-sp-search" ref={searchRef}>
+            <label>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden>
+                <circle cx="11" cy="11" r="7" />
+                <path d="M21 21l-4.3-4.3" />
+              </svg>
+              <input
+                type="search"
+                role="combobox"
+                aria-label="Search sponsors by name"
+                aria-autocomplete="list"
+                aria-expanded={suggestOpen}
+                aria-controls="md-sponsor-suggestions"
+                placeholder="Search by sponsor name…"
+                value={searchDraft}
+                onChange={(event) => setSearchDraft(event.target.value)}
+                onFocus={() => {
+                  if (suggestions.length > 0) setSuggestOpen(true);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    commitSearch(searchDraft);
+                  } else if (event.key === 'Escape') {
+                    setSuggestOpen(false);
+                  }
+                }}
+              />
+            </label>
+            {suggestOpen && (suggestions.length > 0 || suggestionTotal > SUGGESTION_LIMIT) ? (
+              <ul id="md-sponsor-suggestions" role="listbox" aria-label="Sponsor suggestions">
+                {suggestions.slice(0, SUGGESTION_LIMIT).map((item) => (
+                  <li key={item.id ?? item.name} role="presentation">
+                    <button
+                      type="button"
+                      role="option"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => commitSearch(item.name)}
+                    >
+                      <strong>{item.name}</strong>
+                      {item.type ? <span>{item.type}</span> : null}
+                    </button>
+                  </li>
+                ))}
+                {suggestionTotal > SUGGESTION_LIMIT ? (
+                  <li role="presentation">
+                    <button
+                      type="button"
+                      className="md-sp-search__more"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => commitSearch(searchDraft)}
+                    >
+                      Click Enter for more
+                    </button>
+                  </li>
+                ) : null}
+              </ul>
+            ) : null}
+          </div>
+          {showTypes ? (
+            <div role="group" aria-label="Sponsor type">
+              <button type="button" aria-pressed={type === ''} className={type === '' ? 'is-on' : undefined} onClick={() => pickType('')}>
+                All
+                <span>{facets.total}</span>
+              </button>
+              {facets.types.map((item) => (
+                <button
+                  key={item.type}
+                  type="button"
+                  aria-pressed={type === item.type}
+                  className={type === item.type ? 'is-on' : undefined}
+                  onClick={() => pickType(item.type)}
+                >
+                  <i style={{ background: colorFor(item.type) }} />
+                  {item.type}
+                  <span>{item.count}</span>
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="md-sp-list" aria-label="Sponsor list">
+        <div className="md-sp-list__head">
+          <div>
+            <h2>Club Sponsors</h2>
+            <span>{loading ? '…' : totalCount}</span>
+          </div>
           <p>Businesses that support Maryland Strikers, Capital Cup, and club programs.</p>
         </div>
 
-        <form
-          className="md-partners-search"
-          onSubmit={(event) => {
-            event.preventDefault();
-            handleSearch();
-          }}
-        >
-          <p>Search sponsors</p>
-          <div className="md-partners-search__row">
-            <div>
-              <label htmlFor="md-sponsors-name">Sponsor name</label>
-              <span className="md-partners-search__field">
-                <svg viewBox="0 0 24 24" aria-hidden>
-                  <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
-                  <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M16 16l4 4" />
-                </svg>
-                <input
-                  id="md-sponsors-name"
-                  type="search"
-                  value={searchDraft}
-                  onChange={(e) => setSearchDraft(e.target.value)}
-                  placeholder="Search by sponsor name..."
-                />
-              </span>
-            </div>
-            <div className="md-partners-search__actions">
-              <button type="submit" disabled={loading} className="md-partners-search__go">
-                {loading ? <span className="md-partners-spin" aria-hidden /> : (
-                  <svg viewBox="0 0 24 24" aria-hidden>
-                    <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
-                    <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M16 16l4 4" />
-                  </svg>
-                )}
-                {loading ? 'Searching' : 'Search'}
-              </button>
-              <button type="button" onClick={clearSearch} className="md-partners-search__clear">
-                <svg viewBox="0 0 24 24" aria-hidden>
-                  <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M20 12a8 8 0 10-2.2 5.5M20 12V7m0 5h-5" />
-                </svg>
-                Clear
-              </button>
-            </div>
-          </div>
-          {appliedName ? (
-            <p className="md-partners-search__filter">
-              Active filter · name contains “{appliedName}”
-            </p>
-          ) : null}
-        </form>
-
         {loading ? (
-          <div className="md-partners-grid" aria-label="Loading sponsors">
-            {Array.from({ length: 6 }, (_, index) => (
-              <div key={index} className="md-partners-skeleton" />
-            ))}
+          <div className="md-sp-stack" aria-label="Loading sponsors">
+            {Array.from({ length: 3 }, (_, index) => <div key={index} className="md-sp-skeleton" />)}
           </div>
         ) : fetchError ? (
-          <div className="md-partners-empty">
+          <div className="md-sp-empty">
+            <h3>No sponsors found</h3>
             <p>Could not load sponsors. Please try again later.</p>
-            <button type="button" onClick={() => setRetryNonce((value) => value + 1)}>
-              Try again
-            </button>
+            <button type="button" onClick={() => setRetryNonce((value) => value + 1)}>Try again</button>
           </div>
         ) : sponsors.length === 0 ? (
-          <div className="md-partners-empty">
-            <svg viewBox="0 0 24 24" aria-hidden>
-              <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="1.6" />
-              <path fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" d="M8 12h8" />
-            </svg>
-            <p>{appliedName ? 'No sponsors found' : 'No sponsors are published yet.'}</p>
-            {appliedName ? <p>No sponsors match “{appliedName}”. Try a different name.</p> : null}
-            {appliedName ? (
-              <button type="button" onClick={clearSearch}>
-                Clear search
-              </button>
+          <div className="md-sp-empty">
+            <h3>No sponsors found</h3>
+            <p>
+              {appliedName
+                ? `No sponsors match “${appliedName}”. Try a different name.`
+                : 'No sponsors are published yet.'}
+            </p>
+            {filtered ? (
+              <button type="button" onClick={clearFilters}>Clear search</button>
             ) : null}
           </div>
         ) : (
-          <>
-            {showMarquee ? (
-              <div className="md-partners-marquee" aria-hidden>
-                <div className="md-partners-marquee__track">
-                  {[0, 1].map((copy) => (
-                    <div key={copy}>
-                      {sponsors.map((sponsor) => (
-                        <span key={`${copy}-${sponsor.id ?? sponsor.name}`}>
-                          <Image src={sponsor.imageUrl} alt="" width={160} height={72} />
-                        </span>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            {grouped ? (
-              <>
-                {grouped.groups.map((group) => (
-                  <div key={group.type} className="md-partners-group">
-                    <h3>{group.type}</h3>
-                    <span className="md-partners-rule" aria-hidden />
-                    <div className="md-partners-grid">
-                      {group.items.map((sponsor) => (
-                        <SponsorCard
-                          key={sponsor.id ?? sponsor.name}
-                          sponsor={sponsor}
-                          lead={lead?.id != null && sponsor.id === lead.id}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ))}
-                {grouped.untyped.length > 0 ? (
-                  <div className="md-partners-group">
-                    <h3>Club sponsors</h3>
-                    <span className="md-partners-rule" aria-hidden />
-                    <div className="md-partners-grid">
-                      {grouped.untyped.map((sponsor) => (
-                        <SponsorCard key={sponsor.id ?? sponsor.name} sponsor={sponsor} lead={lead?.id != null && sponsor.id === lead.id} />
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-              </>
-            ) : (
-              <div className="md-partners-grid">
-                {sponsors.map((sponsor) => (
-                  <SponsorCard
-                    key={sponsor.id ?? sponsor.name}
-                    sponsor={sponsor}
-                    lead={lead?.id != null && sponsor.id === lead.id}
-                  />
-                ))}
-              </div>
-            )}
-          </>
+          <div className="md-sp-stack">
+            {sponsors.map((sponsor) => (
+              <SponsorRow key={sponsor.id ?? sponsor.name} sponsor={sponsor} />
+            ))}
+          </div>
         )}
 
-        {!loading && (
-          <MdPagination
-            page={page}
-            pageSize={PAGE_SIZE}
-            totalCount={totalCount}
-            onPageChange={setPage}
-            itemLabel="sponsors"
-          />
-        )}
+        {!loading && !fetchError && totalCount > 0 ? (
+          <div className="md-sp-pager">
+            <p>{`Showing ${startItem} to ${endItem} of ${totalCount} sponsors`}</p>
+            <div>
+              <button type="button" disabled={safePage === 0} onClick={() => setPage(Math.max(0, safePage - 1))}>
+                Previous
+              </button>
+              <button type="button" disabled={safePage >= totalPages - 1} onClick={() => setPage(safePage + 1)}>
+                Next
+              </button>
+            </div>
+          </div>
+        ) : null}
       </div>
-    </section>
+    </>
   );
 }
