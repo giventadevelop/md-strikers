@@ -9,6 +9,7 @@ import {
   clearHomepageCaches,
   HOMEPAGE_CACHE_INVALIDATE_CHANNEL,
 } from '@/lib/homepageCacheKeys';
+import { parseAdsensePlacements, type AdsensePlacementsMap } from '@/lib/adsense/parseAdsensePlacements';
 
 interface TenantSettingsContextType {
   settings: TenantSettingsDTO | null;
@@ -16,6 +17,9 @@ interface TenantSettingsContextType {
   showEventsSection: boolean;
   showTeamSection: boolean;
   showSponsorsSection: boolean;
+  showGoogleAdsense: boolean;
+  adsensePublisherId: string | null;
+  adsensePlacements: AdsensePlacementsMap;
 }
 
 const TenantSettingsContext = React.createContext<TenantSettingsContextType>({
@@ -24,6 +28,9 @@ const TenantSettingsContext = React.createContext<TenantSettingsContextType>({
   showEventsSection: true, // Default to true for backward compatibility
   showTeamSection: true,
   showSponsorsSection: true,
+  showGoogleAdsense: false,
+  adsensePublisherId: null,
+  adsensePlacements: {},
 });
 
 export const useTenantSettings = () => React.useContext(TenantSettingsContext);
@@ -211,6 +218,10 @@ export const TenantSettingsProvider: React.FC<TenantSettingsProviderProps> = ({ 
   const showEventsSection = settings?.showEventsSectionInHomePage ?? true;
   const showTeamSection = settings?.showTeamMembersSectionInHomePage ?? true;
   const showSponsorsSection = settings?.showSponsorsSectionInHomePage ?? true;
+  const showGoogleAdsense =
+    settings?.enableGoogleAdsense === true && Boolean(settings?.googleAdsensePublisherId?.trim());
+  const adsensePublisherId = settings?.googleAdsensePublisherId?.trim() || null;
+  const adsensePlacements = parseAdsensePlacements(settings?.googleAdsensePlacementsJson);
 
   const contextValue: TenantSettingsContextType = {
     settings,
@@ -218,6 +229,9 @@ export const TenantSettingsProvider: React.FC<TenantSettingsProviderProps> = ({ 
     showEventsSection,
     showTeamSection,
     showSponsorsSection,
+    showGoogleAdsense,
+    adsensePublisherId,
+    adsensePlacements,
   };
 
   return (

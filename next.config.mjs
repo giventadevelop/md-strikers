@@ -69,6 +69,12 @@ const nextConfig = {
   // Configure headers if needed
   async headers() {
     return [
+      {
+        source: '/ads.txt',
+        headers: [
+          { key: 'Content-Type', value: 'text/plain; charset=utf-8' },
+        ],
+      },
       // Global CORS headers for all API routes (essential for mobile browsers)
       {
         source: '/api/:path*',
@@ -174,6 +180,8 @@ const nextConfig = {
     NEXT_PUBLIC_API_JWT_PASS: process.env.NEXT_PUBLIC_API_JWT_PASS,
     NEXT_PUBLIC_API_BASE_URL: process.env.AMPLIFY_NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL,
     // Tenant ID and Payment Method Domain ID (prioritize AMPLIFY_ prefix for AWS Amplify)
+    NEXT_PUBLIC_GOOGLE_ADSENSE_SHARED_PUBLISHER_ID: process.env.AMPLIFY_NEXT_PUBLIC_GOOGLE_ADSENSE_SHARED_PUBLISHER_ID || process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_SHARED_PUBLISHER_ID,
+    AMPLIFY_NEXT_PUBLIC_GOOGLE_ADSENSE_SHARED_PUBLISHER_ID: process.env.AMPLIFY_NEXT_PUBLIC_GOOGLE_ADSENSE_SHARED_PUBLISHER_ID,
     NEXT_PUBLIC_TENANT_ID: process.env.AMPLIFY_NEXT_PUBLIC_TENANT_ID || process.env.NEXT_PUBLIC_TENANT_ID,
     AMPLIFY_NEXT_PUBLIC_TENANT_ID: process.env.AMPLIFY_NEXT_PUBLIC_TENANT_ID,
     // Homepage cache: separate client cache by environment (local/dev/staging/production)

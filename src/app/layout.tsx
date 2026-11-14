@@ -20,6 +20,8 @@ import { logServerFetchFailure } from "@/lib/logServerFetchFailure";
 import { isAdminRole } from "@/lib/utils";
 import { isFcUnitedStandaloneRoute, MD_PUBLIC_BODY_CLASS } from "@/lib/fcUnitedRoutes";
 import FcUnitedThemeGuard from "../components/FcUnitedThemeGuard";
+import AdSenseConsentBanner from "../components/ads/AdSenseConsentBanner";
+import { getSharedAdsensePublisherIdForMeta } from "@/lib/adsense/sharedPublisherId";
 
 const DEBUG_LAYOUT = process.env.NEXT_PUBLIC_DEBUG_LAYOUT === 'true';
 const debugLog = (...args: unknown[]) => { if (DEBUG_LAYOUT) console.log(...args); };
@@ -385,9 +387,17 @@ export default async function RootLayout({
     isFcUnitedStandaloneRoute(requestPathname) ? MD_PUBLIC_BODY_CLASS : '',
   ].filter(Boolean).join(' ');
 
+  const sharedAdsensePublisherId = getSharedAdsensePublisherIdForMeta();
+
   return (
       <html lang="en" suppressHydrationWarning>
         <head>
+          <meta name="google-adsense-account" content={sharedAdsensePublisherId} />
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${sharedAdsensePublisherId}`}
+            crossOrigin="anonymous"
+          />
           <link rel="icon" href="/favicon.ico" type="image/x-icon" />
           <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
           {/* Header Design System Fonts - DM Serif Display + Plus Jakarta Sans */}
@@ -412,6 +422,7 @@ export default async function RootLayout({
               >
                 {children}
               </ConditionalLayout>
+              <AdSenseConsentBanner />
             </TenantSettingsProvider>
           </TrpcProvider>
           <Script
@@ -450,6 +461,7 @@ export default async function RootLayout({
               >
                 {children}
               </ConditionalLayout>
+              <AdSenseConsentBanner />
             </TenantSettingsProvider>
           </TrpcProvider>
           <Script

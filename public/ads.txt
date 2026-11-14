@@ -1,0 +1,2 @@
+# Shared Giventa owner account. Numeric publisher ID, no ca- prefix.
+google.com, pub-1016198353275904, DIRECT, f08c47fec0942fa0

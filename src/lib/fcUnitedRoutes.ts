@@ -9,6 +9,7 @@ const FC_UNITED_FULL_WIDTH = [
   '/gallery',
   '/news',
   '/contacts',
+  '/contact',
   '/volunteer',
 ];
 

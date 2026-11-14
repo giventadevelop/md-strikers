@@ -329,6 +329,10 @@ export default function FcUnitedAboutPage() {
             <p className="md-about-kicker">Be part of the MD Strikers community</p>
             <h2 className="md-about-display">{mdStrikersBecomeASponsorHeading}</h2>
             <p>{mdStrikersBecomeASponsorBody}</p>
+            <p>
+              Maryland Strikers Sports Club, 13881 Hopkins Rd, Germantown, MD 20874. Phone 301 346 8631. Email{' '}
+              <a href="mailto:mdstrikersinc@gmail.com" className="md-about-gold">mdstrikersinc@gmail.com</a>.
+            </p>
             <Link href="/contacts" className="md-about-cta">
               Contact us
               <Arrow />

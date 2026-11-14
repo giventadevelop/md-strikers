@@ -52,6 +52,9 @@ export interface TenantSettingsDTO {
   showNewsAdvertisements?: boolean;
   showHeaderNews?: boolean | null;
   isMembershipSubscriptionEnabled?: boolean;
+  enableGoogleAdsense?: boolean;
+  googleAdsensePublisherId?: string;
+  googleAdsensePlacementsJson?: string;
   // Enhanced WhatsApp Integration Fields
   whatsappPhoneNumber?: string;
   twilioAccountSid?: string;

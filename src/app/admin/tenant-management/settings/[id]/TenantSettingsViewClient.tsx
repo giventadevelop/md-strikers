@@ -273,6 +273,13 @@ export default function TenantSettingsViewClient({ settings, settingsId, organiz
           <h3 className="text-lg font-medium text-gray-900">Integration Settings</h3>
           <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
             <div>
+              <dt className="text-sm font-medium text-gray-500">Google AdSense</dt>
+              <dd className="mt-1 text-sm text-gray-900">
+                {settings?.enableGoogleAdsense ? 'Enabled' : 'Disabled'}
+                {settings?.googleAdsensePublisherId ? ` · ${settings.googleAdsensePublisherId}` : ''}
+              </dd>
+            </div>
+            <div>
               <dt className="text-sm font-medium text-gray-500">WhatsApp Integration</dt>
               <dd className="mt-1">
                 {settings?.enableWhatsappIntegration ? (

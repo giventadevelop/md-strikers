@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { fcUnitedAboutParagraphs, fcUnitedAboutTitle } from './fcUnitedAboutContent';
-import { FC_IMG, fcSponsors } from './fcUnitedConstants';
+import { fcSponsors } from './fcUnitedConstants';
 import { fetchClubNewsArticles, newsHref, type ClubNewsArticle } from '@/lib/news/clubNews';
 import { fetchTenantSettingsServer } from '@/app/ApiServerActions';
 import { getFeaturedEventImageUrl, isPastHomepageEvent } from '@/lib/homepage/featuredEvents';
@@ -18,7 +18,7 @@ import {
   fetchTeamMembersImageTitleServer,
 } from './ApiServerActions';
 import { HOMEPAGE_SPONSOR_LIMIT } from './homepageLimits';
-import { fcBebas, fcBrand, fcOrganic, fcPoppins, fcRoboto } from './fcUnitedFonts';
+import { fcBebas, fcBrand, fcOrganic } from './fcUnitedFonts';
 import { FcSquadCarousel, type FcSquadPlayer } from './FcSquadCarousel';
 import { TeamMembersDbSection } from './TeamMembersDbSection';
 import { ExecutiveTeamSection } from './ExecutiveTeamSection';
@@ -41,13 +41,6 @@ const STORY_IMAGE = '/images/md_strikers_media/gallery/mdstrikers_com/gal03.jpg'
 
 const formatNewsDate = (iso: string) =>
   new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-
-const products = [
-  { img: `${FC_IMG}/product-13-copyright-393x426.jpg`, tag: 'Gloves', title: 'Alpha Goalkeeper Glove', price: '$80.00' },
-  { img: `${FC_IMG}/product-8-copyright-393x426.jpg`, tag: 'Shoes', title: 'Athletic Training Boots', price: '$79.00' },
-  { img: `${FC_IMG}/product-12-copyright-393x426.jpg`, tag: 'Gloves', title: 'Weather Grip gloves', price: '$110.00' },
-  { img: `${FC_IMG}/product-13-copyright-393x426.jpg`, tag: 'Shoes', title: 'Men Soccer Boots Predator', price: '$100.00' },
-];
 
 type SponsorCard = {
   key: string;
@@ -634,45 +627,6 @@ export default async function FcUnitedHomePage() {
             </PitchShell>
           </section>
         )}
-
-        {/* Shop — hidden (see layout / section index) */}
-        <section className="hidden bg-pitch-card py-14 md:py-20" aria-hidden>
-          <Shell>
-            <div className="mb-10 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
-              <div>
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-[#797e87]">shop</span>
-                <h2 className={cn(fcBebas.className, 'text-4xl tracking-wide text-[#262f3e] md:text-5xl')}>Top Products</h2>
-              </div>
-              <span className="cursor-not-allowed text-sm font-semibold text-[#797e87]">Cart / checkout disabled (static)</span>
-            </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {products.map((p, i) => (
-                <div
-                  key={`${p.title}-${i}`}
-                  className="rounded-[3px] border border-[#e3e3e3] bg-[#f4f4f4] transition-colors hover:border-[#c8c8c8]"
-                >
-                  <div className="relative aspect-[393/426] w-full bg-pitch-card">
-                    <Image src={p.img} alt={p.title} fill className="object-contain p-4" sizes="(max-width:1024px) 50vw, 25vw" />
-                  </div>
-                  <div className="border-t border-[#e3e3e3] bg-pitch-card p-4">
-                    <span className="inline-block rounded-[3px] bg-[#f4f4f4] px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#262f3e]">
-                      {p.tag}
-                    </span>
-                    <p className={cn('mt-2 font-medium text-[#262f3e]', fcPoppins.className)}>{p.title}</p>
-                    <p className={cn('mt-2 text-lg font-medium text-[#262f3e]', fcRoboto.className)}>{p.price}</p>
-                    <button
-                      type="button"
-                      disabled
-                      className="mt-4 w-full rounded-[32px] bg-[#e3e3e3] px-4 py-2 text-sm font-semibold text-[#797e87]"
-                    >
-                      Buy now (disabled)
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Shell>
-        </section>
 
         {/* Partners */}
         <section className="border-t border-pitch-chalk/10 bg-pitch-charcoal py-12">

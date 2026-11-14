@@ -8,7 +8,11 @@ export default function TermsPage() {
         
         <div className="prose prose-lg max-w-none">
           <p className="text-gray-600 mb-6">
-            <strong>Last updated:</strong> {new Date().toLocaleDateString()}
+            <strong>Last updated:</strong> November 14, 2026
+          </p>
+          <p className="text-gray-700 mb-6">
+            These terms govern use of the website of Maryland Strikers Sports Club (&quot;MD Strikers&quot;), at 13881 Hopkins Rd, Germantown, MD 20874. By using the site you agree to these terms and to the{' '}
+            <Link href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>.
           </p>
 
           <section className="mb-8">
@@ -48,10 +52,16 @@ export default function TermsPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">4. Privacy and Data Protection</h2>
-            <p className="text-gray-700 mb-4">
-              We are committed to protecting your privacy. Please review our Privacy Policy to understand how we collect, use, and protect your personal information. By using our services, you consent to the collection and use of information as outlined in our Privacy Policy.
-            </p>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">4. Privacy and advertising</h2>
+            <div className="text-gray-700 space-y-3">
+              <p>
+                How we handle personal information is in the{' '}
+                <Link href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>.
+              </p>
+              <p>
+                Pages may show third-party advertisements delivered by Google AdSense. Those ads are not offers from Maryland Strikers Sports Club. The ownership script may be in the page before you choose. Ad units load only after you accept. Reject leaves the ad units unloaded.
+              </p>
+            </div>
           </section>
 
           <section className="mb-8">
@@ -110,9 +120,10 @@ export default function TermsPage() {
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-gray-700">
-                <strong>Email:</strong> support@malayalees-us.org<br />
-                <strong>Phone:</strong> (555) 123-4567<br />
-                <strong>Address:</strong> 123 Community Center, City, State 12345
+                <strong>Maryland Strikers Sports Club</strong><br />
+                <strong>Email:</strong> mdstrikersinc@gmail.com<br />
+                <strong>Phone:</strong> 301 346 8631<br />
+                <strong>Address:</strong> 13881 Hopkins Rd, Germantown, MD 20874
               </p>
             </div>
           </section>

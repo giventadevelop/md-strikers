@@ -8,7 +8,11 @@ export default function PrivacyPage() {
         
         <div className="prose prose-lg max-w-none">
           <p className="text-gray-600 mb-6">
-            <strong>Last updated:</strong> {new Date().toLocaleDateString()}
+            <strong>Last updated:</strong> November 14, 2026
+          </p>
+          <p className="text-gray-700 mb-6">
+            This policy describes how Maryland Strikers Sports Club (&quot;MD Strikers&quot;), at 13881 Hopkins Rd, Germantown, MD 20874, handles information on this website. Questions go to{' '}
+            <a href="mailto:mdstrikersinc@gmail.com" className="text-blue-600 hover:underline">mdstrikersinc@gmail.com</a> or 301 346 8631.
           </p>
 
           <section className="mb-8">
@@ -95,10 +99,26 @@ export default function PrivacyPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">7. Cookies and Tracking</h2>
-            <p className="text-gray-700 mb-4">
-              We use cookies and similar tracking technologies to enhance your experience on our website. Cookies help us remember your preferences, analyze site traffic, and improve our services. You can control cookie settings through your browser preferences.
-            </p>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">7. Google AdSense and cookies</h2>
+            <div className="text-gray-700 space-y-3">
+              <p>
+                This site may show third-party ads through Google AdSense. Google and its advertising partners may use cookies to serve and measure those ads, including ads based on visits to this site and other sites, after you allow them.
+              </p>
+              <p>
+                The ownership script in the page head may be present before you choose. Ad units load only after you choose <strong>Accept</strong>. <strong>Reject</strong> leaves the ad units unloaded. You can open the choice again from Cookie settings in the footer.
+              </p>
+              <p>
+                Control personalized ads in{' '}
+                <a href="https://adssettings.google.com" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
+                  Google Ads Settings
+                </a>
+                . Google&apos;s privacy policy is at{' '}
+                <a href="https://policies.google.com/privacy" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
+                  policies.google.com/privacy
+                </a>
+                . Sign-in cookies are separate from advertising cookies.
+              </p>
+            </div>
           </section>
 
           <section className="mb-8">
@@ -136,10 +156,10 @@ export default function PrivacyPage() {
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-gray-700">
-                <strong>Email:</strong> privacy@malayalees-us.org<br />
-                <strong>Phone:</strong> (555) 123-4567<br />
-                <strong>Address:</strong> 123 Community Center, City, State 12345<br />
-                <strong>Data Protection Officer:</strong> dpo@malayalees-us.org
+                <strong>Maryland Strikers Sports Club</strong><br />
+                <strong>Email:</strong> mdstrikersinc@gmail.com<br />
+                <strong>Phone:</strong> 301 346 8631<br />
+                <strong>Address:</strong> 13881 Hopkins Rd, Germantown, MD 20874
               </p>
             </div>
           </section>

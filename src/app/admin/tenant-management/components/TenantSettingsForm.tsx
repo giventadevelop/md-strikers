@@ -75,6 +75,9 @@ export default function TenantSettingsForm({
       showNewsAdvertisements: initialData?.showNewsAdvertisements !== false,
       showHeaderNews: initialData?.showHeaderNews === true,
       isMembershipSubscriptionEnabled: initialData?.isMembershipSubscriptionEnabled ?? false,
+      enableGoogleAdsense: initialData?.enableGoogleAdsense ?? false,
+      googleAdsensePublisherId: initialData?.googleAdsensePublisherId || '',
+      googleAdsensePlacementsJson: initialData?.googleAdsensePlacementsJson || '',
       // Enhanced WhatsApp Integration Fields
       whatsappPhoneNumber: initialData?.whatsappPhoneNumber || '',
       twilioAccountSid: initialData?.twilioAccountSid || '',
@@ -934,6 +937,48 @@ export default function TenantSettingsForm({
         {activeTab === 'integrations' && (
           <div className="space-y-6">
             <h3 className="text-lg font-medium text-gray-900">Integration Settings</h3>
+
+            <div className="space-y-4 rounded-lg border border-gray-200 p-4">
+              <ToggleSwitch
+                name="enableGoogleAdsense"
+                label="Enable Google AdSense"
+                description="Show ad units after a visitor accepts cookies. The ownership script stays in the page head either way."
+                checked={watchedValues.enableGoogleAdsense || false}
+                onChange={(checked) => setValue('enableGoogleAdsense', checked)}
+              />
+              {watchedValues.enableGoogleAdsense && (
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="googleAdsensePublisherId" className="block text-sm font-medium text-gray-700">Publisher ID</label>
+                    <input
+                      id="googleAdsensePublisherId"
+                      {...register('googleAdsensePublisherId', {
+                        required: watchedValues.enableGoogleAdsense ? 'Publisher ID is required' : false,
+                        pattern: { value: /^ca-pub-[0-9]+$/, message: 'Use ca-pub- followed by digits' },
+                      })}
+                      placeholder="ca-pub-1016198353275904"
+                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                    />
+                    {errors.googleAdsensePublisherId && (
+                      <p className="mt-1 text-sm text-red-600">{errors.googleAdsensePublisherId.message}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label htmlFor="googleAdsensePlacementsJson" className="block text-sm font-medium text-gray-700">Ad slot map</label>
+                    <textarea
+                      id="googleAdsensePlacementsJson"
+                      {...register('googleAdsensePlacementsJson')}
+                      rows={3}
+                      placeholder='{"footer_strip":"1234567890"}'
+                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      JSON of region to numeric slot ID. Regions: footer_strip, sidebar, between_sections, article_inline. The public footer uses footer_strip.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* WhatsApp Integration */}
             <div className="space-y-6">

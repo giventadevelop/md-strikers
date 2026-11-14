@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Facebook, Linkedin, Youtube, ArrowUp, Mail, Phone, MapPin } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useTenantSettings } from "@/components/TenantSettingsProvider";
+import GoogleAdSenseRegion from "@/components/ads/GoogleAdSenseRegion";
+import AdSenseConsentBanner from "@/components/ads/AdSenseConsentBanner";
 
 // Back-to-top button component with comprehensive styling
 const BackToTopButton = () => {
@@ -151,8 +153,8 @@ const Footer = () => {
                 <div className="flex items-start space-x-3">
                   <MapPin size={18} className="text-blue-400 mt-1 flex-shrink-0" strokeWidth={2} />
                   <p className="text-gray-400 font-inter text-sm leading-relaxed">
-                    123 Charity Lane<br />
-                    Hope City, HC 12345<br />
+                    13881 Hopkins Rd<br />
+                    Germantown, MD 20874<br />
                     United States
                   </p>
                 </div>
@@ -162,18 +164,10 @@ const Footer = () => {
                   <div className="space-y-1">
                     <p>
                       <a
-                        href="tel:+15551234567"
+                        href="tel:+13013468631"
                         className="text-gray-300 hover:text-white font-inter text-sm transition-colors duration-300 focus:outline-none focus:text-white"
                       >
-                        +1 (555) 123-4567
-                      </a>
-                    </p>
-                    <p>
-                      <a
-                        href="tel:+18005551234"
-                        className="text-gray-300 hover:text-white font-inter text-sm transition-colors duration-300 focus:outline-none focus:text-white"
-                      >
-                        1-800-555-1234 (Toll Free)
+                        301 346 8631
                       </a>
                     </p>
                   </div>
@@ -183,10 +177,10 @@ const Footer = () => {
                   <Mail size={18} className="text-blue-400 flex-shrink-0" strokeWidth={2} />
                   <p>
                     <a
-                      href="mailto:contact@charityorg.com"
+                      href="mailto:mdstrikersinc@gmail.com"
                       className="text-blue-400 hover:text-blue-300 font-inter text-sm transition-colors duration-300 focus:outline-none focus:text-blue-300"
                     >
-                      contact@charityorg.com
+                      mdstrikersinc@gmail.com
                     </a>
                   </p>
                 </div>
@@ -295,20 +289,27 @@ const Footer = () => {
         </div>
       </div>
 
+      <GoogleAdSenseRegion
+        region="footer_strip"
+        className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-3 bg-gray-900"
+        format="horizontal"
+        minHeight={90}
+      />
+
       {/* Copyright Section */}
       <div className="bg-gray-900 border-t border-gray-800 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex flex-col items-center md:items-start gap-1">
             <p className="text-gray-400 font-inter text-sm text-center md:text-left">
-              © 2024{' '}
+              © {new Date().getFullYear()}{' '}
               <Link
-                href="/charity-theme"
+                href="/"
                 className="text-white hover:text-blue-400 transition-colors duration-300 focus:outline-none focus:text-blue-400"
               >
-                Malayalees US Charity Organization
+                Maryland Strikers Sports Club
               </Link>
-              .<span className="block md:inline"> All rights reserved.</span> Making hope happen.
+              .<span className="block md:inline"> All rights reserved.</span>
             </p>
             <p className="text-gray-500 font-inter text-[11px] md:text-xs text-center md:text-left">
               Powered by{' '}
@@ -336,23 +337,18 @@ const Footer = () => {
 
             <nav className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-6">
               <Link
-                href="#privacy"
+                href="/privacy"
                 className="text-gray-400 hover:text-white font-inter text-sm transition-colors duration-300 focus:outline-none focus:text-white"
               >
                 Privacy Policy
               </Link>
               <Link
-                href="#terms"
+                href="/terms"
                 className="text-gray-400 hover:text-white font-inter text-sm transition-colors duration-300 focus:outline-none focus:text-white"
               >
                 Terms of Service
               </Link>
-              <Link
-                href="#accessibility"
-                className="text-gray-400 hover:text-white font-inter text-sm transition-colors duration-300 focus:outline-none focus:text-white"
-              >
-                Accessibility
-              </Link>
+              <AdSenseConsentBanner variant="settings-link" linkClassName="text-gray-400 hover:text-white font-inter text-sm transition-colors duration-300 focus:outline-none focus:text-white" />
             </nav>
           </div>
         </div>

@@ -644,6 +644,9 @@ export interface TenantSettingsDTO {
   showNewsAdvertisements?: boolean;
   showHeaderNews?: boolean | null;
   isMembershipSubscriptionEnabled?: boolean;
+  enableGoogleAdsense?: boolean;
+  googleAdsensePublisherId?: string;
+  googleAdsensePlacementsJson?: string;
   homepageCacheVersion?: number;
   // Contact and Address Fields
   addressLine1?: string;

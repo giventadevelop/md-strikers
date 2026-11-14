@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { fcBrand } from './fcUnitedFonts';
 import { SportBackgroundIcons } from './SportBackgroundIcons';
+import GoogleAdSenseRegion from '@/components/ads/GoogleAdSenseRegion';
+import AdSenseConsentBanner from '@/components/ads/AdSenseConsentBanner';
 
 const focusRing =
   'focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-2 focus-visible:ring-offset-pitch-charcoal';
@@ -187,6 +189,8 @@ export function FcUnitedFooter() {
         </div>
       </Shell>
 
+      <GoogleAdSenseRegion region="footer_strip" format="horizontal" minHeight={90} />
+
       <div className="w-full border-t border-pitch-chalk/10">
         <Shell className="py-8">
           <div className="flex flex-col items-center justify-between gap-2 text-center md:flex-row md:text-left">
@@ -216,6 +220,14 @@ export function FcUnitedFooter() {
                 www.giventa.com
               </a>
             </p>
+            <nav className="flex items-center gap-4 text-[11px] md:text-xs" aria-label="Legal">
+              <Link href="/privacy" className={cn('underline-offset-2 hover:text-pitch-chalk hover:underline', focusRing)}>Privacy Policy</Link>
+              <Link href="/terms" className={cn('underline-offset-2 hover:text-pitch-chalk hover:underline', focusRing)}>Terms</Link>
+              <AdSenseConsentBanner
+                variant="settings-link"
+                linkClassName={cn('underline-offset-2 hover:text-pitch-chalk hover:underline', focusRing)}
+              />
+            </nav>
           </div>
         </Shell>
       </div>
