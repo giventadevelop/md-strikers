@@ -14,6 +14,7 @@ import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import { FcUnitedInnerHero } from './FcUnitedInnerHero';
 import { MdPagination } from './MdPagination';
+import { CATALOG_SUGGESTION_LIMIT, FcCatalogTypeahead } from './FcCatalogTypeahead';
 import type { PublicRosterPlayer, PublicSquadMembership, PublicSquadOption } from './ApiServerActions';
 
 const PAGE_SIZE = 20;
@@ -96,8 +97,15 @@ export default function FcUnitedTeamPage({
   const safePage = Math.min(page, totalPages - 1);
   const pageItems = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
 
-  const applySearch = () => {
-    setAppliedName(searchDraft.trim());
+  const suggestionPlayers = useMemo(
+    () => (searchDraft.trim() ? players.filter((player) => matchesQuery(player, searchDraft.trim())) : []),
+    [players, searchDraft],
+  );
+
+  const commitSearch = (value: string) => {
+    const next = value.trim();
+    setSearchDraft(next);
+    setAppliedName(next);
     setPage(0);
   };
 
@@ -135,19 +143,23 @@ export default function FcUnitedTeamPage({
                 <label htmlFor="md-team-name" className="mb-1.5 block text-sm font-medium text-pitch-charcoal">
                   Name
                 </label>
-                <input
-                  id="md-team-name"
-                  type="search"
-                  value={searchDraft}
-                  onChange={(e) => setSearchDraft(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      applySearch();
-                    }
-                  }}
+                <FcCatalogTypeahead
+                  bare
+                  className="md-typeahead--fill"
+                  inputId="md-team-name"
+                  draft={searchDraft}
+                  onDraftChange={setSearchDraft}
+                  onCommit={commitSearch}
+                  suggestions={suggestionPlayers.slice(0, CATALOG_SUGGESTION_LIMIT).map((player) => ({
+                    key: String(player.id),
+                    label: player.name || `${player.givenName} ${player.familyName}`.trim(),
+                    hint: [player.jersey ? `#${player.jersey}` : '', player.position || player.role].filter(Boolean).join(' · ') || undefined,
+                    commitValue: player.name || `${player.givenName} ${player.familyName}`.trim(),
+                  }))}
+                  totalCount={suggestionPlayers.length}
                   placeholder="Search by player name…"
-                  className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
+                  ariaLabel="Search players by name"
+                  inputClassName="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
                 />
               </div>
               <div>
@@ -169,7 +181,7 @@ export default function FcUnitedTeamPage({
                 </select>
               </div>
               <div className="flex flex-col gap-2 sm:flex-row">
-                <button type="button" onClick={applySearch} className={cn(pillCta, 'w-full sm:w-auto')}>
+                <button type="button" onClick={() => commitSearch(searchDraft)} className={cn(pillCta, 'w-full sm:w-auto')}>
                   Search
                 </button>
                 <button type="button" onClick={clearSearch} className={cn(secondaryCta, 'w-full sm:w-auto')}>

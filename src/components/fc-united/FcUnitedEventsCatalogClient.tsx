@@ -15,10 +15,58 @@ import { isRecurringEvent, getNextOccurrenceDate } from '@/lib/eventUtils';
 import { isDonationBasedEvent, isTicketedFundraiserEvent } from '@/lib/donation/utils';
 import { resolveBuyTicketsTarget, resolveRegisterTarget } from '@/lib/eventcube/utils';
 import { resolveEventImageUrlsServer } from './ApiServerActions';
+import { FcCatalogTypeahead, CATALOG_SUGGESTION_LIMIT, type CatalogSuggestion } from './FcCatalogTypeahead';
 import { DEFAULT_EVENT_IMAGE, eventHref } from './homeEventDisplay';
 
 
 const PAGE_SIZE = 20;
+
+async function loadEventSuggestions(query: string): Promise<{ suggestions: CatalogSuggestion[]; totalCount: number }> {
+  const trimmed = query.trim();
+  if (!trimmed) return { suggestions: [], totalCount: 0 };
+  const base = {
+    page: '0',
+    size: String(CATALOG_SUGGESTION_LIMIT),
+    'isActive.equals': 'true',
+    sort: 'startDate,asc',
+  };
+  const requests = [
+    fetch(`/api/proxy/event-details?${new URLSearchParams({ ...base, 'title.contains': trimmed })}`),
+    fetch(`/api/proxy/event-details?${new URLSearchParams({ ...base, 'caption.contains': trimmed })}`),
+  ];
+  if (/^\d+$/.test(trimmed)) {
+    requests.push(fetch(`/api/proxy/event-details?${new URLSearchParams({
+      page: '0',
+      size: '1',
+      'isActive.equals': 'true',
+      'id.equals': trimmed,
+    })}`));
+  }
+  const responses = await Promise.all(requests);
+  const totals = responses.map((res) => (res.ok ? parseInt(res.headers.get('x-total-count') || '0', 10) : 0));
+  const lists = await Promise.all(responses.map(async (res) => {
+    if (!res.ok) return [] as EventDetailsDTO[];
+    const raw = await res.json();
+    return (Array.isArray(raw) ? raw : raw ? [raw] : []) as EventDetailsDTO[];
+  }));
+  const seen = new Set<string>();
+  const suggestions: CatalogSuggestion[] = [];
+  for (const event of lists.flat()) {
+    const key = event.id != null ? String(event.id) : event.title || '';
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    const title = (event.title || '').trim();
+    suggestions.push({
+      key,
+      label: title || `Event ${event.id}`,
+      hint: event.caption?.trim() || (event.id != null ? `#${event.id}` : undefined),
+      commitValue: title || String(event.id ?? ''),
+    });
+    if (suggestions.length >= CATALOG_SUGGESTION_LIMIT) break;
+  }
+  const totalCount = Math.max(suggestions.length, ...totals.filter((count) => Number.isFinite(count)));
+  return { suggestions, totalCount };
+}
 
 type CatalogEvent = EventDetailsDTO & { thumbnailUrl?: string };
 
@@ -110,6 +158,8 @@ export function FcUnitedEventsCatalogClient() {
   const [checkedInitial, setCheckedInitial] = useState(false);
   const [autoSwitching, setAutoSwitching] = useState(false);
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<number, boolean>>({});
+  const [suggestions, setSuggestions] = useState<CatalogSuggestion[]>([]);
+  const [suggestionTotal, setSuggestionTotal] = useState(0);
   const loadGenRef = useRef(0);
 
   useEffect(() => {
@@ -212,15 +262,39 @@ export function FcUnitedEventsCatalogClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, showPastEvents, appliedTitle, appliedFrom, appliedTo]);
 
+  const commitSearch = (value: string) => {
+    const next = value.trim();
+    setSearchTitle(next);
+    setAppliedTitle(next);
+    setPage(0);
+  };
+
   useEffect(() => {
+    const query = searchTitle.trim();
+    if (!query) {
+      setSuggestions([]);
+      setSuggestionTotal(0);
+      return;
+    }
+    let cancelled = false;
     const timer = window.setTimeout(() => {
-      const next = searchTitle.trim();
-      setAppliedTitle((current) => {
-        if (current !== next) setPage(0);
-        return next;
-      });
-    }, 300);
-    return () => window.clearTimeout(timer);
+      loadEventSuggestions(query)
+        .then((result) => {
+          if (cancelled) return;
+          setSuggestions(result.suggestions);
+          setSuggestionTotal(result.totalCount);
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setSuggestions([]);
+            setSuggestionTotal(0);
+          }
+        });
+    }, 200);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
   }, [searchTitle]);
 
   useEffect(() => {
@@ -262,6 +336,8 @@ export function FcUnitedEventsCatalogClient() {
 
   const clearSearch = () => {
     setSearchTitle('');
+    setSuggestions([]);
+    setSuggestionTotal(0);
     setSearchDateFrom('');
     setSearchDateTo('');
     setAppliedTitle('');
@@ -317,19 +393,21 @@ export function FcUnitedEventsCatalogClient() {
               </button>
             </div>
             <div className="md-ev-searchrow">
-              <label>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden>
-                  <circle cx="11" cy="11" r="7" />
-                  <path d="M21 21l-4.3-4.3" />
-                </svg>
-                <input
-                  type="search"
-                  aria-label="Search events by title"
-                  placeholder="Search by title…"
-                  value={searchTitle}
-                  onChange={(event) => setSearchTitle(event.target.value)}
-                />
-              </label>
+              <FcCatalogTypeahead
+                draft={searchTitle}
+                onDraftChange={setSearchTitle}
+                onCommit={commitSearch}
+                suggestions={suggestions}
+                totalCount={suggestionTotal}
+                placeholder="Search by title…"
+                ariaLabel="Search events by title, caption, or id"
+                leading={(
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden>
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="M21 21l-4.3-4.3" />
+                  </svg>
+                )}
+              />
               <label>
                 From
                 <input

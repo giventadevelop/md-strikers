@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { CATALOG_SUGGESTION_LIMIT, FcCatalogTypeahead, type CatalogSuggestion } from '@/components/fc-united/FcCatalogTypeahead';
 
 interface GallerySearchProps {
   onSearch: (filters: {
@@ -11,6 +12,7 @@ interface GallerySearchProps {
   loading?: boolean;
   placeholder?: string;
   resetToken?: number;
+  suggestKind?: 'albums' | 'events';
 }
 
 const SearchIcon = () => (
@@ -25,11 +27,14 @@ export function GallerySearch({
   loading = false,
   placeholder = 'Search albums...',
   resetToken = 0,
+  suggestKind = 'albums',
 }: GallerySearchProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [dateError, setDateError] = useState('');
+  const [suggestions, setSuggestions] = useState<CatalogSuggestion[]>([]);
+  const [suggestionTotal, setSuggestionTotal] = useState(0);
 
   useEffect(() => {
     if (!resetToken) return;
@@ -37,20 +42,91 @@ export function GallerySearch({
     setStartDate('');
     setEndDate('');
     setDateError('');
+    setSuggestions([]);
+    setSuggestionTotal(0);
   }, [resetToken]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    const query = searchTerm.trim();
+    if (!query) {
+      setSuggestions([]);
+      setSuggestionTotal(0);
+      return;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      const base = {
+        page: '0',
+        size: String(CATALOG_SUGGESTION_LIMIT),
+        'title.contains': query,
+      };
+      const titleParams = new URLSearchParams(suggestKind === 'albums'
+        ? { ...base, 'isPublic.equals': 'true', sort: 'displayOrder,asc' }
+        : { ...base, 'isActive.equals': 'true', sort: 'startDate,desc' });
+      const extraParams = new URLSearchParams(titleParams);
+      extraParams.delete('title.contains');
+      extraParams.set(suggestKind === 'albums' ? 'description.contains' : 'caption.contains', query);
+      const resource = suggestKind === 'albums' ? 'gallery-albums' : 'event-details';
+      Promise.all([
+        fetch(`/api/proxy/${resource}?${titleParams}`),
+        fetch(`/api/proxy/${resource}?${extraParams}`),
+      ]).then(async ([titleRes, extraRes]) => {
+        if (cancelled) return;
+        const read = async (res: Response) => {
+          if (!res.ok) return [] as Array<{ id?: number; title?: string; description?: string; caption?: string }>;
+          const raw = await res.json();
+          return (Array.isArray(raw) ? raw : []) as Array<{ id?: number; title?: string; description?: string; caption?: string }>;
+        };
+        const [byTitle, byExtra] = await Promise.all([read(titleRes), read(extraRes)]);
+        const seen = new Set<string>();
+        const next: CatalogSuggestion[] = [];
+        for (const item of [...byTitle, ...byExtra]) {
+          const title = (item.title || '').trim();
+          const key = item.id != null ? String(item.id) : title;
+          if (!key || seen.has(key)) continue;
+          seen.add(key);
+          next.push({
+            key,
+            label: title || `${suggestKind === 'albums' ? 'Album' : 'Event'} ${item.id}`,
+            hint: (item.description || item.caption || '').trim() || undefined,
+            commitValue: title,
+          });
+          if (next.length >= CATALOG_SUGGESTION_LIMIT) break;
+        }
+        const totals = [titleRes, extraRes].map((res) => parseInt(res.headers.get('x-total-count') || '0', 10));
+        setSuggestions(next);
+        setSuggestionTotal(Math.max(next.length, ...totals.filter((count) => Number.isFinite(count))));
+      }).catch(() => {
+        if (!cancelled) {
+          setSuggestions([]);
+          setSuggestionTotal(0);
+        }
+      });
+    }, 200);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [searchTerm, suggestKind]);
+
+  const runSearch = (term: string) => {
     if (startDate && endDate && startDate > endDate) {
       setDateError('From date must be on or before the To date.');
       return;
     }
     setDateError('');
+    const next = term.trim();
+    setSearchTerm(next);
     onSearch({
-      searchTerm: searchTerm.trim(),
+      searchTerm: next,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
     });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    runSearch(searchTerm);
   };
 
   const handleClear = () => {
@@ -73,13 +149,16 @@ export function GallerySearch({
           <label htmlFor="gallerySearchTitle">Album title</label>
           <div className="md-gallery-field__control">
             <SearchIcon />
-            <input
-              type="text"
-              id="gallerySearchTitle"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+            <FcCatalogTypeahead
+              bare
+              inputId="gallerySearchTitle"
+              draft={searchTerm}
+              onDraftChange={setSearchTerm}
+              onCommit={runSearch}
+              suggestions={suggestions}
+              totalCount={suggestionTotal}
               placeholder={placeholder}
-              disabled={loading}
+              ariaLabel={suggestKind === 'albums' ? 'Search albums by title' : 'Search events by title'}
             />
           </div>
         </div>

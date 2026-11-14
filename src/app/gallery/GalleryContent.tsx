@@ -194,6 +194,7 @@ export function GalleryContent() {
         onSearch={handleSearch}
         loading={loading}
         placeholder={activeTab === 'albums' ? 'Search albums...' : 'Search events...'}
+        suggestKind={activeTab === 'albums' ? 'albums' : 'events'}
         resetToken={resetToken}
       />
 
@@ -241,6 +242,7 @@ export function GalleryContent() {
             onSearch={handleSearch}
             loading={loading}
             placeholder={activeTab === 'albums' ? 'Search albums...' : 'Search events...'}
+        suggestKind={activeTab === 'albums' ? 'albums' : 'events'}
         resetToken={resetToken}
           />
           <div className="md-gallery-empty">
@@ -299,6 +301,7 @@ export function GalleryContent() {
         onSearch={handleSearch}
         loading={loading}
         placeholder={activeTab === 'albums' ? 'Search albums...' : 'Search events...'}
+        suggestKind={activeTab === 'albums' ? 'albums' : 'events'}
         resetToken={resetToken}
       />
 
@@ -356,6 +359,7 @@ export function GalleryContent() {
         onSearch={handleSearch}
         loading={loading}
         placeholder={activeTab === 'albums' ? 'Search albums...' : 'Search events...'}
+        suggestKind={activeTab === 'albums' ? 'albums' : 'events'}
         resetToken={resetToken}
       />
         <div className="md-gallery-empty">
@@ -416,6 +420,7 @@ export function GalleryContent() {
         onSearch={handleSearch}
         loading={loading}
         placeholder={activeTab === 'albums' ? 'Search albums...' : 'Search events...'}
+        suggestKind={activeTab === 'albums' ? 'albums' : 'events'}
         resetToken={resetToken}
       />
 

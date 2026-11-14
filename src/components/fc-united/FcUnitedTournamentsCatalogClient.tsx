@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { PublicTournament } from '@/lib/tournaments/publicTournaments';
+import { CATALOG_SUGGESTION_LIMIT, FcCatalogTypeahead } from './FcCatalogTypeahead';
 
 const PAGE_SIZE = 12;
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -58,7 +59,8 @@ export function FcUnitedTournamentsCatalogClient() {
   const [fetchError, setFetchError] = useState(false);
   const [page, setPage] = useState(0);
   const [showPast, setShowPast] = useState(false);
-  const [query, setQuery] = useState('');
+  const [searchDraft, setSearchDraft] = useState('');
+  const [appliedQuery, setAppliedQuery] = useState('');
   const autoSwitched = useRef(false);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -102,11 +104,26 @@ export function FcUnitedTournamentsCatalogClient() {
   }, [loading, tournaments]);
 
   const today = todayIso();
-  const searched = query.trim().toLowerCase();
+  const searched = appliedQuery.trim().toLowerCase();
+  const draftQuery = searchDraft.trim().toLowerCase();
+  const suggestionRows = useMemo(() => {
+    if (!draftQuery) return [];
+    return tournaments.filter((row) =>
+      `${row.title || ''} ${row.shortLabel || ''} ${row.ageGroupLabel || ''} ${row.slug || ''} ${row.id ?? ''}`
+        .toLowerCase()
+        .includes(draftQuery),
+    );
+  }, [tournaments, draftQuery]);
+  const commitSearch = (value: string) => {
+    const next = value.trim();
+    setSearchDraft(next);
+    setAppliedQuery(next);
+    setPage(0);
+  };
   const base = useMemo(
     () => tournaments.filter((row) => {
       if (!searched) return true;
-      return `${row.title || ''} ${row.shortLabel || ''} ${row.ageGroupLabel || ''}`.toLowerCase().includes(searched);
+      return `${row.title || ''} ${row.shortLabel || ''} ${row.ageGroupLabel || ''} ${row.slug || ''} ${row.id ?? ''}`.toLowerCase().includes(searched);
     }),
     [tournaments, searched],
   );
@@ -169,19 +186,26 @@ export function FcUnitedTournamentsCatalogClient() {
               <span>{loading ? '–' : pastCount}</span>
             </button>
           </div>
-          <label>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden="true">
-              <circle cx="11" cy="11" r="7" />
-              <path d="M21 21l-4.3-4.3" />
-            </svg>
-            <input
-              type="search"
-              aria-label="Search tournaments by title"
-              placeholder="Search by title…"
-              value={query}
-              onChange={(event) => { setQuery(event.target.value); setPage(0); }}
-            />
-          </label>
+          <FcCatalogTypeahead
+            draft={searchDraft}
+            onDraftChange={setSearchDraft}
+            onCommit={commitSearch}
+            suggestions={suggestionRows.slice(0, CATALOG_SUGGESTION_LIMIT).map((row) => ({
+              key: row.slug || String(row.id),
+              label: row.shortLabel || row.title || 'Tournament',
+              hint: row.title && row.shortLabel && row.title !== row.shortLabel ? row.title : row.ageGroupLabel || undefined,
+              commitValue: row.shortLabel || row.title || '',
+            }))}
+            totalCount={suggestionRows.length}
+            placeholder="Search by title…"
+            ariaLabel="Search tournaments by title"
+            leading={(
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M21 21l-4.3-4.3" />
+              </svg>
+            )}
+          />
         </div>
       </div>
 
@@ -213,7 +237,7 @@ export function FcUnitedTournamentsCatalogClient() {
               <h3>No tournaments found</h3>
               <p>{emptyText}</p>
               {searched ? (
-                <button type="button" onClick={() => { setQuery(''); setPage(0); }}>Clear search</button>
+                <button type="button" onClick={() => commitSearch('')}>Clear search</button>
               ) : null}
             </div>
           ) : (

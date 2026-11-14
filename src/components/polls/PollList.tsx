@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Search, Users, Clock, MessageSquare } from 'lucide-react';
 import type { EventPollDTO, EventPollOptionDTO } from '@/types';
 import { fetchEventPollsServer, fetchEventPollOptionsServer } from '@/app/admin/polls/ApiServerActions';
 import { MdPagination } from '@/components/fc-united/MdPagination';
+import { CATALOG_SUGGESTION_LIMIT, FcCatalogTypeahead, type CatalogSuggestion } from '@/components/fc-united/FcCatalogTypeahead';
 
 interface PollListProps {
   eventId?: number;
@@ -19,7 +19,10 @@ interface PollListProps {
 export function PollList({ eventId, userId, onPollSelect }: PollListProps) {
   const [polls, setPolls] = useState<EventPollDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchDraft, setSearchDraft] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [suggestions, setSuggestions] = useState<CatalogSuggestion[]>([]);
+  const [suggestionTotal, setSuggestionTotal] = useState(0);
   const [selectedPoll, setSelectedPoll] = useState<EventPollDTO | null>(null);
   const [pollOptions, setPollOptions] = useState<EventPollOptionDTO[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -60,10 +63,63 @@ export function PollList({ eventId, userId, onPollSelect }: PollListProps) {
     loadPolls();
   }, [eventId, currentPage, searchTerm]);
 
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-    setCurrentPage(0); // Reset to first page on search
+  const commitSearch = (value: string) => {
+    const next = value.trim();
+    setSearchDraft(next);
+    setSearchTerm(next);
+    setCurrentPage(0);
   };
+
+  useEffect(() => {
+    const query = searchDraft.trim();
+    if (!query) {
+      setSuggestions([]);
+      setSuggestionTotal(0);
+      return;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      const base = {
+        'isActive.equals': true,
+        page: 0,
+        size: CATALOG_SUGGESTION_LIMIT,
+        sort: 'createdAt,desc',
+        ...(eventId ? { 'eventId.equals': eventId } : {}),
+      };
+      const empty = { data: [] as EventPollDTO[], totalCount: 0 };
+      Promise.all([
+        fetchEventPollsServer({ ...base, 'title.contains': query }).catch(() => empty),
+        fetchEventPollsServer({ ...base, 'description.contains': query }).catch(() => empty),
+      ]).then(([byTitle, byDescription]) => {
+        if (cancelled) return;
+        const seen = new Set<string>();
+        const next: CatalogSuggestion[] = [];
+        for (const poll of [...(byTitle.data || []), ...(byDescription.data || [])]) {
+          const key = poll.id != null ? String(poll.id) : poll.title || '';
+          if (!key || seen.has(key)) continue;
+          seen.add(key);
+          next.push({
+            key,
+            label: poll.title || `Poll ${poll.id}`,
+            hint: poll.description?.trim() || (poll.id != null ? `#${poll.id}` : undefined),
+            commitValue: poll.title || '',
+          });
+          if (next.length >= CATALOG_SUGGESTION_LIMIT) break;
+        }
+        setSuggestions(next);
+        setSuggestionTotal(Math.max(next.length, byTitle.totalCount || 0, byDescription.totalCount || 0));
+      }).catch(() => {
+        if (!cancelled) {
+          setSuggestions([]);
+          setSuggestionTotal(0);
+        }
+      });
+    }, 200);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [searchDraft, eventId]);
 
   const handlePollClick = async (poll: EventPollDTO) => {
     try {
@@ -212,11 +268,17 @@ export function PollList({ eventId, userId, onPollSelect }: PollListProps) {
 
           <div className="relative mb-6">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <Input
+            <FcCatalogTypeahead
+              bare
+              className="md-typeahead--fill"
+              draft={searchDraft}
+              onDraftChange={setSearchDraft}
+              onCommit={commitSearch}
+              suggestions={suggestions}
+              totalCount={suggestionTotal}
               placeholder="Search polls..."
-              value={searchTerm}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-12 py-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 transition-all"
+              ariaLabel="Search polls by title or description"
+              inputClassName="w-full pl-12 py-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 transition-all"
             />
           </div>
         </>

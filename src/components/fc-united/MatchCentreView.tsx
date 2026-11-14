@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import type { LastMatchCard } from './ApiServerActions';
+import { CATALOG_SUGGESTION_LIMIT, FcCatalogTypeahead } from './FcCatalogTypeahead';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -155,7 +156,8 @@ function MatchCard({ match }: { match: LastMatchCard }) {
 export function MatchCentreView({ matches }: { matches: LastMatchCard[] }) {
   const [status, setStatus] = useState<Status>('all');
   const [comp, setComp] = useState('all');
-  const [query, setQuery] = useState('');
+  const [searchDraft, setSearchDraft] = useState('');
+  const [appliedQuery, setAppliedQuery] = useState('');
   const [layout, setLayout] = useState<Layout>('grid');
   const [page, setPage] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
@@ -176,7 +178,24 @@ export function MatchCentreView({ matches }: { matches: LastMatchCard[] }) {
   const kickoff = next ? parseMatchDate(next.date)?.getTime() ?? null : null;
   const showCountdown = kickoff != null && kickoff > Date.now();
 
-  const searched = query.trim().toLowerCase();
+  const searched = appliedQuery.trim().toLowerCase();
+  const draftQuery = searchDraft.trim().toLowerCase();
+  const suggestionNames = useMemo(() => {
+    if (!draftQuery) return [];
+    const names = new Set<string>();
+    for (const match of matches) {
+      for (const name of [match.homeName, match.awayName, match.league]) {
+        if (name && name.toLowerCase().includes(draftQuery)) names.add(name);
+      }
+    }
+    return [...names];
+  }, [matches, draftQuery]);
+  const commitSearch = (value: string) => {
+    const next = value.trim();
+    setSearchDraft(next);
+    setAppliedQuery(next);
+    setPage(0);
+  };
   const base = matches.filter((match) => {
     if (comp !== 'all' && match.league !== comp) return false;
     if (!searched) return true;
@@ -273,19 +292,25 @@ export function MatchCentreView({ matches }: { matches: LastMatchCard[] }) {
               ))}
             </div>
             <div className="md-mc-filters__tools">
-              <label>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden="true">
-                  <circle cx="11" cy="11" r="7" />
-                  <path d="M21 21l-4.3-4.3" />
-                </svg>
-                <input
-                  type="search"
-                  aria-label="Search matches"
-                  placeholder="Search team"
-                  value={query}
-                  onChange={(event) => { setQuery(event.target.value); setPage(0); }}
-                />
-              </label>
+              <FcCatalogTypeahead
+                draft={searchDraft}
+                onDraftChange={setSearchDraft}
+                onCommit={commitSearch}
+                suggestions={suggestionNames.slice(0, CATALOG_SUGGESTION_LIMIT).map((name) => ({
+                  key: name,
+                  label: name,
+                  commitValue: name,
+                }))}
+                totalCount={suggestionNames.length}
+                placeholder="Search team"
+                ariaLabel="Search matches by team"
+                leading={(
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="M21 21l-4.3-4.3" />
+                  </svg>
+                )}
+              />
               <div role="group" aria-label="Layout">
                 <button type="button" aria-label="Grid view" aria-pressed={layout === 'grid'} className={layout === 'grid' ? 'is-on' : undefined} onClick={() => setLayout('grid')}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" aria-hidden="true">
@@ -322,7 +347,7 @@ export function MatchCentreView({ matches }: { matches: LastMatchCard[] }) {
           <div className="md-mc-empty">
             <h2>No matches found</h2>
             <p>Nothing fits the current filters.</p>
-            <button type="button" onClick={() => { setStatus('all'); setComp('all'); setQuery(''); setPage(0); }}>Clear filters</button>
+            <button type="button" onClick={() => { setStatus('all'); setComp('all'); commitSearch(''); }}>Clear filters</button>
           </div>
         ) : (
           groups.map((group) => (

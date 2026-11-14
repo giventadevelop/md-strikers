@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { MdPagination } from '@/components/fc-united/MdPagination';
+import { CATALOG_SUGGESTION_LIMIT, FcCatalogTypeahead } from '@/components/fc-united/FcCatalogTypeahead';
 
 interface FocusGroupWithEvents {
   id: number;
@@ -18,26 +19,27 @@ interface FocusGroupsGridWithSearchProps {
 }
 
 export default function FocusGroupsGridWithSearch({ groups, total }: FocusGroupsGridWithSearchProps) {
+  const [searchDraft, setSearchDraft] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
   const pageSize = 8;
 
-  const filteredGroups = searchTerm.trim()
-    ? groups.filter((g) => {
-        const q = searchTerm.trim().toLowerCase();
-        const name = (g.name || '').toLowerCase();
-        const slug = (g.slug || '').toLowerCase();
-        const description = (g.description || '').toLowerCase();
-        return name.includes(q) || slug.includes(q) || description.includes(q);
-      })
-    : groups;
+  const matchesGroup = (g: FocusGroupWithEvents, query: string) => {
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+    return [g.name, g.slug, g.description, g.id].some((value) => String(value ?? '').toLowerCase().includes(q));
+  };
+  const suggestionGroups = searchDraft.trim() ? groups.filter((g) => matchesGroup(g, searchDraft)) : [];
+  const filteredGroups = searchTerm.trim() ? groups.filter((g) => matchesGroup(g, searchTerm)) : groups;
+  const commitSearch = (value: string) => {
+    const next = value.trim();
+    setSearchDraft(next);
+    setSearchTerm(next);
+    setPage(0);
+  };
 
   const filteredCount = filteredGroups.length;
   const paginatedGroups = filteredGroups.slice(page * pageSize, (page + 1) * pageSize);
-
-  useEffect(() => {
-    setPage(0);
-  }, [searchTerm]);
 
   return (
     <div className="space-y-6">
@@ -52,14 +54,23 @@ export default function FocusGroupsGridWithSearch({ groups, total }: FocusGroups
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </span>
-          <input
-            id="focus-groups-public-search"
-            type="search"
+          <FcCatalogTypeahead
+            bare
+            className="md-typeahead--fill"
+            inputId="focus-groups-public-search"
+            draft={searchDraft}
+            onDraftChange={setSearchDraft}
+            onCommit={commitSearch}
+            suggestions={suggestionGroups.slice(0, CATALOG_SUGGESTION_LIMIT).map((group) => ({
+              key: String(group.id),
+              label: group.name || group.slug || `Group ${group.id}`,
+              hint: group.slug || undefined,
+              commitValue: group.name || group.slug || '',
+            }))}
+            totalCount={suggestionGroups.length}
             placeholder="Enter the name"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            aria-label="Search focus groups by name"
+            ariaLabel="Search focus groups by name, slug, or description"
+            inputClassName="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
         {searchTerm.trim() && (
