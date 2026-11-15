@@ -364,6 +364,29 @@ export function FcUnitedEventsCatalogClient() {
       });
       const res = await fetch(`/api/proxy/event-details?${qs}`);
       return res.ok ? parseInt(res.headers.get('x-total-count') || '0', 10) : 0;
+    }
+    Promise.all([count(false), count(true)])
+      .then(([future, past]) => {
+        if (cancelled) return;
+        setFutureCount(future);
+        setPastCount(past);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFutureCount(null);
+          setPastCount(null);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [appliedTitle]);
+
+  const applyDate = (which: 'from' | 'to', value: string) => {
+    if (which === 'from') {
+      setSearchDateFrom(value);
+      setAppliedFrom(value);
+    } else {
       setSearchDateTo(value);
       setAppliedTo(value);
     }
