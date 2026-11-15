@@ -97,9 +97,33 @@ export function FcUnitedSponsorsCatalogClient() {
   const [suggestionTotal, setSuggestionTotal] = useState(0);
   const [suggestOpen, setSuggestOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const skipMenuRefreshRef = useRef(false);
+  const menuRequestRef = useRef(0);
+
+  const applySuggestions = (requestId: number, result: { suggestions: SponsorSuggestion[]; totalCount: number }) => {
+    if (requestId !== menuRequestRef.current) return;
+    setSuggestions(result.suggestions.slice(0, SUGGESTION_LIMIT));
+    setSuggestionTotal(result.totalCount);
+    setSuggestOpen(true);
+  };
+
+  const loadMenu = (query: string) => {
+    const requestId = ++menuRequestRef.current;
+    setSuggestOpen(true);
+    fetchSponsorSuggestionsServer(query)
+      .then((result) => applySuggestions(requestId, result))
+      .catch(() => {
+        if (requestId !== menuRequestRef.current) return;
+        setSuggestions([]);
+        setSuggestionTotal(0);
+        setSuggestOpen(true);
+      });
+  };
 
   const commitSearch = (value: string) => {
     const next = value.trim();
+    if (next !== searchDraft) skipMenuRefreshRef.current = true;
     setSearchDraft(next);
     setAppliedName(next);
     setPage(0);
@@ -107,29 +131,26 @@ export function FcUnitedSponsorsCatalogClient() {
   };
 
   useEffect(() => {
-    const query = searchDraft.trim();
-    if (!query) {
-      setSuggestions([]);
-      setSuggestionTotal(0);
-      setSuggestOpen(false);
+    if (skipMenuRefreshRef.current) {
+      skipMenuRefreshRef.current = false;
       return;
     }
+    const input = inputRef.current;
+    const query = searchDraft.trim();
+    if (!input || document.activeElement !== input) return;
     let cancelled = false;
+    const requestId = ++menuRequestRef.current;
     const timer = window.setTimeout(() => {
       fetchSponsorSuggestionsServer(query)
         .then((result) => {
-          if (cancelled) return;
-          setSuggestions(result.suggestions.slice(0, SUGGESTION_LIMIT));
-          setSuggestionTotal(result.totalCount);
-          setSuggestOpen(true);
+          if (!cancelled) applySuggestions(requestId, result);
         })
         .catch(() => {
-          if (!cancelled) {
-            setSuggestions([]);
-            setSuggestionTotal(0);
-          }
+          if (cancelled || requestId !== menuRequestRef.current) return;
+          setSuggestions([]);
+          setSuggestionTotal(0);
         });
-    }, 200);
+    }, query ? 200 : 0);
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
@@ -191,10 +212,14 @@ export function FcUnitedSponsorsCatalogClient() {
   }, [appliedName, retryNonce]);
 
   const clearFilters = () => {
+    if (searchDraft !== '') skipMenuRefreshRef.current = true;
     setSearchDraft('');
     setAppliedName('');
     setType('');
     setPage(0);
+    setSuggestOpen(false);
+    setSuggestions([]);
+    setSuggestionTotal(0);
   };
 
   const pickType = (next: string) => {
@@ -220,6 +245,7 @@ export function FcUnitedSponsorsCatalogClient() {
                 <path d="M21 21l-4.3-4.3" />
               </svg>
               <input
+                ref={inputRef}
                 type="search"
                 role="combobox"
                 aria-label="Search sponsors by name"
@@ -229,9 +255,8 @@ export function FcUnitedSponsorsCatalogClient() {
                 placeholder="Search by sponsor name…"
                 value={searchDraft}
                 onChange={(event) => setSearchDraft(event.target.value)}
-                onFocus={() => {
-                  if (suggestions.length > 0) setSuggestOpen(true);
-                }}
+                onClick={() => loadMenu(searchDraft.trim())}
+                onFocus={() => loadMenu(searchDraft.trim())}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') {
                     event.preventDefault();
@@ -241,6 +266,16 @@ export function FcUnitedSponsorsCatalogClient() {
                   }
                 }}
               />
+              {searchDraft.trim() || appliedName ? (
+                <button
+                  type="button"
+                  className="md-sp-search__clear"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={clearFilters}
+                >
+                  Clear
+                </button>
+              ) : null}
             </label>
             {suggestOpen && (suggestions.length > 0 || suggestionTotal > SUGGESTION_LIMIT) ? (
               <ul id="md-sponsor-suggestions" role="listbox" aria-label="Sponsor suggestions">

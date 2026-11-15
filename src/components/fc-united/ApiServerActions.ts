@@ -20,6 +20,11 @@ import { mediaImageUrl } from '@/lib/homepage/featuredEvents';
 import { usableImageUrl } from '@/lib/presignedUrl';
 import { normalizeEventDetailsList, normalizeEventMediasList } from '@/lib/homepage/homepageApiNormalize';
 import { parseExecutiveCommitteeTeamMembersResponse } from '@/lib/parseExecutiveCommitteeTeamMembersResponse';
+import {
+  mergePublicSearchItems,
+  parseProxyList,
+  PUBLIC_SPONSOR_SEARCH_FIELDS,
+} from '@/lib/publicTypeaheadSearch';
 import type { FcSquadPlayer } from './FcSquadCarousel';
 import { HOMEPAGE_SPONSOR_LIMIT } from './homepageLimits';
 import { buildSportProfiles, type SportProfileView } from './playerSportProfiles';
@@ -32,6 +37,48 @@ function asList<T>(data: unknown): T[] {
     return (data as { content: T[] }).content;
   }
   return [];
+}
+
+async function fetchSponsorsSearchPage(options: {
+  query: string;
+  extraParams: URLSearchParams;
+  page: number;
+  size: number;
+}): Promise<{ items: EventSponsorsDTO[]; totalCount: number }> {
+  const trimmed = options.query.trim();
+  const apiBase = getApiBaseUrl();
+  if (!apiBase || !trimmed) return { items: [], totalCount: 0 };
+
+  const fetchBy = async (apply: (params: URLSearchParams) => void) => {
+    const params = new URLSearchParams(options.extraParams.toString());
+    params.set('page', String(options.page));
+    params.set('size', String(options.size));
+    apply(params);
+    const response = await fetchWithJwtRetry(
+      `${apiBase}/api/event-sponsors?${params.toString()}`,
+      { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+      'sponsors-search',
+    );
+    if (!response.ok) return { items: [] as EventSponsorsDTO[], totalCount: 0 };
+    const items = parseProxyList<EventSponsorsDTO>(await response.json());
+    const header = response.headers.get('x-total-count') || response.headers.get('X-Total-Count');
+    const totalCount = header ? parseInt(header, 10) : items.length;
+    return { items, totalCount: Number.isFinite(totalCount) ? totalCount : items.length };
+  };
+
+  const jobs: Promise<{ items: EventSponsorsDTO[]; totalCount: number }>[] =
+    PUBLIC_SPONSOR_SEARCH_FIELDS.map((field) => fetchBy((p) => p.set(`${field}.contains`, trimmed)));
+  if (/^\d+$/.test(trimmed)) {
+    jobs.push(fetchBy((p) => p.set('id.equals', trimmed)));
+  }
+
+  const results = await Promise.all(jobs);
+  const items = mergePublicSearchItems(
+    results.map((r) => r.items),
+    options.size,
+  );
+  const totalCount = Math.max(items.length, ...results.map((r) => r.totalCount));
+  return { items, totalCount };
 }
 
 /**
@@ -1170,32 +1217,45 @@ export async function fetchSponsorsCatalogServer(input: {
     const page = Math.max(0, input.page);
     const size = Math.max(1, input.size);
     const tenantId = getTenantId();
-    const params = new URLSearchParams({
+    const extraParams = new URLSearchParams({
       'tenantId.equals': tenantId,
       'isActive.equals': 'true',
       sort: 'priorityRanking,asc',
-      page: String(page),
-      size: String(size),
     });
-    const name = input.name?.trim();
-    if (name) params.append('name.contains', name);
     const type = input.type?.trim();
-    if (type) params.append('type.equals', type);
+    if (type) extraParams.append('type.equals', type);
 
-    const res = await fetchWithJwtRetry(
-      `${apiBase}/api/event-sponsors?${params.toString()}`,
-      { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
-      'sponsors-catalog',
-    );
+    const name = input.name?.trim();
+    let sponsors: EventSponsorsDTO[] = [];
+    let totalCount = 0;
 
-    if (!res.ok) {
-      console.error('[fetchSponsorsCatalogServer] event-sponsors failed:', res.status);
-      return empty;
+    if (name) {
+      const pageResult = await fetchSponsorsSearchPage({
+        query: name,
+        extraParams,
+        page,
+        size,
+      });
+      sponsors = pageResult.items;
+      totalCount = pageResult.totalCount;
+    } else {
+      extraParams.set('page', String(page));
+      extraParams.set('size', String(size));
+      const res = await fetchWithJwtRetry(
+        `${apiBase}/api/event-sponsors?${extraParams.toString()}`,
+        { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+        'sponsors-catalog',
+      );
+
+      if (!res.ok) {
+        console.error('[fetchSponsorsCatalogServer] event-sponsors failed:', res.status);
+        return empty;
+      }
+
+      const totalHeader = res.headers.get('x-total-count');
+      sponsors = asList<EventSponsorsDTO>(await res.json());
+      totalCount = totalHeader ? parseInt(totalHeader, 10) : sponsors.length;
     }
-
-    const totalHeader = res.headers.get('x-total-count');
-    const sponsors = asList<EventSponsorsDTO>(await res.json());
-    const totalCount = totalHeader ? parseInt(totalHeader, 10) : sponsors.length;
 
     const bannerUrl = async (sponsorId: number): Promise<string | undefined> => {
       try {
@@ -1259,43 +1319,65 @@ export type SponsorSuggestionResult = {
 
 const SPONSOR_SUGGESTION_LIMIT = 20;
 
+function toSponsorSuggestions(sponsors: EventSponsorsDTO[]): SponsorSuggestion[] {
+  return sponsors
+    .slice(0, SPONSOR_SUGGESTION_LIMIT)
+    .map((sponsor) => ({
+      id: sponsor.id ?? null,
+      name: (sponsor.companyName || sponsor.name || '').trim(),
+      type: (sponsor.type || '').trim(),
+    }))
+    .filter((sponsor) => sponsor.name.length > 0);
+}
+
 /**
  * Name suggestions for the sponsors search menu.
- * Returns at most SPONSOR_SUGGESTION_LIMIT rows plus the full match count.
+ * An empty query returns the first 20 active sponsors (priority order).
+ * A typed query matches PUBLIC_SPONSOR_SEARCH_FIELDS. At most 20 rows, plus the full match count.
  */
 export async function fetchSponsorSuggestionsServer(name: string): Promise<SponsorSuggestionResult> {
   const empty: SponsorSuggestionResult = { suggestions: [], totalCount: 0 };
   const trimmed = name.trim();
-  if (!trimmed) return empty;
   try {
     const apiBase = getApiBaseUrl();
     if (!apiBase) return empty;
-    const params = new URLSearchParams({
-      'tenantId.equals': getTenantId(),
+    const tenantId = getTenantId();
+    if (!trimmed) {
+      const params = new URLSearchParams({
+        'tenantId.equals': tenantId,
+        'isActive.equals': 'true',
+        sort: 'priorityRanking,asc',
+        page: '0',
+        size: String(SPONSOR_SUGGESTION_LIMIT),
+      });
+      const res = await fetchWithJwtRetry(
+        `${apiBase}/api/event-sponsors?${params.toString()}`,
+        { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+        'sponsor-suggestions-open',
+      );
+      if (!res.ok) return empty;
+      const totalHeader = res.headers.get('x-total-count') || res.headers.get('X-Total-Count');
+      const totalCount = totalHeader ? parseInt(totalHeader, 10) : 0;
+      const suggestions = toSponsorSuggestions(asList<EventSponsorsDTO>(await res.json()));
+      return {
+        suggestions,
+        totalCount: Number.isFinite(totalCount) ? totalCount : suggestions.length,
+      };
+    }
+    const extraParams = new URLSearchParams({
+      'tenantId.equals': tenantId,
       'isActive.equals': 'true',
       sort: 'priorityRanking,asc',
-      page: '0',
-      size: String(SPONSOR_SUGGESTION_LIMIT),
-      'name.contains': trimmed,
     });
-    const res = await fetchWithJwtRetry(
-      `${apiBase}/api/event-sponsors?${params.toString()}`,
-      { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
-      'sponsor-suggestions',
-    );
-    if (!res.ok) return empty;
-    const suggestions = asList<EventSponsorsDTO>(await res.json())
-      .slice(0, SPONSOR_SUGGESTION_LIMIT)
-      .map((sponsor) => ({
-        id: sponsor.id ?? null,
-        name: (sponsor.companyName || sponsor.name || '').trim(),
-        type: (sponsor.type || '').trim(),
-      }))
-      .filter((sponsor) => sponsor.name.length > 0);
-    const totalHeader = parseInt(res.headers.get('x-total-count') || '', 10);
+    const pageResult = await fetchSponsorsSearchPage({
+      query: trimmed,
+      extraParams,
+      page: 0,
+      size: SPONSOR_SUGGESTION_LIMIT,
+    });
     return {
-      suggestions,
-      totalCount: Number.isFinite(totalHeader) ? totalHeader : suggestions.length,
+      suggestions: toSponsorSuggestions(pageResult.items),
+      totalCount: pageResult.totalCount,
     };
   } catch (error) {
     console.error('[fetchSponsorSuggestionsServer] Error:', error);
@@ -1324,24 +1406,35 @@ export async function fetchSponsorTypeCountsServer(name?: string): Promise<{
     const trimmed = name?.trim();
 
     while (seen < total && page < 8) {
-      const params = new URLSearchParams({
+      const extraParams = new URLSearchParams({
         'tenantId.equals': tenantId,
         'isActive.equals': 'true',
         sort: 'priorityRanking,asc',
-        page: String(page),
-        size: '100',
       });
-      if (trimmed) params.append('name.contains', trimmed);
-      const res = await fetchWithJwtRetry(
-        `${apiBase}/api/event-sponsors?${params.toString()}`,
-        { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
-        'sponsor-type-counts',
-      );
-      if (!res.ok) return empty;
-      const list = asList<EventSponsorsDTO>(await res.json());
-      if (page === 0) {
-        const header = parseInt(res.headers.get('x-total-count') || '', 10);
-        total = Number.isFinite(header) ? header : list.length;
+      let list: EventSponsorsDTO[] = [];
+      if (trimmed) {
+        const pageResult = await fetchSponsorsSearchPage({
+          query: trimmed,
+          extraParams,
+          page,
+          size: 100,
+        });
+        list = pageResult.items;
+        if (page === 0) total = pageResult.totalCount;
+      } else {
+        extraParams.set('page', String(page));
+        extraParams.set('size', '100');
+        const res = await fetchWithJwtRetry(
+          `${apiBase}/api/event-sponsors?${extraParams.toString()}`,
+          { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+          'sponsor-type-counts',
+        );
+        if (!res.ok) return empty;
+        list = asList<EventSponsorsDTO>(await res.json());
+        if (page === 0) {
+          const header = parseInt(res.headers.get('x-total-count') || '', 10);
+          total = Number.isFinite(header) ? header : list.length;
+        }
       }
       for (const sponsor of list) {
         const type = (sponsor.type || '').trim();

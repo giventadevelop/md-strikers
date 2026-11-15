@@ -9,6 +9,7 @@ interface FocusGroupWithEvents {
   name?: string;
   slug?: string;
   description?: string;
+  searchText?: string;
   coverImageUrl?: string;
   events?: any[];
 }
@@ -27,7 +28,9 @@ export default function FocusGroupsGridWithSearch({ groups, total }: FocusGroups
   const matchesGroup = (g: FocusGroupWithEvents, query: string) => {
     const q = query.trim().toLowerCase();
     if (!q) return true;
-    return [g.name, g.slug, g.description, g.id].some((value) => String(value ?? '').toLowerCase().includes(q));
+    return [g.searchText, g.name, g.slug, g.description, g.id].some((value) =>
+      String(value ?? '').toLowerCase().includes(q),
+    );
   };
   const suggestionGroups = searchDraft.trim() ? groups.filter((g) => matchesGroup(g, searchDraft)) : [];
   const filteredGroups = searchTerm.trim() ? groups.filter((g) => matchesGroup(g, searchTerm)) : groups;

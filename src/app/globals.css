@@ -6609,6 +6609,17 @@ body.md-public .md-standings-table .md-live-row img {
   border: 1px solid transparent;
 }
 .md-sp-search label { width: 100%; max-width: none; }
+.md-sp-search .md-sp-search__clear {
+  flex: 0 0 auto;
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: #071b38;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+}
 .md-sp-filters label:hover { border-color: #a9c6ea; }
 .md-sp-filters input {
   flex: 1;

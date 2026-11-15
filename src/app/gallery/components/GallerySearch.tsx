@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { CATALOG_SUGGESTION_LIMIT, FcCatalogTypeahead, type CatalogSuggestion } from '@/components/fc-united/FcCatalogTypeahead';
+import {
+  fetchPublicSearchPage,
+  PUBLIC_EVENT_SEARCH_FIELDS,
+  PUBLIC_GALLERY_ALBUM_SEARCH_FIELDS,
+} from '@/lib/publicTypeaheadSearch';
 
 interface GallerySearchProps {
   onSearch: (filters: {
@@ -55,47 +60,40 @@ export function GallerySearch({
     }
     let cancelled = false;
     const timer = window.setTimeout(() => {
-      const base = {
-        page: '0',
-        size: String(CATALOG_SUGGESTION_LIMIT),
-        'title.contains': query,
-      };
-      const titleParams = new URLSearchParams(suggestKind === 'albums'
-        ? { ...base, 'isPublic.equals': 'true', sort: 'displayOrder,asc' }
-        : { ...base, 'isActive.equals': 'true', sort: 'startDate,desc' });
-      const extraParams = new URLSearchParams(titleParams);
-      extraParams.delete('title.contains');
-      extraParams.set(suggestKind === 'albums' ? 'description.contains' : 'caption.contains', query);
-      const resource = suggestKind === 'albums' ? 'gallery-albums' : 'event-details';
-      Promise.all([
-        fetch(`/api/proxy/${resource}?${titleParams}`),
-        fetch(`/api/proxy/${resource}?${extraParams}`),
-      ]).then(async ([titleRes, extraRes]) => {
+      const isAlbums = suggestKind === 'albums';
+      fetchPublicSearchPage<{
+        id?: number;
+        title?: string;
+        description?: string;
+        caption?: string;
+      }>({
+        resource: isAlbums ? 'gallery-albums' : 'event-details',
+        query,
+        containsFields: isAlbums ? PUBLIC_GALLERY_ALBUM_SEARCH_FIELDS : PUBLIC_EVENT_SEARCH_FIELDS,
+        extraParams: isAlbums
+          ? { 'isPublic.equals': 'true', sort: 'displayOrder,asc' }
+          : { 'isActive.equals': 'true', sort: 'startDate,desc' },
+        page: 0,
+        size: CATALOG_SUGGESTION_LIMIT,
+      }).then((pageResult) => {
         if (cancelled) return;
-        const read = async (res: Response) => {
-          if (!res.ok) return [] as Array<{ id?: number; title?: string; description?: string; caption?: string }>;
-          const raw = await res.json();
-          return (Array.isArray(raw) ? raw : []) as Array<{ id?: number; title?: string; description?: string; caption?: string }>;
-        };
-        const [byTitle, byExtra] = await Promise.all([read(titleRes), read(extraRes)]);
         const seen = new Set<string>();
         const next: CatalogSuggestion[] = [];
-        for (const item of [...byTitle, ...byExtra]) {
+        for (const item of pageResult.items) {
           const title = (item.title || '').trim();
           const key = item.id != null ? String(item.id) : title;
           if (!key || seen.has(key)) continue;
           seen.add(key);
           next.push({
             key,
-            label: title || `${suggestKind === 'albums' ? 'Album' : 'Event'} ${item.id}`,
+            label: title || `${isAlbums ? 'Album' : 'Event'} ${item.id}`,
             hint: (item.description || item.caption || '').trim() || undefined,
             commitValue: title,
           });
           if (next.length >= CATALOG_SUGGESTION_LIMIT) break;
         }
-        const totals = [titleRes, extraRes].map((res) => parseInt(res.headers.get('x-total-count') || '0', 10));
         setSuggestions(next);
-        setSuggestionTotal(Math.max(next.length, ...totals.filter((count) => Number.isFinite(count))));
+        setSuggestionTotal(pageResult.totalCount);
       }).catch(() => {
         if (!cancelled) {
           setSuggestions([]);

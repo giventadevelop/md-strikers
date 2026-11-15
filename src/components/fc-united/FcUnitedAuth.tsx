@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth, useClerk, useUser } from '@clerk/nextjs';
-import { isAdminRole } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 const authLink =
@@ -20,7 +19,6 @@ export function useFcUnitedAuth() {
   const { user } = useUser();
   const { signOut } = useClerk();
   const [isSigningOut, setIsSigningOut] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [pendingSignOut, setPendingSignOut] = useState(false);
 
   useEffect(() => {
@@ -50,33 +48,6 @@ export function useFcUnitedAuth() {
       cancelled = true;
     };
   }, [pendingSignOut, isLoaded, signOut]);
-
-  useEffect(() => {
-    if (!isLoaded || !userId) {
-      setIsAdmin(false);
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      try {
-        const tenantId = process.env.NEXT_PUBLIC_TENANT_ID;
-        if (!tenantId) return;
-        const resp = await fetch(
-          `/api/proxy/user-profiles?userId.equals=${encodeURIComponent(userId)}&tenantId.equals=${encodeURIComponent(tenantId)}&size=1`,
-          { cache: 'no-store' }
-        );
-        if (!resp.ok || cancelled) return;
-        const data = await resp.json();
-        const profile = Array.isArray(data) ? data[0] : data?.content?.[0] || data;
-        if (!cancelled) setIsAdmin(isAdminRole(profile?.userRole));
-      } catch {
-        if (!cancelled) setIsAdmin(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [isLoaded, userId]);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -118,7 +89,7 @@ export function useFcUnitedAuth() {
     }
   };
 
-  return { userId, isLoaded, user, isAdmin, isSigningOut, handleSignOut };
+  return { userId, isLoaded, user, isSigningOut, handleSignOut };
 }
 
 function AvatarButton({
@@ -196,8 +167,7 @@ function AvatarButton({
 }
 
 export function FcUnitedAuthDesktop() {
-  const { userId, isLoaded, user, isAdmin, isSigningOut, handleSignOut } = useFcUnitedAuth();
-  const pathname = usePathname();
+  const { userId, isLoaded, user, isSigningOut, handleSignOut } = useFcUnitedAuth();
   if (!isLoaded) return <div className="hidden h-10 w-24 md:block" aria-hidden />;
 
   if (!userId) {
@@ -218,18 +188,13 @@ export function FcUnitedAuthDesktop() {
 
   return (
     <div className="hidden shrink-0 items-center gap-4 md:flex">
-      {isAdmin && (
-        <Link href="/admin" className={cn(authLink, pathname?.startsWith('/admin') && 'text-pitch-chalk')}>
-          Admin
-        </Link>
-      )}
       <AvatarButton user={user} onSignOut={handleSignOut} isSigningOut={isSigningOut} />
     </div>
   );
 }
 
 export function FcUnitedAuthMobile({ onNavigate }: { onNavigate: () => void }) {
-  const { userId, isLoaded, user, isAdmin, isSigningOut, handleSignOut } = useFcUnitedAuth();
+  const { userId, isLoaded, user, isSigningOut, handleSignOut } = useFcUnitedAuth();
   if (!isLoaded) return null;
 
   if (!userId) {
@@ -257,11 +222,6 @@ export function FcUnitedAuthMobile({ onNavigate }: { onNavigate: () => void }) {
       <p className="px-3 text-sm font-semibold text-white">{name}</p>
       {email ? <p className="px-3 text-xs text-pitch-stone">{email}</p> : null}
       <div className="mt-2 flex flex-col">
-        {isAdmin && (
-          <Link href="/admin" onClick={onNavigate} className={cn(authLink, 'rounded-[3px] px-3 py-3')}>
-            Admin
-          </Link>
-        )}
         <Link href="/profile" onClick={onNavigate} className={cn(authLink, 'rounded-[3px] px-3 py-3')}>
           Profile
         </Link>

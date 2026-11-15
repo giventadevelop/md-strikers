@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Search, Users, Clock, MessageSquare } from 'lucide-react';
 import type { EventPollDTO, EventPollOptionDTO } from '@/types';
-import { fetchEventPollsServer, fetchEventPollOptionsServer } from '@/app/admin/polls/ApiServerActions';
+import { fetchEventPollsServer, fetchEventPollOptionsServer } from '@/app/polls/ApiServerActions';
 import { MdPagination } from '@/components/fc-united/MdPagination';
 import { CATALOG_SUGGESTION_LIMIT, FcCatalogTypeahead, type CatalogSuggestion } from '@/components/fc-united/FcCatalogTypeahead';
 

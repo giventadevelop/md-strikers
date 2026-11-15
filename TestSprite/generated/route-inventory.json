@@ -1,0 +1,717 @@
+{
+  "generatedAt": "2026-11-15T21:40:48.618Z",
+  "root": "src/app",
+  "totalPages": 91,
+  "totalUniqueRoutes": 91,
+  "byKind": {
+    "public": 91
+  },
+  "routes": [
+    {
+      "path": "/",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/page.tsx"
+    },
+    {
+      "path": "/about",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/about/page.tsx"
+    },
+    {
+      "path": "/auth/callback",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/auth/callback/page.tsx"
+    },
+    {
+      "path": "/auth/signout-redirect",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/auth/signout-redirect/page.tsx"
+    },
+    {
+      "path": "/browse-events",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/browse-events/page.tsx"
+    },
+    {
+      "path": "/browse-gallery",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/browse-gallery/page.tsx"
+    },
+    {
+      "path": "/calendar",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/calendar/page.tsx"
+    },
+    {
+      "path": "/capital-cup-2025",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/capital-cup-2025/page.tsx"
+    },
+    {
+      "path": "/capital-cup-2026",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/capital-cup-2026/page.tsx"
+    },
+    {
+      "path": "/charity-theme",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/charity-theme/page.tsx"
+    },
+    {
+      "path": "/contact",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/contact/page.tsx"
+    },
+    {
+      "path": "/contacts",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/contacts/page.tsx"
+    },
+    {
+      "path": "/creator-analytics",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/creator-analytics/page.tsx"
+    },
+    {
+      "path": "/dashboard",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/dashboard/page.tsx"
+    },
+    {
+      "path": "/donate",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/donate/page.tsx"
+    },
+    {
+      "path": "/event",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/event/page.tsx"
+    },
+    {
+      "path": "/event/[slug]",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "slug"
+      ],
+      "sourceFile": "src/app/event/[slug]/page.tsx"
+    },
+    {
+      "path": "/event/registration",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/event/registration/page.tsx"
+    },
+    {
+      "path": "/event/success",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/event/success/page.tsx"
+    },
+    {
+      "path": "/event/ticket-qr",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/event/ticket-qr/page.tsx"
+    },
+    {
+      "path": "/events",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/events/page.tsx"
+    },
+    {
+      "path": "/events/[id]",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/page.tsx"
+    },
+    {
+      "path": "/events/[id]/checkout",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/checkout/page.tsx"
+    },
+    {
+      "path": "/events/[id]/competitions",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/competitions/page.tsx"
+    },
+    {
+      "path": "/events/[id]/competitions/[compId]",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id",
+        "compId"
+      ],
+      "sourceFile": "src/app/events/[id]/competitions/[compId]/page.tsx"
+    },
+    {
+      "path": "/events/[id]/competitions/catalog",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/competitions/catalog/page.tsx"
+    },
+    {
+      "path": "/events/[id]/competitions/my-registrations",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/competitions/my-registrations/page.tsx"
+    },
+    {
+      "path": "/events/[id]/competitions/register",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/competitions/register/page.tsx"
+    },
+    {
+      "path": "/events/[id]/competitions/rules",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/competitions/rules/page.tsx"
+    },
+    {
+      "path": "/events/[id]/competitions/winners",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/competitions/winners/page.tsx"
+    },
+    {
+      "path": "/events/[id]/donation",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/donation/page.tsx"
+    },
+    {
+      "path": "/events/[id]/donation-checkout",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/donation-checkout/page.tsx"
+    },
+    {
+      "path": "/events/[id]/donation/success",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/donation/success/page.tsx"
+    },
+    {
+      "path": "/events/[id]/eventcube-checkout",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/eventcube-checkout/page.tsx"
+    },
+    {
+      "path": "/events/[id]/givebutter-checkout",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/givebutter-checkout/page.tsx"
+    },
+    {
+      "path": "/events/[id]/manual-checkout",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/manual-checkout/page.tsx"
+    },
+    {
+      "path": "/events/[id]/manual-checkout/success",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/manual-checkout/success/page.tsx"
+    },
+    {
+      "path": "/events/[id]/offering",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/offering/page.tsx"
+    },
+    {
+      "path": "/events/[id]/offering/success",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/offering/success/page.tsx"
+    },
+    {
+      "path": "/events/[id]/register",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/register/page.tsx"
+    },
+    {
+      "path": "/events/[id]/register/success",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/register/success/page.tsx"
+    },
+    {
+      "path": "/events/[id]/tickets",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/tickets/page.tsx"
+    },
+    {
+      "path": "/events/[id]/tickets-stripe-web-client",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/events/[id]/tickets-stripe-web-client/page.tsx"
+    },
+    {
+      "path": "/examples/auth-usage",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/examples/auth-usage/page.tsx"
+    },
+    {
+      "path": "/executive-team",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/executive-team/page.tsx"
+    },
+    {
+      "path": "/focus-groups",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/focus-groups/page.tsx"
+    },
+    {
+      "path": "/focus-groups/[slug]",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "slug"
+      ],
+      "sourceFile": "src/app/focus-groups/[slug]/page.tsx"
+    },
+    {
+      "path": "/gallery",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/gallery/page.tsx"
+    },
+    {
+      "path": "/home-backup",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/home-backup/page.tsx"
+    },
+    {
+      "path": "/ipartner-test",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/ipartner-test/page.tsx"
+    },
+    {
+      "path": "/leagues",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/leagues/page.tsx"
+    },
+    {
+      "path": "/leagues/[slug]",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "slug"
+      ],
+      "sourceFile": "src/app/leagues/[slug]/page.tsx"
+    },
+    {
+      "path": "/matches",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/matches/page.tsx"
+    },
+    {
+      "path": "/member-portal",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/member-portal/page.tsx"
+    },
+    {
+      "path": "/membership",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/membership/page.tsx"
+    },
+    {
+      "path": "/membership/manage",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/membership/manage/page.tsx"
+    },
+    {
+      "path": "/membership/plans",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/membership/plans/page.tsx"
+    },
+    {
+      "path": "/membership/qr",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/membership/qr/page.tsx"
+    },
+    {
+      "path": "/membership/subscribe/[planId]",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "planId"
+      ],
+      "sourceFile": "src/app/membership/subscribe/[planId]/page.tsx"
+    },
+    {
+      "path": "/membership/success",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/membership/success/page.tsx"
+    },
+    {
+      "path": "/news",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/news/page.tsx"
+    },
+    {
+      "path": "/news/[slug]",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "slug"
+      ],
+      "sourceFile": "src/app/news/[slug]/page.tsx"
+    },
+    {
+      "path": "/philanthrop",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/philanthrop/page.tsx"
+    },
+    {
+      "path": "/polls",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/polls/page.tsx"
+    },
+    {
+      "path": "/polls/[id]",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/polls/[id]/page.tsx"
+    },
+    {
+      "path": "/polls/vote-success",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/polls/vote-success/page.tsx"
+    },
+    {
+      "path": "/pricing",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/pricing/page.tsx"
+    },
+    {
+      "path": "/privacy",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/privacy/page.tsx"
+    },
+    {
+      "path": "/profile",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/profile/page.tsx"
+    },
+    {
+      "path": "/resubscribe-email",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/resubscribe-email/page.tsx"
+    },
+    {
+      "path": "/scrollbar-demo",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/scrollbar-demo/page.tsx"
+    },
+    {
+      "path": "/settings",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/settings/page.tsx"
+    },
+    {
+      "path": "/sign-in-backend",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/(auth)/sign-in-backend/page.tsx"
+    },
+    {
+      "path": "/sign-in/[[...sign-in]]",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "sign-in"
+      ],
+      "sourceFile": "src/app/(auth)/sign-in/[[...sign-in]]/page.tsx"
+    },
+    {
+      "path": "/sign-up-backend",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/(auth)/sign-up-backend/page.tsx"
+    },
+    {
+      "path": "/sign-up/[[...sign-up]]",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "sign-up"
+      ],
+      "sourceFile": "src/app/(auth)/sign-up/[[...sign-up]]/page.tsx"
+    },
+    {
+      "path": "/sponsors",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/sponsors/page.tsx"
+    },
+    {
+      "path": "/sponsors/[id]",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/sponsors/[id]/page.tsx"
+    },
+    {
+      "path": "/sso-callback",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/sso-callback/page.tsx"
+    },
+    {
+      "path": "/tasks",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/tasks/page.tsx"
+    },
+    {
+      "path": "/tasks/[id]/edit",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/tasks/[id]/edit/page.tsx"
+    },
+    {
+      "path": "/tasks/new",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/tasks/new/page.tsx"
+    },
+    {
+      "path": "/team",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/team/page.tsx"
+    },
+    {
+      "path": "/team/[id]",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "id"
+      ],
+      "sourceFile": "src/app/team/[id]/page.tsx"
+    },
+    {
+      "path": "/terms",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/terms/page.tsx"
+    },
+    {
+      "path": "/termsofservice",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/termsofservice/page.tsx"
+    },
+    {
+      "path": "/test-mobile",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/test-mobile/page.tsx"
+    },
+    {
+      "path": "/tournaments",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/tournaments/page.tsx"
+    },
+    {
+      "path": "/tournaments/[slug]",
+      "kind": "public",
+      "dynamic": true,
+      "dynamicParams": [
+        "slug"
+      ],
+      "sourceFile": "src/app/tournaments/[slug]/page.tsx"
+    },
+    {
+      "path": "/unsubscribe-email",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/unsubscribe-email/page.tsx"
+    },
+    {
+      "path": "/volunteer",
+      "kind": "public",
+      "dynamic": false,
+      "dynamicParams": [],
+      "sourceFile": "src/app/volunteer/page.tsx"
+    }
+  ]
+}

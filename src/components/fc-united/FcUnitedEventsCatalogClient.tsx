@@ -17,41 +17,41 @@ import { resolveBuyTicketsTarget, resolveRegisterTarget } from '@/lib/eventcube/
 import { resolveEventImageUrlsServer } from './ApiServerActions';
 import { FcCatalogTypeahead, CATALOG_SUGGESTION_LIMIT, type CatalogSuggestion } from './FcCatalogTypeahead';
 import { DEFAULT_EVENT_IMAGE, eventHref } from './homeEventDisplay';
+import {
+  fetchPublicSearchPage,
+  parseProxyList,
+  PUBLIC_EVENT_SEARCH_FIELDS,
+} from '@/lib/publicTypeaheadSearch';
 
 
 const PAGE_SIZE = 20;
 
-async function loadEventSuggestions(query: string): Promise<{ suggestions: CatalogSuggestion[]; totalCount: number }> {
-  const trimmed = query.trim();
-  if (!trimmed) return { suggestions: [], totalCount: 0 };
-  const base = {
-    page: '0',
-    size: String(CATALOG_SUGGESTION_LIMIT),
+function eventDateExtras(options: {
+  loadingPast: boolean;
+  today: string;
+  appliedFrom?: string;
+  appliedTo?: string;
+  sort?: string;
+}): Record<string, string> {
+  const extras: Record<string, string> = {
     'isActive.equals': 'true',
-    sort: 'startDate,asc',
   };
-  const requests = [
-    fetch(`/api/proxy/event-details?${new URLSearchParams({ ...base, 'title.contains': trimmed })}`),
-    fetch(`/api/proxy/event-details?${new URLSearchParams({ ...base, 'caption.contains': trimmed })}`),
-  ];
-  if (/^\d+$/.test(trimmed)) {
-    requests.push(fetch(`/api/proxy/event-details?${new URLSearchParams({
-      page: '0',
-      size: '1',
-      'isActive.equals': 'true',
-      'id.equals': trimmed,
-    })}`));
+  if (options.sort) extras.sort = options.sort;
+  if (options.appliedFrom || options.appliedTo) {
+    if (options.appliedFrom) extras['startDate.greaterThanOrEqual'] = options.appliedFrom;
+    if (options.appliedTo) extras['startDate.lessThanOrEqual'] = options.appliedTo;
+  } else if (options.loadingPast) {
+    extras['endDate.lessThan'] = options.today;
+  } else {
+    extras['startDate.greaterThanOrEqual'] = options.today;
   }
-  const responses = await Promise.all(requests);
-  const totals = responses.map((res) => (res.ok ? parseInt(res.headers.get('x-total-count') || '0', 10) : 0));
-  const lists = await Promise.all(responses.map(async (res) => {
-    if (!res.ok) return [] as EventDetailsDTO[];
-    const raw = await res.json();
-    return (Array.isArray(raw) ? raw : raw ? [raw] : []) as EventDetailsDTO[];
-  }));
+  return extras;
+}
+
+function eventsToSuggestions(events: EventDetailsDTO[]): CatalogSuggestion[] {
   const seen = new Set<string>();
   const suggestions: CatalogSuggestion[] = [];
-  for (const event of lists.flat()) {
+  for (const event of events) {
     const key = event.id != null ? String(event.id) : event.title || '';
     if (!key || seen.has(key)) continue;
     seen.add(key);
@@ -64,8 +64,27 @@ async function loadEventSuggestions(query: string): Promise<{ suggestions: Catal
     });
     if (suggestions.length >= CATALOG_SUGGESTION_LIMIT) break;
   }
-  const totalCount = Math.max(suggestions.length, ...totals.filter((count) => Number.isFinite(count)));
-  return { suggestions, totalCount };
+  return suggestions;
+}
+
+async function loadEventSuggestions(
+  query: string,
+  extraParams: Record<string, string>,
+): Promise<{ suggestions: CatalogSuggestion[]; totalCount: number }> {
+  const trimmed = query.trim();
+  if (!trimmed) return { suggestions: [], totalCount: 0 };
+  const pageResult = await fetchPublicSearchPage<EventDetailsDTO>({
+    resource: 'event-details',
+    query: trimmed,
+    containsFields: PUBLIC_EVENT_SEARCH_FIELDS,
+    extraParams,
+    page: 0,
+    size: CATALOG_SUGGESTION_LIMIT,
+  });
+  return {
+    suggestions: eventsToSuggestions(pageResult.items),
+    totalCount: pageResult.totalCount,
+  };
 }
 
 type CatalogEvent = EventDetailsDTO & { thumbnailUrl?: string };
@@ -210,30 +229,41 @@ export function FcUnitedEventsCatalogClient() {
           }
         }
 
-        const qs = new URLSearchParams({
+        const extraParams = eventDateExtras({
+          loadingPast,
+          today,
+          appliedFrom,
+          appliedTo,
           sort: loadingPast ? 'startDate,desc' : 'startDate,asc',
-          page: String(page),
-          size: String(PAGE_SIZE),
-          'isActive.equals': 'true',
         });
-        if (appliedTitle.trim()) qs.append('title.contains', appliedTitle.trim());
-        if (appliedFrom || appliedTo) {
-          if (appliedFrom) qs.append('startDate.greaterThanOrEqual', appliedFrom);
-          if (appliedTo) qs.append('startDate.lessThanOrEqual', appliedTo);
-        } else if (loadingPast) {
-          qs.append('endDate.lessThan', today);
+        let total = 0;
+        let list: EventDetailsDTO[] = [];
+        const titleQuery = appliedTitle.trim();
+        if (titleQuery) {
+          const pageResult = await fetchPublicSearchPage<EventDetailsDTO>({
+            resource: 'event-details',
+            query: titleQuery,
+            containsFields: PUBLIC_EVENT_SEARCH_FIELDS,
+            extraParams,
+            page,
+            size: PAGE_SIZE,
+          });
+          if (gen !== loadGenRef.current) return;
+          list = pageResult.items;
+          total = pageResult.totalCount;
         } else {
-          qs.append('startDate.greaterThanOrEqual', today);
+          const qs = new URLSearchParams({
+            ...extraParams,
+            page: String(page),
+            size: String(PAGE_SIZE),
+          });
+          const res = await fetch(`/api/proxy/event-details?${qs}`);
+          if (gen !== loadGenRef.current) return;
+          if (!res.ok) throw new Error('Failed to fetch events');
+          total = parseInt(res.headers.get('x-total-count') || '0', 10);
+          list = parseProxyList<EventDetailsDTO>(await res.json());
         }
-
-        const res = await fetch(`/api/proxy/event-details?${qs}`);
-        if (gen !== loadGenRef.current) return;
-        if (!res.ok) throw new Error('Failed to fetch events');
-        const total = parseInt(res.headers.get('x-total-count') || '0', 10);
         setTotalCount(total);
-
-        const raw = await res.json();
-        const list: EventDetailsDTO[] = Array.isArray(raw) ? raw : raw ? [raw] : [];
         const processed = collapseRecurring(list, loadingPast).sort((a, b) =>
           loadingPast
             ? (b.startDate || '').localeCompare(a.startDate || '')
@@ -278,7 +308,16 @@ export function FcUnitedEventsCatalogClient() {
     }
     let cancelled = false;
     const timer = window.setTimeout(() => {
-      loadEventSuggestions(query)
+      loadEventSuggestions(
+        query,
+        eventDateExtras({
+          loadingPast: showPastEvents,
+          today: todayIso(),
+          appliedFrom,
+          appliedTo,
+          sort: showPastEvents ? 'startDate,desc' : 'startDate,asc',
+        }),
+      )
         .then((result) => {
           if (cancelled) return;
           setSuggestions(result.suggestions);
@@ -295,39 +334,36 @@ export function FcUnitedEventsCatalogClient() {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [searchTitle]);
+  }, [searchTitle, showPastEvents, appliedFrom, appliedTo]);
 
   useEffect(() => {
     let cancelled = false;
     const title = appliedTitle.trim();
     const today = todayIso();
     async function count(past: boolean) {
-      const qs = new URLSearchParams({
+      const extraParams = eventDateExtras({
+        loadingPast: past,
+        today,
         sort: past ? 'startDate,desc' : 'startDate,asc',
+      });
+      if (title) {
+        const pageResult = await fetchPublicSearchPage<EventDetailsDTO>({
+          resource: 'event-details',
+          query: title,
+          containsFields: PUBLIC_EVENT_SEARCH_FIELDS,
+          extraParams,
+          page: 0,
+          size: 1,
+        });
+        return pageResult.totalCount;
+      }
+      const qs = new URLSearchParams({
+        ...extraParams,
         page: '0',
         size: '1',
-        'isActive.equals': 'true',
       });
-      if (title) qs.append('title.contains', title);
-      qs.append(past ? 'endDate.lessThan' : 'startDate.greaterThanOrEqual', today);
       const res = await fetch(`/api/proxy/event-details?${qs}`);
       return res.ok ? parseInt(res.headers.get('x-total-count') || '0', 10) : 0;
-    }
-    Promise.all([count(false), count(true)]).then(([future, past]) => {
-      if (cancelled) return;
-      setFutureCount(future);
-      setPastCount(past);
-    }).catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, [appliedTitle]);
-
-  const applyDate = (which: 'from' | 'to', value: string) => {
-    if (which === 'from') {
-      setSearchDateFrom(value);
-      setAppliedFrom(value);
-    } else {
       setSearchDateTo(value);
       setAppliedTo(value);
     }
