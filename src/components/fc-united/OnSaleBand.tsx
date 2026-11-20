@@ -65,13 +65,13 @@ export function OnSaleBand({ events }: { events: BandEvent[] }) {
       className="md-live-card md-live-card--soft group/band mb-12 overflow-hidden rounded-3xl border border-pitch-chalk/10 bg-pitch-forest md:mb-16"
     >
       <div className="flex flex-col md:flex-row md:items-stretch">
-        <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-pitch-charcoal md:aspect-auto md:min-h-[200px] md:w-72 lg:w-96">
-          <Image src={event.src} alt={event.title} fill className="object-cover object-center transition-transform duration-700 ease-out group-hover/band:scale-105 motion-reduce:transition-none" sizes="(max-width: 768px) 100vw, 384px" />
+        <div className="md-onsale-media relative aspect-[1920/700] w-full shrink-0 overflow-hidden bg-pitch-charcoal">
+          <Image src={event.src} alt={event.title} fill className="object-contain object-center" sizes="(max-width: 767px) 100vw, 50vw" />
         </div>
 
         <div className="flex flex-1 flex-col gap-6 p-6 sm:p-8 md:flex-row md:items-center md:justify-between md:gap-8 lg:px-12">
           <div className="min-w-0">
-            <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-pitch-lime">
+            <p className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em] text-pitch-lime">
               <span className="h-2 w-2 rounded-full bg-pitch-lime" aria-hidden />
               {event.isFeatured ? 'Featured event' : 'Upcoming event'}
             </p>

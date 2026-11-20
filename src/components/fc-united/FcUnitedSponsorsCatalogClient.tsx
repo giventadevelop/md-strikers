@@ -4,7 +4,7 @@
  * /sponsors catalog. Name search and type chips filter the full active list.
  * Page size stays 20. Homepage sponsor strip is a separate fetch.
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -16,9 +16,10 @@ import {
   type SponsorSuggestion,
   type SponsorTypeCount,
 } from './ApiServerActions';
+import { CATALOG_SUGGESTION_LIMIT, FcCatalogTypeahead } from './FcCatalogTypeahead';
+import { MdPagination } from './MdPagination';
 
 const PAGE_SIZE = 20;
-const SUGGESTION_LIMIT = 20;
 const TYPE_COLORS = ['#FFC857', '#329BFF', '#7C3AED', '#0E9F6E', '#E11D48', '#06B6D4', '#F59E0B'];
 
 function colorFor(name: string): string {
@@ -95,75 +96,45 @@ export function FcUnitedSponsorsCatalogClient() {
   const [retryNonce, setRetryNonce] = useState(0);
   const [suggestions, setSuggestions] = useState<SponsorSuggestion[]>([]);
   const [suggestionTotal, setSuggestionTotal] = useState(0);
-  const [suggestOpen, setSuggestOpen] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const skipMenuRefreshRef = useRef(false);
-  const menuRequestRef = useRef(0);
-
-  const applySuggestions = (requestId: number, result: { suggestions: SponsorSuggestion[]; totalCount: number }) => {
-    if (requestId !== menuRequestRef.current) return;
-    setSuggestions(result.suggestions.slice(0, SUGGESTION_LIMIT));
-    setSuggestionTotal(result.totalCount);
-    setSuggestOpen(true);
-  };
-
-  const loadMenu = (query: string) => {
-    const requestId = ++menuRequestRef.current;
-    setSuggestOpen(true);
-    fetchSponsorSuggestionsServer(query)
-      .then((result) => applySuggestions(requestId, result))
-      .catch(() => {
-        if (requestId !== menuRequestRef.current) return;
-        setSuggestions([]);
-        setSuggestionTotal(0);
-        setSuggestOpen(true);
-      });
-  };
 
   const commitSearch = (value: string) => {
     const next = value.trim();
-    if (next !== searchDraft) skipMenuRefreshRef.current = true;
+    if (!next) {
+      clearFilters();
+      return;
+    }
     setSearchDraft(next);
     setAppliedName(next);
     setPage(0);
-    setSuggestOpen(false);
   };
 
   useEffect(() => {
-    if (skipMenuRefreshRef.current) {
-      skipMenuRefreshRef.current = false;
+    const query = searchDraft.trim();
+    if (!query) {
+      setSuggestions([]);
+      setSuggestionTotal(0);
       return;
     }
-    const input = inputRef.current;
-    const query = searchDraft.trim();
-    if (!input || document.activeElement !== input) return;
     let cancelled = false;
-    const requestId = ++menuRequestRef.current;
     const timer = window.setTimeout(() => {
       fetchSponsorSuggestionsServer(query)
         .then((result) => {
-          if (!cancelled) applySuggestions(requestId, result);
+          if (cancelled) return;
+          setSuggestions(result.suggestions.slice(0, CATALOG_SUGGESTION_LIMIT));
+          setSuggestionTotal(result.totalCount);
         })
         .catch(() => {
-          if (cancelled || requestId !== menuRequestRef.current) return;
-          setSuggestions([]);
-          setSuggestionTotal(0);
+          if (!cancelled) {
+            setSuggestions([]);
+            setSuggestionTotal(0);
+          }
         });
-    }, query ? 200 : 0);
+    }, 200);
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
     };
   }, [searchDraft]);
-
-  useEffect(() => {
-    const close = (event: MouseEvent) => {
-      if (!searchRef.current?.contains(event.target as Node)) setSuggestOpen(false);
-    };
-    document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -212,12 +183,10 @@ export function FcUnitedSponsorsCatalogClient() {
   }, [appliedName, retryNonce]);
 
   const clearFilters = () => {
-    if (searchDraft !== '') skipMenuRefreshRef.current = true;
     setSearchDraft('');
     setAppliedName('');
     setType('');
     setPage(0);
-    setSuggestOpen(false);
     setSuggestions([]);
     setSuggestionTotal(0);
   };
@@ -227,10 +196,6 @@ export function FcUnitedSponsorsCatalogClient() {
     setPage(0);
   };
 
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const safePage = Math.min(page, totalPages - 1);
-  const startItem = totalCount > 0 ? safePage * PAGE_SIZE + 1 : 0;
-  const endItem = totalCount > 0 ? Math.min(totalCount, safePage * PAGE_SIZE + sponsors.length) : 0;
   const filtered = Boolean(appliedName || type);
   const showTypes = facets.types.length > 1;
 
@@ -238,75 +203,37 @@ export function FcUnitedSponsorsCatalogClient() {
     <>
       <div className="md-sp-filters" aria-label="Sponsor filters">
         <div className="md-sp-filters__card">
-          <div className="md-sp-search" ref={searchRef}>
-            <label>
+          <FcCatalogTypeahead
+            className="md-sp-search"
+            draft={searchDraft}
+            onDraftChange={setSearchDraft}
+            onCommit={commitSearch}
+            suggestions={suggestions.slice(0, CATALOG_SUGGESTION_LIMIT).map((item) => ({
+              key: item.id != null ? String(item.id) : item.name,
+              label: item.name,
+              hint: item.type || undefined,
+              commitValue: item.name,
+            }))}
+            totalCount={suggestionTotal}
+            placeholder="Search by name, company, or type…"
+            ariaLabel="Search sponsors by name, company, type, or tagline"
+            leading={(
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden>
                 <circle cx="11" cy="11" r="7" />
                 <path d="M21 21l-4.3-4.3" />
               </svg>
-              <input
-                ref={inputRef}
-                type="search"
-                role="combobox"
-                aria-label="Search sponsors by name"
-                aria-autocomplete="list"
-                aria-expanded={suggestOpen}
-                aria-controls="md-sponsor-suggestions"
-                placeholder="Search by sponsor name…"
-                value={searchDraft}
-                onChange={(event) => setSearchDraft(event.target.value)}
-                onClick={() => loadMenu(searchDraft.trim())}
-                onFocus={() => loadMenu(searchDraft.trim())}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    event.preventDefault();
-                    commitSearch(searchDraft);
-                  } else if (event.key === 'Escape') {
-                    setSuggestOpen(false);
-                  }
-                }}
-              />
-              {searchDraft.trim() || appliedName ? (
-                <button
-                  type="button"
-                  className="md-sp-search__clear"
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={clearFilters}
-                >
-                  Clear
-                </button>
-              ) : null}
-            </label>
-            {suggestOpen && (suggestions.length > 0 || suggestionTotal > SUGGESTION_LIMIT) ? (
-              <ul id="md-sponsor-suggestions" role="listbox" aria-label="Sponsor suggestions">
-                {suggestions.slice(0, SUGGESTION_LIMIT).map((item) => (
-                  <li key={item.id ?? item.name} role="presentation">
-                    <button
-                      type="button"
-                      role="option"
-                      onMouseDown={(event) => event.preventDefault()}
-                      onClick={() => commitSearch(item.name)}
-                    >
-                      <strong>{item.name}</strong>
-                      {item.type ? <span>{item.type}</span> : null}
-                    </button>
-                  </li>
-                ))}
-                {suggestionTotal > SUGGESTION_LIMIT ? (
-                  <li role="presentation">
-                    <button
-                      type="button"
-                      className="md-sp-search__more"
-                      onMouseDown={(event) => event.preventDefault()}
-                      onClick={() => commitSearch(searchDraft)}
-                    >
-                      Click Enter for more
-                    </button>
-                  </li>
-                ) : null}
-              </ul>
+            )}
+            trailing={searchDraft.trim() || appliedName ? (
+              <button
+                type="button"
+                className="md-sp-search__clear"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={clearFilters}
+              >
+                Clear
+              </button>
             ) : null}
-          </div>
+          />
           {showTypes ? (
             <div role="group" aria-label="Sponsor type">
               <button type="button" aria-pressed={type === ''} className={type === '' ? 'is-on' : undefined} onClick={() => pickType('')}>
@@ -370,18 +297,15 @@ export function FcUnitedSponsorsCatalogClient() {
           </div>
         )}
 
-        {!loading && !fetchError && totalCount > 0 ? (
-          <div className="md-sp-pager">
-            <p>{`Showing ${startItem} to ${endItem} of ${totalCount} sponsors`}</p>
-            <div>
-              <button type="button" disabled={safePage === 0} onClick={() => setPage(Math.max(0, safePage - 1))}>
-                Previous
-              </button>
-              <button type="button" disabled={safePage >= totalPages - 1} onClick={() => setPage(safePage + 1)}>
-                Next
-              </button>
-            </div>
-          </div>
+        {!loading && !fetchError ? (
+          <MdPagination
+            page={page}
+            pageSize={PAGE_SIZE}
+            totalCount={totalCount}
+            onPageChange={setPage}
+            itemLabel="sponsors"
+            loading={loading}
+          />
         ) : null}
       </div>
     </>

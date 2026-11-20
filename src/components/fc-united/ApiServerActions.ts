@@ -27,7 +27,7 @@ import {
 } from '@/lib/publicTypeaheadSearch';
 import type { FcSquadPlayer } from './FcSquadCarousel';
 import { HOMEPAGE_SPONSOR_LIMIT } from './homepageLimits';
-import { buildSportProfiles, type SportProfileView } from './playerSportProfiles';
+import { buildSportProfiles, rosterSportRoles, type SportProfileView } from './playerSportProfiles';
 
 const FIRST_TEAM_SLUG = 'first-team';
 
@@ -178,6 +178,8 @@ export type PublicRosterPlayer = {
   imageUrl: string;
   /** Primary squad on the member row. Used when membership rows are missing. */
   primaryGroupId?: number | null;
+  /** Sports this player is listed in, with the position played in each one. */
+  sportRoles?: { id: string; label: string; position: string; jersey: string }[];
 };
 
 export type PublicSquadOption = {
@@ -388,6 +390,10 @@ function toRosterPlayer(member: TeamMemberDTO): PublicRosterPlayer {
     jersey: member.jerseyNumber != null && Number.isFinite(member.jerseyNumber) ? String(member.jerseyNumber) : '',
     imageUrl: member.profileImageUrl?.trim() || '',
     primaryGroupId: member.teamGroupId ?? null,
+    sportRoles: rosterSportRoles(member.sportProfiles, {
+      position: member.position?.trim() || '',
+      jersey: member.jerseyNumber != null && Number.isFinite(member.jerseyNumber) ? String(member.jerseyNumber) : '',
+    }),
   };
 }
 
@@ -514,6 +520,28 @@ export async function fetchPublishedLeaguesServer(): Promise<LeagueDTO[]> {
     return await leagueList(params.toString());
   } catch (error) {
     console.error('[fetchPublishedLeaguesServer] Error:', error);
+    return [];
+  }
+}
+
+export async function fetchPublishedLeagueCatalogServer(): Promise<
+  { league: LeagueDTO; clubs: LeagueClubDTO[]; matches: LeagueMatchDTO[]; rows: LeagueStandingRowDTO[] }[]
+> {
+  try {
+    const leagues = await fetchPublishedLeaguesServer();
+    return Promise.all(
+      leagues.map(async (league) => {
+        const id = league.id as number;
+        const [clubs, matches, rows] = await Promise.all([
+          fetchLeagueClubsServer(id),
+          fetchLeagueMatchesServer(id),
+          fetchLeagueStandingsServer(id),
+        ]);
+        return { league, clubs, matches, rows };
+      }),
+    );
+  } catch (error) {
+    console.error('[fetchPublishedLeagueCatalogServer] Error:', error);
     return [];
   }
 }

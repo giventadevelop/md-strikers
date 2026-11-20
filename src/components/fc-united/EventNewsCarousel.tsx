@@ -32,7 +32,7 @@ function EventCard({ event }: { event: EventNewsCard }) {
             alt=""
             fill
             className="object-cover"
-            sizes="(max-width:1023px) 46vw, 34vw"
+            sizes="(max-width:767px) 100vw, (max-width:1023px) 46vw, 34vw"
           />
         </span>
         <span className="md-event-news-card__copy">

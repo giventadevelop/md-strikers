@@ -104,7 +104,7 @@ export function TeamMembersDbSection({ members }: Props) {
                 <div
                   key={`${m.id}-${i}`}
                   data-carousel-card
-                  className="w-[calc((100%-2rem)/3)] min-w-0 shrink-0"
+                  className="w-full min-w-0 shrink-0 md:w-[calc((100%-2rem)/3)]"
                 >
                   <Link
                     href={`/team/${m.id}`}

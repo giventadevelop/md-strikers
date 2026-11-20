@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import type { LastMatchCard } from './ApiServerActions';
 import { CATALOG_SUGGESTION_LIMIT, FcCatalogTypeahead } from './FcCatalogTypeahead';
+import { MdPagination } from './MdPagination';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -142,6 +143,7 @@ function MatchCard({ match }: { match: LastMatchCard }) {
             <span>{match.homeName}</span>
             <b>{scored ? match.score[0] : ''}</b>
           </div>
+          <em>VS</em>
           <div className={loser === 'away' ? 'is-out' : undefined}>
             <Crest src={match.away} name={match.awayName} />
             <span>{match.awayName}</span>
@@ -192,6 +194,10 @@ export function MatchCentreView({ matches }: { matches: LastMatchCard[] }) {
   }, [matches, draftQuery]);
   const commitSearch = (value: string) => {
     const next = value.trim();
+    if (!next) {
+      setStatus('all');
+      setComp('all');
+    }
     setSearchDraft(next);
     setAppliedQuery(next);
     setPage(0);
@@ -216,8 +222,6 @@ export function MatchCentreView({ matches }: { matches: LastMatchCard[] }) {
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const safePage = Math.min(page, totalPages - 1);
   const pageMatches = ordered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
-  const startItem = totalCount > 0 ? safePage * PAGE_SIZE + 1 : 0;
-  const endItem = totalCount > 0 ? safePage * PAGE_SIZE + pageMatches.length : 0;
   const groups: { label: string; matches: LastMatchCard[] }[] = [];
   for (const match of pageMatches) {
     const label = match.matchKind === 'PAST' ? 'Results' : monthKey(match);
@@ -364,19 +368,14 @@ export function MatchCentreView({ matches }: { matches: LastMatchCard[] }) {
             </div>
           ))
         )}
-        {totalCount > 0 ? (
-          <div className="md-mc-pager">
-            <p>{`Showing ${startItem}–${endItem} of ${totalCount} matches`}</p>
-            <div>
-              <button type="button" disabled={safePage === 0} onClick={() => changePage(safePage - 1)}>
-                Previous
-              </button>
-              <button type="button" disabled={safePage >= totalPages - 1} onClick={() => changePage(safePage + 1)}>
-                Next
-              </button>
-            </div>
-          </div>
-        ) : null}
+        <MdPagination
+          page={safePage}
+          pageSize={PAGE_SIZE}
+          totalCount={totalCount}
+          onPageChange={changePage}
+          itemLabel="matches"
+          itemLabelSingular="match"
+        />
       </div>
     </>
   );

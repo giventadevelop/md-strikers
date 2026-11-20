@@ -1,62 +1,89 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import type { ReactNode } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { fcSponsors } from './fcUnitedConstants';
-import { fcPublicShell } from './fcUnitedFonts';
-import { pitchPageInset } from './pitchUi';
-import { encodePublicPath } from './fcUnitedGalleryData';
-import { FcUnitedFooter } from './FcUnitedFooter';
-import { FcUnitedHeader } from './FcUnitedHeader';
-import { FcUnitedInnerHero } from './FcUnitedInnerHero';
-import { MdPagination } from './MdPagination';
-import { CATALOG_SUGGESTION_LIMIT, FcCatalogTypeahead } from './FcCatalogTypeahead';
 import type { PublicRosterPlayer, PublicSquadMembership, PublicSquadOption } from './ApiServerActions';
+import { FcUnitedRosterBoard, type RosterPerson, type RosterTone } from './FcUnitedRosterBoard';
+import { encodePublicPath } from './fcUnitedGalleryData';
+import { PUBLIC_SPORTS } from './playerSportProfiles';
 
-const PAGE_SIZE = 20;
+type Props = {
+  players: PublicRosterPlayer[];
+  squads: PublicSquadOption[];
+  memberships: PublicSquadMembership[];
+  initialSquadSlug?: string;
+};
 
-const pillCta =
-  'inline-flex items-center justify-center gap-2 rounded-lg md-btn-primary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-50 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0';
+const TONES: Record<string, RosterTone> = {
+  goalkeeper: 'goalkeeper',
+  defender: 'defender',
+  midfielder: 'midfielder',
+  forward: 'forward',
+};
 
-const secondaryCta =
-  'inline-flex items-center justify-center gap-2 rounded-lg md-btn-gold px-6 py-2.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive disabled:cursor-not-allowed disabled:opacity-40';
-
-function Shell({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn(pitchPageInset, className)}>{children}</div>;
+function bucket(raw: string): { key: string; label: string; chip: string; tone: RosterTone } {
+  const value = raw.trim();
+  const lower = value.toLowerCase();
+  if (!value) return { key: 'squad', label: 'Squad', chip: 'Player', tone: 'other' };
+  if (/\b(gk|goalkeeper|goalie|keeper)\b/.test(lower) || lower.includes('goalkeeper')) {
+    return { key: 'goalkeeper', label: 'Goalkeepers', chip: 'Goalkeeper', tone: 'goalkeeper' };
+  }
+  if (lower.includes('defen') || lower.includes('back') || /\b(cb|lb|rb|lwb|rwb)\b/.test(lower)) {
+    return { key: 'defender', label: 'Defenders', chip: 'Defender', tone: 'defender' };
+  }
+  if (lower.includes('mid')) return { key: 'midfielder', label: 'Midfielders', chip: 'Midfielder', tone: 'midfielder' };
+  if (lower.includes('forward') || lower.includes('strik') || lower.includes('wing') || lower.includes('attack')) {
+    return { key: 'forward', label: 'Forwards', chip: 'Forward', tone: 'forward' };
+  }
+  return { key: slug(value), label: value, chip: value, tone: TONES[lower] || toneFor(slug(value)) };
 }
 
-function matchesQuery(player: PublicRosterPlayer, query: string): boolean {
-  if (!query) return true;
-  const haystack = [player.givenName, player.familyName, player.name, player.role, player.position, player.jersey]
-    .join(' ')
-    .toLowerCase();
-  return query
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean)
-    .every((part) => haystack.includes(part));
+const POSITION_ORDER: Record<string, string[]> = {
+  football: ['goalkeeper', 'center-back', 'left-back', 'right-back', 'defensive-midfielder', 'central-midfielder', 'attacking-midfielder', 'left-winger', 'right-winger', 'striker'],
+  cricket: ['opening-batter', 'middle-order-batter', 'wicket-keeper', 'fast-bowler', 'spinner'],
+  basketball: ['point-guard', 'shooting-guard', 'small-forward', 'power-forward', 'center'],
+  volleyball: ['setter', 'outside-hitter', 'opposite', 'middle-blocker', 'libero'],
+  badminton: ['singles', 'doubles', 'mixed-doubles'],
+  'tennis-squash': ['tennis-singles', 'tennis-doubles', 'squash-singles', 'squash-doubles'],
+  'table-tennis': ['singles', 'doubles', 'mixed-doubles'],
+  golf: ['low-handicap', 'mid-handicap', 'junior'],
+};
+
+const TONE_CYCLE: RosterTone[] = ['goalkeeper', 'defender', 'midfielder', 'forward'];
+
+function slug(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'player';
 }
 
-function activeMemberships(player: PublicRosterPlayer, memberships: PublicSquadMembership[]) {
-  return memberships.filter((row) => row.teamMemberId === player.id && row.isActive !== false);
+function toneFor(key: string): RosterTone {
+  let total = 0;
+  for (let index = 0; index < key.length; index += 1) total += key.charCodeAt(index);
+  return TONE_CYCLE[total % TONE_CYCLE.length];
 }
 
-function playerInSquad(player: PublicRosterPlayer, squadId: number, memberships: PublicSquadMembership[]): boolean {
-  const rows = activeMemberships(player, memberships);
+function rolesFor(player: PublicRosterPlayer) {
+  const roles = player.sportRoles?.length
+    ? player.sportRoles
+    : [{ id: 'football', label: 'Football (Soccer)', position: player.position || 'Player', jersey: player.jersey }];
+  return roles.map((role) =>
+    role.id === 'football'
+      ? { ...role, position: player.position || role.position || 'Player', jersey: player.jersey || role.jersey }
+      : role,
+  );
+}
+
+function activeMemberships(playerId: number, memberships: PublicSquadMembership[]) {
+  return memberships.filter((row) => row.teamMemberId === playerId && row.isActive !== false);
+}
+
+function playerInSquad(player: PublicRosterPlayer, squadId: number, memberships: PublicSquadMembership[]) {
+  const rows = activeMemberships(player.id, memberships);
   if (rows.length > 0) return rows.some((row) => row.teamGroupId === squadId);
   return player.primaryGroupId === squadId;
 }
 
-function withSquadDetails(
-  player: PublicRosterPlayer,
-  squadId: number,
-  memberships: PublicSquadMembership[],
-): PublicRosterPlayer {
-  const row = activeMemberships(player, memberships).find((item) => item.teamGroupId === squadId);
+function withSquadDetails(player: PublicRosterPlayer, squadId: number, memberships: PublicSquadMembership[]) {
+  const row = activeMemberships(player.id, memberships).find((item) => item.teamGroupId === squadId);
   if (!row) return player;
   return {
     ...player,
@@ -65,211 +92,128 @@ function withSquadDetails(
   };
 }
 
-export default function FcUnitedTeamPage({
-  players,
-  squads,
-  memberships,
-  initialSquadSlug = '',
-}: {
-  players: PublicRosterPlayer[];
-  squads: PublicSquadOption[];
-  memberships: PublicSquadMembership[];
-  initialSquadSlug?: string;
-}) {
+function squadNames(player: PublicRosterPlayer, squads: PublicSquadOption[], memberships: PublicSquadMembership[]) {
+  const rows = activeMemberships(player.id, memberships);
+  const names = rows
+    .map((row) => squads.find((squad) => squad.id === row.teamGroupId)?.name)
+    .filter((name): name is string => Boolean(name));
+  if (names.length) return [...new Set(names)].join(' · ');
+  return squads.find((squad) => squad.id === player.primaryGroupId)?.name || player.role;
+}
+
+export default function FcUnitedTeamPage({ players, squads, memberships, initialSquadSlug = '' }: Props) {
   const router = useRouter();
-  const [searchDraft, setSearchDraft] = useState('');
-  const [appliedName, setAppliedName] = useState('');
-  const [squadId, setSquadId] = useState(() => {
+  const initial = squads.find((squad) => squad.slug === initialSquadSlug);
+  const [squadId, setSquadId] = useState(initial ? String(initial.id) : '');
+  const [sportId, setSportId] = useState('');
+
+  useEffect(() => {
     const match = squads.find((squad) => squad.slug === initialSquadSlug);
-    return match ? String(match.id) : '';
-  });
-  const [page, setPage] = useState(0);
+    setSquadId(match ? String(match.id) : '');
+  }, [initialSquadSlug, squads]);
 
-  const filtered = useMemo(() => {
-    const selected = squadId ? Number(squadId) : null;
-    return players
-      .filter((player) => matchesQuery(player, appliedName))
-      .filter((player) => (selected == null ? true : playerInSquad(player, selected, memberships)))
-      .map((player) => (selected == null ? player : withSquadDetails(player, selected, memberships)));
-  }, [players, appliedName, squadId, memberships]);
-  const totalCount = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const safePage = Math.min(page, totalPages - 1);
-  const pageItems = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+  const selected = squads.find((squad) => String(squad.id) === squadId) || null;
 
-  const suggestionPlayers = useMemo(
-    () => (searchDraft.trim() ? players.filter((player) => matchesQuery(player, searchDraft.trim())) : []),
-    [players, searchDraft],
-  );
-
-  const commitSearch = (value: string) => {
-    const next = value.trim();
-    setSearchDraft(next);
-    setAppliedName(next);
-    setPage(0);
-  };
-
-  const clearSearch = () => {
-    setSearchDraft('');
-    setAppliedName('');
-    chooseSquad('');
-  };
-
-  const chooseSquad = (value: string) => {
+  function chooseSquad(value: string) {
     setSquadId(value);
-    setPage(0);
-    const slug = squads.find((squad) => String(squad.id) === value)?.slug;
-    router.replace(slug ? `/team?squad=${encodeURIComponent(slug)}` : '/team', { scroll: false });
-  };
+    const squad = squads.find((item) => String(item.id) === value);
+    router.replace(squad?.slug ? `/team?squad=${encodeURIComponent(squad.slug)}` : '/team', { scroll: false });
+  }
 
-  const selectedSquad = squads.find((squad) => String(squad.id) === squadId);
-  const title = selectedSquad
-    ? selectedSquad.categoryLabel
-      ? `${selectedSquad.name} · ${selectedSquad.categoryLabel}`
-      : selectedSquad.name
-    : 'Sports Team';
+  const squadPlayers = useMemo(() => {
+    if (!selected) return players;
+    return players
+      .filter((player) => playerInSquad(player, selected.id, memberships))
+      .map((player) => withSquadDetails(player, selected.id, memberships));
+  }, [memberships, players, selected]);
+
+  const sportChoices = useMemo(() => {
+    const present = new Set<string>();
+    for (const player of squadPlayers) {
+      for (const role of rolesFor(player)) present.add(role.id);
+    }
+    return PUBLIC_SPORTS.filter((sport) => present.has(sport.id)).map((sport) => ({
+      value: sport.id,
+      label: sport.label,
+    }));
+  }, [squadPlayers]);
+
+  useEffect(() => {
+    if (sportId && !sportChoices.some((sport) => sport.value === sportId)) setSportId('');
+  }, [sportChoices, sportId]);
+
+  const selectedSport = sportChoices.find((sport) => sport.value === sportId) || null;
+
+  const people = useMemo(() => {
+    const rows: RosterPerson[] = [];
+    for (const player of squadPlayers) {
+      const roles = rolesFor(player).filter((role) => !sportId || role.id === sportId);
+      const detail = selected?.name || squadNames(player, squads, memberships);
+      for (const role of roles) {
+        const position = role.position.trim() || 'Player';
+        const key = sportId ? slug(position) : role.id;
+        const grouped = sportId
+          ? { key, label: position, tone: role.id === 'football' ? bucket(position).tone : toneFor(key) }
+          : { key: role.id, label: role.label, tone: toneFor(role.id) };
+        const jersey = Number(role.jersey);
+        rows.push({
+          id: sportId ? String(player.id) : `${player.id}:${role.id}`,
+          href: `/team/${player.id}`,
+          name: player.name,
+          chip: position,
+          tone: grouped.tone,
+          groupKey: grouped.key,
+          groupLabel: grouped.label,
+          detail,
+          number: role.jersey,
+          imageUrl: player.imageUrl ? encodePublicPath(player.imageUrl) : '',
+          searchText: [player.name, player.givenName, player.familyName, player.role, role.label, position, role.jersey, detail].join(' '),
+          sortNumber: role.jersey && Number.isFinite(jersey) ? jersey : 10000,
+        });
+      }
+    }
+    return rows;
+  }, [selected, sportId, squadPlayers, squads, memberships]);
+
+  const groupOrder = useMemo(() => {
+    if (!sportId) return PUBLIC_SPORTS.map((sport) => sport.id);
+    return POSITION_ORDER[sportId] || [];
+  }, [sportId]);
 
   return (
-    <div className={fcPublicShell}>
-      <FcUnitedHeader active="team" />
-      <FcUnitedInnerHero title={title} />
-
-      <section className="md-sport-bg bg-pitch-chalk pb-16 pt-8 md:pb-20">
-        <Shell>
-          <div className="mb-8 rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-5 md:p-6">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-pitch-charcoal/70">Search players</p>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_16rem_auto] md:items-end">
-              <div>
-                <label htmlFor="md-team-name" className="mb-1.5 block text-sm font-medium text-pitch-charcoal">
-                  Name
-                </label>
-                <FcCatalogTypeahead
-                  bare
-                  className="md-typeahead--fill"
-                  inputId="md-team-name"
-                  draft={searchDraft}
-                  onDraftChange={setSearchDraft}
-                  onCommit={commitSearch}
-                  suggestions={suggestionPlayers.slice(0, CATALOG_SUGGESTION_LIMIT).map((player) => ({
-                    key: String(player.id),
-                    label: player.name || `${player.givenName} ${player.familyName}`.trim(),
-                    hint: [player.jersey ? `#${player.jersey}` : '', player.position || player.role].filter(Boolean).join(' · ') || undefined,
-                    commitValue: player.name || `${player.givenName} ${player.familyName}`.trim(),
-                  }))}
-                  totalCount={suggestionPlayers.length}
-                  placeholder="Search by player name…"
-                  ariaLabel="Search players by name"
-                  inputClassName="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
-                />
-              </div>
-              <div>
-                <label htmlFor="md-team-squad" className="mb-1.5 block text-sm font-medium text-pitch-charcoal">
-                  Team
-                </label>
-                <select
-                  id="md-team-squad"
-                  value={squadId}
-                  onChange={(e) => chooseSquad(e.target.value)}
-                  className="w-full rounded-xl border border-pitch-charcoal/10 bg-pitch-card px-3 py-2.5 text-sm text-pitch-charcoal outline-none transition-colors duration-300 focus:border-pitch-olive"
-                >
-                  <option value="">All teams</option>
-                  {squads.map((squad) => (
-                    <option key={squad.id} value={squad.id}>
-                      {squad.categoryLabel ? `${squad.name} · ${squad.categoryLabel}` : squad.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <button type="button" onClick={() => commitSearch(searchDraft)} className={cn(pillCta, 'w-full sm:w-auto')}>
-                  Search
-                </button>
-                <button type="button" onClick={clearSearch} className={cn(secondaryCta, 'w-full sm:w-auto')}>
-                  Clear
-                </button>
-              </div>
-            </div>
-            {appliedName ? (
-              <p className="mt-4 text-sm text-pitch-charcoal/70">Active filter · name contains “{appliedName}”</p>
-            ) : null}
-          </div>
-
-          {pageItems.length === 0 ? (
-            <div className="rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-10 text-center text-pitch-charcoal/70 shadow-sm">
-              <p className={cn('font-extrabold tracking-[-0.02em] text-xl text-pitch-charcoal')}>
-                {appliedName || squadId ? 'No players found' : 'No squad players yet'}
-              </p>
-              {appliedName ? (
-                <button type="button" onClick={clearSearch} className={cn(secondaryCta, 'mt-4')}>
-                  Clear search
-                </button>
-              ) : null}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {pageItems.map((player) => (
-                <Link
-                  key={player.id}
-                  href={`/team/${player.id}`}
-                  className="group flex flex-col overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card text-left shadow-sm transition-shadow duration-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-2"
-                >
-                  {/* Same 4:5 frame for every card; photos fill it from the top (portraits are 0.67–0.79 wide, so trimming is minimal) */}
-                  <div className="relative aspect-[4/5] w-full overflow-hidden bg-pitch-charcoal">
-                    {player.imageUrl ? (
-                      <Image
-                        src={encodePublicPath(player.imageUrl)}
-                        alt={player.name}
-                        fill
-                        className="object-cover object-top transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-                        sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
-                      />
-                    ) : (
-                      <div className={cn('font-extrabold tracking-[-0.02em] flex h-full items-center justify-center text-4xl text-white')}>
-                        {player.name.slice(0, 1)}
-                      </div>
-                    )}
-                    {player.jersey ? (
-                      <span className="absolute left-3 top-3 rounded-md bg-pitch-lime px-2.5 py-1 text-sm font-semibold text-pitch-charcoal">
-                        {player.jersey}
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="flex min-h-[5.5rem] flex-1 flex-col justify-center p-4">
-                    {player.position || player.role ? (
-                      <p className="truncate text-xs uppercase tracking-wide text-pitch-charcoal/70">
-                        {[player.position, player.role].filter(Boolean).join(' · ')}
-                      </p>
-                    ) : null}
-                    <h3 className={cn('font-extrabold tracking-[-0.02em] mt-1 truncate text-lg leading-tight text-pitch-charcoal')}>{player.name}</h3>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-
-          <MdPagination
-            page={safePage}
-            pageSize={PAGE_SIZE}
-            totalCount={totalCount}
-            onPageChange={setPage}
-            itemLabel="players"
-          />
-        </Shell>
-      </section>
-
-      <section className="md-sport-bg border-t border-pitch-charcoal/10 bg-pitch-chalk py-10">
-        <Shell>
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 lg:justify-between">
-            {fcSponsors.map((src) => (
-              <div key={src} className="relative h-12 w-28 md:h-14 md:w-32">
-                <Image src={src} alt="" fill className="object-contain opacity-90" sizes="128px" />
-              </div>
-            ))}
-          </div>
-        </Shell>
-      </section>
-
-      <FcUnitedFooter />
-    </div>
+    <FcUnitedRosterBoard
+      active="team"
+      kicker="Squad"
+      title={selected?.name || 'Sports Team'}
+      subtitle={
+        selectedSport
+          ? `${selectedSport.label} players, grouped by the position they play.`
+          : 'Every sport on the roster. Choose a sport to see its positions and players.'
+      }
+      people={people}
+      noun="player"
+      emptyQuiet="No squad players yet"
+      searchLabel="Search players by name"
+      searchPlaceholder="Search by name, number, sport, or position…"
+      sorts={[
+        { key: 'number', label: 'Number' },
+        { key: 'name', label: 'Name' },
+      ]}
+      playerTabs
+      groupFromPeople
+      preferredGroupOrder={groupOrder}
+      allTabLabel={selectedSport ? 'All positions' : 'All sports'}
+      tabsLabel={selectedSport ? `Filter ${selectedSport.label} by position` : 'Filter by sport'}
+      sports={sportChoices}
+      sportValue={sportId}
+      onSportChange={setSportId}
+      squads={squads.map((squad) => ({
+        value: String(squad.id),
+        label: squad.categoryLabel ? `${squad.name} · ${squad.categoryLabel}` : squad.name,
+      }))}
+      squadValue={squadId}
+      onSquadChange={chooseSquad}
+      largeCards
+    />
   );
 }

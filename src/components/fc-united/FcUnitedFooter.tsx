@@ -80,7 +80,7 @@ export function FcUnitedFooter() {
   return (
     <footer className={cn(fcBrand.className, 'md-sport-bg border-t-2 border-t-brand-gold bg-pitch-charcoal text-pitch-stone')}>
       <SportBackgroundIcons />
-      <Shell className="pb-16 pt-20 md:pb-20 md:pt-24">
+      <Shell className="pb-6 pt-8 md:pb-6 md:pt-10">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1.3fr_0.9fr] lg:gap-16">
           <div className="flex flex-col items-center text-center">
             <Link href="/" className={cn('mb-6 inline-block', focusRing)} aria-label="MD Strikers Home">

@@ -7,7 +7,6 @@ import {
   fcUnitedAboutP1,
   fcUnitedAboutP2BeforeNamslLink,
   fcUnitedAboutP3,
-  fcUnitedAboutTitle,
   mdStrikersBecomeASponsorBody,
   mdStrikersBecomeASponsorHeading,
   mdStrikersHistoryBody,
@@ -164,7 +163,6 @@ export default function FcUnitedAboutPage() {
             <span className="md-about-rule" aria-hidden />
             <div className="md-about-hero__grid">
               <div className="md-about-hero__copy">
-                <h2>{fcUnitedAboutTitle}</h2>
                 <p className="md-about-hero__tagline">{mdStrikersIndexTagline}</p>
                 <div className="md-about-hero__prose">
                   <p>{fcUnitedAboutP1}</p>

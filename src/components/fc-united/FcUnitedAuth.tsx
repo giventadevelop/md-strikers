@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth, useClerk, useUser } from '@clerk/nextjs';
-import { cn } from '@/lib/utils';
+import { cn, isAdminRole } from '@/lib/utils';
 
 const authLink =
   'cursor-pointer text-sm font-semibold text-pitch-stone transition-colors duration-200 hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-lime focus-visible:ring-offset-2 focus-visible:ring-offset-pitch-charcoal';
@@ -14,11 +14,21 @@ function displayName(user: ReturnType<typeof useUser>['user']): string {
   return user?.firstName || user?.fullName || user?.emailAddresses?.[0]?.emailAddress || 'User';
 }
 
+function firstProfile(data: unknown): { userRole?: string } | null {
+  if (Array.isArray(data)) return (data[0] as { userRole?: string }) ?? null;
+  if (data && typeof data === 'object' && Array.isArray((data as { content?: unknown }).content)) {
+    return ((data as { content: { userRole?: string }[] }).content[0]) ?? null;
+  }
+  if (data && typeof data === 'object' && 'userRole' in data) return data as { userRole?: string };
+  return null;
+}
+
 export function useFcUnitedAuth() {
   const { userId, isLoaded } = useAuth();
   const { user } = useUser();
   const { signOut } = useClerk();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [pendingSignOut, setPendingSignOut] = useState(false);
 
   useEffect(() => {
@@ -48,6 +58,37 @@ export function useFcUnitedAuth() {
       cancelled = true;
     };
   }, [pendingSignOut, isLoaded, signOut]);
+
+  useEffect(() => {
+    if (!isLoaded || !userId) {
+      setIsAdmin(false);
+      return;
+    }
+    const email = user?.emailAddresses?.[0]?.emailAddress || '';
+    let cancelled = false;
+    (async () => {
+      try {
+        const byUser = await fetch(
+          `/api/proxy/user-profiles?userId.equals=${encodeURIComponent(userId)}&size=1`,
+          { cache: 'no-store' }
+        );
+        let profile = byUser.ok ? firstProfile(await byUser.json()) : null;
+        if (!profile && email) {
+          const byEmail = await fetch(
+            `/api/proxy/user-profiles?email.equals=${encodeURIComponent(email)}&size=1`,
+            { cache: 'no-store' }
+          );
+          if (byEmail.ok) profile = firstProfile(await byEmail.json());
+        }
+        if (!cancelled) setIsAdmin(isAdminRole(profile?.userRole));
+      } catch {
+        if (!cancelled) setIsAdmin(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isLoaded, userId, user]);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -89,7 +130,7 @@ export function useFcUnitedAuth() {
     }
   };
 
-  return { userId, isLoaded, user, isSigningOut, handleSignOut };
+  return { userId, isLoaded, user, isAdmin, isSigningOut, handleSignOut };
 }
 
 function AvatarButton({
@@ -167,7 +208,8 @@ function AvatarButton({
 }
 
 export function FcUnitedAuthDesktop() {
-  const { userId, isLoaded, user, isSigningOut, handleSignOut } = useFcUnitedAuth();
+  const { userId, isLoaded, user, isAdmin, isSigningOut, handleSignOut } = useFcUnitedAuth();
+  const pathname = usePathname();
   if (!isLoaded) return <div className="hidden h-10 w-24 md:block" aria-hidden />;
 
   if (!userId) {
@@ -188,13 +230,18 @@ export function FcUnitedAuthDesktop() {
 
   return (
     <div className="hidden shrink-0 items-center gap-4 md:flex">
+      {isAdmin && (
+        <Link href="/admin" className={cn(authLink, pathname?.startsWith('/admin') && 'text-pitch-chalk')}>
+          Admin
+        </Link>
+      )}
       <AvatarButton user={user} onSignOut={handleSignOut} isSigningOut={isSigningOut} />
     </div>
   );
 }
 
 export function FcUnitedAuthMobile({ onNavigate }: { onNavigate: () => void }) {
-  const { userId, isLoaded, user, isSigningOut, handleSignOut } = useFcUnitedAuth();
+  const { userId, isLoaded, user, isAdmin, isSigningOut, handleSignOut } = useFcUnitedAuth();
   if (!isLoaded) return null;
 
   if (!userId) {
@@ -222,6 +269,11 @@ export function FcUnitedAuthMobile({ onNavigate }: { onNavigate: () => void }) {
       <p className="px-3 text-sm font-semibold text-white">{name}</p>
       {email ? <p className="px-3 text-xs text-pitch-stone">{email}</p> : null}
       <div className="mt-2 flex flex-col">
+        {isAdmin && (
+          <Link href="/admin" onClick={onNavigate} className={cn(authLink, 'rounded-[3px] px-3 py-3')}>
+            Admin
+          </Link>
+        )}
         <Link href="/profile" onClick={onNavigate} className={cn(authLink, 'rounded-[3px] px-3 py-3')}>
           Profile
         </Link>

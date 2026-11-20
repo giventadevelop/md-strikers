@@ -415,6 +415,68 @@ function extraView(
   };
 }
 
+function sportLabel(id: SportId): string {
+  if (id === 'football') return 'Football (Soccer)';
+  return EXTRA_SPORTS[id].label;
+}
+
+export const PUBLIC_SPORTS: { id: SportId; label: string }[] = SPORT_ORDER.map((id) => ({
+  id,
+  label: sportLabel(id),
+}));
+
+export type RosterSportRole = {
+  id: SportId;
+  label: string;
+  position: string;
+  jersey: string;
+};
+
+/** Sport memberships stored on a squad member, with the position played in each sport. */
+export function rosterSportRoles(
+  raw: string | undefined,
+  football: { position: string; jersey: string },
+): RosterSportRole[] {
+  let parsed: Record<string, unknown> = {};
+  if (raw?.trim()) {
+    try {
+      const value = JSON.parse(raw) as unknown;
+      if (value && typeof value === 'object' && !Array.isArray(value)) parsed = value as Record<string, unknown>;
+    } catch {
+      parsed = {};
+    }
+  }
+  const selected = readSelectedSports(parsed);
+  const ids =
+    selected ??
+    SPORT_ORDER.filter((id) => {
+      if (id === 'football') return Boolean(football.position.trim());
+      const entry = parsed[id];
+      return Boolean(entry && typeof entry === 'object' && !Array.isArray(entry));
+    });
+  return ids.map((id) => {
+    if (id === 'football') {
+      return {
+        id,
+        label: sportLabel(id),
+        position: football.position.trim() || 'Player',
+        jersey: football.jersey.trim(),
+      };
+    }
+    const entry = parsed[id];
+    const record =
+      entry && typeof entry === 'object' && !Array.isArray(entry) ? (entry as Record<string, unknown>) : {};
+    const jersey =
+      record.jersey != null && String(record.jersey).trim() ? String(record.jersey).trim() : football.jersey.trim();
+    return {
+      id,
+      label: sportLabel(id),
+      position: String(record.position || '').trim() || 'Player',
+      jersey,
+    };
+  });
+}
+
 function readSelectedSports(parsed: Record<string, unknown>): SportId[] | null {
   if (!Object.prototype.hasOwnProperty.call(parsed, 'categories') || !Array.isArray(parsed.categories)) {
     return null;

@@ -4,6 +4,20 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 
 export const CATALOG_SUGGESTION_LIMIT = 20;
 
+function valueAfterDelete(el: HTMLInputElement, key: 'Backspace' | 'Delete'): string | null {
+  const value = el.value;
+  const start = el.selectionStart;
+  const end = el.selectionEnd;
+  if (start == null || end == null) return null;
+  if (start !== end) return value.slice(0, start) + value.slice(end);
+  if (key === 'Backspace') {
+    if (start === 0) return value;
+    return value.slice(0, start - 1) + value.slice(end);
+  }
+  if (end >= value.length) return value;
+  return value.slice(0, start) + value.slice(end + 1);
+}
+
 export type CatalogSuggestion = {
   key: string;
   label: string;
@@ -24,6 +38,7 @@ export function FcCatalogTypeahead({
   placeholder,
   ariaLabel,
   leading,
+  trailing,
   bare = false,
   inputClassName,
   inputId,
@@ -37,6 +52,7 @@ export function FcCatalogTypeahead({
   placeholder: string;
   ariaLabel: string;
   leading?: ReactNode;
+  trailing?: ReactNode;
   bare?: boolean;
   inputClassName?: string;
   inputId?: string;
@@ -44,6 +60,8 @@ export function FcCatalogTypeahead({
 }) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const commitRef = useRef<(value: string) => void>(() => {});
   const [open, setOpen] = useState(false);
   const visible = suggestions.slice(0, CATALOG_SUGGESTION_LIMIT);
   const showMenu = open && draft.trim().length > 0 && (visible.length > 0 || totalCount > CATALOG_SUGGESTION_LIMIT);
@@ -64,9 +82,21 @@ export function FcCatalogTypeahead({
     onCommit(value);
     setOpen(false);
   };
+  commitRef.current = commit;
+
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    const onNativeSearch = () => {
+      if (!el.value.trim()) commitRef.current('');
+    };
+    el.addEventListener('search', onNativeSearch);
+    return () => el.removeEventListener('search', onNativeSearch);
+  }, []);
 
   const input = (
     <input
+      ref={inputRef}
       type="search"
       id={inputId}
       role="combobox"
@@ -78,18 +108,41 @@ export function FcCatalogTypeahead({
       placeholder={placeholder}
       value={draft}
       onChange={(event) => {
-        onDraftChange(event.target.value);
+        const next = event.target.value;
+        onDraftChange(next);
+        // Backspace, Delete, or the native search clear that empties the field
+        // reinstates the list the same way the Clear button does.
+        if (!next.trim()) {
+          commit('');
+          return;
+        }
         setOpen(true);
       }}
       onFocus={() => {
-        if (visible.length > 0 || totalCount > CATALOG_SUGGESTION_LIMIT) setOpen(true);
+        if (draft.trim()) setOpen(true);
       }}
       onKeyDown={(event) => {
         if (event.key === 'Enter') {
           event.preventDefault();
-          commit(draft);
-        } else if (event.key === 'Escape') {
+          commit(event.currentTarget.value);
+          return;
+        }
+        if (event.key === 'Escape') {
           setOpen(false);
+          return;
+        }
+        if (
+          (event.key !== 'Backspace' && event.key !== 'Delete')
+          || event.metaKey
+          || event.ctrlKey
+          || event.altKey
+        ) {
+          return;
+        }
+        const next = valueAfterDelete(event.currentTarget, event.key);
+        if (next != null && event.currentTarget.value.trim() && !next.trim()) {
+          event.preventDefault();
+          commit('');
         }
       }}
     />
@@ -127,10 +180,16 @@ export function FcCatalogTypeahead({
 
   return (
     <div className={className ? `md-typeahead ${className}` : 'md-typeahead'} ref={rootRef}>
-      {bare ? input : (
+      {bare ? (
+        <>
+          {input}
+          {trailing}
+        </>
+      ) : (
         <label>
           {leading}
           {input}
+          {trailing}
         </label>
       )}
       {menu}

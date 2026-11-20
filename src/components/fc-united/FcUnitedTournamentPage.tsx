@@ -4,7 +4,7 @@ import { fcPublicShell } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 import type { PublicTournament } from '@/lib/tournaments/publicTournaments';
-import { menuLabel } from '@/lib/tournaments/publicTournaments';
+import { menuLabel, tournamentImage } from '@/lib/tournaments/publicTournaments';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -50,6 +50,13 @@ export default function FcUnitedTournamentPage({
       <main className="md-tn">
         <div className="md-tn-hero" aria-label={label}>
           <div className="md-tn-wrap">
+            <nav className="md-tn-crumb" aria-label="Breadcrumb">
+              <Link href="/">Home</Link>
+              <span aria-hidden="true">/</span>
+              <Link href="/tournaments">Tournaments</Link>
+              <span aria-hidden="true">/</span>
+              <span aria-current="page">{label}</span>
+            </nav>
             <p className="md-tn-kicker"><span />Tournament</p>
             <h1>{label}</h1>
             <p>
@@ -64,19 +71,17 @@ export default function FcUnitedTournamentPage({
 
         <div className="md-tn-detail">
           <div className="md-tn-wrap">
-            {filled(tournament.heroImageUrl) && (
-              <div className="md-tn-poster">
-                <Image
-                  src={tournament.heroImageUrl!}
-                  alt={`${label} tournament poster`}
-                  width={1920}
-                  height={1080}
-                  className="block h-auto w-full"
-                  sizes="(max-width: 1280px) 100vw, 1280px"
-                  priority
-                />
-              </div>
-            )}
+            <div className="md-tn-poster">
+              <Image
+                src={tournamentImage(tournament)}
+                alt={`${label} tournament poster`}
+                width={1920}
+                height={1080}
+                className="block h-auto w-full"
+                sizes="(max-width: 1280px) 100vw, 1280px"
+                priority
+              />
+            </div>
 
             <article className="md-tn-sheet">
               {filled(tournament.welcomeText) && <p>{tournament.welcomeText}</p>}

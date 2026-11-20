@@ -55,7 +55,7 @@ function MemberPortrait({ member }: { member: ExecutiveCommitteeTeamMemberDTO })
           alt={name}
           fill
           className="md-player-card__photo object-cover object-top"
-          sizes="33vw"
+          sizes="(max-width:767px) 100vw, 33vw"
         />
       ) : (
         <span className="absolute inset-0 flex items-center justify-center text-6xl font-extrabold text-white/30" aria-hidden>

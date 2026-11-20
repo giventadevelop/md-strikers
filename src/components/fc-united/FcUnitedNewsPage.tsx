@@ -1,182 +1,348 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
 import { newsHref, type ClubAdSlot, type ClubNewsArticle, type ClubNewsPageData } from '@/lib/news/clubNews';
+import { CATALOG_SUGGESTION_LIMIT, FcCatalogTypeahead } from './FcCatalogTypeahead';
+import { MdPagination } from './MdPagination';
 import { fcPublicShell } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
-import { FcUnitedInnerHero } from './FcUnitedInnerHero';
-import { pitchPageInset } from './pitchUi';
-import { MdPagination } from './MdPagination';
 
-const MAIN_NEWS_PAGE_SIZE = 20;
+const PAGE_SIZE = 20;
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-const secondaryCta =
-  'inline-flex items-center justify-center gap-2 rounded-lg md-btn-gold px-6 py-2.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive';
+type SectionKey = 'main' | 'featured' | 'press';
+type TabKey = 'all' | SectionKey;
 
-const sectionLinks = [
-  { id: 'main-news', label: 'Main News' },
-  { id: 'featured-news', label: 'Featured News' },
-  { id: 'press-release', label: 'Press Release' },
-  { id: 'most-read', label: 'Most Read' },
-] as const;
+type NewsItem = ClubNewsArticle & { sections: SectionKey[]; key: string };
+
+const TABS: { key: TabKey; label: string }[] = [
+  { key: 'all', label: 'All' },
+  { key: 'main', label: 'Main News' },
+  { key: 'featured', label: 'Featured News' },
+  { key: 'press', label: 'Press Release' },
+];
+
+const TAGS: Record<SectionKey, { label: string; bg: string; ink: string }> = {
+  main: { label: 'Main News', bg: '#E3EEFB', ink: '#104A91' },
+  featured: { label: 'Featured News', bg: '#FFC857', ink: '#071B38' },
+  press: { label: 'Press Release', bg: '#071B38', ink: '#FFFFFF' },
+};
+
+const HEADINGS: Record<TabKey, string> = {
+  all: 'All news',
+  main: 'Main News',
+  featured: 'Featured News',
+  press: 'Press Release',
+};
+
+function articleKey(article: ClubNewsArticle): string {
+  return article.documentId || article.slug || String(article.id);
+}
 
 function formatNewsDate(value: string | null): string {
   if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (!match) return '';
+  const month = MONTHS[Number(match[2]) - 1];
+  if (!month) return '';
+  return `${month} ${Number(match[3])}, ${match[1]}`;
 }
 
-export function NewsCard({ article }: { article: ClubNewsArticle }) {
-  return (
-    <article className="flex h-full flex-col overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card transition-colors duration-300 hover:border-pitch-charcoal/25">
-      <Link href={newsHref(article)} className="flex h-full flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pitch-olive">
-        {article.coverUrl ? (
-          <div className="relative w-full bg-pitch-charcoal/[0.06]">
-            <Image
-              src={article.coverUrl}
-              alt={article.coverAlt}
-              width={1200}
-              height={900}
-              className="block h-auto w-full"
-              sizes="(max-width: 768px) 100vw, 40vw"
-              unoptimized
-            />
-          </div>
-        ) : (
-          <div className="aspect-[4/3] w-full bg-pitch-charcoal/[0.06]" aria-hidden />
-        )}
-        <div className="flex flex-1 flex-col p-5">
-          {article.publishedAt && <p className="text-xs text-pitch-charcoal/70">{formatNewsDate(article.publishedAt)}</p>}
-          <h3 className={cn('font-extrabold tracking-[-0.02em] mt-2 line-clamp-2 text-xl text-pitch-charcoal')}>{article.title}</h3>
-          {article.excerpt && <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-pitch-charcoal/70">{article.excerpt}</p>}
-        </div>
-      </Link>
-    </article>
-  );
+function mergeArticles(data: ClubNewsPageData): NewsItem[] {
+  const map = new Map<string, NewsItem>();
+  const add = (articles: ClubNewsArticle[], section: SectionKey) => {
+    articles.forEach((article) => {
+      const key = articleKey(article);
+      const existing = map.get(key);
+      if (existing) {
+        if (!existing.sections.includes(section)) existing.sections.push(section);
+        return;
+      }
+      map.set(key, { ...article, sections: [section], key });
+    });
+  };
+  add(data.mainNews, 'main');
+  add(data.featured, 'featured');
+  add(data.pressRelease, 'press');
+  return [...map.values()].sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''));
+}
+
+function tagFor(item: NewsItem, tab: TabKey) {
+  const section = tab !== 'all' && item.sections.includes(tab) ? tab : item.sections[0];
+  return TAGS[section];
+}
+
+function articleHay(article: NewsItem) {
+  return [article.title, article.excerpt, article.categoryName, article.slug, article.id].filter(Boolean).join(' ');
+}
+
+function wordsMatch(haystack: string, query: string) {
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!words.length) return true;
+  const hay = haystack.toLowerCase();
+  return words.every((word) => hay.includes(word));
 }
 
 function AdCreative({ slot }: { slot: ClubAdSlot }) {
   if (slot.embedHtml) {
-    return <div className="prose prose-sm max-w-none [&_iframe]:max-w-full" dangerouslySetInnerHTML={{ __html: slot.embedHtml }} />;
+    return <div className="md-nw-ad__html" dangerouslySetInnerHTML={{ __html: slot.embedHtml }} />;
   }
   if (!slot.mediaUrl) return null;
-  const image = (
-    <div className="relative w-full">
-      <Image
-        src={slot.mediaUrl}
-        alt="Advertisement"
-        width={1200}
-        height={600}
-        className="block h-auto w-full"
-        sizes="(max-width: 1024px) 100vw, 380px"
-        unoptimized
-      />
-    </div>
-  );
+  const image = <img src={slot.mediaUrl} alt="Advertisement" />;
   if (!slot.linkUrl) return image;
   return (
-    <a href={slot.linkUrl} target="_blank" rel="noopener noreferrer" className="block hover:opacity-90">
+    <a href={slot.linkUrl} target="_blank" rel="noopener noreferrer">
       {image}
     </a>
   );
 }
 
-function AdSlots({ slots, emptyLabel }: { slots: ClubAdSlot[]; emptyLabel?: string }) {
-  if (slots.length === 0) {
-    if (!emptyLabel) return null;
-    return (
-      <div className="rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-6">
-        <h3 className={cn('font-extrabold tracking-[-0.02em] text-xl text-pitch-charcoal')}>Advertisement</h3>
-        <p className="mt-2 text-sm text-pitch-charcoal/70">{emptyLabel}</p>
-      </div>
-    );
-  }
+function InlineAd({ slots, place }: { slots: ClubAdSlot[]; place: 'top' | 'between' }) {
+  const creatives = slots.filter((slot) => slot.embedHtml || slot.mediaUrl);
   return (
-    <div className="space-y-4">
-      {slots.map((slot) => (
-        <div key={`${slot.position}-${slot.id}`} className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card p-4">
-          <AdCreative slot={slot} />
-        </div>
-      ))}
+    <div
+      className={`md-nw-ad md-nw-ad--${place}${creatives.length > 0 ? ' md-nw-ad--live' : ''}`}
+      role="complementary"
+      aria-label="Advertisement"
+    >
+      {creatives.length === 0 ? (
+        <>
+          <span>Advertisement</span>
+          <p>No advertisements at the moment.</p>
+        </>
+      ) : (
+        creatives.map((slot) => <AdCreative key={`${slot.position}-${slot.id}`} slot={slot} />)
+      )}
     </div>
   );
 }
 
-function ArticleSection({
-  id,
-  title,
-  articles,
-}: {
-  id: string;
-  title: string;
-  articles: ClubNewsArticle[];
-}) {
+function Cover({ article, kind }: { article: NewsItem; kind: 'lead' | 'row' }) {
   return (
-    <section id={id} className="scroll-mt-24 overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card">
-      <h2 className={cn('font-extrabold tracking-[-0.02em] border-b border-l-[7px] border-pitch-charcoal/10 border-l-pitch-olive px-5 py-4 text-2xl text-pitch-charcoal')}>
-        {title}
-      </h2>
-      {articles.length > 0 ? (
-        <div className="grid gap-4 p-4 md:grid-cols-2">
-          {articles.map((article) => (
-            <NewsCard key={article.documentId || article.slug} article={article} />
-          ))}
-        </div>
-      ) : (
-        <p className="px-5 py-8 text-sm text-pitch-charcoal/70">No articles at the moment. Check back later.</p>
-      )}
-    </section>
+    <span className={`md-nw-media md-nw-media--${kind}`}>
+      <span aria-hidden="true" />
+      {article.coverUrl ? <img src={article.coverUrl} alt="" /> : <span className="md-nw-ph" />}
+    </span>
   );
 }
 
+/** How many cards sit above the in-feed ad. Keeps that ad clear of the top slot and leaves a few cards below it. */
+function cardsBeforeBetweenAd(count: number): number | null {
+  if (count < 2) return null;
+  if (count <= 4) return Math.ceil(count / 2);
+  return count >= 6 ? count - 4 : count - 3;
+}
+
+const arrow = (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M5 12h14M13 6l6 6-6 6" />
+  </svg>
+);
+
 export default function FcUnitedNewsPage({ data }: { data: ClubNewsPageData }) {
+  const articles = useMemo(() => mergeArticles(data), [data]);
+  const newestKey = articles[0]?.key ?? '';
+  const [tab, setTab] = useState<TabKey>('all');
+  const [draft, setDraft] = useState('');
+  const [query, setQuery] = useState('');
   const [page, setPage] = useState(0);
-  const totalCount = data.mainNews.length;
-  const totalPages = Math.max(1, Math.ceil(totalCount / MAIN_NEWS_PAGE_SIZE));
+  const needle = query.trim();
+  const searched = needle ? articles.filter((article) => wordsMatch(articleHay(article), needle)) : articles;
+  const suggestionRows = draft.trim() ? articles.filter((article) => wordsMatch(articleHay(article), draft)) : [];
+  const commitSearch = (value: string) => {
+    const next = value.trim();
+    setDraft(next);
+    setQuery(next);
+    setPage(0);
+  };
+  const list = tab === 'all' ? searched : searched.filter((article) => article.sections.includes(tab));
+  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages - 1);
-  const visibleMain = data.mainNews.slice(safePage * MAIN_NEWS_PAGE_SIZE, (safePage + 1) * MAIN_NEWS_PAGE_SIZE);
+  const start = safePage * PAGE_SIZE;
+  const pageItems = list.slice(start, start + PAGE_SIZE);
+  const lead = pageItems[0]?.coverUrl ? pageItems[0] : null;
+  const rows = lead ? pageItems.slice(1) : pageItems;
+  const cardsBeforeAd = cardsBeforeBetweenAd(pageItems.length);
+  const betweenAfter = (visualIndex: number) => cardsBeforeAd !== null && visualIndex + 1 === cardsBeforeAd;
+  const counts: Record<TabKey, number> = {
+    all: searched.length,
+    main: searched.filter((article) => article.sections.includes('main')).length,
+    featured: searched.filter((article) => article.sections.includes('featured')).length,
+    press: searched.filter((article) => article.sections.includes('press')).length,
+  };
+
   return (
     <div className={fcPublicShell}>
       <FcUnitedHeader active="news" />
-      <FcUnitedInnerHero title="News" subtitle="Latest news from Maryland Strikers." />
-      <main className="md-sport-bg bg-pitch-chalk py-12 md:py-16">
-        <div className={pitchPageInset}>
-          <nav className="mb-8 flex flex-wrap gap-2" aria-label="News sections">
-            {sectionLinks.map((link) => (
-              <a key={link.id} href={`#${link.id}`} className={secondaryCta}>
-                {link.label}
-              </a>
-            ))}
-          </nav>
+      <main className="md-nw">
+        <div className="md-nw-hero">
+          <div className="md-nw-wrap">
+            <p className="md-nw-kicker">
+              <span />
+              Club news
+            </p>
+            <h1>News</h1>
+            <p>Latest news from Maryland Strikers.</p>
+          </div>
+        </div>
 
-          {data.topAds.length > 0 && (
-            <div className="mb-8">
-              <AdSlots slots={data.topAds} />
+        <div className="md-nw-filters">
+          <div className="md-nw-wrap md-nw-filtercard">
+            <div role="tablist" aria-label="News sections">
+              {TABS.map((item) => {
+                const on = tab === item.key;
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    role="tab"
+                    aria-selected={on}
+                    onClick={() => {
+                      setTab(item.key);
+                      setPage(0);
+                    }}
+                  >
+                    {item.label}
+                    <span>{counts[item.key]}</span>
+                  </button>
+                );
+              })}
             </div>
-          )}
+            <FcCatalogTypeahead
+              draft={draft}
+              onDraftChange={setDraft}
+              onCommit={commitSearch}
+              suggestions={suggestionRows.slice(0, CATALOG_SUGGESTION_LIMIT).map((article) => ({
+                key: article.key,
+                label: article.title,
+                hint: article.categoryName || formatNewsDate(article.publishedAt) || undefined,
+                commitValue: article.title,
+              }))}
+              totalCount={suggestionRows.length}
+              placeholder="Search by title or topic…"
+              ariaLabel="Search articles by title, topic, or id"
+              leading={(
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="M21 21l-4.3-4.3" />
+                </svg>
+              )}
+            />
+          </div>
+        </div>
 
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
-            <div className="space-y-8">
-              <ArticleSection id="main-news" title="Main News" articles={visibleMain} />
+        <div className="md-nw-board">
+          <div className="md-nw-wrap md-nw-layout">
+            <div className="md-nw-feed">
+              <div className="md-nw-feedhead">
+                <h2>{HEADINGS[tab]}</h2>
+                <span>{list.length}</span>
+              </div>
+
+              <InlineAd slots={data.topAds} place="top" />
+
+              {lead && (
+                <Link href={newsHref(lead)} className="md-nw-lead">
+                  <Cover article={lead} kind="lead" />
+                  <span className="md-nw-lead__copy">
+                    <span className="md-nw-lead__meta">
+                      {lead.key === newestKey && <span className="md-nw-latest">Latest</span>}
+                      <span>{tagFor(lead, tab).label}</span>
+                    </span>
+                    <span className="md-nw-title">{lead.title}</span>
+                    {lead.publishedAt && <span className="md-nw-date">{formatNewsDate(lead.publishedAt)}</span>}
+                    {lead.excerpt && <span className="md-nw-excerpt">{lead.excerpt}</span>}
+                    <span className="md-nw-read">
+                      Read article
+                      {arrow}
+                    </span>
+                  </span>
+                </Link>
+              )}
+              {lead && betweenAfter(0) && <InlineAd slots={data.betweenAds} place="between" />}
+
+              {rows.length > 0 && (
+                <div className="md-nw-rows">
+                  {rows.map((article, index) => {
+                    const section = tab !== 'all' && article.sections.includes(tab) ? tab : article.sections[0];
+                    const visualIndex = lead ? index + 1 : index;
+                    return (
+                      <div key={article.key} className="md-nw-rows__item">
+                        <Link href={newsHref(article)} className="md-nw-row">
+                          <Cover article={article} kind="row" />
+                          <span className="md-nw-row__copy">
+                            <span className="md-nw-row__meta">
+                              <span className="md-nw-tag" data-section={section}>
+                                {TAGS[section].label}
+                              </span>
+                              {article.publishedAt && <span>{formatNewsDate(article.publishedAt)}</span>}
+                            </span>
+                            <span className="md-nw-title">{article.title}</span>
+                            {article.excerpt && <span className="md-nw-excerpt">{article.excerpt}</span>}
+                          </span>
+                          <span className="md-nw-go" aria-hidden="true">
+                            {arrow}
+                          </span>
+                        </Link>
+                        {betweenAfter(visualIndex) && <InlineAd slots={data.betweenAds} place="between" />}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {list.length === 0 && (
+                <div className="md-nw-empty">
+                  <h3>No articles found</h3>
+                  <p>{needle ? 'Nothing matches the current search.' : 'No articles at the moment. Check back later.'}</p>
+                  {needle && (
+                    <button type="button" onClick={() => commitSearch('')}>
+                      Clear search
+                    </button>
+                  )}
+                </div>
+              )}
+
               <MdPagination
                 page={safePage}
-                pageSize={MAIN_NEWS_PAGE_SIZE}
-                totalCount={totalCount}
+                pageSize={PAGE_SIZE}
+                totalCount={list.length}
                 onPageChange={setPage}
                 itemLabel="articles"
+                itemLabelSingular="article"
               />
-              <ArticleSection id="featured-news" title="Featured News" articles={data.featured} />
-              {data.betweenAds.length > 0 && <AdSlots slots={data.betweenAds} />}
-              <ArticleSection id="press-release" title="Press Release" articles={data.pressRelease} />
-              <ArticleSection id="most-read" title="Most Read" articles={data.mostRead} />
             </div>
-            <aside>
-              <AdSlots slots={data.sidebarAds} emptyLabel="No advertisements at the moment." />
+
+            <aside className="md-nw-side">
+              {data.mostRead.length > 0 && (
+                <div className="md-nw-most">
+                  <h2>
+                    <span aria-hidden="true" />
+                    Most Read
+                  </h2>
+                  <div>
+                    {data.mostRead.map((article, index) => (
+                      <Link key={articleKey(article)} href={newsHref(article)}>
+                        <span data-lead={index === 0 ? 'true' : 'false'}>{String(index + 1).padStart(2, '0')}</span>
+                        <span>
+                          <strong>{article.title}</strong>
+                          {article.publishedAt && <em>{formatNewsDate(article.publishedAt)}</em>}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="md-nw-sidead">
+                <h2>Advertisement</h2>
+                {data.sidebarAds.some((slot) => slot.embedHtml || slot.mediaUrl) ? (
+                  data.sidebarAds.map((slot) => <AdCreative key={`${slot.position}-${slot.id}`} slot={slot} />)
+                ) : (
+                  <p>No advertisements at the moment.</p>
+                )}
+              </div>
             </aside>
           </div>
         </div>

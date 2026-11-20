@@ -66,7 +66,9 @@ export function MdPagination({
         </button>
       </div>
       <p className="md-pagination__count">
-        {`Showing ${startItem} to ${endItem} of ${totalCount} ${noun}`}
+        Showing <span className="md-pagination__num">{startItem}</span> to{' '}
+        <span className="md-pagination__num">{endItem}</span> of{' '}
+        <span className="md-pagination__num">{totalCount}</span> {noun}
       </p>
     </nav>
   );

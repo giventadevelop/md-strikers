@@ -18,17 +18,19 @@ export default function ConditionalLayout({ children, header, footer }: Conditio
   const pathname = usePathname();
   const hideGlobalChrome = pathname != null && isFcUnitedStandaloneRoute(pathname);
 
+  const column = 'flex w-full min-h-dvh flex-1 flex-col';
+
   if (hideGlobalChrome) {
-    return <>{children}</>;
+    return <div className={column}>{children}</div>;
   }
 
   return (
-    <>
+    <div className={column}>
       {header}
       <div className="flex min-h-0 flex-1 flex-col">
         {children}
       </div>
       {footer}
-    </>
+    </div>
   );
 }

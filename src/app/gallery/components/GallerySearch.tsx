@@ -108,6 +108,10 @@ export function GallerySearch({
   }, [searchTerm, suggestKind]);
 
   const runSearch = (term: string) => {
+    if (!term.trim()) {
+      handleClear();
+      return;
+    }
     if (startDate && endDate && startDate > endDate) {
       setDateError('From date must be on or before the To date.');
       return;

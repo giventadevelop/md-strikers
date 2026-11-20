@@ -16,6 +16,7 @@ import { isDonationBasedEvent, isTicketedFundraiserEvent } from '@/lib/donation/
 import { resolveBuyTicketsTarget, resolveRegisterTarget } from '@/lib/eventcube/utils';
 import { resolveEventImageUrlsServer } from './ApiServerActions';
 import { FcCatalogTypeahead, CATALOG_SUGGESTION_LIMIT, type CatalogSuggestion } from './FcCatalogTypeahead';
+import { MdPagination } from './MdPagination';
 import { DEFAULT_EVENT_IMAGE, eventHref } from './homeEventDisplay';
 import {
   fetchPublicSearchPage,
@@ -294,6 +295,10 @@ export function FcUnitedEventsCatalogClient() {
 
   const commitSearch = (value: string) => {
     const next = value.trim();
+    if (!next) {
+      clearSearch();
+      return;
+    }
     setSearchTitle(next);
     setAppliedTitle(next);
     setPage(0);
@@ -414,9 +419,6 @@ export function FcUnitedEventsCatalogClient() {
     : showPastEvents
       ? 'Events that have already ended. Switch to Upcoming for what is coming up.'
       : 'Match days, tournaments, and club nights on the Maryland Strikers calendar.';
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const startItem = totalCount > 0 ? page * PAGE_SIZE + 1 : 0;
-  const endItem = totalCount > 0 ? Math.min(totalCount, page * PAGE_SIZE + events.length) : 0;
 
   return (
     <>
@@ -669,18 +671,15 @@ export function FcUnitedEventsCatalogClient() {
             </div>
           )}
 
-          {!loading && totalCount > 0 ? (
-            <div className="md-ev-pager">
-              <p>{`Showing ${startItem}–${endItem} of ${totalCount} events`}</p>
-              <div>
-                <button type="button" disabled={page === 0} onClick={() => setPage((current) => Math.max(0, current - 1))}>
-                  Previous
-                </button>
-                <button type="button" disabled={page >= totalPages - 1} onClick={() => setPage((current) => current + 1)}>
-                  Next
-                </button>
-              </div>
-            </div>
+          {!loading ? (
+            <MdPagination
+              page={page}
+              pageSize={PAGE_SIZE}
+              totalCount={totalCount}
+              onPageChange={setPage}
+              itemLabel="events"
+              loading={loading}
+            />
           ) : null}
         </div>
       </div>

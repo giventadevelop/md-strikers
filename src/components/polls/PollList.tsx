@@ -9,12 +9,15 @@ import type { EventPollDTO, EventPollOptionDTO } from '@/types';
 import { fetchEventPollsServer, fetchEventPollOptionsServer } from '@/app/polls/ApiServerActions';
 import { MdPagination } from '@/components/fc-united/MdPagination';
 import { CATALOG_SUGGESTION_LIMIT, FcCatalogTypeahead, type CatalogSuggestion } from '@/components/fc-united/FcCatalogTypeahead';
+import { fetchPublicSearchPage } from '@/lib/publicTypeaheadSearch';
 
 interface PollListProps {
   eventId?: number;
   userId?: number;
   onPollSelect?: (poll: EventPollDTO, options: EventPollOptionDTO[]) => void;
 }
+
+const POLL_SEARCH_FIELDS = ['title', 'description'] as const;
 
 export function PollList({ eventId, userId, onPollSelect }: PollListProps) {
   const [polls, setPolls] = useState<EventPollDTO[]>([]);
@@ -45,12 +48,25 @@ export function PollList({ eventId, userId, onPollSelect }: PollListProps) {
         }
         
         if (searchTerm) {
-          filters['title.contains'] = searchTerm;
+          const pageResult = await fetchPublicSearchPage<EventPollDTO>({
+            resource: 'event-polls',
+            query: searchTerm,
+            containsFields: POLL_SEARCH_FIELDS,
+            extraParams: {
+              'isActive.equals': 'true',
+              sort: 'createdAt,desc',
+              ...(eventId ? { 'eventId.equals': String(eventId) } : {}),
+            },
+            page: currentPage,
+            size: pageSize,
+          });
+          setPolls(pageResult.items);
+          setTotalCount(pageResult.totalCount);
+        } else {
+          const result = await fetchEventPollsServer(filters);
+          setPolls(result.data);
+          setTotalCount(result.totalCount);
         }
-
-        const result = await fetchEventPollsServer(filters);
-        setPolls(result.data);
-        setTotalCount(result.totalCount);
       } catch (error) {
         console.error('Error loading polls:', error);
         setPolls([]);
@@ -79,22 +95,23 @@ export function PollList({ eventId, userId, onPollSelect }: PollListProps) {
     }
     let cancelled = false;
     const timer = window.setTimeout(() => {
-      const base = {
-        'isActive.equals': true,
+      const extraParams = {
+        'isActive.equals': 'true',
+        sort: 'createdAt,desc',
+        ...(eventId ? { 'eventId.equals': String(eventId) } : {}),
+      };
+      fetchPublicSearchPage<EventPollDTO>({
+        resource: 'event-polls',
+        query,
+        containsFields: POLL_SEARCH_FIELDS,
+        extraParams,
         page: 0,
         size: CATALOG_SUGGESTION_LIMIT,
-        sort: 'createdAt,desc',
-        ...(eventId ? { 'eventId.equals': eventId } : {}),
-      };
-      const empty = { data: [] as EventPollDTO[], totalCount: 0 };
-      Promise.all([
-        fetchEventPollsServer({ ...base, 'title.contains': query }).catch(() => empty),
-        fetchEventPollsServer({ ...base, 'description.contains': query }).catch(() => empty),
-      ]).then(([byTitle, byDescription]) => {
+      }).then((pageResult) => {
         if (cancelled) return;
         const seen = new Set<string>();
         const next: CatalogSuggestion[] = [];
-        for (const poll of [...(byTitle.data || []), ...(byDescription.data || [])]) {
+        for (const poll of pageResult.items) {
           const key = poll.id != null ? String(poll.id) : poll.title || '';
           if (!key || seen.has(key)) continue;
           seen.add(key);
@@ -107,7 +124,7 @@ export function PollList({ eventId, userId, onPollSelect }: PollListProps) {
           if (next.length >= CATALOG_SUGGESTION_LIMIT) break;
         }
         setSuggestions(next);
-        setSuggestionTotal(Math.max(next.length, byTitle.totalCount || 0, byDescription.totalCount || 0));
+        setSuggestionTotal(pageResult.totalCount);
       }).catch(() => {
         if (!cancelled) {
           setSuggestions([]);
@@ -253,43 +270,39 @@ export function PollList({ eventId, userId, onPollSelect }: PollListProps) {
 
   return (
     <div className="space-y-6">
-      {polls.length > 0 && (
-        <>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-medium text-gray-900">
-              Available Polls
-            </h2>
-            {totalCount > 0 && (
-              <Badge className="bg-blue-100 text-blue-800 border border-blue-300 px-3 py-1">
-                {totalCount} poll{totalCount !== 1 ? 's' : ''} available
-              </Badge>
-            )}
-          </div>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-medium text-gray-900">
+          Available Polls
+        </h2>
+        {totalCount > 0 && (
+          <Badge className="bg-blue-100 text-blue-800 border border-blue-300 px-3 py-1">
+            {totalCount} poll{totalCount !== 1 ? 's' : ''} available
+          </Badge>
+        )}
+      </div>
 
-          <div className="relative mb-6">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <FcCatalogTypeahead
-              bare
-              className="md-typeahead--fill"
-              draft={searchDraft}
-              onDraftChange={setSearchDraft}
-              onCommit={commitSearch}
-              suggestions={suggestions}
-              totalCount={suggestionTotal}
-              placeholder="Search polls..."
-              ariaLabel="Search polls by title or description"
-              inputClassName="w-full pl-12 py-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 transition-all"
-            />
-          </div>
-        </>
-      )}
+      <div className="relative mb-6">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+        <FcCatalogTypeahead
+          bare
+          className="md-typeahead--fill"
+          draft={searchDraft}
+          onDraftChange={setSearchDraft}
+          onCommit={commitSearch}
+          suggestions={suggestions}
+          totalCount={suggestionTotal}
+          placeholder="Search polls..."
+          ariaLabel="Search polls by title or description"
+          inputClassName="w-full pl-12 py-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 transition-all"
+        />
+      </div>
 
       {polls.length === 0 && !isLoading ? (
         <div className="text-center py-12 text-gray-500">
           <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <p className="text-gray-500">No polls available at this time</p>
+          <p className="text-gray-500">{searchTerm ? 'No polls match that search' : 'No polls available at this time'}</p>
         </div>
       ) : (
         <div className="grid gap-4">

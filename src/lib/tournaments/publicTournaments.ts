@@ -1,6 +1,14 @@
 import { getApiBaseUrl, getTenantId } from '@/lib/env';
 import { fetchWithJwtRetry } from '@/lib/proxyHandler';
 
+/** Club photo used when a published tournament has no hero image. */
+export const TOURNAMENT_FALLBACK_IMAGE = '/images/md_strikers_media/gallery/mdstrikers_com/capital-2024.jpg';
+
+export function tournamentImage(tournament: Pick<PublicTournament, 'heroImageUrl'>): string {
+  const hero = tournament.heroImageUrl?.trim();
+  return hero || TOURNAMENT_FALLBACK_IMAGE;
+}
+
 export type PublicTournament = {
   id?: number;
   title: string;

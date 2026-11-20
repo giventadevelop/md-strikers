@@ -1,12 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
 import type { ClubNewsArticle } from '@/lib/news/clubNews';
 import { fcPublicShell } from './fcUnitedFonts';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
-import { FcUnitedInnerHero } from './FcUnitedInnerHero';
-import { pitchPageInset } from './pitchUi';
 
 function formatNewsDate(value: string | null): string {
   if (!value) return '';
@@ -20,43 +17,50 @@ export default function FcUnitedNewsArticlePage({ article }: { article: ClubNews
     .split(/\n{2,}/)
     .map((part) => part.trim())
     .filter(Boolean);
+  const published = formatNewsDate(article.publishedAt);
 
   return (
     <div className={fcPublicShell}>
       <FcUnitedHeader active="news" />
-      <FcUnitedInnerHero title="News" subtitle={article.title} />
-      <main className="md-sport-bg bg-pitch-chalk py-12 md:py-16">
-        <article className={pitchPageInset}>
-          <Link
-            href="/news"
-            className="md-btn-gold mb-6 inline-flex rounded-lg px-5 py-2 text-sm"
-          >
-            All news
-          </Link>
-          <div className="overflow-hidden rounded-xl border border-pitch-charcoal/10 bg-pitch-card">
-            {article.coverUrl && (
-              <div className="relative w-full bg-pitch-charcoal/[0.06]">
+      <main className="md-nw">
+        <div className="md-nw-hero">
+          <div className="md-nw-wrap">
+            <nav className="md-nw-crumb" aria-label="Breadcrumb">
+              <Link href="/">Home</Link>
+              <span aria-hidden="true">/</span>
+              <Link href="/news">News</Link>
+            </nav>
+            <div className="md-nw-kicker">
+              <span />
+              {article.categoryName || 'Club news'}
+            </div>
+            <h1>{article.title}</h1>
+            {published ? <p className="md-nw-article-date">{published}</p> : null}
+          </div>
+        </div>
+
+        <article className="md-nw-article">
+          <div className="md-nw-wrap md-nw-article__card">
+            <Link href="/news" className="md-nw-back">
+              All news
+            </Link>
+            {article.coverUrl ? (
+              <div className="md-nw-article__cover">
                 <Image
                   src={article.coverUrl}
                   alt={article.coverAlt}
                   width={1600}
                   height={1200}
-                  className="block h-auto w-full"
-                  sizes="860px"
+                  sizes="(min-width: 1024px) 1180px, 100vw"
                   unoptimized
                 />
               </div>
-            )}
-            <div className="p-6 md:p-8">
-              {article.publishedAt && <p className="text-xs text-pitch-charcoal/70">{formatNewsDate(article.publishedAt)}</p>}
-              <h1 className={cn('font-extrabold tracking-[-0.02em] mt-2 text-3xl text-pitch-charcoal md:text-4xl')}>{article.title}</h1>
-              <div className="mt-6 space-y-4 text-base leading-relaxed text-pitch-charcoal">
-                {paragraphs.map((paragraph) => (
-                  <p key={paragraph.slice(0, 40)} className="whitespace-pre-wrap">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
+            ) : null}
+            {article.excerpt ? <p className="md-nw-article__excerpt">{article.excerpt}</p> : null}
+            <div className="md-nw-article__body">
+              {paragraphs.map((paragraph) => (
+                <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+              ))}
             </div>
           </div>
         </article>

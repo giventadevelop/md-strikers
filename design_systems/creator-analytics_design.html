@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Creator Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --md-navy: #071b38;
+      --md-royal: #104a91;
+      --md-hover: #1677d2;
+      --md-gold: #ffc857;
+      --md-cloud: #f4f7fb;
+      --md-ink: #10233f;
+      --md-muted: #60738c;
+      --md-mist: #c3d3e8;
+      --md-card: #ffffff;
+      --md-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+      --md-fast: 160ms;
+      --md-dur: 320ms;
+      --shell: 1240px;
+    }
+
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--md-cloud);
+      color: var(--md-ink);
+      font-family: Barlow, Arial, Helvetica, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      font-family: "Barlow Condensed", Arial, Helvetica, sans-serif;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      line-height: 0.95;
+      text-transform: uppercase;
+      color: #222222;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, a, input { font: inherit; }
+    button { cursor: pointer; }
+
+    :focus-visible {
+      outline: 2px solid #ffd166;
+      outline-offset: 2px;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 72px;
+      color: #ffffff;
+      background: color-mix(in srgb, var(--md-navy) 62%, transparent);
+      border-bottom: 1px solid rgba(98, 181, 255, 0.22);
+    }
+
+    .header::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: color-mix(in srgb, var(--md-navy) 55%, transparent);
+      backdrop-filter: blur(14px) saturate(140%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .header__inner,
+    .shell {
+      width: min(var(--shell), calc(100% - 1.5rem));
+      margin-inline: auto;
+    }
+
+    .header__inner {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .wordmark {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-right: auto;
+    }
+
+    .wordmark strong {
+      font-family: "Barlow Condensed", Arial, Helvetica, sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .wordmark span {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--md-gold);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .nav a {
+      position: relative;
+      padding: 0.5rem 0.7rem;
+      border-radius: 999px;
+      color: #ffffff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .nav a::after {
+      content: "";
+      position: absolute;
+      left: 0.7rem;
+      right: 0.7rem;
+      bottom: 0.15rem;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--md-gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--md-dur) var(--md-ease);
+    }
+
+    .nav a:hover { background: rgba(255, 255, 255, 0.08); }
+    .nav a[aria-current="page"] { color: var(--md-gold); }
+    .nav a[aria-current="page"]::after { transform: scaleX(1); }
+
+    .hero {
+      color: #f4f7fc;
+      background:
+        radial-gradient(ellipse 80% 28% at 50% 100%, rgba(8, 115, 75, 0.45), transparent 70%),
+        linear-gradient(180deg, #071b35 0%, #0b2547 46%, #071b35 100%);
+      padding: 3.25rem 0 4.5rem;
+    }
+
+    .kicker {
+      margin: 0 0 0.75rem;
+      color: var(--md-gold);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      color: #ffffff;
+      font-size: clamp(3rem, 7vw, 5.2rem);
+      text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
+    }
+
+    .hero p {
+      max-width: 38rem;
+      margin: 1rem 0 0;
+      color: var(--md-mist);
+      font-size: 1.05rem;
+    }
+
+    .hero__row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border: 0;
+      border-radius: 999px;
+      background: var(--md-royal);
+      color: #ffffff;
+      font-family: "Barlow Condensed", Arial, Helvetica, sans-serif;
+      font-size: 0.875rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: transform var(--md-dur) var(--md-ease), background var(--md-dur) var(--md-ease), box-shadow var(--md-dur) var(--md-ease);
+    }
+
+    .btn:hover {
+      background: var(--md-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 0 0 4px #eaf3fc, 0 10px 24px rgba(16, 74, 145, 0.28);
+    }
+
+    .btn:active { transform: translateY(0) scale(0.98); }
+
+    .btn--ghost {
+      background: transparent;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      box-shadow: none;
+    }
+
+    .btn--ghost:hover {
+      background: #ffffff;
+      color: var(--md-navy);
+      border-color: transparent;
+    }
+
+    .hero__actions { display: flex; gap: 0.75rem; flex-shrink: 0; }
+
+    main { padding-bottom: 3rem; }
+
+    .filters {
+      margin: -2.75rem auto 1.5rem;
+      padding: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: var(--md-card);
+      border-radius: 18px;
+      box-shadow: 0 14px 32px rgba(7, 27, 56, 0.12);
+    }
+
+    .ranges { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+    .chip {
+      padding: 0.55rem 0.95rem;
+      border: 1px solid color-mix(in srgb, var(--md-ink) 16%, transparent);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--md-ink);
+      font-family: "Barlow Condensed", Arial, Helvetica, sans-serif;
+      font-size: 0.875rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: background var(--md-fast) var(--md-ease), color var(--md-fast) var(--md-ease), border-color var(--md-fast) var(--md-ease);
+    }
+
+    .chip:hover,
+    .chip[aria-pressed="true"] {
+      background: var(--md-royal);
+      border-color: transparent;
+      color: #ffffff;
+    }
+
+    .filters p {
+      margin: 0;
+      color: var(--md-muted);
+      font-size: 0.875rem;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background:
+        radial-gradient(900px 180px at 50% 0%, rgba(22, 119, 210, 0.28), transparent 70%),
+        linear-gradient(180deg, #0b2547 0%, #071b38 100%);
+      border-radius: 20px;
+      color: #ffffff;
+      overflow: hidden;
+    }
+
+    .stat {
+      padding: 1.4rem 1.25rem 1.25rem;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .stat:last-child { border-right: 0; }
+
+    .stat span {
+      display: block;
+      margin-bottom: 0.55rem;
+      color: var(--md-mist);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .stat strong {
+      display: block;
+      font-family: "Barlow Condensed", Arial, Helvetica, sans-serif;
+      font-size: clamp(2.2rem, 4vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      line-height: 0.9;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat em {
+      display: block;
+      margin-top: 0.45rem;
+      color: var(--md-gold);
+      font-style: normal;
+      font-size: 0.8125rem;
+      font-weight: 600;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr;
+      gap: 1.25rem;
+      margin-top: 1.25rem;
+    }
+
+    .card {
+      background: var(--md-card);
+      border-radius: 20px;
+      box-shadow: 0 2px 4px rgba(7, 27, 56, 0.06), 0 14px 32px rgba(7, 27, 56, 0.08);
+      padding: 1.25rem 1.25rem 1.4rem;
+    }
+
+    .card h2 { font-size: 1.7rem; margin-bottom: 1rem; }
+
+    .bars {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      align-items: end;
+      gap: 0.65rem;
+      height: 220px;
+      padding-top: 0.5rem;
+    }
+
+    .bar {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      height: 100%;
+      gap: 0.45rem;
+    }
+
+    .bar i {
+      display: block;
+      border-radius: 8px 8px 2px 2px;
+      background: linear-gradient(180deg, #1677d2 0%, #104a91 100%);
+      height: var(--h);
+    }
+
+    .bar:last-child i { background: var(--md-gold); }
+
+    .bar b {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-align: center;
+      color: var(--md-muted);
+      text-transform: uppercase;
+    }
+
+    .list { list-style: none; margin: 0; padding: 0; }
+
+    .list li + li { border-top: 1px solid #e6eef6; }
+
+    .list a {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.2rem 1rem;
+      padding: 0.85rem 0.15rem;
+    }
+
+    .list a:hover strong { color: var(--md-royal); }
+
+    .list strong {
+      font-weight: 600;
+      color: var(--md-ink);
+    }
+
+    .list span,
+    .list em {
+      color: var(--md-muted);
+      font-size: 0.8125rem;
+      font-style: normal;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .list em { text-align: right; color: var(--md-royal); font-weight: 700; }
+
+    .table-wrap { margin-top: 1.25rem; overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-variant-numeric: tabular-nums;
+    }
+
+    th {
+      padding: 0.75rem 1rem;
+      background: #0b2d59;
+      color: #ffffff;
+      font-family: "Barlow Condensed", Arial, Helvetica, sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-align: left;
+      text-transform: uppercase;
+    }
+
+    th:first-child { border-radius: 12px 0 0 0; }
+    th:last-child { border-radius: 0 12px 0 0; text-align: right; }
+    td:last-child, th:nth-child(n + 3) { text-align: right; }
+
+    td {
+      padding: 0.9rem 1rem;
+      background: #ffffff;
+      border-top: 1px solid #e6eef6;
+      color: var(--md-ink);
+    }
+
+    tr:hover td { background: #f3f8fd; }
+
+    .pager {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .pager button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border: 2px solid color-mix(in srgb, var(--md-royal) 48%, #ffffff);
+      border-radius: 0.5rem;
+      background: color-mix(in srgb, var(--md-royal) 12%, #ffffff);
+      color: var(--md-navy);
+      font-family: "Barlow Condensed", Arial, Helvetica, sans-serif;
+      font-size: 0.875rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: transform 300ms var(--md-ease), background 300ms var(--md-ease);
+    }
+
+    .pager button:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--md-royal) 20%, #ffffff);
+      transform: scale(1.05);
+      box-shadow: 0 4px 10px rgba(16, 74, 145, 0.18);
+    }
+
+    .pager button:disabled {
+      color: color-mix(in srgb, var(--md-royal) 45%, #ffffff);
+      cursor: not-allowed;
+    }
+
+    .pager .status {
+      padding: 0.45rem 0.9rem;
+      border: 2px solid color-mix(in srgb, var(--md-royal) 35%, #ffffff);
+      border-radius: 0.5rem;
+      background: var(--md-cloud);
+      color: var(--md-navy);
+      font-size: 0.875rem;
+      font-weight: 700;
+    }
+
+    .pager .status b { color: var(--md-royal); }
+
+    .count {
+      width: fit-content;
+      margin: 0.75rem auto 0;
+      padding: 0.45rem 0.9rem;
+      border: 2px solid color-mix(in srgb, var(--md-royal) 35%, #ffffff);
+      border-radius: 0.5rem;
+      background: var(--md-cloud);
+      color: var(--md-muted);
+      font-size: 0.875rem;
+    }
+
+    .count b { color: var(--md-royal); }
+
+    .footer {
+      margin: 0.75rem;
+      padding: 2.5rem 0 1.5rem;
+      color: var(--md-mist);
+      background:
+        radial-gradient(700px 240px at 50% 0%, rgba(22, 119, 210, 0.22), transparent 70%),
+        #071b38;
+      border-top: 3px solid #104a91;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .footer h2 {
+      color: #ffffff;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+    }
+
+    .footer p { margin: 0.4rem 0 0; font-size: 0.875rem; }
+    .footer a:hover { color: #ffffff; }
+
+    .legal {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 1.75rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.75rem;
+    }
+
+    @media (max-width: 900px) {
+      .nav { display: none; }
+      .hero__row, .filters, .split, .legal { display: block; }
+      .hero__actions { margin-top: 1.25rem; }
+      .board { grid-template-columns: 1fr 1fr; }
+      .stat:nth-child(2) { border-right: 0; }
+      .stat:nth-child(-n + 2) { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+      .filters p { margin-top: 0.75rem; }
+      .split .card + .card { margin-top: 1.25rem; }
+      .legal p + p { margin-top: 0.4rem; }
+    }
+
+    @media (max-width: 560px) {
+      .board, .bars { grid-template-columns: 1fr 1fr; }
+      .bars { height: auto; }
+      .bar { height: 120px; }
+      .hero__actions { flex-direction: column; }
+      .pager { flex-wrap: nowrap; }
+      .pager button { padding: 0.5rem 0.7rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition-duration: 1ms !important;
+      }
+      .btn:hover, .pager button:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header__inner">
+      <a class="wordmark" href="#overview" aria-label="Creator Analytics home">
+        <strong>Creator Analytics</strong>
+        <span>Studio</span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#overview" aria-current="page">Overview</a>
+        <a href="#content">Content</a>
+        <a href="#audience">Audience</a>
+        <a href="#revenue">Revenue</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero" aria-labelledby="dash-title">
+    <div class="shell hero__row">
+      <div>
+        <p class="kicker">Last 30 days</p>
+        <h1 id="dash-title">Overview</h1>
+        <p>Views, subscribers, and revenue for the pieces published from this studio.</p>
+      </div>
+      <div class="hero__actions">
+        <button class="btn" type="button">Export report</button>
+        <a class="btn btn--ghost" href="#content">View content</a>
+      </div>
+    </div>
+  </section>
+
+  <main id="overview">
+    <div class="shell">
+      <div class="filters" role="group" aria-label="Date range">
+        <div class="ranges">
+          <button class="chip" type="button" aria-pressed="false">7 days</button>
+          <button class="chip" type="button" aria-pressed="true">30 days</button>
+          <button class="chip" type="button" aria-pressed="false">90 days</button>
+          <button class="chip" type="button" aria-pressed="false">All time</button>
+        </div>
+        <p>Compared with the previous 30 days.</p>
+      </div>
+
+      <section class="board" aria-label="Summary">
+        <div class="stat">
+          <span>Views</span>
+          <strong>125,000</strong>
+          <em>+12.5%</em>
+        </div>
+        <div class="stat">
+          <span>Subscribers</span>
+          <strong>8,500</strong>
+          <em>+640</em>
+        </div>
+        <div class="stat">
+          <span>Revenue</span>
+          <strong>$12,500.50</strong>
+          <em>+8.2%</em>
+        </div>
+        <div class="stat">
+          <span>Engagement</span>
+          <strong>8.50%</strong>
+          <em>142 pieces</em>
+        </div>
+      </section>
+
+      <div class="split">
+        <section class="card" aria-labelledby="views-heading">
+          <h2 id="views-heading">Views by week</h2>
+          <div class="bars" role="img" aria-label="Weekly views, eight weeks. The latest week is the tallest.">
+            <div class="bar"><i style="--h: 42%"></i><b>W1</b></div>
+            <div class="bar"><i style="--h: 55%"></i><b>W2</b></div>
+            <div class="bar"><i style="--h: 48%"></i><b>W3</b></div>
+            <div class="bar"><i style="--h: 63%"></i><b>W4</b></div>
+            <div class="bar"><i style="--h: 58%"></i><b>W5</b></div>
+            <div class="bar"><i style="--h: 71%"></i><b>W6</b></div>
+            <div class="bar"><i style="--h: 66%"></i><b>W7</b></div>
+            <div class="bar"><i style="--h: 92%"></i><b>W8</b></div>
+          </div>
+        </section>
+
+        <section class="card" id="audience" aria-labelledby="top-heading">
+          <h2 id="top-heading">Top pieces</h2>
+          <ul class="list">
+            <li>
+              <a href="#content">
+                <strong>Content Creation Tips</strong>
+                <span>15,200 views</span>
+                <em>$580.75</em>
+              </a>
+            </li>
+            <li>
+              <a href="#content">
+                <strong>How to Build a Brand</strong>
+                <span>12,500 views</span>
+                <em>$450.25</em>
+              </a>
+            </li>
+            <li>
+              <a href="#content">
+                <strong>Marketing Strategies 2024</strong>
+                <span>9,800 views</span>
+                <em>$320.50</em>
+              </a>
+            </li>
+          </ul>
+        </section>
+      </div>
+
+      <section class="card table-wrap" id="content" aria-labelledby="table-heading">
+        <h2 id="table-heading">Content</h2>
+        <table id="revenue">
+          <thead>
+            <tr>
+              <th scope="col">Title</th>
+              <th scope="col">Views</th>
+              <th scope="col">Engagement</th>
+              <th scope="col">Revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Content Creation Tips</td>
+              <td>15,200</td>
+              <td>9.50%</td>
+              <td>$580.75</td>
+            </tr>
+            <tr>
+              <td>How to Build a Brand</td>
+              <td>12,500</td>
+              <td>9.20%</td>
+              <td>$450.25</td>
+            </tr>
+            <tr>
+              <td>Marketing Strategies 2024</td>
+              <td>9,800</td>
+              <td>8.70%</td>
+              <td>$320.50</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="pager" aria-label="Content pages">
+          <button type="button" disabled>Previous</button>
+          <div class="status">Page <b>1</b> of <b>1</b></div>
+          <button type="button" disabled>Next</button>
+        </div>
+        <p class="count">Showing <b>1</b> to <b>3</b> of <b>3</b> pieces</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="shell">
+      <h2>Creator Analytics</h2>
+      <p>Sample figures for this studio. Export writes a report of the selected range.</p>
+      <div class="legal">
+        <p>© 2026 Creator Analytics</p>
+        <p><a href="https://www.giventa.com">Powered by Giventa Inc., USA</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.querySelectorAll(".chip").forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        document.querySelectorAll(".chip").forEach(function (other) {
+          other.setAttribute("aria-pressed", other === chip ? "true" : "false");
+        });
+        var label = chip.textContent.trim();
+        document.querySelector(".kicker").textContent = label === "All time" ? "All time" : "Last " + label.toLowerCase();
+        document.querySelector(".filters p").textContent = "Range set to " + label.toLowerCase() + ".";
+      });
+    });
+  </script>
+</body>
+</html>

@@ -6,8 +6,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { PublicTournament } from '@/lib/tournaments/publicTournaments';
+import { tournamentImage, type PublicTournament } from '@/lib/tournaments/publicTournaments';
 import { CATALOG_SUGGESTION_LIMIT, FcCatalogTypeahead } from './FcCatalogTypeahead';
+import { MdPagination } from './MdPagination';
 
 const PAGE_SIZE = 12;
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -146,8 +147,6 @@ export function FcUnitedTournamentsCatalogClient() {
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const safePage = Math.min(page, totalPages - 1);
   const pageRows = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
-  const startItem = totalCount > 0 ? safePage * PAGE_SIZE + 1 : 0;
-  const endItem = totalCount > 0 ? safePage * PAGE_SIZE + pageRows.length : 0;
 
   const changePage = (nextPage: number) => {
     setPage(nextPage);
@@ -244,7 +243,7 @@ export function FcUnitedTournamentsCatalogClient() {
             <div className="md-tn-cards">
               {pageRows.map((tournament) => {
                 const href = `/tournaments/${tournament.slug}`;
-                const image = tournament.heroImageUrl?.trim() || '';
+                const image = tournamentImage(tournament);
                 const dates = dateRange(tournament);
                 const age = tournament.ageGroupLabel?.trim() || '';
                 const blurb = plainText(tournament.welcomeText || tournament.aboutText);
@@ -255,11 +254,7 @@ export function FcUnitedTournamentsCatalogClient() {
                 return (
                   <article key={tournament.id ?? tournament.slug} className={`md-tn-card ${tone}`}>
                     <Link href={href} className="md-tn-card__media" aria-label={`View ${tournament.title}`}>
-                      {image ? (
-                        <Image src={image} alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" />
-                      ) : (
-                        <span>Tournament image</span>
-                      )}
+                      <Image src={image} alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" />
                     </Link>
                     <div className="md-tn-card__panel">
                       <div className="md-tn-card__copy">
@@ -308,14 +303,15 @@ export function FcUnitedTournamentsCatalogClient() {
             </div>
           )}
 
-          {!loading && !fetchError && totalCount > 0 ? (
-            <div className="md-tn-pager">
-              <p>{`Showing ${startItem}–${endItem} of ${totalCount} tournaments`}</p>
-              <div>
-                <button type="button" disabled={safePage === 0} onClick={() => changePage(safePage - 1)}>Previous</button>
-                <button type="button" disabled={safePage >= totalPages - 1} onClick={() => changePage(safePage + 1)}>Next</button>
-              </div>
-            </div>
+          {!loading && !fetchError ? (
+            <MdPagination
+              page={safePage}
+              pageSize={PAGE_SIZE}
+              totalCount={totalCount}
+              onPageChange={changePage}
+              itemLabel="tournaments"
+              loading={loading}
+            />
           ) : null}
         </div>
       </div>
