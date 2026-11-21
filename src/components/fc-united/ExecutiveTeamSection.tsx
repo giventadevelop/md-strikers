@@ -163,12 +163,8 @@ export function ExecutiveTeamSection({
     <section className={cn(fcBrand.className, pitchSection, 'bg-pitch-chalk')} aria-labelledby="executive-team-heading">
       <SportBackgroundIcons />
       <PitchShell>
-        {showSeeAll && (
-          <div className="mb-8 flex justify-end">
-            <SeeAllMembersLink />
-          </div>
-        )}
         <PitchHeading
+          className="md-home-heading md-home-heading--on-light"
           tone="light"
           id="executive-team-heading"
           eyebrow="Leadership"

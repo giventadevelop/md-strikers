@@ -1455,9 +1455,9 @@ export default function EventDetailsPage() {
                               sponsor.bannerImageUrl,
                           }}
                           backgroundClass={getSponsorBackground(index)}
-                          onCardClick={() =>
-                            sponsor.websiteUrl && window.open(sponsor.websiteUrl, '_blank')
-                          }
+                          onCardClick={() => {
+                            if (sponsor.id != null) window.location.assign(`/sponsors/${sponsor.id}`);
+                          }}
                         />
                       );
                     })}

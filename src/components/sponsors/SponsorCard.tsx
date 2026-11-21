@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { EventSponsorsDTO } from "@/types";
 import { useState } from "react";
 
@@ -77,10 +78,24 @@ export function SponsorCard({
   className = "",
   shadowStyle = defaultShadow,
 }: SponsorCardProps) {
+  const router = useRouter();
+  const detailsHref = sponsor.id != null ? `/sponsors/${sponsor.id}` : null;
+  const openDetails = () => {
+    if (detailsHref) {
+      router.push(detailsHref);
+      return;
+    }
+    onCardClick?.();
+  };
+  const websiteHref = sponsor.websiteUrl?.trim()
+    ? /^https?:\/\//i.test(sponsor.websiteUrl.trim())
+      ? sponsor.websiteUrl.trim()
+      : `https://${sponsor.websiteUrl.trim()}`
+    : "";
   const combinedClasses = [
     backgroundClass,
     "rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group",
-    onCardClick ? "cursor-pointer" : "",
+    detailsHref || onCardClick ? "cursor-pointer" : "",
     className,
   ]
     .filter(Boolean)
@@ -93,15 +108,15 @@ export function SponsorCard({
         style={{
           boxShadow: shadowStyle,
         }}
-        onClick={onCardClick}
-        role={onCardClick ? "button" : undefined}
-        tabIndex={onCardClick ? 0 : undefined}
+        onClick={detailsHref || onCardClick ? openDetails : undefined}
+        role={detailsHref || onCardClick ? "button" : undefined}
+        tabIndex={detailsHref || onCardClick ? 0 : undefined}
         onKeyDown={
-          onCardClick
+          detailsHref || onCardClick
             ? (event) => {
                 if (event.key === "Enter" || event.key === " ") {
                   event.preventDefault();
-                  onCardClick();
+                  openDetails();
                 }
               }
             : undefined
@@ -256,7 +271,10 @@ export function SponsorCard({
 
               {/* Social media links - only show icons when URL is non-null and non-empty */}
               {(sponsor.facebookUrl?.trim() || sponsor.instagramUrl?.trim() || sponsor.twitterUrl?.trim() || sponsor.linkedinUrl?.trim() || sponsor.youtubeUrl?.trim() || sponsor.tiktokUrl?.trim()) && (
-                <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-white/20">
+                <div
+                  className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-white/20"
+                  onClick={(event) => event.stopPropagation()}
+                >
                   {sponsor.facebookUrl?.trim() && (
                     <a href={sponsor.facebookUrl.trim()} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 w-9 h-9 rounded-lg bg-blue-100 hover:bg-blue-200 flex items-center justify-center transition-all duration-200" title="Facebook" aria-label="Facebook">
                       <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
@@ -300,23 +318,43 @@ export function SponsorCard({
                     </div>
                   )}
 
-                  {typeof sponsor.id !== "undefined" && (
-                    <div className="flex justify-end">
-                      <Link
-                        href={`/sponsors/${sponsor.id}`}
-                        onClick={(event) => event.stopPropagation()}
-                        className="flex-shrink-0 h-14 rounded-xl bg-green-100 hover:bg-green-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6"
-                        title={`View sponsor details for ${sponsor.name}`}
-                        aria-label={`View sponsor details for ${sponsor.name}`}
-                      >
-                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-green-200 flex items-center justify-center">
-                          <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                        </div>
-                        <span className="font-semibold text-green-700">View Sponsor Details</span>
-                      </Link>
+                  {(detailsHref || websiteHref) && (
+                    <div className="flex flex-wrap justify-end gap-3">
+                      {detailsHref ? (
+                        <Link
+                          href={detailsHref}
+                          onClick={(event) => event.stopPropagation()}
+                          className="flex-shrink-0 h-14 rounded-xl bg-green-100 hover:bg-green-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6"
+                          title={`See sponsor details for ${sponsor.name}`}
+                          aria-label={`See sponsor details for ${sponsor.name}`}
+                        >
+                          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-green-200 flex items-center justify-center">
+                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                          </div>
+                          <span className="font-semibold text-green-700">See Sponsor Details</span>
+                        </Link>
+                      ) : null}
+                      {websiteHref ? (
+                        <a
+                          href={websiteHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(event) => event.stopPropagation()}
+                          className="flex-shrink-0 h-14 rounded-xl bg-orange-100 hover:bg-orange-200 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 px-6"
+                          title={`Visit ${sponsor.name} website`}
+                          aria-label={`Visit ${sponsor.name} website`}
+                        >
+                          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-orange-200 flex items-center justify-center">
+                            <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </div>
+                          <span className="font-semibold text-orange-700">Visit website</span>
+                        </a>
+                      ) : null}
                     </div>
                   )}
                 </div>

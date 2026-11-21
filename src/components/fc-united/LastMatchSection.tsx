@@ -97,14 +97,6 @@ export function LastMatchSection({
     <section className={cn(fcBrand.className, pitchSection, 'md-band-scoreboard bg-pitch-charcoal')}>
       <SportBackgroundIcons />
       <PitchShell>
-        {showSeeAll && (
-          <div className="mb-8 flex justify-end">
-            <Link href="/matches" className={cn(pitchButton.primaryOnLight, 'group')}>
-              See All Matches
-              <PitchArrow />
-            </Link>
-          </div>
-        )}
         <div
           className={cn(
             'mb-12 flex flex-col gap-6 md:mb-16',
@@ -113,7 +105,7 @@ export function LastMatchSection({
               : 'md:flex-row md:items-end md:justify-between',
           )}
         >
-          <div className={cn(toggleCentered ? 'text-center' : 'text-left')}>
+          <div className={cn('md-home-heading', toggleCentered ? 'text-center' : 'text-left')}>
             <p
               className={cn(
                 'mb-4 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.24em] text-pitch-olive',

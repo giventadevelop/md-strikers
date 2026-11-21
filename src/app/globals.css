@@ -3292,6 +3292,10 @@ body.md-public nav[aria-label='Breadcrumb'] {
     margin-right: 1rem;
   }
 }
+.md-organic main.md-home > section:not(.md-hero-stage):not(:has(nav[aria-label='Breadcrumb'])) {
+  margin-left: 0;
+  margin-right: 0;
+}
 /*
   Tall / elongated viewports: the page shell is at least one screen, but a short
   page used to pack the footer at the top and leave the shell's background
@@ -4914,6 +4918,98 @@ body.md-public .min-h-dvh.flex-col > .min-h-screen:has(> footer) > footer {
   transform-origin: center center;
   transition: transform 0.7s cubic-bezier(0.22, 0.7, 0.28, 1);
 }
+.md-organic .md-sponsor-tile__open {
+  position: relative;
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.md-organic .md-sponsor-tile__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 0.85rem 1rem 1rem;
+  background: #071b38;
+}
+.md-organic .md-sponsor-tile__actions .md-sp-card__details,
+.md-organic .md-sponsor-tile__actions .md-sp-card__site {
+  flex: 0 0 calc(50% - 5px);
+  width: calc(50% - 5px);
+  justify-content: center;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+@media (min-width: 768px) {
+  .md-organic .md-sponsor-tile__actions .md-sp-card__details,
+  .md-organic .md-sponsor-tile__actions .md-sp-card__site {
+    flex-basis: 15rem;
+    width: 15rem;
+    max-width: calc(50% - 5px);
+  }
+}
+.md-home .md-home-heading > p,
+.md-home .md-home-heading > div > p:first-of-type {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  font-family: var(--font-md-club), Barlow, Arial, Helvetica, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+.md-home .md-home-heading h2 {
+  margin: 0;
+  font-family: var(--font-md-display), 'Barlow Condensed', Arial, Helvetica, sans-serif;
+  font-weight: 800;
+  font-size: 1.875rem;
+  letter-spacing: 0.02em;
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+@media (min-width: 768px) {
+  .md-home .md-home-heading h2 {
+    font-size: 2.75rem;
+  }
+}
+.md-home .md-home-heading--on-light > p,
+.md-home .md-home-heading--on-light > div > p:first-of-type {
+  color: #104a91;
+}
+.md-organic .md-home section .md-home-heading--on-light h2 {
+  color: #071b38;
+}
+.md-home section.md-sponsor-strip .md-home-heading h2 {
+  font-family: var(--font-md-display), 'Barlow Condensed', Arial, Helvetica, sans-serif;
+  font-size: 1.875rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+.md-home .md-players-head {
+  align-items: flex-end;
+}
+.md-home .md-home-heading h2.md-players-title {
+  position: static;
+  top: auto;
+  left: auto;
+  transform: none;
+  font-size: 1.875rem;
+  letter-spacing: 0.02em;
+}
+@media (min-width: 768px) {
+  .md-home section.md-sponsor-strip .md-home-heading h2,
+  .md-home .md-home-heading h2.md-players-title {
+    font-size: 2.75rem;
+  }
+}
 .md-organic .md-sponsor-tile__name {
   position: absolute;
   left: 1rem;
@@ -5341,6 +5437,24 @@ body.md-public .md-standings-table .md-live-row img {
   line-height: 1;
   text-transform: uppercase;
   color: #ffffff;
+}
+.md-home .md-players-head {
+  align-items: flex-end;
+}
+.md-home .md-home-heading h2.md-players-title {
+  position: static;
+  top: auto;
+  left: auto;
+  transform: none;
+  font-weight: 800;
+  font-size: 1.875rem;
+  letter-spacing: 0.02em;
+  line-height: 0.95;
+}
+@media (min-width: 768px) {
+  .md-home .md-home-heading h2.md-players-title {
+    font-size: 2.75rem;
+  }
 }
 .md-organic .md-players-all {
   font-size: 0.75rem;
@@ -6959,7 +7073,7 @@ body.md-public .md-standings-table .md-live-row img {
   justify-content: space-between;
   gap: 18px 32px;
 }
-.md-sp-card__copy { flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.md-sp-card__copy { flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 12px; color: inherit; text-decoration: none; }
 .md-sp-card__bar { width: 28px; height: 4px; border-radius: 2px; transition: width 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .md-sp-card:hover .md-sp-card__bar { width: 72px; }
 .md-organic.md-public-page .md-sp-card h3 { font-size: clamp(30px, 3.4vw, 44px); letter-spacing: 0.005em; }

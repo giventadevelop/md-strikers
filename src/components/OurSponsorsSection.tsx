@@ -244,7 +244,9 @@ const OurSponsorsSection: React.FC = () => {
               key={sponsor.id ?? index}
               sponsor={sponsor}
               backgroundClass={getRandomBackground(index)}
-              onCardClick={() => sponsor.websiteUrl && window.open(sponsor.websiteUrl, '_blank')}
+              onCardClick={() => {
+                if (sponsor.id != null) window.location.assign(`/sponsors/${sponsor.id}`);
+              }}
             />
           ))}
         </div>

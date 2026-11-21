@@ -55,11 +55,19 @@ function SponsorRow({ sponsor }: { sponsor: HomepageSponsor }) {
         <div className="md-sp-card__media">{media}</div>
       )}
       <div className="md-sp-card__body">
-        <div className="md-sp-card__copy">
-          <span className="md-sp-card__bar" style={{ background: color }} aria-hidden />
-          <h3>{sponsor.name}</h3>
-          {sponsor.tagline ? <p>{sponsor.tagline}</p> : null}
-        </div>
+        {sponsor.id != null ? (
+          <Link className="md-sp-card__copy" href={`/sponsors/${sponsor.id}`}>
+            <span className="md-sp-card__bar" style={{ background: color }} aria-hidden />
+            <h3>{sponsor.name}</h3>
+            {sponsor.tagline ? <p>{sponsor.tagline}</p> : null}
+          </Link>
+        ) : (
+          <div className="md-sp-card__copy">
+            <span className="md-sp-card__bar" style={{ background: color }} aria-hidden />
+            <h3>{sponsor.name}</h3>
+            {sponsor.tagline ? <p>{sponsor.tagline}</p> : null}
+          </div>
+        )}
         <div className="md-sp-card__actions">
           {sponsor.id != null ? (
             <Link href={`/sponsors/${sponsor.id}`} className="md-sp-card__details">

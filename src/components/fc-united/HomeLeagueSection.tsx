@@ -57,6 +57,7 @@ export function HomeLeagueSection({ leagues }: { leagues: PublicLeagueBundle[] }
       <SportBackgroundIcons />
       <PitchShell>
         <PitchHeading
+          className="md-home-heading md-home-heading--on-light"
           id="home-league-heading"
           eyebrow={`${statusLabel(league.status)}${league.seasonLabel ? ` · ${league.seasonLabel}` : ''}`}
           title={league.name}

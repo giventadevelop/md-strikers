@@ -64,7 +64,14 @@ export function EventSpotlightSection({ tone, id, eyebrow, heading, lead, badge,
     <section id={id} className={cn(fcBrand.className, pitchSection, t.section)} aria-labelledby={headingId}>
       <SportBackgroundIcons />
       <PitchShell>
-        <PitchHeading tone={tone} id={headingId} eyebrow={eyebrow} title={heading} lead={lead} />
+        <PitchHeading
+          className={cn('md-home-heading', tone === 'light' && 'md-home-heading--on-light')}
+          tone={tone}
+          id={headingId}
+          eyebrow={eyebrow}
+          title={heading}
+          lead={lead}
+        />
 
         <div className="flex flex-col gap-8">
           {items.map((item) => (

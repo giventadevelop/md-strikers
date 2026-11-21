@@ -251,7 +251,7 @@ export default async function FcUnitedHomePage() {
       <HomeMotion>
       <FcUnitedHeader active="home" />
 
-      <main className="flex min-w-0 flex-1 flex-col">
+      <main className="md-home flex min-w-0 flex-1 flex-col">
         {/* Hero — club panel (logo, name, CTA) beside an auto-playing slider of upcoming event images */}
         <section
           className={cn('md-sport-bg md-hero-stage pt-8 md:pt-12', hasMatchPanel ? 'pb-28 md:pb-36' : 'pb-12 md:pb-16')}
@@ -330,16 +330,11 @@ export default async function FcUnitedHomePage() {
             <PitchShell>
               {showEventsSection && (
                 <PitchHeading
+                  className="md-home-heading md-home-heading--on-light"
                   tone="light"
                   eyebrow="Calendar"
                   title={listEvents.length === 0 || listIsUpcoming ? 'Upcoming Events' : 'Past Events'}
                   lead="Match days, tournaments, and club nights on the Maryland Strikers calendar."
-                  action={
-                    <Link href="/events" className={cn(pitchButton.primaryOnLight, 'group')}>
-                      See All Events
-                      <PitchArrow />
-                    </Link>
-                  }
                 />
               )}
 
@@ -379,16 +374,11 @@ export default async function FcUnitedHomePage() {
           <section className={cn(pitchSection, 'md-news-band')} aria-labelledby="home-news-heading">
             <PitchShell>
               <PitchHeading
+                className="md-home-heading"
                 tone="light"
                 id="home-news-heading"
                 eyebrow="News"
                 title="The Latest from the Club"
-                action={
-                  <Link href="/news" className={cn(pitchButton.primaryOnLight, 'group')}>
-                    See All News
-                    <PitchArrow />
-                  </Link>
-                }
               />
               <div className={cn('grid gap-8 md:grid-cols-2', latestNews.length > 2 && 'lg:grid-cols-3')}>
                 {latestNews.map((article: ClubNewsArticle) => (
@@ -441,6 +431,7 @@ export default async function FcUnitedHomePage() {
           <section className={cn(pitchSection, 'md-band-olive md-sport-bg bg-pitch-forest')} aria-labelledby="home-standings-heading">
             <PitchShell>
               <PitchHeading
+                className="md-home-heading md-home-heading--on-light"
                 id="home-standings-heading"
                 eyebrow="Table"
                 title="Standings"
@@ -513,7 +504,7 @@ export default async function FcUnitedHomePage() {
           <div className="absolute inset-0 -z-10 bg-pitch-forest/85" aria-hidden />
           <PitchShell>
             <div className="grid items-center gap-12 md:grid-cols-[minmax(0,1fr)_auto] md:gap-16">
-              <div className="max-w-2xl">
+              <div className="md-home-heading max-w-2xl">
                 <p className="mb-4 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.24em] text-pitch-lime">
                   <span className="md-brand-rule h-0.5 w-10 rounded-full" aria-hidden />
                   Our story
@@ -573,12 +564,16 @@ export default async function FcUnitedHomePage() {
           <section className="md-sponsor-strip" aria-labelledby="home-sponsors-heading">
             <PitchShell>
               <div className="md-sponsor-strip__head">
-                <h2 id="home-sponsors-heading">Our Sponsors</h2>
-                <ViewAllSponsorsButton />
+                <div className="md-home-heading">
+                  <p>
+                    <span className="md-brand-rule h-0.5 w-10 rounded-full" aria-hidden />
+                    Partners
+                  </p>
+                  <h2 id="home-sponsors-heading">Our Sponsors</h2>
+                </div>
               </div>
               <ul className="md-sponsor-strip__grid">
                 {sponsorCards.map((sponsor) => {
-                  const href = sponsor.websiteHref || sponsor.detailsHref;
                   const mark = (
                     <>
                       <span className="md-sponsor-tile__logo">
@@ -596,27 +591,42 @@ export default async function FcUnitedHomePage() {
                   );
                   return (
                     <li key={sponsor.key}>
-                      {href ? (
-                        sponsor.websiteHref ? (
-                          <a
-                            className="md-sponsor-tile"
-                            href={sponsor.websiteHref}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={sponsor.name}
-                          >
-                            {mark}
-                          </a>
-                        ) : (
-                          <Link className="md-sponsor-tile" href={href} aria-label={sponsor.name}>
+                      <article className="md-sponsor-tile">
+                        {sponsor.detailsHref ? (
+                          <Link className="md-sponsor-tile__open" href={sponsor.detailsHref} aria-label={sponsor.name}>
                             {mark}
                           </Link>
-                        )
-                      ) : (
-                        <div className="md-sponsor-tile" aria-label={sponsor.name}>
-                          {mark}
-                        </div>
-                      )}
+                        ) : (
+                          <div className="md-sponsor-tile__open" aria-label={sponsor.name}>
+                            {mark}
+                          </div>
+                        )}
+                        {(sponsor.detailsHref || sponsor.websiteHref) && (
+                          <div className="md-sponsor-tile__actions">
+                            {sponsor.detailsHref ? (
+                              <Link className="md-sp-card__details" href={sponsor.detailsHref}>
+                                Sponsor details
+                                <svg viewBox="0 0 24 24" aria-hidden>
+                                  <path fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+                                </svg>
+                              </Link>
+                            ) : null}
+                            {sponsor.websiteHref ? (
+                              <a
+                                className="md-sp-card__site"
+                                href={sponsor.websiteHref}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Visit website
+                                <svg viewBox="0 0 24 24" aria-hidden>
+                                  <path fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M8 7h9v9" />
+                                </svg>
+                              </a>
+                            ) : null}
+                          </div>
+                        )}
+                      </article>
                     </li>
                   );
                 })}

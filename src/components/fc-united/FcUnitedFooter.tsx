@@ -193,34 +193,33 @@ export function FcUnitedFooter() {
 
       <div className="w-full border-t border-pitch-chalk/10">
         <Shell className="py-8">
-          <div className="flex flex-col items-center justify-between gap-2 text-center md:flex-row md:text-left">
-            <p className="max-w-[28ch] text-xs leading-relaxed md:max-w-none md:text-sm">
-              © {new Date().getFullYear()} MD Strikers
-              <span className="block md:inline md:before:mx-1.5 md:before:content-['·']">Maryland Strikers Sports Club</span>
-            </p>
-            <p className="text-[11px] md:text-xs">
-              Powered by{' '}
-              <a
-                href="https://www.giventa.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn('underline-offset-2 transition-colors duration-200 hover:text-pitch-chalk hover:underline', focusRing)}
-              >
-                Giventa Inc., USA
-              </a>
-              .
-            </p>
-            <p className="text-[11px] md:text-xs">
-              <a
-                href="https://www.giventa.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn('underline-offset-2 transition-colors duration-200 hover:text-pitch-chalk hover:underline', focusRing)}
-              >
-                www.giventa.com
-              </a>
-            </p>
-            <nav className="flex items-center gap-4 text-[11px] md:text-xs" aria-label="Legal">
+          <div className="flex items-center justify-between gap-6 text-left">
+            <div className="shrink-0 space-y-1 text-xs leading-relaxed md:text-sm">
+              <p className="whitespace-nowrap">© {new Date().getFullYear()} MD Strikers Maryland Strikers Sports Club</p>
+              <p>
+                Powered by{' '}
+                <a
+                  href="https://www.giventa.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn('underline-offset-2 transition-colors duration-200 hover:text-pitch-chalk hover:underline', focusRing)}
+                >
+                  Giventa Inc., USA
+                </a>
+                .
+              </p>
+              <p>
+                <a
+                  href="https://www.giventa.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn('underline-offset-2 transition-colors duration-200 hover:text-pitch-chalk hover:underline', focusRing)}
+                >
+                  www.giventa.com
+                </a>
+              </p>
+            </div>
+            <nav className="flex shrink-0 items-center gap-4 text-[11px] md:text-xs" aria-label="Legal">
               <Link href="/privacy" className={cn('underline-offset-2 hover:text-pitch-chalk hover:underline', focusRing)}>Privacy Policy</Link>
               <Link href="/terms" className={cn('underline-offset-2 hover:text-pitch-chalk hover:underline', focusRing)}>Terms</Link>
               <AdSenseConsentBanner

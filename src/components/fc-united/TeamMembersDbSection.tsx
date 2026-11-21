@@ -56,14 +56,14 @@ export function TeamMembersDbSection({ members }: Props) {
   return (
     <section className={cn(fcBrand.className, 'md-band-players overflow-hidden py-14 md:py-20')}>
       <PitchShell>
-        <div className="mb-6 flex justify-end">
-          <Link href="/team" className={cn(pitchButton.primaryOnLight, 'group')}>
-            See All Players
-            <PitchArrow />
-          </Link>
-        </div>
         <div className="md-players-head">
-          <h2 className="md-players-title">Players</h2>
+          <div className="md-home-heading">
+            <p>
+              <span className="md-brand-rule h-0.5 w-10 rounded-full" aria-hidden />
+              Team
+            </p>
+            <h2 className="md-players-title">Players</h2>
+          </div>
           <div className="md-players-nav ml-auto">
             <button type="button" aria-label="Previous" title="Previous" onClick={() => scrollStep(-1)}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
