@@ -16,14 +16,24 @@ import {
   normalizeEventMediasList,
 } from '@/lib/homepage/homepageApiNormalize';
 
-function isEventInNextYear(eventDate: string, today: Date): boolean {
-  const oneYearFromNow = new Date();
-  oneYearFromNow.setFullYear(today.getFullYear() + 1);
-  oneYearFromNow.setHours(23, 59, 59, 999);
-  const [year, month, day] = eventDate.split('-').map(Number);
-  const eventStartDate = new Date(year, month - 1, day);
-  eventStartDate.setHours(0, 0, 0, 0);
-  return eventStartDate >= today && eventStartDate <= oneYearFromNow;
+function localDate(dateValue: string): Date | null {
+  const [year, month, day] = dateValue.split('-').map(Number);
+  if (!year || !month || !day) return null;
+  const date = new Date(year, month - 1, day);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+/** Still running or not yet started, and starting within the next year. */
+function isCurrentHomepageEvent(event: EventDetailsDTO, today: Date): boolean {
+  if (!event.startDate || event.isActive === false) return false;
+  const start = localDate(event.startDate);
+  const end = localDate(event.endDate || event.startDate);
+  if (!start || !end || end < today) return false;
+  const horizon = new Date(today);
+  horizon.setFullYear(today.getFullYear() + 1);
+  horizon.setHours(23, 59, 59, 999);
+  return start <= horizon;
 }
 
 function eventIsFeatured(event: EventDetailsDTO): boolean {
@@ -62,9 +72,7 @@ export async function fetchFeaturedEventsForHomepageServer(): Promise<FeaturedEv
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const upcomingEvents = events.filter(
-      (event) => event.startDate && isEventInNextYear(event.startDate, today) && event.isActive !== false
-    );
+    const upcomingEvents = events.filter((event) => isCurrentHomepageEvent(event, today));
     const upcomingFeatured = upcomingEvents.filter(eventIsFeatured);
 
     // Upcoming featured first. Past featured only when there are no future events.

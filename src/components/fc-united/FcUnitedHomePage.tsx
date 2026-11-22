@@ -23,8 +23,8 @@ import { FcSquadCarousel, type FcSquadPlayer } from './FcSquadCarousel';
 import { TeamMembersDbSection } from './TeamMembersDbSection';
 import { ExecutiveTeamSection } from './ExecutiveTeamSection';
 import { HOMEPAGE_MATCHES_LIMIT, LastMatchSection } from './LastMatchSection';
-import { LiveEventsSection, liveItemsDemo } from './LiveEventsSection';
-import { FeaturedEventsSection, featuredBandEvents, featuredEventsShown } from './FeaturedEventsSection';
+import { LiveEventsSection } from './LiveEventsSection';
+import { FeaturedEventsSection } from './FeaturedEventsSection';
 import { EventNewsCarousel } from './EventNewsCarousel';
 import { OnSaleBand, pickOnSaleEvent, type BandEvent } from './OnSaleBand';
 import { eventToBandEvent, eventToSpotlightItem } from './homeEventDisplay';
@@ -51,79 +51,6 @@ type SponsorCard = {
   detailsHref?: string;
   websiteHref?: string | null;
 };
-
-/** Shown when the sponsors table returns nothing. */
-const mdStrikersHomeSponsors = [
-  {
-    src: '/images/md_strikers_media/sponsors/certainty-home-lending.jpg',
-    name: 'Certainty Home Lending',
-    label: 'Diamond Sponsor',
-  },
-  {
-    src: '/images/md_strikers_media/sponsors/samson-properties.jpg',
-    name: 'Samson Properties',
-    label: 'Diamond Sponsor',
-  },
-  {
-    src: '/images/md_strikers_media/sponsors/marriott.jpg',
-    name: 'Marriott',
-    label: 'Hospitality Sponsor',
-  },
-  {
-    src: '/images/md_strikers_media/sponsors/opal-ridge.jpg',
-    name: 'Opal Ridge',
-    label: 'Gold Sponsor',
-  },
-] as const;
-
-/** Sample upcoming events, used only when the events backend is unreachable. */
-const upcomingEventsDemo: BandEvent[] = [
-  {
-    key: 'capital-cup-2026',
-    src: '/images/md_strikers_media/events/capital_2026_match_fixtures_wide_finals.jpg',
-    title: 'Capital Cup 2026',
-    startDate: '2026-05-23',
-    dateTime: 'Saturday, May 23, 2026 · 9:00 AM',
-    venue: 'Othello Regional Park, Frederick, Maryland',
-    isFeatured: false,
-    isTicketed: true,
-    href: '/events',
-  },
-  {
-    key: 'u17-league-friendly',
-    src: '/images/md_strikers_media/gallery/soccer-group.jpg',
-    title: 'U17 League Friendly',
-    startDate: '2026-06-14',
-    dateTime: 'Sunday, June 14, 2026 · 2:00 PM',
-    venue: 'Black Rock Soccer Complex, Germantown, Maryland',
-    isFeatured: false,
-    isTicketed: false,
-    href: '/events',
-  },
-  {
-    key: 'md-strikers-open-scrimmage',
-    src: '/images/md_strikers_media/gallery/Md-Strikers-image.jpg',
-    title: 'MD Strikers Open Scrimmage',
-    startDate: '2026-07-11',
-    dateTime: 'Saturday, July 11, 2026 · 10:30 AM',
-    venue: 'South Germantown Recreational Park, Boyds, Maryland',
-    isFeatured: false,
-    isTicketed: false,
-    registrationUrl: '/events',
-    href: '/events',
-  },
-  {
-    key: 'capital-cup-alumni-night',
-    src: '/images/md_strikers_media/gallery/Capital-Cup-image.jpg',
-    title: 'Capital Cup Alumni Night',
-    startDate: '2026-08-07',
-    dateTime: 'Friday, August 7, 2026 · 6:30 PM',
-    venue: 'Maryland SoccerPlex, Boyds, Maryland',
-    isFeatured: false,
-    isTicketed: true,
-    href: '/events',
-  },
-];
 
 function Shell({ children, className }: { children: ReactNode; className?: string }) {
   return (
@@ -163,70 +90,56 @@ export default async function FcUnitedHomePage() {
   const showSponsorsSection = tenantSettings?.showSponsorsSectionInHomePage !== false;
   const showLeagueStandings = tenantSettings?.showLeagueStandingsSectionInHomePage === true;
 
-  const useSampleEvents = !eventList.reachable;
-  const listIsUpcoming = useSampleEvents || eventList.isUpcoming;
+  const listIsUpcoming = eventList.isUpcoming;
 
-  const liveItems = useSampleEvents
-    ? liveItemsDemo
-    : liveFromDb.map((item) => eventToSpotlightItem(item, 'Live Event'));
+  const liveItems = liveFromDb.map((item) => eventToSpotlightItem(item, 'Live Event'));
 
-  const featuredItems = useSampleEvents
-    ? featuredEventsShown
-    : featuredFromDb
-        .slice(0, 1)
-        .map((item) =>
-          eventToSpotlightItem(
-            { event: item.event, imageUrl: getFeaturedEventImageUrl(item) },
-            isPastHomepageEvent(item.event) ? 'Past Featured Event' : 'Featured Event',
-          ),
-        );
+  const featuredItems = featuredFromDb
+    .slice(0, 1)
+    .map((item) =>
+      eventToSpotlightItem(
+        { event: item.event, imageUrl: getFeaturedEventImageUrl(item) },
+        isPastHomepageEvent(item.event) ? 'Past Featured Event' : 'Featured Event',
+      ),
+    );
 
-  const listEvents: BandEvent[] = useSampleEvents
-    ? upcomingEventsDemo
-    : eventList.items.map((item) => eventToBandEvent(item, false));
+  const listEvents: BandEvent[] = eventList.items.map((item) => eventToBandEvent(item, false));
 
-  const bandEvents: BandEvent[] = useSampleEvents
-    ? [...featuredBandEvents, ...upcomingEventsDemo]
-    : [
-        ...featuredFromDb.map((item) =>
-          eventToBandEvent({ event: item.event, imageUrl: getFeaturedEventImageUrl(item) }, true),
-        ),
-        ...listEvents,
-      ];
+  const bandEvents: BandEvent[] = [
+    ...featuredFromDb.map((item) =>
+      eventToBandEvent({ event: item.event, imageUrl: getFeaturedEventImageUrl(item) }, true),
+    ),
+    ...listEvents,
+  ];
   const onSaleEvent = pickOnSaleEvent(bandEvents);
   const hasOnSaleBand = onSaleEvent !== null;
   const eventsAfterFirst = hasOnSaleBand
     ? listEvents.filter((event) => event.key !== onSaleEvent.key)
     : listEvents.slice(1);
 
-  const sponsorCards: SponsorCard[] =
-    sponsorsFromDb.length > 0
-      ? sponsorsFromDb.slice(0, HOMEPAGE_SPONSOR_LIMIT).map((sp) => ({
-          key: `sponsor-${sp.id ?? sp.name}`,
-          src: sp.imageUrl,
-          name: sp.name,
-          label: sp.type || 'Sponsor',
-          tagline: sp.tagline,
-          detailsHref: sp.id != null ? `/sponsors/${sp.id}` : undefined,
-          websiteHref: sp.websiteHref,
-        }))
-      : mdStrikersHomeSponsors.slice(0, HOMEPAGE_SPONSOR_LIMIT).map((sp) => ({ ...sp, key: sp.src }));
+  const sponsorCards: SponsorCard[] = sponsorsFromDb.slice(0, HOMEPAGE_SPONSOR_LIMIT).map((sp) => ({
+    key: `sponsor-${sp.id ?? sp.name}`,
+    src: sp.imageUrl,
+    name: sp.name,
+    label: sp.type || 'Sponsor',
+    tagline: sp.tagline,
+    detailsHref: sp.id != null ? `/sponsors/${sp.id}` : undefined,
+    websiteHref: sp.websiteHref,
+  }));
 
-  // Hero slider: images of upcoming events (featured first, one slide per distinct image), then upcoming matches.
-  const heroEventSlides: HeroSlide[] = useSampleEvents
-    ? upcomingEventsDemo.map((e) => ({ kind: 'image' as const, key: `event-${e.key}`, src: e.src, alt: e.title }))
-    : [
-        ...featuredFromDb
-          .filter((item) => !isPastHomepageEvent(item.event))
-          .map((item) => ({ event: item.event, imageUrl: getFeaturedEventImageUrl(item) })),
-        ...(eventList.isUpcoming ? eventList.items : []),
-      ]
-        .flatMap(({ event, imageUrl }) =>
-          imageUrl
-            ? [{ kind: 'image' as const, key: `event-${event.id ?? event.title}`, src: imageUrl, alt: event.title }]
-            : [],
-        )
-        .filter((slide, i, all) => all.findIndex((s) => s.src === slide.src) === i);
+  // Hero slider: images of current events (featured first, one slide per distinct image), then current matches.
+  const heroEventSlides: HeroSlide[] = [
+    ...featuredFromDb
+      .filter((item) => !isPastHomepageEvent(item.event))
+      .map((item) => ({ event: item.event, imageUrl: getFeaturedEventImageUrl(item) })),
+    ...(eventList.isUpcoming ? eventList.items : []),
+  ]
+    .flatMap(({ event, imageUrl }) =>
+      imageUrl
+        ? [{ kind: 'image' as const, key: `event-${event.id ?? event.title}`, src: imageUrl, alt: event.title }]
+        : [],
+    )
+    .filter((slide, i, all) => all.findIndex((s) => s.src === slide.src) === i);
   const heroSlides: HeroSlide[] = [
     ...heroEventSlides,
     ...lastMatches
@@ -324,41 +237,35 @@ export default async function FcUnitedHomePage() {
         <LiveEventsSection items={liveItems} />
         <FeaturedEventsSection items={featuredItems} />
 
-        {/* Events from event_details: always show title; upcoming → past fallback → empty message */}
-        {(showEventsSection || hasOnSaleBand) && (
+        {(showEventsSection || hasOnSaleBand) && (listEvents.length > 0 || hasOnSaleBand) && (
           <section className={cn(pitchSection, 'bg-pitch-charcoal')}>
             <PitchShell>
-              {showEventsSection && (
+              {showEventsSection && listEvents.length > 0 && (
                 <PitchHeading
                   className="md-home-heading md-home-heading--on-light"
                   tone="light"
                   eyebrow="Calendar"
-                  title={listEvents.length === 0 || listIsUpcoming ? 'Upcoming Events' : 'Past Events'}
+                  title={listIsUpcoming ? 'Upcoming Events' : 'Past Events'}
                   lead="Match days, tournaments, and club nights on the Maryland Strikers calendar."
                 />
               )}
 
               <OnSaleBand events={bandEvents} />
 
-              {showEventsSection &&
-                (listEvents.length === 0 ? (
-                  <p className="rounded-2xl border border-pitch-chalk/10 px-6 py-10 text-center text-sm">
-                    No events listed.
-                  </p>
-                ) : (
-                  <EventNewsCarousel
-                    events={eventsAfterFirst.map((event) => ({
-                      key: event.key,
-                      title: event.title,
-                      src: event.src,
-                      dateTime: event.dateTime,
-                      venue: event.venue,
-                      href: event.href,
-                      isTicketed: event.isTicketed,
-                    }))}
-                  />
-                ))}
-              {showEventsSection && (
+              {showEventsSection && listEvents.length > 0 && (
+                <EventNewsCarousel
+                  events={eventsAfterFirst.map((event) => ({
+                    key: event.key,
+                    title: event.title,
+                    src: event.src,
+                    dateTime: event.dateTime,
+                    venue: event.venue,
+                    href: event.href,
+                    isTicketed: event.isTicketed,
+                  }))}
+                />
+              )}
+              {showEventsSection && listEvents.length > 0 && (
                 <div className="mt-12 flex justify-center">
                   <Link href="/events" className={cn(pitchButton.primaryOnLight, 'group')}>
                     See All Events
@@ -560,7 +467,7 @@ export default async function FcUnitedHomePage() {
 
         {showExecutiveTeamSection && <ExecutiveTeamSection members={executiveTeam} showSeeAll />}
 
-        {showSponsorsSection && (
+        {showSponsorsSection && sponsorCards.length > 0 && (
           <section className="md-sponsor-strip" aria-labelledby="home-sponsors-heading">
             <PitchShell>
               <div className="md-sponsor-strip__head">

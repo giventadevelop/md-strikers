@@ -1137,7 +1137,8 @@ export async function resolveEventImageUrlsServer(
 }
 
 /**
- * Homepage events list: active upcoming events (max 6); when none, past events (max 6).
+ * Homepage events list: active events still running or not yet started (end date on or after today, max 6).
+ * When none remain, past events (max 6).
  */
 export async function fetchHomepageEventListServer(): Promise<HomepageEventList> {
   const unreachable: HomepageEventList = { reachable: false, isUpcoming: true, items: [] };
@@ -1171,7 +1172,7 @@ export async function fetchHomepageEventListServer(): Promise<HomepageEventList>
       return normalizeEventDetailsList(await res.json());
     };
 
-    const upcoming = await loadEvents({ sort: 'startDate,asc', 'startDate.greaterThanOrEqual': today });
+    const upcoming = await loadEvents({ sort: 'startDate,asc', 'endDate.greaterThanOrEqual': today });
     if (!upcoming) return unreachable;
 
     let isUpcoming = true;
