@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { MdPagination } from '@/components/fc-united/MdPagination';
 import { CATALOG_SUGGESTION_LIMIT, FcCatalogTypeahead } from '@/components/fc-united/FcCatalogTypeahead';
+import { matchesPublicSearchFields } from '@/lib/publicTypeaheadSearch';
 
 interface FocusGroupWithEvents {
   id: number;
@@ -25,13 +26,8 @@ export default function FocusGroupsGridWithSearch({ groups, total }: FocusGroups
   const [page, setPage] = useState(0);
   const pageSize = 8;
 
-  const matchesGroup = (g: FocusGroupWithEvents, query: string) => {
-    const q = query.trim().toLowerCase();
-    if (!q) return true;
-    return [g.searchText, g.name, g.slug, g.description, g.id].some((value) =>
-      String(value ?? '').toLowerCase().includes(q),
-    );
-  };
+  const matchesGroup = (g: FocusGroupWithEvents, query: string) =>
+    matchesPublicSearchFields([g.searchText, g.name, g.slug, g.description, g.id], query);
   const suggestionGroups = searchDraft.trim() ? groups.filter((g) => matchesGroup(g, searchDraft)) : [];
   const filteredGroups = searchTerm.trim() ? groups.filter((g) => matchesGroup(g, searchTerm)) : groups;
   const commitSearch = (value: string) => {

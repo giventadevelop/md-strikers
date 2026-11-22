@@ -21,6 +21,7 @@ import { usableImageUrl } from '@/lib/presignedUrl';
 import { normalizeEventDetailsList, normalizeEventMediasList } from '@/lib/homepage/homepageApiNormalize';
 import { parseExecutiveCommitteeTeamMembersResponse } from '@/lib/parseExecutiveCommitteeTeamMembersResponse';
 import {
+  applyContainsTokens,
   mergePublicSearchItems,
   parseProxyList,
   PUBLIC_SPONSOR_SEARCH_FIELDS,
@@ -67,7 +68,7 @@ async function fetchSponsorsSearchPage(options: {
   };
 
   const jobs: Promise<{ items: EventSponsorsDTO[]; totalCount: number }>[] =
-    PUBLIC_SPONSOR_SEARCH_FIELDS.map((field) => fetchBy((p) => p.set(`${field}.contains`, trimmed)));
+    PUBLIC_SPONSOR_SEARCH_FIELDS.map((field) => fetchBy((p) => applyContainsTokens(p, field, trimmed)));
   if (/^\d+$/.test(trimmed)) {
     jobs.push(fetchBy((p) => p.set('id.equals', trimmed)));
   }
