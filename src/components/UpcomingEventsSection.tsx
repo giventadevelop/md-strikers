@@ -5,7 +5,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { EventWithMedia, EventDetailsDTO } from "@/types";
 import { formatInTimeZone } from 'date-fns-tz';
-import { isRecurringEvent, getNextOccurrenceDate } from '@/lib/eventUtils';
+import {
+  isRecurringEvent,
+  getNextOccurrenceDate,
+  formatEventListingDateLabel,
+} from '@/lib/eventUtils';
 import { isDonationBasedEvent, isTicketedFundraiserEvent } from '@/lib/donation/utils';
 import { resolveBuyTicketsTarget, resolveRegisterTarget } from '@/lib/eventcube/utils';
 import { getTenantId } from '@/lib/env';
@@ -603,7 +607,7 @@ const UpcomingEventsSection: React.FC = () => {
                             </svg>
                           </div>
                           <span className="text-lg font-semibold">
-                            {formatDate(event.startDate, event.timezone)}
+                            {formatEventListingDateLabel(event, formatDate)}
                           </span>
                         </div>
                         <div className="flex items-center gap-3 text-gray-700 w-full sm:w-auto sm:min-w-[280px]">

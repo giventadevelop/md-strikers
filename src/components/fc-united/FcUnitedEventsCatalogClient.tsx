@@ -11,7 +11,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { EventDetailsDTO } from '@/types';
-import { isRecurringEvent, getNextOccurrenceDate } from '@/lib/eventUtils';
+import {
+  isRecurringEvent,
+  getNextOccurrenceDate,
+  isEventInProgress,
+} from '@/lib/eventUtils';
 import { isDonationBasedEvent, isTicketedFundraiserEvent } from '@/lib/donation/utils';
 import { resolveBuyTicketsTarget, resolveRegisterTarget } from '@/lib/eventcube/utils';
 import { resolveEventImageUrlsServer } from './ApiServerActions';
@@ -538,9 +542,18 @@ export function FcUnitedEventsCatalogClient() {
               {events.map((event, index) => {
                 const imgSrc = event.thumbnailUrl || DEFAULT_EVENT_IMAGE;
                 const href = eventHref(event);
-                const parts = dateParts(event.startDate);
+                const startDay = event.startDate?.split('T')[0];
+                const endDay = (event.endDate || event.startDate)?.split('T')[0];
+                const inProgress =
+                  isEventInProgress(event) && !!startDay && !!endDay && endDay !== startDay;
+                const parts = dateParts(inProgress ? event.endDate || event.startDate : event.startDate);
                 const timeLabel = [event.startTime, event.endTime].filter(Boolean).join(' — ');
-                const when = [parts?.when, timeLabel].filter(Boolean).join(' · ');
+                const dateWhen = parts?.when
+                  ? inProgress
+                    ? `Through ${parts.when}`
+                    : parts.when
+                  : null;
+                const when = [dateWhen, timeLabel].filter(Boolean).join(' · ');
                 const isNext = !showPastEvents && !dateActive && page === 0 && index === 0;
                 const tone = showPastEvents ? 'is-past' : isNext ? 'is-next' : 'is-upcoming';
                 const badge = showPastEvents ? 'Past Event' : isNext ? 'Next up' : 'Upcoming Event';
