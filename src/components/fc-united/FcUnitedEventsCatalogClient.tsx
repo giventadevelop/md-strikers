@@ -48,7 +48,7 @@ function eventDateExtras(options: {
   } else if (options.loadingPast) {
     extras['endDate.lessThan'] = options.today;
   } else {
-    extras['startDate.greaterThanOrEqual'] = options.today;
+    extras['endDate.greaterThanOrEqual'] = options.today;
   }
   return extras;
 }
@@ -164,12 +164,19 @@ function collapseRecurring(list: EventDetailsDTO[], keepFinished: boolean): Even
   return [...single, ...series.values()];
 }
 
-export function FcUnitedEventsCatalogClient() {
-  const [events, setEvents] = useState<CatalogEvent[]>([]);
-  const [loading, setLoading] = useState(true);
+export function FcUnitedEventsCatalogClient({
+  initialEvents = [],
+  initialTotal = 0,
+}: {
+  initialEvents?: CatalogEvent[];
+  initialTotal?: number;
+}) {
+  const hasInitial = initialEvents.length > 0;
+  const [events, setEvents] = useState<CatalogEvent[]>(initialEvents);
+  const [loading, setLoading] = useState(!hasInitial);
   const [fetchError, setFetchError] = useState(false);
   const [page, setPage] = useState(0);
-  const [totalCount, setTotalCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(initialTotal);
   const [showPastEvents, setShowPastEvents] = useState(false);
   const [searchTitle, setSearchTitle] = useState('');
   const [searchDateFrom, setSearchDateFrom] = useState('');
@@ -177,16 +184,21 @@ export function FcUnitedEventsCatalogClient() {
   const [appliedTitle, setAppliedTitle] = useState('');
   const [appliedFrom, setAppliedFrom] = useState('');
   const [appliedTo, setAppliedTo] = useState('');
-  const [futureCount, setFutureCount] = useState<number | null>(null);
+  const [futureCount, setFutureCount] = useState<number | null>(hasInitial ? initialTotal : null);
   const [pastCount, setPastCount] = useState<number | null>(null);
-  const [checkedInitial, setCheckedInitial] = useState(false);
+  const [checkedInitial, setCheckedInitial] = useState(hasInitial);
   const [autoSwitching, setAutoSwitching] = useState(false);
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<number, boolean>>({});
   const [suggestions, setSuggestions] = useState<CatalogSuggestion[]>([]);
   const [suggestionTotal, setSuggestionTotal] = useState(0);
   const loadGenRef = useRef(0);
+  const skipFirstLoadRef = useRef(hasInitial);
 
   useEffect(() => {
+    if (skipFirstLoadRef.current) {
+      skipFirstLoadRef.current = false;
+      return;
+    }
     if (autoSwitching) {
       setAutoSwitching(false);
       return;
@@ -208,7 +220,7 @@ export function FcUnitedEventsCatalogClient() {
             page: '0',
             size: '1',
             'isActive.equals': 'true',
-            'startDate.greaterThanOrEqual': today,
+            'endDate.greaterThanOrEqual': today,
           });
           const pastQs = new URLSearchParams({
             sort: 'startDate,desc',
@@ -531,7 +543,7 @@ export function FcUnitedEventsCatalogClient() {
                   ? 'Nothing matches the current search.'
                   : showPastEvents
                     ? 'No past events to show.'
-                    : 'No events listed yet. Check back soon.'}
+                    : 'No upcoming events.'}
               </p>
               {hasFilters ? (
                 <button type="button" onClick={clearSearch}>Clear search</button>

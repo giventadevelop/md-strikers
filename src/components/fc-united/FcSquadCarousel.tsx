@@ -39,11 +39,7 @@ export function FcSquadCarousel({ players }: Props) {
   }, []);
 
   if (players.length === 0) {
-    return (
-      <p className="text-center text-sm text-[#848992]" role="status">
-        Squad photos will appear here when images are added to the members folder.
-      </p>
-    );
+    return null;
   }
 
   return (

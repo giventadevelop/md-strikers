@@ -1,9 +1,13 @@
+import type { EventsCatalogPage } from './ApiServerActions';
 import { fcPublicShell } from './fcUnitedFonts';
 import { FcUnitedEventsCatalogClient } from './FcUnitedEventsCatalogClient';
 import { FcUnitedFooter } from './FcUnitedFooter';
 import { FcUnitedHeader } from './FcUnitedHeader';
 
-export default function FcUnitedEventsPage() {
+export default function FcUnitedEventsPage({
+  initialEvents,
+  initialTotal,
+}: EventsCatalogPage) {
   return (
     <div className={fcPublicShell}>
       <FcUnitedHeader active="events" />
@@ -15,7 +19,7 @@ export default function FcUnitedEventsPage() {
             <p>Tickets, registration and the whole schedule in one place.</p>
           </div>
         </div>
-        <FcUnitedEventsCatalogClient />
+        <FcUnitedEventsCatalogClient initialEvents={initialEvents} initialTotal={initialTotal} />
       </main>
       <FcUnitedFooter />
     </div>

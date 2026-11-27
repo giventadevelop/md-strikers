@@ -29,6 +29,7 @@ import {
 import type { FcSquadPlayer } from './FcSquadCarousel';
 import { HOMEPAGE_SPONSOR_LIMIT } from './homepageLimits';
 import { buildSportProfiles, rosterSportRoles, type SportProfileView } from './playerSportProfiles';
+import { isPublishableExecutive, publicPlayerName } from './publicRosterText';
 
 const FIRST_TEAM_SLUG = 'first-team';
 
@@ -147,10 +148,7 @@ export async function fetchFirstTeamSquadPlayersServer(): Promise<FcSquadPlayer[
           m.jerseyNumber != null && Number.isFinite(m.jerseyNumber)
             ? String(m.jerseyNumber).padStart(2, '0')
             : String(index + 1).padStart(2, '0');
-        const name =
-          (m.title && m.title.trim()) ||
-          [m.firstName, m.lastName].filter(Boolean).join(' ').trim() ||
-          `Player ${numFromJersey}`;
+        const name = publicPlayerName(m);
         const role =
           (m.lineupSubtitle && m.lineupSubtitle.trim()) ||
           (m.designation && m.designation.trim()) ||
@@ -272,10 +270,7 @@ export type PublicPlayerDetail = PublicRosterPlayer & {
 };
 
 function playerName(member: TeamMemberDTO): string {
-  const titled = member.title?.trim();
-  if (titled) return titled;
-  const joined = [member.firstName, member.lastName].filter(Boolean).join(' ').trim();
-  return joined || 'Player';
+  return publicPlayerName(member);
 }
 
 function playerRole(member: TeamMemberDTO): string {
@@ -946,7 +941,7 @@ export async function fetchTeamMembersImageTitleServer(): Promise<TeamMemberImag
       )
       .map((m) => ({
         id: m.id as number,
-        title: m.title!.trim(),
+        title: publicPlayerName(m),
         designation: (m.designation && m.designation.trim()) || '',
         profileImageUrl: m.profileImageUrl!.trim(),
         position: (m.position && m.position.trim()) || '',
@@ -1134,6 +1129,55 @@ export async function resolveEventImageUrlsServer(
     unique.map(async (id) => [id, await resolveEventImageUrlServer(id)] as const),
   );
   return Object.fromEntries(entries);
+}
+
+export type EventsCatalogPage = {
+  events: Array<EventDetailsDTO & { thumbnailUrl?: string }>;
+  totalCount: number;
+};
+
+/** First page of /events: active events whose end date is today or later. */
+export async function fetchEventsCatalogPageServer(): Promise<EventsCatalogPage> {
+  const empty: EventsCatalogPage = { events: [], totalCount: 0 };
+  try {
+    const apiBase = getApiBaseUrl();
+    if (!apiBase) return empty;
+    const today = localIsoDate(new Date());
+    const params = new URLSearchParams({
+      'tenantId.equals': getTenantId(),
+      'isActive.equals': 'true',
+      'endDate.greaterThanOrEqual': today,
+      sort: 'startDate,asc',
+      page: '0',
+      size: '20',
+    });
+    const res = await fetchWithJwtRetry(
+      `${apiBase}/api/event-details?${params.toString()}`,
+      { method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store' },
+      'events-catalog-page',
+    );
+    if (!res.ok) {
+      console.error('[fetchEventsCatalogPageServer] event-details failed:', res.status);
+      return empty;
+    }
+    const reported = Number.parseInt(res.headers.get('x-total-count') || '', 10);
+    const list = collapseRecurringEvents(normalizeEventDetailsList(await res.json()), false).sort((a, b) =>
+      (a.startDate || '').localeCompare(b.startDate || ''),
+    );
+    const imageMap = await resolveEventImageUrlsServer(
+      list.map((event) => event.id).filter((id): id is number => id != null),
+    );
+    return {
+      events: list.map((event) => ({
+        ...event,
+        thumbnailUrl: event.id != null ? imageMap[event.id] ?? undefined : undefined,
+      })),
+      totalCount: Number.isFinite(reported) ? reported : list.length,
+    };
+  } catch (error) {
+    console.error('[fetchEventsCatalogPageServer] Error:', error);
+    return empty;
+  }
 }
 
 /**
@@ -1507,11 +1551,12 @@ export async function fetchExecutiveTeamServer(size = 6): Promise<ExecutiveCommi
       return [];
     }
 
-    const pageSize = Math.min(size, 100);
-    const rows: ExecutiveCommitteeTeamMemberDTO[] = [];
+    const pageSize = 100;
+    const kept: ExecutiveCommitteeTeamMemberDTO[] = [];
+    let seen = 0;
     let page = 0;
     let total = Number.POSITIVE_INFINITY;
-    while (rows.length < size && rows.length < total && page < 10) {
+    while (kept.length < size && seen < total && page < 10) {
       const params = new URLSearchParams({
         'tenantId.equals': getTenantId(),
         'isActive.equals': 'true',
@@ -1532,12 +1577,15 @@ export async function fetchExecutiveTeamServer(size = 6): Promise<ExecutiveCommi
       const reported = Number.parseInt(res.headers.get('x-total-count') || '', 10);
       if (Number.isFinite(reported)) total = reported;
       const batch = parseExecutiveCommitteeTeamMembersResponse(await res.json());
-      rows.push(...batch);
+      seen += batch.length;
+      for (const row of batch) {
+        if (isPublishableExecutive(row)) kept.push(row);
+      }
       if (batch.length < pageSize) break;
       page += 1;
     }
 
-    return rows.slice(0, size);
+    return kept.slice(0, size);
   } catch (error) {
     console.error('[fetchExecutiveTeamServer] Error:', error);
     return [];

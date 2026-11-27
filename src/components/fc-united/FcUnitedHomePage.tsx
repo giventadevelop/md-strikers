@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -18,8 +17,7 @@ import {
   fetchTeamMembersImageTitleServer,
 } from './ApiServerActions';
 import { HOMEPAGE_SPONSOR_LIMIT } from './homepageLimits';
-import { fcBebas, fcBrand, fcOrganic } from './fcUnitedFonts';
-import { FcSquadCarousel, type FcSquadPlayer } from './FcSquadCarousel';
+import { fcBrand, fcOrganic } from './fcUnitedFonts';
 import { TeamMembersDbSection } from './TeamMembersDbSection';
 import { ExecutiveTeamSection } from './ExecutiveTeamSection';
 import { HOMEPAGE_MATCHES_LIMIT, LastMatchSection } from './LastMatchSection';
@@ -36,7 +34,7 @@ import { HomeMotion } from './HomeMotion';
 import { NextMatchPanel } from './NextMatchPanel';
 import { buildStandings } from './homeStandings';
 import { HomeLeagueSection } from './HomeLeagueSection';
-import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchFocus, pitchPageInset, pitchSection } from './pitchUi';
+import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchFocus, pitchSection } from './pitchUi';
 const STORY_IMAGE = '/images/md_strikers_media/gallery/mdstrikers_com/gal03.jpg';
 
 const formatNewsDate = (iso: string) =>
@@ -51,12 +49,6 @@ type SponsorCard = {
   detailsHref?: string;
   websiteHref?: string | null;
 };
-
-function Shell({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <div className={cn(pitchPageInset, className)}>{children}</div>
-  );
-}
 
 export default async function FcUnitedHomePage() {
   const [
@@ -82,7 +74,6 @@ export default async function FcUnitedHomePage() {
     fetchClubNewsArticles(3),
     fetchHomepageLeagueTablesServer(),
   ]);
-  const fcSquadFirstTeamPlayers: FcSquadPlayer[] = [];
 
   const showEventsSection = tenantSettings?.showEventsSectionInHomePage !== false;
   const showSportsTeamSection = tenantSettings?.showTeamMembersSectionInHomePage !== false;
@@ -439,28 +430,6 @@ export default async function FcUnitedHomePage() {
               </div>
             </div>
           </PitchShell>
-        </section>
-
-        {/* Squad — dark band (hidden: superseded by TeamMembersDbSection below) */}
-        <section className="hidden bg-[#081224] py-14 md:py-20" aria-hidden>
-          <Shell>
-            <div className="mb-10 text-center">
-              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-[#848992]">squad</span>
-              <h2 className={cn(fcBebas.className, 'text-4xl tracking-wide text-white md:text-5xl')}>The First Team</h2>
-            </div>
-            <FcSquadCarousel players={fcSquadFirstTeamPlayers} />
-            <div className="mt-12 text-center">
-              <Link
-                href="/team"
-                className={cn(
-                  fcBebas.className,
-                  'inline-flex cursor-pointer items-center justify-center rounded-[32px] bg-[#ff0000] px-8 py-3 text-lg tracking-wide text-white transition-[filter] duration-300 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff0000] motion-reduce:transition-none motion-reduce:hover:brightness-100',
-                )}
-              >
-                View All Players
-              </Link>
-            </div>
-          </Shell>
         </section>
 
         {showSportsTeamSection && <TeamMembersDbSection members={teamMembersFromDb} />}

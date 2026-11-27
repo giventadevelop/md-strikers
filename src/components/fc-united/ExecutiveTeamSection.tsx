@@ -9,6 +9,7 @@ import { fcBrand } from './fcUnitedFonts';
 import { PitchArrow, PitchHeading, PitchShell, pitchButton, pitchSection } from './pitchUi';
 import { SportBackgroundIcons } from './SportBackgroundIcons';
 import { MdPagination } from './MdPagination';
+import { publishableText } from './publicRosterText';
 
 const EXECUTIVE_PAGE_SIZE = 20;
 
@@ -77,9 +78,10 @@ function MemberPortrait({ member }: { member: ExecutiveCommitteeTeamMemberDTO })
 }
 
 function memberCopy(member: ExecutiveCommitteeTeamMemberDTO) {
-  const role = member.designation?.trim() || member.title?.trim() || '';
-  const expertise = parseExpertise(member.expertise);
-  const blurb = expertise.length > 0 ? expertise.join(' · ') : (member.bio || '').replace(/<[^>]+>/g, '').trim();
+  const role = publishableText(member.designation) || publishableText(member.title);
+  const expertise = parseExpertise(member.expertise).map((item) => publishableText(item)).filter(Boolean);
+  const bio = publishableText((member.bio || '').replace(/<[^>]+>/g, ''));
+  const blurb = expertise.length > 0 ? expertise.join(' · ') : bio;
   return { role, blurb };
 }
 
