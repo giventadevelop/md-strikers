@@ -3280,14 +3280,12 @@ body.md-public nav[aria-label='Breadcrumb'] {
   color: var(--md-ink);
   font-family: var(--font-md-body), Inter, sans-serif;
 }
-.md-organic main > section:not(.md-hero-stage):not(:has(nav[aria-label='Breadcrumb'])),
-.md-organic footer {
+.md-organic main > section:not(.md-hero-stage):not(:has(nav[aria-label='Breadcrumb'])) {
   margin-left: 0.75rem;
   margin-right: 0.75rem;
 }
 @media (min-width: 768px) {
-  .md-organic main > section:not(.md-hero-stage):not(:has(nav[aria-label='Breadcrumb'])),
-  .md-organic footer {
+  .md-organic main > section:not(.md-hero-stage):not(:has(nav[aria-label='Breadcrumb'])) {
     margin-left: 1rem;
     margin-right: 1rem;
   }
@@ -3320,7 +3318,10 @@ body.md-public .min-h-dvh.flex-col > .min-h-screen:has(> footer) > main {
 .md-organic > .contents > footer,
 body.md-public .min-h-dvh.flex-col > .min-h-screen:has(> footer) > footer {
   margin-top: auto;
+  margin-right: 0;
   margin-bottom: 0;
+  margin-left: 0;
+  width: 100%;
   flex-shrink: 0;
 }
 .md-organic,

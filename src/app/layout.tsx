@@ -12,6 +12,8 @@ import PaginationScrollToTop from "../components/fc-united/PaginationScrollToTop
 import MobileDebugConsole from "../components/MobileDebugConsole";
 import TenantIdInjector from "../components/TenantIdInjector";
 import { TenantSettingsProvider } from "../components/TenantSettingsProvider";
+import { FcHeaderLinksProvider } from "../components/fc-united/FcHeaderLinksProvider";
+import { loadFcUnitedHeaderLinks } from "@/lib/fcUnited/loadHeaderLinks";
 import { headers } from "next/headers";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { getAppUrlFromRequestHeaders, getTenantId, getApiBaseUrl, originFromRequestHost } from "@/lib/env";
@@ -41,6 +43,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   debugLog('[LAYOUT] Root layout executing');
+  const headerLinksPromise = loadFcUnitedHeaderLinks();
   const primaryDomain = process.env.NEXT_PUBLIC_PRIMARY_DOMAIN || process.env.AMPLIFY_NEXT_PUBLIC_PRIMARY_DOMAIN || 'www.adwiiseagent.ai';
   const satelliteDomain = process.env.NEXT_PUBLIC_CLERK_DOMAIN || process.env.AMPLIFY_NEXT_PUBLIC_CLERK_DOMAIN || 'www.mosc-temp.com';
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.AMPLIFY_NEXT_PUBLIC_APP_URL || '';
@@ -366,6 +369,7 @@ export default async function RootLayout({
   ].filter(Boolean).join(' ');
 
   const sharedAdsensePublisherId = getSharedAdsensePublisherIdForMeta();
+  const headerLinks = await headerLinksPromise;
 
   return (
       <html lang="en" suppressHydrationWarning>
@@ -394,6 +398,7 @@ export default async function RootLayout({
           <TenantIdInjector />
           <TrpcProvider>
             <TenantSettingsProvider>
+              <FcHeaderLinksProvider links={headerLinks}>
               <ConditionalLayout
                 header={<Header hideMenuItems={false} />}
                 footer={<Footer />}
@@ -401,6 +406,7 @@ export default async function RootLayout({
                 {children}
               </ConditionalLayout>
               <AdSenseConsentBanner />
+              </FcHeaderLinksProvider>
             </TenantSettingsProvider>
           </TrpcProvider>
           <Script
@@ -433,6 +439,7 @@ export default async function RootLayout({
           <TenantIdInjector />
           <TrpcProvider>
             <TenantSettingsProvider>
+              <FcHeaderLinksProvider links={headerLinks}>
               <ConditionalLayout
                 header={<Header hideMenuItems={false} />}
                 footer={<Footer />}
@@ -440,6 +447,7 @@ export default async function RootLayout({
                 {children}
               </ConditionalLayout>
               <AdSenseConsentBanner />
+              </FcHeaderLinksProvider>
             </TenantSettingsProvider>
           </TrpcProvider>
           <Script
@@ -449,7 +457,7 @@ export default async function RootLayout({
               __html: `
                 window.hcaptchaConfig = {
                   passive: true,
-                  usePassiveEventListeners: true
+                  use passiveEventListeners: true
                 };
               `,
             }}

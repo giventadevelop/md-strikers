@@ -6,10 +6,11 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { fcBrand } from './fcUnitedFonts';
-import type { FcHeaderMenuVisibility, FcNavItem, FcNavKey, FeaturedTournamentLink, LeagueNavLink, TeamNavLink } from './fcUnitedNavLinks';
+import type { FcNavItem, FcNavKey } from './fcUnitedNavLinks';
 import { buildFcUnitedNavLinks, isFcNavItemActive, isFcNavLinkActive } from './fcUnitedNavLinks';
 import { FcUnitedAuthDesktop } from './FcUnitedAuth';
 import { FcUnitedMobileNav } from './FcUnitedMobileNav';
+import { useFcHeaderLinks } from './FcHeaderLinksProvider';
 import { useLiveCards, useSportsParallax } from './useSportsParallax';
 
 /** Muted by default, white on hover with a gold underline; the active section is orange with a red→orange underline. */
@@ -27,18 +28,6 @@ function Shell({ children, className }: { children: ReactNode; className?: strin
   );
 }
 
-function asListRows<T>(data: unknown): T[] {
-  if (Array.isArray(data)) return data as T[];
-  if (data && typeof data === 'object' && Array.isArray((data as { content?: unknown }).content)) {
-    return (data as { content: T[] }).content;
-  }
-  return [];
-}
-
-function asTournamentRows(data: unknown) {
-  return asListRows<{ slug?: string; title?: string; shortLabel?: string | null; showInHeader?: boolean }>(data);
-}
-
 export function FcUnitedHeader({ active }: { active?: FcNavKey }) {
   const pathname = usePathname();
   const search = useSearchParams().toString();
@@ -46,7 +35,9 @@ export function FcUnitedHeader({ active }: { active?: FcNavKey }) {
   useLiveCards();
   // The home hero shows the club logo, so the header drops it there.
   const showLogo = pathname !== '/';
-  const [links, setLinks] = useState<FcNavItem[]>(() => buildFcUnitedNavLinks([], { news: false }));
+  // Links arrive with the document from the server layout. The short static
+  // menu is only a fallback when that payload is missing.
+  const links: FcNavItem[] = useFcHeaderLinks() ?? buildFcUnitedNavLinks([], { news: false });
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -59,90 +50,6 @@ export function FcUnitedHeader({ active }: { active?: FcNavKey }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const settingsRes = await fetch('/api/proxy/tenant-settings?size=1', { cache: 'no-store' });
-        const settingsData = settingsRes.ok ? await settingsRes.json() : null;
-        const settings = Array.isArray(settingsData)
-          ? settingsData[0]
-          : settingsData?.content?.[0] || settingsData;
-        if (cancelled) return;
-
-        const visibility: FcHeaderMenuVisibility = {
-          home: settings?.showHeaderHome,
-          about: settings?.showHeaderAbout,
-          events: settings?.showHeaderEvents,
-          news: settings?.showHeaderNews,
-          gallery: settings?.showHeaderGallery,
-          contacts: settings?.showHeaderContact,
-          team: settings?.showTeamMembersSectionInHomePage,
-          executive: settings?.showExecutiveCommitteeSectionInHomePage,
-          sponsors: settings?.showSponsorsSectionInHomePage,
-        };
-        const showTournaments = settings?.showHeaderTournament === true;
-        const showLeagues = settings?.showHeaderLeagues === true;
-        const showSportsTeam = settings?.showTeamMembersSectionInHomePage !== false;
-        const featured: FeaturedTournamentLink[] = [];
-        const leagues: LeagueNavLink[] = [];
-        const teams: TeamNavLink[] = [];
-        if (showTournaments) {
-          const res = await fetch(
-            '/api/proxy/tenant-tournaments?isPublished.equals=true&showInHeader.equals=true&size=20',
-            { cache: 'no-store' }
-          );
-          if (res.ok) {
-            for (const row of asTournamentRows(await res.json())) {
-              if (!row.slug || row.showInHeader === false) continue;
-              const label = `${row.shortLabel || row.title || ''}`.trim();
-              if (!label) continue;
-              featured.push({ href: `/tournaments/${row.slug}`, label, slug: row.slug });
-            }
-          }
-        }
-        if (showLeagues) {
-          const res = await fetch(
-            '/api/proxy/leagues?isPublished.equals=true&sort=homepageDisplayOrder,asc&size=50',
-            { cache: 'no-store' }
-          );
-          if (res.ok) {
-            for (const row of asListRows<{ slug?: string; name?: string }>(await res.json())) {
-              const slug = `${row.slug || ''}`.trim();
-              const label = `${row.name || ''}`.trim();
-              if (!slug || !label) continue;
-              leagues.push({ href: `/leagues/${slug}`, label, slug });
-            }
-          }
-        }
-        if (showSportsTeam) {
-          const res = await fetch(
-            '/api/proxy/team-groups?isActive.equals=true&sort=displayOrder,asc&size=50',
-            { cache: 'no-store' }
-          );
-          if (res.ok) {
-            for (const row of asListRows<{ slug?: string; name?: string; categoryLabel?: string }>(await res.json())) {
-              const slug = `${row.slug || ''}`.trim();
-              const name = `${row.name || ''}`.trim();
-              const category = `${row.categoryLabel || ''}`.trim();
-              if (!slug || !name) continue;
-              teams.push({
-                href: `/team?squad=${encodeURIComponent(slug)}`,
-                label: category ? `${name} · ${category}` : name,
-                slug,
-              });
-            }
-          }
-        }
-        if (!cancelled) setLinks(buildFcUnitedNavLinks(featured, visibility, showTournaments, leagues, teams));
-      } catch {
-        // Keep the base navigation when the tournament API is unavailable.
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
   return (
     <header
       data-scrolled={scrolled ? 'true' : 'false'}
